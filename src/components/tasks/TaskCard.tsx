@@ -57,7 +57,7 @@ export default function TaskCard({ task, onDelete, onUpdate }: TaskCardProps) {
                     onClick={toggleStatus}
                     className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
                 >
-                    {task.status === "DONE" ? "Reopen" : "Complete"}
+                    {task.status === TaskStatus.DONE ? "Reopen" : "Complete"}
                 </button>
                 <button
                     onClick={() => onDelete(task.task_id)}
