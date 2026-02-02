@@ -1,7 +1,6 @@
 import type { Task, CreateTaskInput } from "@/types/task";
 
-// const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const API_URL = "http://localhost:9000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getTasks(): Promise<Task[]> {
   const res = await fetch(`${API_URL}/tasks`);
