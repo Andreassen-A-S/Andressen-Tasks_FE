@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
+    "@primer/octicons-react": "^19.21.2",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
