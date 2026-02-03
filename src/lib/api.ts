@@ -1,4 +1,6 @@
+import { TaskAssignment, TaskAssignmentResponse } from "@/types/assignment";
 import type { Task, CreateTaskInput } from "@/types/task";
+import type { User } from "@/types/users";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -46,4 +48,28 @@ export async function deleteTask(id: string): Promise<void> {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Failed to delete task");
+}
+
+// User related API functions can be added here as needed
+
+export async function getUsers(): Promise<User[]> {
+  const res = await fetch(`${API_URL}/users`);
+  if (!res.ok) {
+    throw new Error("Failed to fetch users");
+  }
+  const data = await res.json();
+  return data.data;
+}
+
+// Assingnment related API functions can be added here as needed
+
+export async function getTaskAssignments(
+  taskId: string,
+): Promise<TaskAssignment[]> {
+  const response = await fetch(`${API_URL}/assignments?taskId=${taskId}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch task assignments");
+  }
+  const result: TaskAssignmentResponse = await response.json();
+  return result.data;
 }

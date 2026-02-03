@@ -1,9 +1,9 @@
-import TaskList from "@/components/tasks/TaskList";
+import TaskPage from "@/components/tasks/TaskPage";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-100">
-      <TaskList />
+      <TaskPage />
     </main>
   );
 }

@@ -1,37 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getTasks, deleteTask, updateTask } from "@/lib/api";
+import { useState, useEffect } from "react";
+import { updateTask, deleteTask, getTaskAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
-import TaskCard from "./TaskCard";
-import CreateTaskForm from "./CreateTaskForm";
+import type { TaskAssignment } from "@/types/assignment";
 import { formatRelativeDate } from "@/helpers/helpers";
+import Badge from "../label/badge";
+import TaskAssignedUsers from "../label/taskAssignedUsers";
 
-export default function TaskList() {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [showForm, setShowForm] = useState(false);
-    const [editingTask, setEditingTask] = useState<Task | null>(null);
+interface TaskListProps {
+    tasks: Task[];
+    onTaskUpdate: () => void;
+    onTaskDelete: (taskId: string) => void;
+}
 
+export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: TaskListProps) {
+    const [assignments, setAssignments] = useState<Record<string, TaskAssignment[]>>({});
+    const [loadingAssignments, setLoadingAssignments] = useState<Record<string, boolean>>({});
+
+    // Load assignments for all tasks
     useEffect(() => {
-        loadTasks();
-    }, []);
+        async function loadAssignments() {
+            const assignmentPromises = tasks.map(async (task) => {
+                if (!assignments[task.task_id]) {
+                    setLoadingAssignments(prev => ({ ...prev, [task.task_id]: true }));
+                    try {
+                        const taskAssignments = await getTaskAssignments(task.task_id);
+                        setAssignments(prev => ({ ...prev, [task.task_id]: taskAssignments }));
+                    } catch (error) {
+                        console.error(`Failed to fetch assignments for task ${task.task_id}:`, error);
+                        setAssignments(prev => ({ ...prev, [task.task_id]: [] }));
+                    } finally {
+                        setLoadingAssignments(prev => ({ ...prev, [task.task_id]: false }));
+                    }
+                }
+            });
 
-    async function loadTasks() {
-        try {
-            const data = await getTasks();
-            setTasks(data);
-        } catch (error) {
-            console.error("Failed to load tasks:", error);
-        } finally {
-            setLoading(false);
+            await Promise.all(assignmentPromises);
         }
-    }
+
+        if (tasks.length > 0) {
+            loadAssignments();
+        }
+    }, [tasks]);
 
     async function handleEdit(id: string, updates: Partial<Task>) {
         try {
             await updateTask(id, updates);
-            loadTasks();
+            onTaskUpdate(); // Notify parent to reload tasks
         } catch (error) {
             console.error("Failed to update task:", error);
             alert("Failed to update task");
@@ -39,90 +55,97 @@ export default function TaskList() {
     }
 
     async function handleDelete(id: string) {
-        if (!confirm("Are you sure you want to delete this task?")) return;
+        if (!confirm("Er du sikker på at du vil slette denne opgave?")) return;
 
         try {
             await deleteTask(id);
-            setTasks(tasks.filter(t => t.task_id !== id));
+            onTaskDelete(id); // Notify parent to remove task from state
         } catch (error) {
             console.error("Failed to delete task:", error);
-            alert("Failed to delete task");
+            alert("Kunne ikke slette opgaven");
         }
     }
 
-    if (loading) {
-        return <div className="flex justify-center p-8">Loading tasks...</div>;
+    if (tasks.length === 0) {
+        return (
+            <div className="text-center text-gray-500 mt-8">
+                Ingen opgaver endnu. Opret din første opgave!
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-6xl mx-auto p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-black">Opgaver</h1>
-                <button
-                    onClick={() => setShowForm(!showForm)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                    {showForm ? "Cancel" : "New Task"}
-                </button>
-            </div>
-
-            {showForm && (
-                <CreateTaskForm
-                    onSuccess={(newTask) => {
-                        setTasks([newTask, ...tasks]);
-                        setShowForm(false);
-                    }}
-                    onCancel={() => setShowForm(false)}
-                />
-            )}
-
-            <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-200 bg-white">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="text-left px-4 py-2 border-b">OPGAVE</th>
-                            <th className="text-left px-4 py-2 border-b">PRIORITET</th>
-                            <th className="text-left px-4 py-2 border-b">STATUS</th>
-                            <th className="text-left px-4 py-2 border-b">DEADLINE</th>
-                            <th className="text-left px-4 py-2 border-b">HANDLINGER</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {tasks.map((task) => (
-                            <tr key={task.task_id} className="border-b">
-                                <td className="px-4 py-2">
-                                    <div>
-                                        <div className="font-medium">{task.title}</div>
-                                        <div className="text-sm text-gray-500">{task.description}</div>
-                                    </div>
-                                </td>
-                                <td className="px-4 py-2">{task.priority}</td>
-                                <td className="px-4 py-2">{task.status}</td>
-                                <td className="px-4 py-2">{formatRelativeDate(task.deadline)}</td>
-                                <td className="px-4 py-2">
+        <div className="relative overflow-x-auto bg-white shadow-sm rounded-lg border border-gray-200">
+            <table className="w-full text-sm text-left text-gray-700">
+                <thead className="text-sm text-gray-700 bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th scope="col" className="px-6 py-3 font-medium">
+                            OPGAVE
+                        </th>
+                        <th scope="col" className="px-6 py-3 font-medium">
+                            PRIORITET
+                        </th>
+                        <th scope="col" className="px-6 py-3 font-medium">
+                            STATUS
+                        </th>
+                        <th scope="col" className="px-6 py-3 font-medium">
+                            TILDELT TIL
+                        </th>
+                        <th scope="col" className="px-6 py-3 font-medium">
+                            DEADLINE
+                        </th>
+                        <th scope="col" className="px-6 py-3 font-medium">
+                            HANDLINGER
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tasks.map((task, index) => (
+                        <tr
+                            key={task.task_id}
+                            className={`bg-white hover:bg-gray-50 transition-colors ${index !== tasks.length - 1 ? 'border-b border-gray-200' : ''
+                                }`}
+                        >
+                            <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                <div>
+                                    <div className="text-base font-semibold">{task.title}</div>
+                                    <div className="text-sm text-gray-500 font-normal mt-1">{task.description}</div>
+                                </div>
+                            </th>
+                            <td className="px-6 py-4">
+                                <Badge variant="priority" value={task.priority} />
+                            </td>
+                            <td className="px-6 py-4">
+                                <Badge variant="status" value={task.status} />
+                            </td>
+                            <td className="px-6 py-4">
+                                <TaskAssignedUsers taskId={task.task_id} />
+                            </td>
+                            <td className="px-6 py-4">
+                                {formatRelativeDate(task.deadline)}
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="flex gap-3">
                                     <button
-                                        className="text-blue-600 hover:underline mr-3"
-                                        onClick={() => setEditingTask(task)}
+                                        className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+                                        onClick={() => {
+                                            console.log("Edit task:", task.task_id);
+                                        }}
                                     >
                                         Rediger
                                     </button>
                                     <button
-                                        className="text-red-600 hover:underline"
+                                        className="text-red-600 hover:text-red-800 font-medium transition-colors"
                                         onClick={() => handleDelete(task.task_id)}
                                     >
                                         Slet
                                     </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            {tasks.length === 0 && (
-                <div className="text-center text-gray-500 mt-8">
-                    No tasks yet. Create your first task!
-                </div>
-            )}
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }
