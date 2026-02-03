@@ -50,11 +50,11 @@ export default function UserSelector({
                 {label}
             </label>
             {loading ? (
-                <div className="text-sm text-gray-500">Loading users...</div>
+                <div className="text-sm text-gray-500">Indlæser medarbejdere...</div>
             ) : (
                 <div className={`space-y-2 ${maxHeight} overflow-y-auto border rounded-md p-3`}>
                     {users.length === 0 ? (
-                        <div className="text-sm text-gray-500">No users available</div>
+                        <div className="text-sm text-gray-500">Ingen medarbejdere tilgængelige</div>
                     ) : (
                         users.map((user) => (
                             <label key={user.user_id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
@@ -74,7 +74,7 @@ export default function UserSelector({
             )}
             {selectedUserIds.length > 0 && (
                 <div className="mt-2 text-sm text-gray-600">
-                    {selectedUserIds.length} user(s) selected
+                    {selectedUserIds.length} medarbejder(e) valgt
                 </div>
             )}
         </div>

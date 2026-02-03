@@ -69,7 +69,7 @@ export default function TaskPage() {
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
                 title="Opret Ny Opgave"
-                maxWidth="lg"
+                maxWidth="xl"
             >
                 <CreateTaskForm
                     onSuccess={handleTaskCreated}

@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { updateTask, deleteTask, getTaskAssignments } from "@/lib/api";
+import { updateTask, deleteTask } from "@/lib/api";
 import type { Task } from "@/types/task";
-import type { TaskAssignment } from "@/types/assignment";
 import { formatRelativeDate } from "@/helpers/helpers";
 import Badge from "../label/badge";
 import TaskAssignedUsers from "../label/taskAssignedUsers";
@@ -15,42 +13,13 @@ interface TaskListProps {
 }
 
 export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: TaskListProps) {
-    const [assignments, setAssignments] = useState<Record<string, TaskAssignment[]>>({});
-    const [loadingAssignments, setLoadingAssignments] = useState<Record<string, boolean>>({});
-
-    // Load assignments for all tasks
-    useEffect(() => {
-        async function loadAssignments() {
-            const assignmentPromises = tasks.map(async (task) => {
-                if (!assignments[task.task_id]) {
-                    setLoadingAssignments(prev => ({ ...prev, [task.task_id]: true }));
-                    try {
-                        const taskAssignments = await getTaskAssignments(task.task_id);
-                        setAssignments(prev => ({ ...prev, [task.task_id]: taskAssignments }));
-                    } catch (error) {
-                        console.error(`Failed to fetch assignments for task ${task.task_id}:`, error);
-                        setAssignments(prev => ({ ...prev, [task.task_id]: [] }));
-                    } finally {
-                        setLoadingAssignments(prev => ({ ...prev, [task.task_id]: false }));
-                    }
-                }
-            });
-
-            await Promise.all(assignmentPromises);
-        }
-
-        if (tasks.length > 0) {
-            loadAssignments();
-        }
-    }, [tasks]);
-
     async function handleEdit(id: string, updates: Partial<Task>) {
         try {
             await updateTask(id, updates);
             onTaskUpdate(); // Notify parent to reload tasks
         } catch (error) {
-            console.error("Failed to update task:", error);
-            alert("Failed to update task");
+            console.error("Kunne ikke opdatere opgaven:", error);
+            alert("Kunne ikke opdatere opgaven");
         }
     }
 
@@ -61,7 +30,7 @@ export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: Tas
             await deleteTask(id);
             onTaskDelete(id); // Notify parent to remove task from state
         } catch (error) {
-            console.error("Failed to delete task:", error);
+            console.error("Kunne ikke slette opgaven:", error);
             alert("Kunne ikke slette opgaven");
         }
     }

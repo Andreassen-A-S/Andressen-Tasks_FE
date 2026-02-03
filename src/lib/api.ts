@@ -61,7 +61,7 @@ export async function getUsers(): Promise<User[]> {
   return data.data;
 }
 
-// Assingnment related API functions can be added here as needed
+// Assignment related API functions can be added here as needed
 
 export async function getTaskAssignments(
   taskId: string,

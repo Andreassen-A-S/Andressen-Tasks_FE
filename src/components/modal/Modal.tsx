@@ -72,11 +72,11 @@ export default function Modal({
         >
             <div
                 className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
-                onClick={handleBackdropClick}
             >
                 {/* Backdrop */}
                 <div
                     className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+                    onClick={handleBackdropClick}
                     aria-hidden="true"
                 ></div>
 
