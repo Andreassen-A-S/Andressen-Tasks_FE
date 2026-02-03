@@ -25,3 +25,30 @@ export function formatRelativeDate(isoDate: string | Date): string {
     }),
   });
 }
+
+// Translation functions
+export function translatePriority(priority: string): string {
+  switch (priority) {
+    case "LOW":
+      return "LAV";
+    case "MEDIUM":
+      return "MELLEM";
+    case "HIGH":
+      return "HØJ";
+    default:
+      return priority;
+  }
+}
+
+export function translateStatus(status: string): string {
+  switch (status) {
+    case "PENDING":
+      return "MANGLER";
+    case "DONE":
+      return "AFSLUTTET";
+    case "REJECTED":
+      return "ANNULLERET";
+    default:
+      return status;
+  }
+}

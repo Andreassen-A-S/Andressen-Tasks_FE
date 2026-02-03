@@ -29,4 +29,5 @@ export interface CreateTaskInput {
   status: TaskStatus;
   deadline: string;
   created_by: string;
+  assigned_users: string[];
 }

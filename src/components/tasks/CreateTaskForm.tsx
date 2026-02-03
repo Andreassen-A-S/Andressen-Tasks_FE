@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createTask } from "@/lib/api";
 import type { Task, CreateTaskInput } from "@/types/task";
 import { TaskPriority, TaskStatus } from "@/types/task";
+import UserSelector from "./UserSelector";
 
 interface CreateTaskFormProps {
     onSuccess: (task: Task) => void;
@@ -18,6 +19,7 @@ export default function CreateTaskForm({ onSuccess, onCancel }: CreateTaskFormPr
         status: TaskStatus.PENDING,
         deadline: new Date().toISOString().split("T")[0],
         created_by: "512db100-3994-478c-972f-e9ffea28c7ac", // TODO: Replace with actual user ID
+        assigned_users: [],
     });
     const [loading, setLoading] = useState(false);
 
@@ -42,74 +44,103 @@ export default function CreateTaskForm({ onSuccess, onCancel }: CreateTaskFormPr
     }
 
     return (
-        <form onSubmit={handleSubmit} className="bg-gray-50 p-6 rounded-lg mb-6">
-            <h2 className="text-xl font-semibold mb-4">Create New Task</h2>
-
-            <div className="grid gap-4">
+        <form onSubmit={handleSubmit}>
+            {/* Form fields */}
+            <div className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium mb-1">Title</label>
-                    <input
-                        type="text"
-                        required
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="w-full border rounded px-3 py-2"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium mb-1">Description</label>
-                    <textarea
-                        required
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full border rounded px-3 py-2"
-                        rows={3}
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Priority</label>
-                        <select
-                            value={formData.priority}
-                            onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
-                            className="w-full border rounded px-3 py-2"
-                        >
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HIGH">High</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Deadline</label>
+                    <label htmlFor="title" className="block text-sm font-medium leading-6 text-gray-900">
+                        Opgave titel*
+                    </label>
+                    <div className="mt-2">
                         <input
-                            type="date"
+                            type="text"
+                            id="title"
+                            placeholder="Indtast titel..."
                             required
-                            value={formData.deadline}
-                            onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                            className="w-full border rounded px-3 py-2"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
                         />
                     </div>
                 </div>
 
-                <div className="flex gap-2">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-                    >
-                        {loading ? "Creating..." : "Create Task"}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        className="px-4 py-2 border rounded hover:bg-gray-100"
-                    >
-                        Cancel
-                    </button>
+                <div>
+                    <label htmlFor="description" className="block text-sm font-medium leading-6 text-gray-900">
+                        Beskrivelse*
+                    </label>
+                    <div className="mt-2">
+                        <textarea
+                            id="description"
+                            required
+                            placeholder="Indtast beskrivelse..."
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            rows={3}
+                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
+                        />
+                    </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="priority" className="block text-sm font-medium leading-6 text-gray-900">
+                            Prioritet
+                        </label>
+                        <div className="mt-2">
+                            <select
+                                id="priority"
+                                value={formData.priority}
+                                onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
+                                className="block w-full rounded-md border-0 py-2.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            >
+                                <option value="LOW">Lav</option>
+                                <option value="MEDIUM">Mellem</option>
+                                <option value="HIGH">Høj</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label htmlFor="deadline" className="block text-sm font-medium leading-6 text-gray-900">
+                            Deadline
+                        </label>
+                        <div className="mt-2">
+                            <input
+                                type="date"
+                                id="deadline"
+                                required
+                                value={formData.deadline}
+                                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 invalid:ring-red-500 invalid:ring-2 sm:text-sm sm:leading-6 px-3"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* User Selection Component */}
+                <UserSelector
+                    selectedUserIds={formData.assigned_users}
+                    onSelectionChange={(userIds) => setFormData({ ...formData, assigned_users: userIds })}
+                    label="Tildel til medarbejdere"
+                />
+            </div>
+
+            {/* Form actions */}
+            <div className="mt-6 flex flex-col-reverse sm:flex-row-reverse gap-3">
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
+                >
+                    {loading ? "Opretter..." : "Opret Opgave"}
+                </button>
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto"
+                >
+                    Annuller
+                </button>
             </div>
         </form>
     );
