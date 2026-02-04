@@ -5,6 +5,8 @@ import { createTask } from "@/lib/api";
 import type { Task, CreateTaskInput } from "@/types/task";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import UserSelector from "./UserSelector";
+import { useAuth } from "@/hooks/useAuth";
+
 
 interface CreateTaskFormProps {
     onSuccess: (task: Task) => void;
@@ -12,13 +14,14 @@ interface CreateTaskFormProps {
 }
 
 export default function CreateTaskForm({ onSuccess, onCancel }: CreateTaskFormProps) {
+    const { user } = useAuth();
     const [formData, setFormData] = useState<CreateTaskInput>({
         title: "",
         description: "",
         priority: TaskPriority.MEDIUM,
         status: TaskStatus.PENDING,
         deadline: new Date().toISOString().split("T")[0],
-        created_by: "512db100-3994-478c-972f-e9ffea28c7ac", // TODO: Replace with actual user ID
+        created_by: user?.user_id || "",
         assigned_users: [],
     });
     const [loading, setLoading] = useState(false);

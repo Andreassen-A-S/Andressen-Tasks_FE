@@ -1,8 +1,6 @@
 export function formatRelativeDate(isoDate: string | Date): string {
   const date =
-    typeof isoDate === "string"
-      ? new Date(isoDate.split("T")[0]) // 👈 vigtigt
-      : isoDate;
+    typeof isoDate === "string" ? new Date(isoDate.split("T")[0]) : isoDate;
 
   const now = new Date();
 
@@ -80,4 +78,14 @@ export function getAvatarColor(name: string): string {
     .split("")
     .reduce((acc, char) => acc + char.charCodeAt(0), 0);
   return colors[hash % colors.length];
+}
+
+export function getAuthHeaders(): HeadersInit {
+  // Check if we're in the browser before accessing localStorage
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
 }

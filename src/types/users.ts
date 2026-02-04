@@ -5,10 +5,10 @@ export enum UserRole {
 
 export interface User {
   user_id: string;
-  name: string;
+  name?: string;
   email: string;
-  position: string;
+  position?: string;
   role: UserRole;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
