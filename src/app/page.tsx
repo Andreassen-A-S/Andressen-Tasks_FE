@@ -1,9 +1,5 @@
-import TaskPage from "@/components/tasks/TaskPage";
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-gray-100">
-      <TaskPage />
-    </main>
-  );
+  redirect('/tasks');
 }
