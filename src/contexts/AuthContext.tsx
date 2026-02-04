@@ -73,8 +73,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     setUser(null);
                     setUserRole(null);
                 }
-            } else {
-                console.log("No token found in localStorage");
             }
 
             setIsLoading(false);

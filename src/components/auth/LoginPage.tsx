@@ -15,8 +15,10 @@ export default function LoginPage() {
     const router = useRouter();
     const { login } = useAuth();
 
+
     const handleLogin = async (role: UserRole) => {
         try {
+            setIsLoading(true);
             setError(null);
             await login(role);
 
@@ -28,6 +30,8 @@ export default function LoginPage() {
             }
         } catch (err) {
             setError("Login fejlede. Prøv igen.");
+        } finally {
+            setIsLoading(false);
         }
     };
 

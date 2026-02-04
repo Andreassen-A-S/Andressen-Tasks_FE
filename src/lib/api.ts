@@ -130,7 +130,6 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
 }
 
 export async function verifyToken(token: string): Promise<VerifyResponse> {
-  console.log("Calling verify endpoint with token");
   const res = await fetch(`${API_URL}/auth/verify`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -145,7 +144,6 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
   }
 
   const response = await res.json();
-  console.log("Verify token raw response:", response);
   const data = response.data;
 
   // Transform to expected format
@@ -157,6 +155,5 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
       name: data.name,
     },
   };
-  console.log("Transformed verify response:", result);
   return result;
 }

@@ -9,71 +9,61 @@ import { faCheckCircle, faSpinner, faSignOutAlt } from "@fortawesome/free-solid-
 import { useRouter } from "next/navigation";
 import UserTaskDetails from "./UserTaskDetails";
 import UserTaskCard from "./UserTaskCard";
+import { sortTasks } from "@/helpers/sort";
 
 export default function UserTasksView() {
     const { user, logout, isLoading: authLoading } = useAuth();
     const router = useRouter();
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [isLoading, setIsLoading] = useState(false); // ← Changed to false initially
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
+    // Reusable function to fetch and set tasks
+    const fetchAndSetTasks = useCallback(async () => {
+        if (!user?.user_id) {
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            const assignments = await getUserAssignments(user.user_id);
+
+            if (assignments.length === 0) {
+                setTasks([]);
+                return;
+            }
+
+            // Fetch all tasks in parallel
+            const taskPromises = assignments.map(assignment =>
+                getTask(assignment.task_id)
+            );
+            const userTasks = await Promise.all(taskPromises);
+            setTasks(sortTasks(userTasks));
+        } catch (err) {
+            console.error("Error fetching tasks:", err);
+            setError("Kunne ikke hente opgaver. Prøv igen senere.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [user?.user_id]);
+
     // Fetch tasks effect - runs when auth completes
     useEffect(() => {
-        const fetchUserTasks = async () => {
-            // Wait for auth to complete
-            if (authLoading) {
-                return;
-            }
+        // Wait for auth to complete
+        if (authLoading) {
+            return;
+        }
 
-            console.log("UserTasksView state:", { authLoading, userId: user?.user_id });
+        // If no user after auth loads, do nothing (AuthWrapper handles redirect)
+        if (!user?.user_id) {
+            return;
+        }
 
-
-            // If no user after auth loads, do nothing (AuthWrapper handles redirect)
-            if (!user?.user_id) {
-                return;
-            }
-
-            try {
-                setIsLoading(true);
-                setError(null);
-
-                const assignments = await getUserAssignments(user.user_id);
-
-                if (assignments.length === 0) {
-                    setTasks([]);
-                    return;
-                }
-
-                // Fetch all tasks in parallel
-                const taskPromises = assignments.map(assignment =>
-                    getTask(assignment.task_id)
-                );
-                const userTasks = await Promise.all(taskPromises);
-                setTasks(sortTasks(userTasks));
-            } catch (err) {
-                console.error("Error fetching tasks:", err);
-                setError("Kunne ikke hente opgaver. Prøv igen senere.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchUserTasks();
-    }, [user?.user_id, authLoading]); // ← Dependencies on the values, not the callback
-
-    // Sorting function
-    const sortTasks = (tasks: Task[]) => {
-        const priorityOrder = { HIGH: 1, MEDIUM: 2, LOW: 3 };
-        return tasks.sort((a, b) => {
-            // First sort by deadline
-            const deadlineDiff = new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
-            if (deadlineDiff !== 0) return deadlineDiff;
-
-            // Then by priority
-            return priorityOrder[a.priority] - priorityOrder[b.priority];
-        });
-    };
+        fetchAndSetTasks();
+    }, [user?.user_id, authLoading, fetchAndSetTasks]);
 
     const handleLogout = useCallback(() => {
         logout();
@@ -83,69 +73,16 @@ export default function UserTasksView() {
     const handleBackFromDetails = useCallback(() => {
         setSelectedTaskId(null);
         // Refresh tasks after returning from details
-        if (user?.user_id) {
-            setIsLoading(true);
-            setError(null);
-
-            getUserAssignments(user.user_id)
-                .then(assignments => {
-                    if (assignments.length === 0) {
-                        setTasks([]);
-                        return;
-                    }
-                    return Promise.all(
-                        assignments.map(assignment => getTask(assignment.task_id))
-                    );
-                })
-                .then(userTasks => {
-                    if (userTasks) {
-                        const sortedTasks = sortTasks(userTasks);
-                        setTasks(sortedTasks);
-                    }
-                })
-                .catch(err => {
-                    console.error("Error refreshing tasks:", err);
-                    setError("Kunne ikke opdatere opgaver");
-                })
-                .finally(() => {
-                    setIsLoading(false);
-                });
-        }
-    }, [user?.user_id]);
+        fetchAndSetTasks();
+    }, [fetchAndSetTasks]);
 
     const handleTaskClick = useCallback((taskId: string) => {
         setSelectedTaskId(taskId);
     }, []);
 
     const handleRetry = useCallback(() => {
-        if (user?.user_id) {
-            setIsLoading(true);
-            setError(null);
-
-            getUserAssignments(user.user_id)
-                .then(assignments => {
-                    if (assignments.length === 0) {
-                        setTasks([]);
-                        return;
-                    }
-                    return Promise.all(
-                        assignments.map(assignment => getTask(assignment.task_id))
-                    );
-                })
-                .then(userTasks => {
-                    if (userTasks) {
-                        setTasks(sortTasks(userTasks));
-                    }
-                })
-                .catch(err => {
-                    console.error("Error fetching tasks:", err);
-                    setError("Kunne ikke hente opgaver. Prøv igen senere.");
-                })
-                .finally(() => {
-                    setIsLoading(false);
-                });
-        }
-    }, [user?.user_id]);
+        fetchAndSetTasks();
+    }, [fetchAndSetTasks]);
 
     // Show task details view
     if (selectedTaskId) {
