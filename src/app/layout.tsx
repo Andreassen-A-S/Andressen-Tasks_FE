@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Image from "next/image";
 import "./globals.css";
 import Sidebar from "@/components/sidebar/Sidebar";
 
@@ -17,10 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AndressenTMS",
   description: "Andressen A/S Task Management System",
-  icons: {
-    icon: "/favicon.ico",
-    apple: '/apple-icon.png',
-  },
 };
 
 export default function RootLayout({
@@ -29,16 +24,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <div className="flex">
-          <Sidebar />
-          <main className="flex-1 bg-gray-50">
-            {children}
-          </main>
-        </div>
+    <html lang="da">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Sidebar />
+        <main className="ml-80 bg-gray-50 min-h-screen">
+          {children}
+        </main>
       </body>
     </html>
   );
