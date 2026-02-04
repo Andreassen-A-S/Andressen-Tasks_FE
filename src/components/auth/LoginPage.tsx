@@ -39,7 +39,6 @@ export default function LoginPage() {
             description: "Standard medarbejder adgang",
             icon: faUser,
             color: "bg-blue-500 hover:bg-blue-600",
-            credentials: "user@andressen.dk / user123"
         },
         {
             value: "ADMIN" as UserRole,
@@ -47,7 +46,6 @@ export default function LoginPage() {
             description: "Fuld system adgang",
             icon: faUserShield,
             color: "bg-green-500 hover:bg-green-600",
-            credentials: "admin@andressen.dk / admin123"
         }
     ];
 

@@ -10,7 +10,7 @@ interface AuthContextType {
     userRole: UserRole | null;
     user: User | null;
     isLoading: boolean;
-    login: (role: UserRole) => void;
+    login: (role: UserRole) => Promise<void>;
     logout: () => void;
 }
 
@@ -76,11 +76,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const response = await apiLogin(credentials);
 
             if (!response.token) {
-                throw new Error("Backend did not return a token. Response: " + JSON.stringify(response));
+                console.error("Backend did not return a token.", response);
+                throw new Error("Backend did not return a token.");
             }
 
             if (!response.user) {
-                throw new Error("Backend did not return user data. Response: " + JSON.stringify(response));
+                console.error("Backend did not return user data.", response);
+                throw new Error("Backend did not return user data.");
             }
 
             localStorage.setItem("authToken", response.token);
@@ -89,9 +91,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setIsAuthenticated(true);
             setUser(response.user);
             setUserRole(role);
-
-        } catch (error) {
-            throw error;
         } finally {
             setIsLoading(false);
         }

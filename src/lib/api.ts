@@ -61,7 +61,7 @@ export async function deleteTask(id: string): Promise<void> {
 
 export async function getUsers(): Promise<User[]> {
   const res = await fetch(`${API_URL}/users`, {
-    headers: getAuthHeaders(), // Add this
+    headers: getAuthHeaders(),
   });
   if (!res.ok) {
     throw new Error("Failed to fetch users");
@@ -76,10 +76,23 @@ export async function getTaskAssignments(
   taskId: string,
 ): Promise<TaskAssignment[]> {
   const response = await fetch(`${API_URL}/assignments?taskId=${taskId}`, {
-    headers: getAuthHeaders(), // Add this
+    headers: getAuthHeaders(),
   });
   if (!response.ok) {
     throw new Error("Failed to fetch task assignments");
+  }
+  const result: TaskAssignmentResponse = await response.json();
+  return result.data;
+}
+
+export async function getUserAssignments(
+  userId: string,
+): Promise<TaskAssignment[]> {
+  const response = await fetch(`${API_URL}/assignments?userId=${userId}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch user assignments");
   }
   const result: TaskAssignmentResponse = await response.json();
   return result.data;
@@ -114,18 +127,15 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
   });
 
   if (!res.ok) {
-    const errorData = await res
-      .json()
-      .catch(() => ({ message: "Unknown error" }));
-
-    throw new Error(errorData.message || "Failed to verify token");
+    const error = await res.json();
+    throw new Error(error.message || "Failed to verify token");
   }
 
   const response = await res.json();
   const data = response.data;
 
-  // Backend returns: { success: true, data: { userId, role, email, iat, exp } }
-  // Transform to: { user: { user_id, role, email } }
+  // Backend returns: { success: true, data: { userId, role, email, name, iat, exp } }
+  // Transform to: { user: { user_id, role, email, name } }
   return {
     user: {
       user_id: data.userId,
