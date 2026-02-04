@@ -70,6 +70,17 @@ export async function getUsers(): Promise<User[]> {
   return data.data;
 }
 
+export async function getUser(userId: string): Promise<User> {
+  const res = await fetch(`${API_URL}/users/${userId}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch user");
+  }
+  const data = await res.json();
+  return data.data;
+}
+
 // Assignment related API functions can be added here as needed
 
 export async function getTaskAssignments(
@@ -119,6 +130,7 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
 }
 
 export async function verifyToken(token: string): Promise<VerifyResponse> {
+  console.log("Calling verify endpoint with token");
   const res = await fetch(`${API_URL}/auth/verify`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -128,20 +140,23 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
 
   if (!res.ok) {
     const error = await res.json();
+    console.error("Verify token failed:", error);
     throw new Error(error.message || "Failed to verify token");
   }
 
   const response = await res.json();
+  console.log("Verify token raw response:", response);
   const data = response.data;
 
-  // Backend returns: { success: true, data: { userId, role, email, name, iat, exp } }
-  // Transform to: { user: { user_id, role, email, name } }
-  return {
+  // Transform to expected format
+  const result = {
     user: {
-      user_id: data.userId,
+      user_id: data.user_id,
       email: data.email,
       role: data.role,
       name: data.name,
     },
   };
+  console.log("Transformed verify response:", result);
+  return result;
 }
