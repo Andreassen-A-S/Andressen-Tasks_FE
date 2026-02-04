@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { faChartColumn, faGear, faTasks, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faChartColumn, faGear, faTasks, faUsers, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const { userRole, logout } = useAuth();
 
     const navItems = [
         { href: "/tasks", label: "Opgaver", icon: <FontAwesomeIcon icon={faTasks} size="lg" /> },
@@ -18,7 +20,6 @@ export default function Sidebar() {
 
     return (
         <aside className="w-80 bg-gray-800 border-r h-screen flex flex-col fixed left-0 top-0">
-            {/* Header - Fixed size */}
             <div className="p-6 border-b-2 border-gray-700 flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <Image src="/favicon.ico" alt="Andressen A/S" width={60} height={60} />
@@ -51,15 +52,29 @@ export default function Sidebar() {
 
             {/* User Profile - Always at bottom of screen */}
             <div className="p-4 border-t-2 border-gray-700 flex-shrink-0 mt-auto">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                        <span className="text-xs text-gray-700 font-medium">U</span>
-                    </div>
-                    <div className="text-sm">
-                        <p className="font-medium text-white">user@email.com</p>
-                        <p className="text-gray-400">Administrator</p>
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                            <span className="text-xs text-gray-700 font-medium">
+                                {userRole === "ADMIN" ? "A" : "U"}
+                            </span>
+                        </div>
+                        <div className="text-sm">
+                            <p className="font-medium text-white">Demo Bruger</p>
+                            <p className="text-gray-400">
+                                {userRole === "ADMIN" ? "Administrator" : "Bruger"}
+                            </p>
+                        </div>
                     </div>
                 </div>
+
+                <button
+                    onClick={logout}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                    <FontAwesomeIcon icon={faSignOutAlt} />
+                    <span>Log ud</span>
+                </button>
             </div>
         </aside>
     );
