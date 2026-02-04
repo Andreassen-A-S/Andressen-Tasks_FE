@@ -48,10 +48,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             if (token) {
                 try {
+                    console.log("Verifying token...");
                     const response = await verifyToken(token);
-                    setIsAuthenticated(true);
-                    setUser(response.user);
-                    setUserRole(response.user.role);
+                    console.log("Token verification response:", response);
+
+                    // Ensure we have user data before setting state
+                    if (response?.user?.user_id) {
+                        setIsAuthenticated(true);
+                        setUser(response.user);
+                        setUserRole(response.user.role);
+                        console.log("Auth state set successfully:", {
+                            userId: response.user.user_id,
+                            role: response.user.role
+                        });
+                    } else {
+                        console.error("Invalid user data in token response:", response);
+                        throw new Error("Invalid user data");
+                    }
                 } catch (error) {
                     console.error("Token verification failed:", error);
                     localStorage.removeItem("authToken");

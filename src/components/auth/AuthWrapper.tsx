@@ -13,12 +13,42 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     const router = useRouter();
 
     useEffect(() => {
-        if (!isLoading && !isAuthenticated && pathname !== "/login") {
-            router.push("/login");
-        }
-    }, [isAuthenticated, isLoading, pathname, router]);
+        // Wait for auth to complete
+        if (isLoading) return;
 
-    // Show loading spinner during hydration
+        // Not authenticated -> go to login
+        if (!isAuthenticated && pathname !== "/login") {
+            router.push("/login");
+            return;
+        }
+
+        // Authenticated -> route by role
+        if (isAuthenticated && pathname === "/login") {
+            if (userRole === "USER") {
+                router.push("/my-tasks");
+            } else if (userRole === "ADMIN") {
+                router.push("/");
+            }
+            return;
+        }
+
+        // Prevent users from accessing admin routes
+        if (userRole === "USER" && !pathname.startsWith("/my-tasks")) {
+            router.push("/my-tasks");
+        }
+
+        // Prevent admins from accessing user-only routes
+        if (userRole === "ADMIN" && pathname.startsWith("/my-tasks")) {
+            router.push("/");
+        }
+    }, [isAuthenticated, isLoading, pathname, router, userRole]);
+
+    // Always show login page immediately
+    if (pathname === "/login") {
+        return <>{children}</>;
+    }
+
+    // Show loading spinner while checking authentication
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -27,12 +57,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         );
     }
 
-    // Show login page without sidebar
-    if (pathname === "/login") {
-        return <>{children}</>;
-    }
-
-    // Show loading or redirect if not authenticated
+    // Not authenticated -> show loading while redirecting
     if (!isAuthenticated) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -41,7 +66,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         );
     }
 
-    // Regular users get simple view without sidebar
+    // USER role gets simple layout
     if (userRole === "USER") {
         return (
             <div className="min-h-screen bg-gray-50">
@@ -50,7 +75,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         );
     }
 
-    // Admins get full app with sidebar
+    // ADMIN role gets sidebar layout
     return (
         <div className="flex min-h-screen bg-gray-50">
             <Sidebar />
