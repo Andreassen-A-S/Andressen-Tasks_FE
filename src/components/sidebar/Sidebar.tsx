@@ -20,6 +20,7 @@ export default function Sidebar() {
 
     return (
         <aside className="w-80 bg-gray-800 border-r h-screen flex flex-col fixed left-0 top-0">
+            {/* Header - Fixed size */}
             <div className="p-6 border-b-2 border-gray-700 flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <Image src="/favicon.ico" alt="Andressen A/S" width={60} height={60} />
