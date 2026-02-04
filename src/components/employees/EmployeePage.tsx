@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getUsers } from "@/lib/api";
 import type { User } from "@/types/users";
 import EmployeeList from "./EmployeeList";
@@ -9,11 +9,7 @@ export default function EmployeePage() {
     const [employees, setEmployees] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadEmployees();
-    }, []);
-
-    async function loadEmployees() {
+    const loadEmployees = useCallback(async () => {
         setLoading(true);
         try {
             const users = await getUsers();
@@ -23,7 +19,11 @@ export default function EmployeePage() {
         } finally {
             setLoading(false);
         }
-    }
+    }, []);
+
+    useEffect(() => {
+        loadEmployees();
+    }, [loadEmployees]);
 
     if (loading) {
         return (
@@ -49,13 +49,19 @@ export default function EmployeePage() {
                         <h2 className="text-lg font-medium text-gray-900">
                             Alle Medarbejdere ({employees.length})
                         </h2>
-                        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <button
+                            onClick={() => {
+                                // Future: Open add employee modal
+                                console.log("Add employee clicked");
+                            }}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                        >
                             Tilføj Medarbejder
                         </button>
                     </div>
                 </div>
 
-                <EmployeeList employees={employees} />
+                <EmployeeList employees={employees} onEmployeeUpdate={loadEmployees} />
             </div>
         </div>
     );

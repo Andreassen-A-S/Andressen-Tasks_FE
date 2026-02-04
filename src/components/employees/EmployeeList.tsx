@@ -1,36 +1,14 @@
 "use client";
 
 import type { User } from "@/types/users";
+import SingleAvatar from "../label/singleAvatar";
 
 interface EmployeeListProps {
     employees: User[];
+    onEmployeeUpdate: () => Promise<void>;
 }
 
-function getInitials(name: string): string {
-    return name
-        .split(" ")
-        .map(word => word.charAt(0).toUpperCase())
-        .join("")
-        .slice(0, 2);
-}
 
-function getAvatarColor(name: string): string {
-    const colors = [
-        "bg-red-500",
-        "bg-blue-500",
-        "bg-green-500",
-        "bg-yellow-500",
-        "bg-purple-500",
-        "bg-pink-500",
-        "bg-indigo-500",
-        "bg-orange-500",
-        "bg-teal-500",
-        "bg-cyan-500"
-    ];
-
-    const hash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[hash % colors.length];
-}
 
 export default function EmployeeList({ employees }: EmployeeListProps) {
     if (employees.length === 0) {
@@ -70,22 +48,18 @@ export default function EmployeeList({ employees }: EmployeeListProps) {
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {employees.map((employee, index) => (
+                    {employees.map((employee) => (
                         <tr
                             key={employee.user_id}
-                            className={`hover:bg-gray-50 transition-colors ${index !== employees.length - 1 ? 'border-b border-gray-200' : ''
-                                }`}
+                            className="hover:bg-gray-50 transition-colors"
                         >
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
-                                    <div
-                                        className={`
-                                            w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium mr-4
-                                            ${getAvatarColor(employee.name)}
-                                        `}
-                                    >
-                                        {getInitials(employee.name)}
-                                    </div>
+                                    <SingleAvatar
+                                        name={employee.name}
+                                        size="md"
+                                        className="mr-4"
+                                    />
                                     <div>
                                         <div className="text-sm font-medium text-gray-900">
                                             {employee.name}
