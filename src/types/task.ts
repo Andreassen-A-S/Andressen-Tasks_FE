@@ -31,3 +31,12 @@ export interface CreateTaskInput {
   created_by: string;
   assigned_users: string[];
 }
+
+export interface UpdateTaskInput {
+  title?: string;
+  description?: string;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+  deadline?: string;
+  assigned_users: string[];
+}
