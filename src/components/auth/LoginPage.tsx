@@ -5,46 +5,49 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { faUser, faUserShield } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/users";
 
 export default function LoginPage() {
     const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const { login } = useAuth(); // Add this line
+    const { login } = useAuth();
 
     const handleLogin = async () => {
         if (!selectedRole) return;
 
         setIsLoading(true);
+        setError(null);
 
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        // Use the context login function instead of setting localStorage directly
-        login(selectedRole);
-
-        // Redirect based on role
-        router.push("/tasks");
-
-        setIsLoading(false);
+        try {
+            await login(selectedRole);
+            router.push("/tasks");
+        } catch (err) {
+            console.error("Login error:", err);
+            setError(err instanceof Error ? err.message : "Login failed");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const roleOptions = [
         {
             value: "USER" as UserRole,
-            label: "Bruger",
+            label: "Test Bruger",
             description: "Standard medarbejder adgang",
             icon: faUser,
-            color: "bg-blue-500 hover:bg-blue-600"
+            color: "bg-blue-500 hover:bg-blue-600",
+            credentials: "user@andressen.dk / user123"
         },
         {
             value: "ADMIN" as UserRole,
-            label: "Administrator",
+            label: "Test Administrator",
             description: "Fuld system adgang",
             icon: faUserShield,
-            color: "bg-green-500 hover:bg-green-600"
+            color: "bg-green-500 hover:bg-green-600",
+            credentials: "admin@andressen.dk / admin123"
         }
     ];
 
@@ -135,6 +138,21 @@ export default function LoginPage() {
                             ))}
                         </div>
                     </div>
+
+                    {error && (
+                        <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <p className="text-sm text-red-800">{error}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Login Button */}
                     <div className="mt-8">
