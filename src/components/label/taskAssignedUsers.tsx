@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getTaskAssignments } from "@/lib/api";
+import { useState } from "react";
 import type { TaskAssignment } from "@/types/assignment";
 
 interface TaskAssignedUsersProps {
-    taskId: string;
+    assignments: TaskAssignment[];
+    loading?: boolean;
     className?: string;
 }
 
@@ -35,29 +35,8 @@ function getAvatarColor(name: string): string {
     return colors[hash % colors.length];
 }
 
-export default function TaskAssignedUsers({ taskId, className = "" }: TaskAssignedUsersProps) {
-    const [assignments, setAssignments] = useState<TaskAssignment[]>([]);
-    const [loading, setLoading] = useState(true);
+export default function TaskAssignedUsers({ assignments, loading = false, className = "" }: TaskAssignedUsersProps) {
     const [showTooltip, setShowTooltip] = useState(false);
-
-    useEffect(() => {
-        async function loadAssignments() {
-            setLoading(true);
-            try {
-                const taskAssignments = await getTaskAssignments(taskId);
-                setAssignments(taskAssignments);
-            } catch (error) {
-                console.error(`Failed to fetch assignments for task ${taskId}:`, error);
-                setAssignments([]);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (taskId) {
-            loadAssignments();
-        }
-    }, [taskId]);
 
     if (loading) {
         return (

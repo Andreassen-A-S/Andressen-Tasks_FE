@@ -14,9 +14,9 @@ export default function Badge({ variant, value }: BadgeProps) {
     if (variant === "priority") {
         const priority = value as TaskPriority;
         const colorClasses = {
-            HIGH: "bg-red-100 text-red-600 font-bold border border-red-600",
-            MEDIUM: "bg-yellow-100 text-yellow-600 font-bold border border-yellow-600",
-            LOW: "bg-green-100 text-green-600 font-bold border border-green-600",
+            [TaskPriority.HIGH]: "bg-red-100 text-red-600 font-bold border border-red-600",
+            [TaskPriority.MEDIUM]: "bg-yellow-100 text-yellow-600 font-bold border border-yellow-600",
+            [TaskPriority.LOW]: "bg-green-100 text-green-600 font-bold border border-green-600",
         };
 
         return (

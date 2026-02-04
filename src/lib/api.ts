@@ -1,5 +1,5 @@
 import { TaskAssignment, TaskAssignmentResponse } from "@/types/assignment";
-import type { Task, CreateTaskInput } from "@/types/task";
+import type { Task, CreateTaskInput, UpdateTaskInput } from "@/types/task";
 import type { User } from "@/types/users";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -31,7 +31,7 @@ export async function createTask(task: CreateTaskInput): Promise<Task> {
 
 export async function updateTask(
   id: string,
-  updates: Partial<Task>,
+  updates: Partial<UpdateTaskInput>, // Change from Partial<Task> to match your UpdateTaskInput
 ): Promise<Task> {
   const res = await fetch(`${API_URL}/tasks/${id}`, {
     method: "PATCH",
@@ -42,6 +42,20 @@ export async function updateTask(
   const data = await res.json();
   return data.data;
 }
+
+// export async function updateTask(
+//   id: string,
+//   updates: Partial<Task>,
+// ): Promise<Task> {
+//   const res = await fetch(`${API_URL}/tasks/${id}`, {
+//     method: "PATCH",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(updates),
+//   });
+//   if (!res.ok) throw new Error("Failed to update task");
+//   const data = await res.json();
+//   return data.data;
+// }
 
 export async function deleteTask(id: string): Promise<void> {
   const res = await fetch(`${API_URL}/tasks/${id}`, {

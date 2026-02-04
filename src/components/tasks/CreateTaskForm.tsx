@@ -93,9 +93,9 @@ export default function CreateTaskForm({ onSuccess, onCancel }: CreateTaskFormPr
                                 onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
                                 className="block w-full rounded-md border-0 py-2.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             >
-                                <option value="LOW">Lav</option>
-                                <option value="MEDIUM">Mellem</option>
-                                <option value="HIGH">Høj</option>
+                                <option value={TaskPriority.LOW}>Lav</option>
+                                <option value={TaskPriority.MEDIUM}>Mellem</option>
+                                <option value={TaskPriority.HIGH}>Høj</option>
                             </select>
                         </div>
                     </div>
