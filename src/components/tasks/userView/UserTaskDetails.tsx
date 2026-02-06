@@ -2,12 +2,11 @@
 
 import { useEffect, useState, useContext } from "react";
 import { Task, TaskStatus } from "@/types/task";
-import { getTask, updateTask, getUser, getTaskComments, createComment, deleteComment } from "@/lib/api";
+import { getTask, updateTask, getUser } from "@/lib/api";
 import { User } from "@/types/users";
-import { Comment } from "@/types/comment";
 import { formatRelativeDate, translatePriority } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faXmark, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { AuthContext } from "@/contexts/AuthContext";
 import TaskComments from "@/components/tasks/TaskComment";
 
@@ -22,15 +21,9 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
 
     const [task, setTask] = useState<Task | null>(null);
     const [creator, setCreator] = useState<User | null>(null);
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [commentAuthors, setCommentAuthors] = useState<Record<string, User>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [isLoadingComments, setIsLoadingComments] = useState(false);
-    const [isSubmittingComment, setIsSubmittingComment] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [commentError, setCommentError] = useState<string | null>(null);
-    const [comment, setComment] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -61,42 +54,6 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
         }
     }, [taskId]);
 
-    useEffect(() => {
-        const fetchComments = async () => {
-            try {
-                setIsLoadingComments(true);
-                setCommentError(null);
-                const commentsData = await getTaskComments(taskId);
-                setComments(commentsData);
-
-                // Fetch authors for all comments
-                const uniqueUserIds = [...new Set(commentsData.map(c => c.user_id))];
-                const authorsData: Record<string, User> = {};
-
-                await Promise.all(
-                    uniqueUserIds.map(async (userId) => {
-                        try {
-                            const userData = await getUser(userId);
-                            authorsData[userId] = userData;
-                        } catch (err) {
-                            console.error(`Error fetching user ${userId}:`, err);
-                        }
-                    })
-                );
-
-                setCommentAuthors(authorsData);
-            } catch (err) {
-                console.error("Error fetching comments:", err);
-                setCommentError("Kunne ikke hente kommentarer");
-            } finally {
-                setIsLoadingComments(false);
-            }
-        };
-
-        if (taskId) {
-            fetchComments();
-        }
-    }, [taskId]);
 
     const handleCompleteTask = async () => {
         if (!task) return;
@@ -114,67 +71,6 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
         }
     };
 
-    const handleSubmitComment = async () => {
-        if (!comment.trim()) return;
-
-        try {
-            setIsSubmittingComment(true);
-            setCommentError(null);
-            const newComment = await createComment(taskId, { message: comment.trim() });
-
-            // Add new comment to the list
-            setComments(prev => [...prev, newComment]);
-
-            // Fetch author data for the new comment if not already cached
-            if (currentUser && !commentAuthors[newComment.user_id]) {
-                try {
-                    const userData = await getUser(newComment.user_id);
-                    setCommentAuthors(prev => ({ ...prev, [newComment.user_id]: userData }));
-                } catch (err) {
-                    console.error("Error fetching comment author:", err);
-                }
-            }
-
-            setComment("");
-        } catch (err) {
-            console.error("Error creating comment:", err);
-            setCommentError("Kunne ikke tilføje kommentar");
-        } finally {
-            setIsSubmittingComment(false);
-        }
-    };
-
-    const handleDeleteComment = async (commentId: string) => {
-        if (!confirm("Er du sikker på at du vil slette denne kommentar?")) return;
-
-        try {
-            await deleteComment(commentId);
-            setComments(prev => prev.filter(c => c.comment_id !== commentId));
-        } catch (err) {
-            console.error("Error deleting comment:", err);
-            alert("Kunne ikke slette kommentar");
-        }
-    };
-
-    const formatCommentDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffMs = now.getTime() - date.getTime();
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
-
-        if (diffMins < 1) return "Lige nu";
-        if (diffMins < 60) return `${diffMins} min siden`;
-        if (diffHours < 24) return `${diffHours} timer siden`;
-        if (diffDays < 7) return `${diffDays} dage siden`;
-
-        return date.toLocaleDateString('da-DK', {
-            day: 'numeric',
-            month: 'short',
-            year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-        });
-    };
 
     if (isLoading) {
         return (
@@ -235,7 +131,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                 <div className="flex items-center mb-4 sm:mb-6">
                     <button
                         onClick={onBack}
-                        className="w-10 h-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 hover:scale-105 transition-all flex-shrink-0"
+                        className="w-10 h-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 hover:scale-105 transition-all shrink-0"
                     >
                         <FontAwesomeIcon icon={faXmark} className="text-gray-600" />
                     </button>

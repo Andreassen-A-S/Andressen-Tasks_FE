@@ -159,7 +159,7 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Tilføj en kommentar..."
-                    className="w-full bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4 text-sm sm:text-base text-gray-900 placeholder-gray-400 resize-none min-h-[80px] focus:outline-none focus:border-green-500 transition-all"
+                    className="w-full bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4 text-sm sm:text-base text-gray-900 placeholder-gray-400 resize-none min-h-20 focus:outline-none focus:border-green-500 transition-all"
                     disabled={isSubmittingComment}
                 />
                 <div className="flex justify-end mt-2">

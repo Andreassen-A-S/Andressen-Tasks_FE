@@ -173,7 +173,8 @@ export async function getTaskComments(taskId: string): Promise<Comment[]> {
     throw new Error("Failed to fetch comments");
   }
 
-  return response.json();
+  const result = await response.json();
+  return result.data;
 }
 
 export async function createComment(
@@ -190,7 +191,8 @@ export async function createComment(
     throw new Error("Failed to create comment");
   }
 
-  return response.json();
+  const result = await response.json();
+  return result.data;
 }
 
 export async function updateComment(
@@ -207,7 +209,8 @@ export async function updateComment(
     throw new Error("Failed to update comment");
   }
 
-  return response.json();
+  const result = await response.json();
+  return result.data;
 }
 
 export async function deleteComment(commentId: string): Promise<void> {

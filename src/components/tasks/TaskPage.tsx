@@ -64,7 +64,6 @@ export default function TaskPage() {
                 tasks={tasks}
                 onTaskUpdate={loadTasks}
                 onTaskDelete={handleTaskDeleted}
-                onTaskSelect={setSelectedTaskId}
             />
 
             <Drawer open={!!selectedTaskId} onClose={handleDrawerClose}>

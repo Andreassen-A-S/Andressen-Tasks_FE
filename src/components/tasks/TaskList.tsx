@@ -17,7 +17,6 @@ interface TaskListProps {
     tasks: Task[];
     onTaskUpdate: () => void;
     onTaskDelete: (taskId: string) => void;
-    onTaskSelect?: (taskId: string) => void;
 }
 
 export default function TaskList({
@@ -40,7 +39,11 @@ export default function TaskList({
                     try {
                         const assignments = await getTaskAssignments(task.task_id);
                         return { taskId: task.task_id, assignments };
-                    } catch {
+                    } catch (err) {
+                        console.error(
+                            `Failed to load assignments for task ${task.task_id}:`,
+                            err
+                        );
                         return { taskId: task.task_id, assignments: [] };
                     }
                 })
@@ -75,9 +78,15 @@ export default function TaskList({
 
     async function handleDelete(taskId: string) {
         if (!confirm("Er du sikker på at du vil slette denne opgave?")) return;
-        await deleteTask(taskId);
-        onTaskDelete(taskId);
+        try {
+            await deleteTask(taskId);
+            onTaskDelete(taskId);
+        } catch (error) {
+            console.error("Failed to delete task:", error);
+            alert("Kunne ikke slette opgaven. Prøv igen senere.");
+        }
     }
+
 
     function handleTaskClick(taskId: string) {
         setSelectedTaskId(taskId);
