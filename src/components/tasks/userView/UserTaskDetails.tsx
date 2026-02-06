@@ -9,6 +9,7 @@ import { formatRelativeDate, translatePriority } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { AuthContext } from "@/contexts/AuthContext";
+import TaskComments from "@/components/tasks/TaskComment";
 
 interface UserTaskDetailsProps {
     taskId: string;
@@ -270,84 +271,9 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                     )}
 
                     {/* Comments Section */}
+                    {/* Add Comment Input */}
                     <div className="mb-6 pb-6 border-b border-gray-100">
-                        <h2 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">
-                            Kommentarer ({comments.length})
-                        </h2>
-
-                        {/* Comments List */}
-                        {isLoadingComments ? (
-                            <div className="flex justify-center py-4">
-                                <FontAwesomeIcon icon={faSpinner} spin className="text-gray-400" />
-                            </div>
-                        ) : commentError ? (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-600 text-sm mb-4">
-                                {commentError}
-                            </div>
-                        ) : comments.length === 0 ? (
-                            <p className="text-sm text-gray-400 italic py-4">Ingen kommentarer endnu</p>
-                        ) : (
-                            <div className="space-y-3 mb-4">
-                                {comments.map((c) => {
-                                    const author = commentAuthors[c.user_id];
-                                    const isOwnComment = currentUser?.user_id === c.user_id;
-
-                                    return (
-                                        <div key={c.comment_id} className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                                            <div className="flex items-start justify-between mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-sm font-semibold text-gray-900">
-                                                        {author?.name || author?.email || 'Ukendt bruger'}
-                                                    </span>
-                                                    <span className="text-xs text-gray-500">
-                                                        {formatCommentDate(c.created_at)}
-                                                    </span>
-                                                </div>
-                                                {isOwnComment && (
-                                                    <button
-                                                        onClick={() => handleDeleteComment(c.comment_id)}
-                                                        className="text-gray-400 hover:text-red-500 transition-colors"
-                                                        title="Slet kommentar"
-                                                    >
-                                                        <FontAwesomeIcon icon={faTrash} size="sm" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-gray-700 leading-relaxed">
-                                                {c.message}
-                                            </p>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-
-                        {/* Add Comment Input */}
-                        <div>
-                            <textarea
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                placeholder="Tilføj en kommentar..."
-                                className="w-full bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4 text-sm sm:text-base text-gray-900 placeholder-gray-400 resize-none min-h-[80px] focus:outline-none focus:border-green-500 transition-all"
-                                disabled={isSubmittingComment}
-                            />
-                            <div className="flex justify-end mt-2">
-                                <button
-                                    onClick={handleSubmitComment}
-                                    disabled={!comment.trim() || isSubmittingComment}
-                                    className="px-4 py-2 bg-green-500 text-white text-sm font-semibold rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isSubmittingComment ? (
-                                        <>
-                                            <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
-                                            Sender...
-                                        </>
-                                    ) : (
-                                        'Send kommentar'
-                                    )}
-                                </button>
-                            </div>
-                        </div>
+                        <TaskComments taskId={taskId} />
                     </div>
 
                     {/* Metadata Section */}

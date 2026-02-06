@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { deleteTask, getTaskAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
@@ -10,44 +10,51 @@ import TaskAssignedUsers from "../label/taskAssignedUsers";
 import Modal from "../modal/Modal";
 import UpdateTaskForm from "./UpdateTaskForm";
 import EditButton from "../label/editButton";
+import Drawer from "../drawer/drawer";
+import TaskDetails from "./TaskDetails";
 
 interface TaskListProps {
     tasks: Task[];
     onTaskUpdate: () => void;
     onTaskDelete: (taskId: string) => void;
+    onTaskSelect?: (taskId: string) => void;
 }
 
-export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: TaskListProps) {
+export default function TaskList({
+    tasks = [],
+    onTaskUpdate,
+    onTaskDelete,
+}: TaskListProps) {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [taskAssignments, setTaskAssignments] = useState<Record<string, TaskAssignment[]>>({});
+    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+    const [taskAssignments, setTaskAssignments] = useState<
+        Record<string, TaskAssignment[]>
+    >({});
 
     // Load assignments for all tasks
     useEffect(() => {
         async function loadAllAssignments() {
-            const assignmentPromises = tasks.map(async (task) => {
-                try {
-                    const assignments = await getTaskAssignments(task.task_id);
-                    return { taskId: task.task_id, assignments };
-                } catch (error) {
-                    console.error(`Failed to fetch assignments for task ${task.task_id}:`, error);
-                    return { taskId: task.task_id, assignments: [] };
-                }
-            });
+            const results = await Promise.all(
+                tasks.map(async (task) => {
+                    try {
+                        const assignments = await getTaskAssignments(task.task_id);
+                        return { taskId: task.task_id, assignments };
+                    } catch {
+                        return { taskId: task.task_id, assignments: [] };
+                    }
+                })
+            );
 
-            const results = await Promise.all(assignmentPromises);
-            const assignmentMap: Record<string, TaskAssignment[]> = {};
-
+            const map: Record<string, TaskAssignment[]> = {};
             results.forEach(({ taskId, assignments }) => {
-                assignmentMap[taskId] = assignments;
+                map[taskId] = assignments;
             });
 
-            setTaskAssignments(assignmentMap);
+            setTaskAssignments(map);
         }
 
-        if (tasks.length > 0) {
-            loadAllAssignments();
-        }
+        if (tasks.length > 0) loadAllAssignments();
     }, [tasks]);
 
     function handleEditClick(task: Task) {
@@ -55,22 +62,10 @@ export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: Tas
         setShowEditModal(true);
     }
 
-    async function handleEditSuccess(updatedTask: Task) {
+    async function handleEditSuccess() {
         setShowEditModal(false);
         setSelectedTask(null);
-
-        // Refetch assignments for the updated task
-        try {
-            const assignments = await getTaskAssignments(updatedTask.task_id);
-            setTaskAssignments(prev => ({
-                ...prev,
-                [updatedTask.task_id]: assignments
-            }));
-        } catch (error) {
-            console.error("Failed to refresh assignments:", error);
-        }
-
-        onTaskUpdate(); // Notify parent to reload tasks
+        onTaskUpdate();
     }
 
     function handleEditCancel() {
@@ -78,21 +73,18 @@ export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: Tas
         setSelectedTask(null);
     }
 
-    async function handleDelete(id: string) {
+    async function handleDelete(taskId: string) {
         if (!confirm("Er du sikker på at du vil slette denne opgave?")) return;
+        await deleteTask(taskId);
+        onTaskDelete(taskId);
+    }
 
-        try {
-            await deleteTask(id);
-            // Remove assignments from state
-            setTaskAssignments(prev => {
-                const { [id]: deleted, ...rest } = prev;
-                return rest;
-            });
-            onTaskDelete(id); // Notify parent to remove task from state
-        } catch (error) {
-            console.error("Kunne ikke slette opgaven:", error);
-            alert("Kunne ikke slette opgaven");
-        }
+    function handleTaskClick(taskId: string) {
+        setSelectedTaskId(taskId);
+    }
+
+    function handleCloseDrawer() {
+        setSelectedTaskId(null);
     }
 
     if (tasks.length === 0) {
@@ -105,58 +97,62 @@ export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: Tas
 
     return (
         <>
-            <div className="relative overflow-x-auto bg-white shadow-sm rounded-lg border border-gray-200">
+            <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-x-auto">
                 <table className="w-full text-sm text-left text-gray-700">
-                    <thead className="text-sm text-gray-700 bg-gray-50 border-b border-gray-200">
+                    <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th scope="col" className="px-6 py-3 font-medium">
-                                OPGAVE
-                            </th>
-                            <th scope="col" className="px-6 py-3 font-medium">
-                                PRIORITET
-                            </th>
-                            <th scope="col" className="px-6 py-3 font-medium">
-                                STATUS
-                            </th>
-                            <th scope="col" className="px-6 py-3 font-medium">
-                                TILDELT TIL
-                            </th>
-                            <th scope="col" className="px-6 py-3 font-medium">
-                                DEADLINE
-                            </th>
-                            <th scope="col" className="px-6 py-3 font-medium">
-                                HANDLINGER
-                            </th>
+                            <th className="px-6 py-3 font-medium">OPGAVE</th>
+                            <th className="px-6 py-3 font-medium">PRIORITET</th>
+                            <th className="px-6 py-3 font-medium">STATUS</th>
+                            <th className="px-6 py-3 font-medium">TILDELT TIL</th>
+                            <th className="px-6 py-3 font-medium">DEADLINE</th>
+                            <th className="px-6 py-3 font-medium">HANDLINGER</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {tasks.map((task, index) => (
                             <tr
                                 key={task.task_id}
-                                className={`bg-white hover:bg-gray-50 transition-colors ${index !== tasks.length - 1 ? 'border-b border-gray-200' : ''
+                                className={`bg-white ${index !== tasks.length - 1
+                                    ? "border-b border-gray-200"
+                                    : ""
                                     }`}
                             >
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                    <div>
-                                        <div className="text-base font-semibold">{task.title}</div>
-                                        <div className="text-sm text-gray-500 font-normal mt-1">{task.description}</div>
+                                {/* TITLE + DESCRIPTION (clickable area) */}
+                                <td className="px-6 py-4">
+                                    <div
+                                        onClick={() => handleTaskClick(task.task_id)}
+                                        className="cursor-pointer group"
+                                    >
+                                        <div className="text-base font-semibold text-gray-900 group-hover:underline">
+                                            {task.title}
+                                        </div>
+                                        <div className="text-sm text-gray-500 mt-1">
+                                            {task.description}
+                                        </div>
                                     </div>
-                                </th>
+                                </td>
+
                                 <td className="px-6 py-4">
                                     <Badge variant="priority" value={task.priority} />
                                 </td>
+
                                 <td className="px-6 py-4">
                                     <Badge variant="status" value={task.status} />
                                 </td>
+
                                 <td className="px-6 py-4">
                                     <TaskAssignedUsers
                                         assignments={taskAssignments[task.task_id] || []}
                                         loading={!taskAssignments[task.task_id]}
                                     />
                                 </td>
+
                                 <td className="px-6 py-4">
                                     {formatRelativeDate(task.deadline)}
                                 </td>
+
                                 <td className="px-6 py-4">
                                     <div className="flex gap-3">
                                         <EditButton
@@ -177,7 +173,7 @@ export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: Tas
                 </table>
             </div>
 
-            {/* Edit Modal */}
+            {/* Edit Task Modal */}
             <Modal
                 isOpen={showEditModal}
                 onClose={handleEditCancel}
@@ -192,6 +188,13 @@ export default function TaskList({ tasks = [], onTaskUpdate, onTaskDelete }: Tas
                     />
                 )}
             </Modal>
+
+            {/* Task Details Drawer */}
+            <Drawer open={!!selectedTaskId} onClose={handleCloseDrawer}>
+                {selectedTaskId && (
+                    <TaskDetails taskId={selectedTaskId} onClose={handleCloseDrawer} />
+                )}
+            </Drawer>
         </>
     );
 }
