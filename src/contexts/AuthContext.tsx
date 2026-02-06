@@ -20,7 +20,7 @@ interface AuthProviderProps {
 
 const TEST_CREDENTIALS = {
     ADMIN: {
-        email: "rasm@mail.com",
+        email: "rasmus@mail.com",
         password: "123"
     },
     USER: {

@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Task, TaskStatus } from "@/types/task";
 import { getTask, updateTask, getUser } from "@/lib/api";
 import { User } from "@/types/users";
 import { formatRelativeDate, translatePriority } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { AuthContext } from "@/contexts/AuthContext";
+import TaskComments from "@/components/tasks/TaskComment";
 
 interface UserTaskDetailsProps {
     taskId: string;
@@ -14,12 +16,14 @@ interface UserTaskDetailsProps {
 }
 
 export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps) {
+    const authContext = useContext(AuthContext);
+    const currentUser = authContext?.user;
+
     const [task, setTask] = useState<Task | null>(null);
     const [creator, setCreator] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [comment, setComment] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -35,7 +39,6 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                         setCreator(creatorData);
                     } catch (err) {
                         console.error("Error fetching creator:", err);
-                        // Don't fail the whole component if creator fetch fails
                     }
                 }
             } catch (err) {
@@ -50,6 +53,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
             fetchTask();
         }
     }, [taskId]);
+
 
     const handleCompleteTask = async () => {
         if (!task) return;
@@ -66,6 +70,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
             setIsUpdating(false);
         }
     };
+
 
     if (isLoading) {
         return (
@@ -93,7 +98,6 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
         );
     }
 
-    // Get priority border color
     const getLeftBorderColor = () => {
         switch (task.priority) {
             case 'HIGH':
@@ -127,7 +131,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                 <div className="flex items-center mb-4 sm:mb-6">
                     <button
                         onClick={onBack}
-                        className="w-10 h-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 hover:scale-105 transition-all flex-shrink-0"
+                        className="w-10 h-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 hover:scale-105 transition-all shrink-0"
                     >
                         <FontAwesomeIcon icon={faXmark} className="text-gray-600" />
                     </button>
@@ -150,7 +154,6 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                         </div>
                     </div>
 
-
                     {/* Title */}
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 tracking-tight leading-tight">
                         {task.title}
@@ -163,17 +166,10 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                         </p>
                     )}
 
-                    {/* Comment Section */}
-                    <div className="mb-6">
-                        <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
-                            Kommentar
-                        </label>
-                        <textarea
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Tilføj en kommentar..."
-                            className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 sm:p-4 text-sm sm:text-base text-gray-900 placeholder-gray-400 resize-none min-h-[80px] sm:min-h-[100px] focus:outline-none focus:border-green-500 focus:bg-white transition-all"
-                        />
+                    {/* Comments Section */}
+                    {/* Add Comment Input */}
+                    <div className="mb-6 pb-6 border-b border-gray-100">
+                        <TaskComments taskId={taskId} />
                     </div>
 
                     {/* Metadata Section */}
@@ -191,7 +187,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                         </div>
                     </div>
 
-                    {/* Action Button - Pushed to bottom */}
+                    {/* Action Button */}
                     <button
                         onClick={handleCompleteTask}
                         disabled={isUpdating}
