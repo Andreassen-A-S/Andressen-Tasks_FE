@@ -20,6 +20,10 @@ export interface Task {
   deadline: string;
   created_at: string;
   updated_at: string;
+  parent_task_id?: string | null;
+  scheduled_date?: string | null;
+  unit?: string;
+  target_quantity?: number | null;
 }
 
 export interface CreateTaskInput {
@@ -30,6 +34,10 @@ export interface CreateTaskInput {
   deadline: string;
   created_by: string;
   assigned_users: string[];
+  parent_task_id?: string | null;
+  scheduled_date?: string | null;
+  unit?: string;
+  target_quantity?: number | null;
 }
 
 export interface UpdateTaskInput {

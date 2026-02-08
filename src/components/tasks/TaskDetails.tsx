@@ -6,6 +6,8 @@ import type { Task } from "@/types/task";
 import type { User } from "@/types/users";
 import { formatRelativeDate } from "@/helpers/helpers";
 import TaskComments from "@/components/tasks/TaskComment";
+import Modal from "@/components/modal/Modal";
+import CreateTaskForm from "@/components/tasks/CreateTaskForm";
 
 interface TaskDetailsProps {
     taskId: string;
@@ -17,6 +19,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     const [creator, setCreator] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showSubtaskModal, setShowSubtaskModal] = useState(false);
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -97,6 +100,17 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                     <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-line">
                         {task.description || <span className="italic text-gray-400">Ingen beskrivelse</span>}
                     </div>
+                    <div className="flex flex-row gap-2">
+                        {/* Only show if task is NOT a subtask */}
+                        {task.parent_task_id == null && (
+                            <button
+                                onClick={() => setShowSubtaskModal(true)}
+                                className="bg-indigo-600 text-white px-3 py-1 rounded font-medium text-sm hover:bg-indigo-500 transition"
+                            >
+                                Tilføj underopgave
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Comments Section */}
@@ -104,6 +118,22 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                     <TaskComments taskId={taskId} />
                 </div>
             </div>
+            {/* Add Subtask Modal */}
+            <Modal
+                isOpen={showSubtaskModal}
+                onClose={() => setShowSubtaskModal(false)}
+                title="Tilføj underopgave"
+                maxWidth="lg"
+            >
+                {task && (
+                    <CreateTaskForm
+                        onSuccess={() => setShowSubtaskModal(false)}
+                        onCancel={() => setShowSubtaskModal(false)}
+                        parentTaskId={task.task_id}
+                    />
+                )}
+            </Modal>
+
         </div>
     );
 }

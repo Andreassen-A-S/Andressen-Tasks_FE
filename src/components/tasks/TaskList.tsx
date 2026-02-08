@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { deleteTask, getTaskAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import { formatRelativeDate } from "@/helpers/helpers";
-import Badge from "../label/badge";
-import TaskAssignedUsers from "../label/taskAssignedUsers";
 import Modal from "../modal/Modal";
 import UpdateTaskForm from "./UpdateTaskForm";
-import EditButton from "../label/editButton";
 import Drawer from "../drawer/drawer";
 import TaskDetails from "./TaskDetails";
+import ParentTaskRow from "./ParentTaskRow";
 
 interface TaskListProps {
     tasks: Task[];
@@ -31,8 +28,29 @@ export default function TaskList({
         Record<string, TaskAssignment[]>
     >({});
 
+    // Group tasks into parents and subtasks
+    const { parents, subtasksMap } = useMemo(() => {
+        const parents: Task[] = [];
+        const subtasksMap: Record<string, Task[]> = {};
+
+        tasks.forEach(task => {
+            if (task.parent_task_id) {
+                if (!subtasksMap[task.parent_task_id]) {
+                    subtasksMap[task.parent_task_id] = [];
+                }
+                subtasksMap[task.parent_task_id].push(task);
+            } else {
+                parents.push(task);
+            }
+        });
+
+        return { parents, subtasksMap };
+    }, [tasks]);
+
     // Load assignments for all tasks
     useEffect(() => {
+        let active = true;
+
         async function loadAllAssignments() {
             const results = await Promise.all(
                 tasks.map(async (task) => {
@@ -54,10 +72,18 @@ export default function TaskList({
                 map[taskId] = assignments;
             });
 
-            setTaskAssignments(map);
+            if (active) {
+                setTaskAssignments(map);
+            }
         }
 
-        if (tasks.length > 0) loadAllAssignments();
+        if (tasks.length > 0) {
+            loadAllAssignments();
+        }
+
+        return () => {
+            active = false;
+        };
     }, [tasks]);
 
     function handleEditClick(task: Task) {
@@ -65,7 +91,7 @@ export default function TaskList({
         setShowEditModal(true);
     }
 
-    async function handleEditSuccess() {
+    function handleEditSuccess() {
         setShowEditModal(false);
         setSelectedTask(null);
         onTaskUpdate();
@@ -87,7 +113,6 @@ export default function TaskList({
         }
     }
 
-
     function handleTaskClick(taskId: string) {
         setSelectedTaskId(taskId);
     }
@@ -106,7 +131,7 @@ export default function TaskList({
 
     return (
         <>
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-x-auto">
+            <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
                 <table className="w-full text-sm text-left text-gray-700">
                     <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
@@ -120,63 +145,16 @@ export default function TaskList({
                     </thead>
 
                     <tbody>
-                        {tasks.map((task, index) => (
-                            <tr
+                        {parents.map((task) => (
+                            <ParentTaskRow
                                 key={task.task_id}
-                                className={`bg-white ${index !== tasks.length - 1
-                                    ? "border-b border-gray-200"
-                                    : ""
-                                    }`}
-                            >
-                                {/* TITLE + DESCRIPTION (clickable area) */}
-                                <td className="px-6 py-4">
-                                    <div
-                                        onClick={() => handleTaskClick(task.task_id)}
-                                        className="cursor-pointer group"
-                                    >
-                                        <div className="text-base font-semibold text-gray-900 group-hover:underline">
-                                            {task.title}
-                                        </div>
-                                        <div className="text-sm text-gray-500 mt-1">
-                                            {task.description}
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td className="px-6 py-4">
-                                    <Badge variant="priority" value={task.priority} />
-                                </td>
-
-                                <td className="px-6 py-4">
-                                    <Badge variant="status" value={task.status} />
-                                </td>
-
-                                <td className="px-6 py-4">
-                                    <TaskAssignedUsers
-                                        assignments={taskAssignments[task.task_id] || []}
-                                        loading={!taskAssignments[task.task_id]}
-                                    />
-                                </td>
-
-                                <td className="px-6 py-4">
-                                    {formatRelativeDate(task.deadline)}
-                                </td>
-
-                                <td className="px-6 py-4">
-                                    <div className="flex gap-3">
-                                        <EditButton
-                                            onClick={() => handleEditClick(task)}
-                                            ariaLabel={`Rediger opgave: ${task.title}`}
-                                        />
-                                        <button
-                                            className="text-red-600 hover:text-red-800 font-medium transition-colors"
-                                            onClick={() => handleDelete(task.task_id)}
-                                        >
-                                            Slet
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                                task={task}
+                                subtasks={subtasksMap[task.task_id] || []}
+                                taskAssignments={taskAssignments}
+                                onTaskClick={handleTaskClick}
+                                onEditClick={handleEditClick}
+                                onDeleteClick={handleDelete}
+                            />
                         ))}
                     </tbody>
                 </table>

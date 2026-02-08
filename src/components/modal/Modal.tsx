@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
     isOpen: boolean;
@@ -62,20 +63,17 @@ export default function Modal({
         "2xl": "sm:max-w-2xl",
     };
 
-    return (
-        // Modal overlay
+    const modalContent = (
         <div
             className="fixed inset-0 z-50 overflow-y-auto"
             aria-labelledby="modal-title"
             role="dialog"
             aria-modal="true"
         >
-            <div
-                className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
-            >
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                 {/* Backdrop */}
                 <div
-                    className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+                    className="fixed inset-0 bg-black/40 transition-opacity"
                     onClick={handleBackdropClick}
                     aria-hidden="true"
                 ></div>
@@ -102,13 +100,11 @@ export default function Modal({
                                 </svg>
                             </button>
                         </div>
-
                         {/* Modal content */}
                         <div>
                             {children}
                         </div>
                     </div>
-
                     {/* Modal footer (optional) */}
                     {footer && (
                         <div className="bg-gray-50 px-4 py-3 sm:px-6">
@@ -119,4 +115,7 @@ export default function Modal({
             </div>
         </div>
     );
+
+    if (typeof document === "undefined") return null;
+    return createPortal(modalContent, document.body);
 }

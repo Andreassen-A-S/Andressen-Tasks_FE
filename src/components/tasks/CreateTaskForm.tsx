@@ -11,11 +11,13 @@ import { useAuth } from "@/hooks/useAuth";
 interface CreateTaskFormProps {
     onSuccess: (task: Task) => void;
     onCancel: () => void;
+    parentTaskId?: string; // Optional parent task ID for creating subtasks
 }
 
-export default function CreateTaskForm({ onSuccess, onCancel }: CreateTaskFormProps) {
+export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: CreateTaskFormProps) {
     const { user } = useAuth();
     const [formData, setFormData] = useState<CreateTaskInput>({
+        parent_task_id: parentTaskId || undefined,
         title: "",
         description: "",
         priority: TaskPriority.MEDIUM,
@@ -23,6 +25,9 @@ export default function CreateTaskForm({ onSuccess, onCancel }: CreateTaskFormPr
         deadline: new Date().toISOString().split("T")[0],
         created_by: user?.user_id || "",
         assigned_users: [],
+        scheduled_date: undefined,
+        unit: undefined,
+        target_quantity: undefined,
     });
     const [loading, setLoading] = useState(false);
 
