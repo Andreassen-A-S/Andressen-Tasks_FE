@@ -30,7 +30,7 @@ export default function SubTaskRow({
     onEditClick,
 }: SubTaskRowProps) {
     return (
-        <tr className="bg-gray-50/50 hover:bg-gray-100/50 transition-colors order-b border-gray-200">
+        <tr className="bg-gray-50/50 hover:bg-gray-100/50 transition-colors border-b border-gray-200">
             {/* First column - Tree lines */}
             <td className="pl-4 pr-2 py-3 relative">
                 {/* lines ABOVE the border */}

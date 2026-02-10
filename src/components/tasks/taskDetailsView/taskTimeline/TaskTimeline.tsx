@@ -131,17 +131,14 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
 
                     // COMMENT cards
                     if (isCommentEvent(e.type)) {
-                        // For deleted comment you may not have comment object depending on how you handle deletion.
-                        if (isCommentEvent(e.type)) {
-                            return (
-                                <TaskTimelineComment
-                                    key={e.event_id}
-                                    event={e}
-                                    actorName={actorName}
-                                    label={eventLabel(e)}
-                                />
-                            );
-                        }
+                        return (
+                            <TaskTimelineComment
+                                key={e.event_id}
+                                event={e}
+                                actorName={actorName}
+                                label={eventLabel(e)}
+                            />
+                        );
                     }
 
                     // Compact event rows

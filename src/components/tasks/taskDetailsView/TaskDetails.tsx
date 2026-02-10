@@ -47,7 +47,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     const [error, setError] = useState<string | null>(null);
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
     const [assignments, setAssignments] = useState<TaskAssignment[]>([]);
-    const [taskEvents, setTaskEvents] = useState<TaskEvent[]>([]);
+
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -60,9 +60,6 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                 const assignmentData = await getTaskAssignments(taskId);
                 setAssignments(assignmentData);
 
-                // Fetch task events
-                const events = await getTaskEvents(taskId);
-                setTaskEvents(events);
 
                 if (taskData.created_by) {
                     const creatorData = await getUser(taskData.created_by);
@@ -396,13 +393,13 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                 title="Tilføj underopgave"
                 maxWidth="lg"
             >
-                {task && (
-                    <CreateTaskForm
-                        onSuccess={() => setShowSubtaskModal(false)}
-                        onCancel={() => setShowSubtaskModal(false)}
-                        parentTaskId={task.task_id}
-                    />
-                )}
+
+                <CreateTaskForm
+                    onSuccess={() => setShowSubtaskModal(false)}
+                    onCancel={() => setShowSubtaskModal(false)}
+                    parentTaskId={task.task_id}
+                />
+
             </Modal>
         </div>
     );

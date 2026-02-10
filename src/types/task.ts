@@ -70,7 +70,6 @@ export interface UpdateTaskInput {
   goal_type?: TaskGoalType;
   target_quantity?: number | null;
   current_quantity?: number | null;
-  parent_task_id?: string;
 }
 
 export interface CreateSubtaskInput extends Omit<

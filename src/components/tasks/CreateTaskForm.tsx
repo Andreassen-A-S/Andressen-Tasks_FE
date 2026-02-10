@@ -105,7 +105,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                         <div>
                             <h4 className="text-sm font-semibold text-cyan-900">Opretter underopgave</h4>
                             <p className="text-sm text-cyan-700 mt-1">
-                                Denne opgave vil arve brugertildelinger og enhed fra hovedopgaven.
+                                Husk at angive brugertildelinger og enhed for denne underopgave nedenfor.
                             </p>
                         </div>
                     </div>

@@ -42,7 +42,7 @@ export default function ParentTaskRow({
     const hasQuantityProgress =
         !hasSubtasks &&
         (task.current_quantity != null || task.target_quantity != null) &&
-        task.goal_type !== TaskGoalType.OPEN;
+        task.goal_type === TaskGoalType.FIXED;
 
     const progressUnit = translateTaskUnit(task.unit);
 
