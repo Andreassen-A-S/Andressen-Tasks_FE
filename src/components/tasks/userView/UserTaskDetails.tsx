@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { Task, TaskStatus } from "@/types/task";
-import { getTask, updateTask, getUser } from "@/lib/api";
+import { addTaskProgress, getTask, updateTask, getUser } from "@/lib/api";
 import { User } from "@/types/users";
-import { formatRelativeDate, translatePriority } from "@/helpers/helpers";
+import { formatRelativeDate, translatePriority, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { AuthContext } from "@/contexts/AuthContext";
 import TaskComments from "@/components/tasks/TaskComment";
 
 interface UserTaskDetailsProps {
@@ -16,13 +15,12 @@ interface UserTaskDetailsProps {
 }
 
 export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps) {
-    const authContext = useContext(AuthContext);
-    const currentUser = authContext?.user;
-
     const [task, setTask] = useState<Task | null>(null);
     const [creator, setCreator] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [progressDelta, setProgressDelta] = useState("");
+    const [progressNote, setProgressNote] = useState("");
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -66,6 +64,33 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
         } catch (err) {
             console.error("Error updating task:", err);
             alert("Kunne ikke opdatere opgave");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleAddProgress = async () => {
+        if (!task) return;
+        const delta = Number(progressDelta);
+
+        if (!Number.isFinite(delta) || delta <= 0) {
+            alert("Indtast et gyldigt fremskridt over 0");
+            return;
+        }
+
+        try {
+            setIsUpdating(true);
+            await addTaskProgress(task.task_id, {
+                quantity_done: delta,
+                note: progressNote.trim() || undefined,
+            });
+            const updatedTask = await getTask(task.task_id);
+            setTask(updatedTask);
+            setProgressDelta("");
+            setProgressNote("");
+        } catch (err) {
+            console.error("Error adding progress:", err);
+            alert("Kunne ikke registrere fremskridt");
         } finally {
             setIsUpdating(false);
         }
@@ -124,6 +149,13 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
         }
     };
 
+    const unitLabel = translateTaskUnit(task.unit);
+    const currentQuantity = task.current_quantity ?? 0;
+    const hasTarget = task.target_quantity != null;
+    const progressPct = hasTarget && task.target_quantity
+        ? Math.min(100, Math.round((currentQuantity / task.target_quantity) * 100))
+        : null;
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <div className="max-w-2xl mx-auto w-full p-4 sm:p-6 flex flex-col flex-1">
@@ -165,6 +197,49 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                             {task.description}
                         </p>
                     )}
+
+                    <div className="mb-6 pb-6 border-b border-gray-100">
+                        <h2 className="text-sm font-semibold text-gray-900 mb-3">Fremskridt</h2>
+                        <div className="text-sm text-gray-700 mb-2">
+                            {hasTarget
+                                ? `${currentQuantity}/${task.target_quantity}${unitLabel ? ` ${unitLabel}` : ""}`
+                                : `${currentQuantity}${unitLabel ? ` ${unitLabel}` : ""}`}
+                        </div>
+                        {progressPct != null && (
+                            <div className="w-full h-2 rounded bg-gray-200 overflow-hidden mb-3">
+                                <div
+                                    className="h-2 bg-teal-500 transition-all"
+                                    style={{ width: `${progressPct}%` }}
+                                />
+                            </div>
+                        )}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input
+                                type="number"
+                                min={0}
+                                step="any"
+                                placeholder={`+ ${unitLabel || "mængde"}`}
+                                value={progressDelta}
+                                onChange={(e) => setProgressDelta(e.target.value)}
+                                className="rounded-lg border-2 border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Note (valgfri)"
+                                value={progressNote}
+                                onChange={(e) => setProgressNote(e.target.value)}
+                                className="rounded-lg border-2 border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none sm:col-span-2"
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleAddProgress}
+                            disabled={isUpdating}
+                            className="mt-3 inline-flex items-center rounded-lg bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-50"
+                        >
+                            Registrer fremskridt
+                        </button>
+                    </div>
 
                     {/* Comments Section */}
                     {/* Add Comment Input */}

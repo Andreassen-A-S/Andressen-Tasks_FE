@@ -54,6 +54,24 @@ export async function updateTask(
   return data.data;
 }
 
+export interface AddTaskProgressInput {
+  quantity_done: number;
+  note?: string;
+}
+
+export async function addTaskProgress(
+  taskId: string,
+  payload: AddTaskProgressInput,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/tasks/${taskId}/progress`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) throw new Error("Failed to add task progress");
+}
+
 export async function deleteTask(id: string): Promise<void> {
   const res = await fetch(`${API_URL}/tasks/${id}`, {
     method: "DELETE",

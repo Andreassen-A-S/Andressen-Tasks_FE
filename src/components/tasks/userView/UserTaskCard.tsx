@@ -1,7 +1,7 @@
 "use client";
 
 import { Task } from "@/types/task";
-import { formatRelativeDate, translatePriority } from "@/helpers/helpers";
+import { formatRelativeDate, translatePriority, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
@@ -12,6 +12,12 @@ interface UserTaskCardProps {
 
 export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
     const isCompleted = task.status === 'DONE';
+    const progress = task.current_quantity ?? 0;
+    const target = task.target_quantity ?? null;
+    const unit = translateTaskUnit(task.unit);
+    const progressLabel = target !== null
+        ? `${progress}/${target}${unit ? ` ${unit}` : ""}`
+        : `${progress}${unit ? ` ${unit}` : ""}`;
 
     // Get left border color based on priority
     const getLeftBorderColor = () => {
@@ -55,7 +61,7 @@ export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
                     {translatePriority(task.priority)} prioritet
                 </div>
                 <div className="text-[11px] sm:text-xs text-gray-500 bg-gray-100 px-2.5 sm:px-3 py-1 rounded-lg font-medium">
-                    {formatRelativeDate(task.deadline)}
+                    {task.scheduled_date ? `Planlagt ${formatRelativeDate(task.scheduled_date)}` : formatRelativeDate(task.deadline)}
                 </div>
             </div>
 
@@ -87,6 +93,11 @@ export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
                         <p className={`text-sm sm:text-base leading-relaxed line-clamp-2 ${isCompleted ? 'text-gray-400' : 'text-gray-600'
                             }`}>
                             {task.description}
+                        </p>
+                    )}
+                    {(task.current_quantity != null || task.target_quantity != null) && (
+                        <p className="mt-2 text-xs sm:text-sm font-medium text-teal-700">
+                            Fremskridt: {progressLabel}
                         </p>
                     )}
                 </div>

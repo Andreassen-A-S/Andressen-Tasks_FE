@@ -1,12 +1,15 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import type { Task } from "@/types/task";
+import { TaskGoalType, type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import { formatRelativeDate } from "@/helpers/helpers";
+import { formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
 import Badge from "../label/badge";
 import TaskAssignedUsers from "../label/taskAssignedUsers";
 import EditButton from "../label/editButton";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import SubTaskRow from "./SubTaskRow";
 
 interface ParentTaskRowProps {
     task: Task;
@@ -28,6 +31,7 @@ export default function ParentTaskRow({
     const [isExpanded, setIsExpanded] = useState(false);
 
     const hasSubtasks = subtasks.length > 0;
+
     const progress = hasSubtasks
         ? {
             completed: subtasks.filter((st) => st.status === "DONE").length,
@@ -35,74 +39,121 @@ export default function ParentTaskRow({
         }
         : null;
 
+    const hasQuantityProgress =
+        !hasSubtasks &&
+        (task.current_quantity != null || task.target_quantity != null) &&
+        task.goal_type !== TaskGoalType.OPEN;
+
+    const progressUnit = translateTaskUnit(task.unit);
+
     return (
         <Fragment>
             {/* Parent Task Row */}
             <tr className="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                <td className="pl-4 pr-2 py-3 w-10">
+                    {hasSubtasks && (
+                        <button
+                            type="button"
+                            onClick={() => setIsExpanded((v) => !v)}
+                            className={`inline-flex items-center justify-center w-6 h-6 transition-transform duration-200 ${isExpanded ? "rotate-90 text-gray-600" : "text-gray-400"
+                                }`}
+                            aria-label={isExpanded ? "Skjul delopgaver" : "Vis delopgaver"}
+                            aria-expanded={isExpanded}
+                        >
+                            <FontAwesomeIcon icon={faChevronRight} className="text-sm" />
+                        </button>
+                    )}
+                </td>
+
                 {/* Title + Description */}
-                <td className="px-6 py-4">
-                    <div className="group">
-                        <div className="flex items-center gap-2">
-                            {hasSubtasks && (
+                <td className="px-2 py-4">
+                    <div className="flex items-start gap-3">
+                        {/* RIGHT CONTENT (text + progress) */}
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
                                 <button
                                     type="button"
-                                    onClick={() => setIsExpanded((v) => !v)}
-                                    aria-label={isExpanded ? "Skjul delopgaver" : "Vis delopgaver"}
-                                    aria-expanded={isExpanded}
-                                    className={`inline-flex h-6 w-6 items-center justify-center rounded bg-gray-200 text-xs text-gray-600 transition-all ${isExpanded ? "rotate-90 bg-teal-500 text-white" : ""
-                                        }`}
+                                    onClick={() => onTaskClick(task.task_id)}
+                                    className="text-left cursor-pointer min-w-0"
                                 >
-                                    ▶
-                                </button>
-                            )}
-
-                            <button
-                                type="button"
-                                onClick={() => onTaskClick(task.task_id)}
-                                className="text-left cursor-pointer"
-                            >
-                                <div className="text-base font-semibold text-gray-900 group-hover:underline">
-                                    {task.title}
-                                </div>
-                            </button>
-
-                            {hasSubtasks && (
-                                <div className="flex items-center gap-2 min-w-30">
-                                    {/* Progress fraction */}
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-gray-500 rounded text-xs font-bold">
-                                        {progress?.completed}/{progress?.total}
-                                    </span>
-                                    {/* Progress bar with dividers */}
-                                    <div className="relative w-24 h-2 bg-indigo-100 rounded overflow-hidden">
-                                        {/* Progress fill */}
-                                        <div
-                                            className="absolute left-0 top-0 h-2 bg-indigo-500 transition-all"
-                                            style={{
-                                                width: `${progress ? (progress.completed / progress.total) * 100 : 0}%`,
-                                            }}
-                                        />
-                                        {/* Dividers */}
-                                        {progress && progress.total > 1 &&
-                                            Array.from({ length: progress.total - 1 }).map((_, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="absolute top-0 bottom-0 w-0.5 bg-white"
-                                                    style={{
-                                                        left: `${((i + 1) / progress.total) * 100}%`,
-                                                    }}
-                                                />
-                                            ))
-                                        }
+                                    <div className="truncate text-base font-semibold text-gray-900 hover:underline">
+                                        {task.title}
                                     </div>
-                                    {/* Percentage */}
-                                    <span className="text-xs font-semibold text-gray-500 ml-1">
-                                        {progress ? Math.round((progress.completed / progress.total) * 100) : 0}%
+                                </button>
+
+                                {/* Subtask count badge */}
+                                {hasSubtasks && (
+                                    <span className="text-xs text-gray-500 font-medium">
+                                        {subtasks.length} {subtasks.length === 1 ? 'sub' : 'subs'}
                                     </span>
-                                </div>
+                                )}
+
+                                {/* Subtask progress bar */}
+                                {hasSubtasks && (
+                                    <div className="flex items-center gap-2 min-w-30">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-gray-500 rounded text-xs font-bold">
+                                            {progress?.completed}/{progress?.total}
+                                        </span>
+
+                                        <div className="relative w-24 h-2 bg-indigo-100 rounded overflow-hidden">
+                                            <div
+                                                className="absolute left-0 top-0 h-2 bg-indigo-500 transition-all"
+                                                style={{
+                                                    width: `${progress ? (progress.completed / progress.total) * 100 : 0}%`,
+                                                }}
+                                            />
+                                            {progress && progress.total > 1 &&
+                                                Array.from({ length: progress.total - 1 }).map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="absolute top-0 bottom-0 w-0.5 bg-white"
+                                                        style={{
+                                                            left: `${((i + 1) / progress.total) * 100}%`,
+                                                        }}
+                                                    />
+                                                ))}
+                                        </div>
+
+                                        <span className="text-xs font-semibold text-gray-500 ml-1">
+                                            {progress ? Math.round((progress.completed / progress.total) * 100) : 0}%
+                                        </span>
+                                    </div>
+                                )}
+
+                                {/* Quantity progress bar (fixed goals) */}
+                                {hasQuantityProgress && task.target_quantity != null && task.target_quantity > 0 && (
+                                    <div className="flex items-center gap-2 min-w-30">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-gray-500 rounded text-xs font-bold">
+                                            {task.current_quantity ?? 0}/{task.target_quantity}
+                                            {progressUnit ? ` ${progressUnit}` : ""}
+                                        </span>
+
+                                        <div className="relative w-24 h-2 bg-green-100 rounded overflow-hidden">
+                                            <div
+                                                className="absolute left-0 top-0 h-2 bg-green-500 transition-all"
+                                                style={{
+                                                    width: `${Math.min(
+                                                        100,
+                                                        ((task.current_quantity ?? 0) / task.target_quantity) * 100
+                                                    )}%`,
+                                                }}
+                                            />
+                                        </div>
+
+                                        <span className="text-xs font-semibold text-gray-500 ml-1">
+                                            {Math.round(
+                                                Math.min(1, (task.current_quantity ?? 0) / task.target_quantity) * 100
+                                            )}
+                                            %
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {task.description && (
+                                <div className="text-sm text-gray-500 mt-1">{task.description}</div>
                             )}
                         </div>
-
-                        <div className="text-sm text-gray-500 mt-1">{task.description}</div>
                     </div>
                 </td>
 
@@ -121,7 +172,13 @@ export default function ParentTaskRow({
                     />
                 </td>
 
-                <td className="px-6 py-4">{formatRelativeDate(task.deadline)}</td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                    {formatRelativeDate(task.scheduled_date)}
+                </td>
+
+                <td className="px-6 py-4 text-sm text-gray-600">
+                    {formatRelativeDate(task.deadline)}
+                </td>
 
                 <td className="px-6 py-4">
                     <div className="flex gap-3">
@@ -130,7 +187,7 @@ export default function ParentTaskRow({
                             ariaLabel={`Rediger opgave: ${task.title}`}
                         />
                         <button
-                            className="text-red-600 hover:text-red-800 font-medium transition-colors"
+                            className="text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
                             onClick={() => onDeleteClick(task.task_id)}
                         >
                             Slet
@@ -143,62 +200,18 @@ export default function ParentTaskRow({
             {hasSubtasks &&
                 isExpanded &&
                 subtasks.map((subtask, idx) => {
+                    const isFirst = idx === 0;
                     const isLast = idx === subtasks.length - 1;
-                    const connector = isLast ? "└─" : "├─";
-
                     return (
-                        <tr
+                        <SubTaskRow
                             key={subtask.task_id}
-                            className="bg-cyan-50/40 border-b border-gray-200 hover:bg-cyan-50 transition-colors"
-                        >
-                            <td className="px-6 py-3">
-                                <div className="pl-6 flex items-center gap-2">
-                                    <span className="text-teal-600 font-bold font-mono leading-none">
-                                        {connector}
-                                    </span>
-
-                                    <button
-                                        type="button"
-                                        className={`font-medium ${subtask.status === "DONE"
-                                            ? "line-through text-gray-500"
-                                            : "text-gray-900"
-                                            } hover:underline`}
-                                        onClick={() => onTaskClick(subtask.task_id)}
-                                        style={{ background: "none", border: "none", padding: 0 }}
-                                    >
-                                        {subtask.title}
-                                    </button>
-                                </div>
-                            </td>
-
-                            <td className="px-6 py-3">
-                                <Badge variant="priority" value={subtask.priority} />
-                            </td>
-
-                            <td className="px-6 py-3">
-                                <Badge variant="status" value={subtask.status} />
-                            </td>
-
-                            <td className="px-6 py-3">
-                                <TaskAssignedUsers
-                                    assignments={taskAssignments[subtask.task_id] || []}
-                                    loading={!taskAssignments[subtask.task_id]}
-                                />
-                            </td>
-
-                            <td className="px-6 py-3">
-                                {formatRelativeDate(subtask.deadline)}
-                            </td>
-
-                            <td className="px-6 py-3">
-                                <div className="flex gap-2">
-                                    <EditButton
-                                        onClick={() => onEditClick(subtask)}
-                                        ariaLabel={`Rediger delopgave: ${subtask.title}`}
-                                    />
-                                </div>
-                            </td>
-                        </tr>
+                            subtask={subtask}
+                            isFirst={isFirst}
+                            isLast={isLast}
+                            taskAssignments={taskAssignments}
+                            onTaskClick={onTaskClick}
+                            onEditClick={onEditClick}
+                        />
                     );
                 })}
         </Fragment>

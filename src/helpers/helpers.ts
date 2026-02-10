@@ -44,6 +44,10 @@ export function formatCommentDate(dateString: string): string {
   });
 }
 
+export function isoToDateString(iso: string): string {
+  return iso.split("T")[0];
+}
+
 // Translation functions
 export function translatePriority(priority: string): string {
   switch (priority) {
@@ -108,4 +112,26 @@ export function getAuthHeaders(): HeadersInit {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
   };
+}
+
+export function toIsoEndOfDay(dateString: string): string {
+  // Converts YYYY-MM-DD to ISO-8601 DateTime at end of day
+  return new Date(dateString + "T23:59:59.000Z").toISOString();
+}
+
+export function translateTaskUnit(unit?: string | null): string {
+  switch (unit) {
+    case "HOURS":
+      return "timer";
+    case "METERS":
+      return "m";
+    case "KILOMETERS":
+      return "km";
+    case "LITERS":
+      return "l";
+    case "KILOGRAMS":
+      return "kg";
+    default:
+      return "";
+  }
 }

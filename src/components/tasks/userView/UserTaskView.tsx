@@ -10,6 +10,9 @@ import { useRouter } from "next/navigation";
 import UserTaskDetails from "./UserTaskDetails";
 import UserTaskCard from "./UserTaskCard";
 import { sortTasks } from "@/helpers/sort";
+import { formatRelativeDate, isoToDateString } from "@/helpers/helpers";
+import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+
 
 export default function UserTasksView() {
     const { user, logout, isLoading: authLoading } = useAuth();
@@ -18,6 +21,7 @@ export default function UserTasksView() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     // Reusable function to fetch and set tasks
     const fetchAndSetTasks = useCallback(async () => {
@@ -84,6 +88,22 @@ export default function UserTasksView() {
         fetchAndSetTasks();
     }, [fetchAndSetTasks]);
 
+
+    const todayStr = isoToDateString(selectedDate.toISOString());
+
+    const filteredTasks = tasks.filter(task => {
+        const isDone = task.status === "DONE";
+        const scheduledDate = task.scheduled_date ? isoToDateString(task.scheduled_date) : null;
+        const deadlineDate = task.deadline ? isoToDateString(task.deadline) : null;
+
+        const isScheduledToday = scheduledDate === todayStr;
+        const isCarryOverScheduled = !!scheduledDate && scheduledDate < todayStr && !isDone;
+        const isDueToday = deadlineDate === todayStr;
+        const isOverdue = !!deadlineDate && deadlineDate < todayStr && !isDone;
+
+        return isScheduledToday || isCarryOverScheduled || isDueToday || isOverdue;
+    });
+
     // Show task details view
     if (selectedTaskId) {
         return (
@@ -130,6 +150,8 @@ export default function UserTasksView() {
     // Main view
     return (
         <div className="min-h-screen bg-gray-50">
+
+
             {/* Header */}
             <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
@@ -151,10 +173,38 @@ export default function UserTasksView() {
                     </button>
                 </div>
             </header>
+            {/* Date Navigation Bar */}
+            <div className="bg-white border-b border-gray-200 sticky top-0 z-20 flex items-center justify-center py-2">
+                <button
+                    onClick={() => setSelectedDate(prev => {
+                        const newDate = new Date(prev);
+                        newDate.setDate(newDate.getDate() - 1);
+                        return newDate;
+                    })}
+                    className="px-2 text-gray-600 hover:text-gray-900"
+                    aria-label="Forrige dag"
+                >
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                </button>
+                <span className="mx-4 font-semibold text-gray-900">
+                    {formatRelativeDate(selectedDate)}
+                </span>
+                <button
+                    onClick={() => setSelectedDate(prev => {
+                        const newDate = new Date(prev);
+                        newDate.setDate(newDate.getDate() + 1);
+                        return newDate;
+                    })}
+                    className="px-2 text-gray-600 hover:text-gray-900"
+                    aria-label="Næste dag"
+                >
+                    <FontAwesomeIcon icon={faChevronRight} />
+                </button>
+            </div>
 
             {/* Content */}
             <main className="max-w-4xl mx-auto p-4 sm:p-6">
-                {tasks.length === 0 ? (
+                {filteredTasks.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm border-2 border-gray-200 p-8 sm:p-12 text-center">
                         <FontAwesomeIcon
                             icon={faCheckCircle}
@@ -162,7 +212,7 @@ export default function UserTasksView() {
                             className="mb-4 text-gray-300"
                         />
                         <p className="text-base sm:text-lg text-gray-600 font-medium">
-                            Du har ingen opgaver tildelt
+                            Ingen opgaver planlagt for denne dag
                         </p>
                         <p className="text-sm text-gray-500 mt-2">
                             Nye opgaver vil blive vist her
@@ -170,7 +220,7 @@ export default function UserTasksView() {
                     </div>
                 ) : (
                     <div className="space-y-3 sm:space-y-4">
-                        {tasks.map((task) => (
+                        {filteredTasks.map((task) => (
                             <UserTaskCard
                                 key={task.task_id}
                                 task={task}
