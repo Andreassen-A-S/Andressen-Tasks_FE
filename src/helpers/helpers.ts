@@ -1,3 +1,5 @@
+import { TaskEvent } from "@/types/taskEvent";
+
 export function formatRelativeDate(isoDate: string | Date): string {
   const date =
     typeof isoDate === "string" ? new Date(isoDate.split("T")[0]) : isoDate;
@@ -22,6 +24,41 @@ export function formatRelativeDate(isoDate: string | Date): string {
       year: "numeric",
     }),
   });
+}
+
+// Used in task details for created_at and updated_at
+export function formatDaDateTime(isoDate: string | Date): string {
+  const date = typeof isoDate === "string" ? new Date(isoDate) : isoDate;
+  if (Number.isNaN(date.getTime())) return "";
+
+  const datePart = date.toLocaleDateString("da-DK", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  const timePart = date
+    .toLocaleTimeString("da-DK", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+    .replace(":", ".");
+
+  return `${datePart} ${timePart}`;
+}
+
+export function formatDaDate(isoDate: string | Date): string {
+  const date = typeof isoDate === "string" ? new Date(isoDate) : isoDate;
+  if (Number.isNaN(date.getTime())) return "";
+
+  const datePart = date.toLocaleDateString("da-DK", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  return `${datePart}`;
 }
 
 export function formatCommentDate(dateString: string): string {
@@ -134,4 +171,14 @@ export function translateTaskUnit(unit?: string | null): string {
     default:
       return "";
   }
+}
+
+// For timeline event descriptions
+
+export function getSubtaskInfo(e: TaskEvent) {
+  const aj = e.after_json as any;
+  return {
+    id: aj?.task_id as string | undefined,
+    title: aj?.title as string | undefined,
+  };
 }

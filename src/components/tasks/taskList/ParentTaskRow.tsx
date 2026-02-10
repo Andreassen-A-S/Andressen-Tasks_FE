@@ -4,9 +4,9 @@ import { Fragment, useState } from "react";
 import { TaskGoalType, type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
 import { formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
-import Badge from "../label/badge";
-import TaskAssignedUsers from "../label/taskAssignedUsers";
-import EditButton from "../label/editButton";
+import Badge from "../../label/badge";
+import TaskAssignedUsers from "../../label/taskAssignedUsers";
+import EditButton from "../../label/editButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import SubTaskRow from "./SubTaskRow";
@@ -50,25 +50,25 @@ export default function ParentTaskRow({
         <Fragment>
             {/* Parent Task Row */}
             <tr className="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                <td className="pl-4 pr-2 py-3 w-10">
+                <td className="w-10 px-2 py-3 relative ">
                     {hasSubtasks && (
                         <button
                             type="button"
                             onClick={() => setIsExpanded((v) => !v)}
-                            className={`inline-flex items-center justify-center w-6 h-6 transition-transform duration-200 ${isExpanded ? "rotate-90 text-gray-600" : "text-gray-400"
-                                }`}
+                            className={` absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+        inline-flex items-center justify-center h-8 w-8 transition-transform duration-200
+        ${isExpanded ? "rotate-90 text-gray-300" : "text-gray-400"}`}
                             aria-label={isExpanded ? "Skjul delopgaver" : "Vis delopgaver"}
                             aria-expanded={isExpanded}
                         >
-                            <FontAwesomeIcon icon={faChevronRight} className="text-sm" />
+                            <FontAwesomeIcon icon={faChevronRight} />
                         </button>
                     )}
                 </td>
 
                 {/* Title + Description */}
-                <td className="px-2 py-4">
+                <td className=" py-4 ">
                     <div className="flex items-start gap-3">
-                        {/* RIGHT CONTENT (text + progress) */}
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                                 <button
@@ -81,12 +81,7 @@ export default function ParentTaskRow({
                                     </div>
                                 </button>
 
-                                {/* Subtask count badge */}
-                                {hasSubtasks && (
-                                    <span className="text-xs text-gray-500 font-medium">
-                                        {subtasks.length} {subtasks.length === 1 ? 'sub' : 'subs'}
-                                    </span>
-                                )}
+
 
                                 {/* Subtask progress bar */}
                                 {hasSubtasks && (

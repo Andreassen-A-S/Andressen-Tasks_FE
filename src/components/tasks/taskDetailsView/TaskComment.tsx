@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { AuthContext } from "@/contexts/AuthContext";
 import { formatCommentDate } from "@/helpers/helpers";
+import SingleAvatar from "../../label/singleAvatar";
 
 interface TaskCommentsProps {
     taskId: string;
@@ -154,31 +155,48 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
             )}
 
             {/* Add Comment Input */}
-            <div>
-                <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Tilføj en kommentar..."
-                    className="w-full bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-4 text-sm sm:text-base text-gray-900 placeholder-gray-400 resize-none min-h-20 focus:outline-none focus:border-green-500 transition-all"
-                    disabled={isSubmittingComment}
-                />
-                <div className="flex justify-end mt-2">
-                    <button
-                        onClick={handleSubmitComment}
-                        disabled={!comment.trim() || isSubmittingComment}
-                        className="px-4 py-2 bg-green-500 text-white text-sm font-semibold rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isSubmittingComment ? (
-                            <>
-                                <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
-                                Sender...
-                            </>
-                        ) : (
-                            'Send kommentar'
-                        )}
-                    </button>
+            <div className="mt-6">
+                <div className="flex items-start gap-4">
+                    <SingleAvatar
+                        name={currentUser?.name || currentUser?.email || "Ukendt bruger"}
+                        size="sm"
+                    />
+
+                    {/* Right side (textarea + button) */}
+                    <div className="flex-1">
+                        <textarea
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Tilføj en kommentar..."
+                            disabled={isSubmittingComment}
+                            className="w-full bg-white border border-gray-300 rounded-2xl px-5 py-4 text-base text-gray-900 placeholder:text-gray-400 resize-none min-h-[120px]
+                   focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500
+                   disabled:bg-gray-50 disabled:text-gray-500"
+                        />
+
+                        <div className="mt-3 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={handleSubmitComment}
+                                disabled={!comment.trim() || isSubmittingComment}
+                                className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white
+                     hover:bg-green-700 transition-colors
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmittingComment ? (
+                                    <>
+                                        <FontAwesomeIcon icon={faSpinner} spin />
+                                        Sender...
+                                    </>
+                                ) : (
+                                    "Kommenter"
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
     );
 }

@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { deleteTask, getTaskAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import Modal from "../modal/Modal";
-import UpdateTaskForm from "./UpdateTaskForm";
-import Drawer from "../drawer/drawer";
-import TaskDetails from "./TaskDetails";
+import Modal from "../../modal/Modal";
+import UpdateTaskForm from "../updateTaskView/UpdateTaskForm";
+import Drawer from "../../drawer/drawer";
+import TaskDetails from "../taskDetailsView/TaskDetails";
 import ParentTaskRow from "./ParentTaskRow";
 
 interface TaskListProps {

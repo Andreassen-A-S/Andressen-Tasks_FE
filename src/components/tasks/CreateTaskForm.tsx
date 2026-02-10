@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { createTask } from "@/lib/api";
-import type { Task, CreateTaskInput } from "@/types/task";
+import { createSubtask, createTask } from "@/lib/api";
+import type { Task, CreateTaskInput, CreateSubtaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
-import UserSelector from "./UserSelector";
+import UserSelector from "./updateTaskView/UserSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
@@ -13,7 +13,7 @@ import { toIsoEndOfDay } from "@/helpers/helpers";
 interface CreateTaskFormProps {
     onSuccess: (task: Task) => void;
     onCancel: () => void;
-    parentTaskId?: string; // Optional parent task ID for creating subtasks
+    parentTaskId?: string;
 }
 
 export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: CreateTaskFormProps) {
@@ -44,13 +44,45 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         setError(null);
 
         try {
-            // Convert date to ISO-8601 DateTime
-            const taskData = {
-                ...formData,
-                deadline: toIsoEndOfDay(formData.deadline),
-                scheduled_date: toIsoEndOfDay(formData.scheduled_date),
-            };
-            const newTask = await createTask(taskData);
+            let newTask;
+
+            if (isSubtask && parentTaskId) {
+                // For subtasks, create a properly typed object
+                const subtaskData: CreateSubtaskInput = {
+                    title: formData.title,
+                    description: formData.description,
+                    priority: formData.priority,
+                    status: formData.status,
+                    deadline: toIsoEndOfDay(formData.deadline),
+                    created_by: formData.created_by,
+                    assigned_users: formData.assigned_users,
+                    scheduled_date: toIsoEndOfDay(formData.scheduled_date),
+                    unit: formData.unit,
+                    goal_type: formData.goal_type,
+                    target_quantity: formData.target_quantity,
+                    current_quantity: formData.current_quantity,
+                    parent_task_id: parentTaskId, // Required for subtasks
+                };
+                newTask = await createSubtask(subtaskData);
+            } else {
+                // For parent tasks
+                const taskData: CreateTaskInput = {
+                    title: formData.title,
+                    description: formData.description,
+                    priority: formData.priority,
+                    status: formData.status,
+                    deadline: toIsoEndOfDay(formData.deadline),
+                    created_by: formData.created_by,
+                    assigned_users: formData.assigned_users,
+                    scheduled_date: toIsoEndOfDay(formData.scheduled_date),
+                    unit: formData.unit,
+                    goal_type: formData.goal_type,
+                    target_quantity: formData.target_quantity,
+                    current_quantity: formData.current_quantity,
+                };
+                newTask = await createTask(taskData);
+            }
+
             onSuccess(newTask);
         } catch (error) {
             console.error("Failed to create task:", error);
@@ -59,6 +91,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
             setLoading(false);
         }
     }
+
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
@@ -166,21 +199,21 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                         </div>
                     </div>
 
-                    {/* Assignment Section (Parent tasks only) */}
-                    {!isSubtask && (
-                        <div className="space-y-4">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
-                                Tildel til Medarbejdere
-                            </h3>
-                            <UserSelector
-                                selectedUserIds={formData.assigned_users}
-                                onSelectionChange={(userIds) => setFormData({ ...formData, assigned_users: userIds })}
-                                label=""
-                            />
-                        </div>
-                    )}
+                    {/* Assignment Section */}
 
-                    {/* Advanced Options (Parent tasks only) */}
+                    <div className="space-y-4">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
+                            Tildel til Medarbejdere
+                        </h3>
+                        <UserSelector
+                            selectedUserIds={formData.assigned_users}
+                            onSelectionChange={(userIds) => setFormData({ ...formData, assigned_users: userIds })}
+                            label=""
+                        />
+                    </div>
+
+
+                    {/* Advanced Options */}
                     {!isSubtask && (
                         <div className="space-y-4">
                             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
@@ -280,28 +313,28 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                         </div>
                     )}
 
-                    {/* Subtask Options (Subtasks only) */}
-                    {isSubtask && (
-                        <div className="space-y-4">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
-                                Planlægning
-                            </h3>
 
-                            <div>
-                                <label htmlFor="scheduled_date" className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Planlagt dato
-                                </label>
-                                <input
-                                    type="date"
-                                    id="scheduled_date"
-                                    value={formData.scheduled_date || ""}
-                                    onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
-                                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
-                                />
-                                <p className="mt-1 text-xs text-gray-500">Valgfrit: Hvornår skal denne underopgave udføres?</p>
-                            </div>
+
+                    <div className="space-y-4">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
+                            Planlægning
+                        </h3>
+
+                        <div>
+                            <label htmlFor="scheduled_date" className="block text-sm font-semibold text-gray-900 mb-2">
+                                Planlagt dato
+                            </label>
+                            <input
+                                type="date"
+                                id="scheduled_date"
+                                value={formData.scheduled_date || ""}
+                                onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
+                                className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Valgfrit: Hvornår skal denne underopgave udføres?</p>
                         </div>
-                    )}
+                    </div>
+
                 </div>
             </div>
 

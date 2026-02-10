@@ -64,10 +64,18 @@ export interface UpdateTaskInput {
   priority?: TaskPriority;
   status?: TaskStatus;
   deadline?: string;
-  assigned_users: string[];
+  assigned_users?: string[];
+  scheduled_date?: string;
   unit?: TaskUnit;
   goal_type?: TaskGoalType;
   target_quantity?: number | null;
   current_quantity?: number | null;
-  scheduled_date: string;
+  parent_task_id?: string;
+}
+
+export interface CreateSubtaskInput extends Omit<
+  CreateTaskInput,
+  "parent_task_id"
+> {
+  parent_task_id: string;
 }

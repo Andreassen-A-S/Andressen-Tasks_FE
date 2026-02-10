@@ -43,7 +43,7 @@ export default function Drawer({ open, onClose, children }: DrawerProps) {
             <aside
                 role="dialog"
                 aria-modal="true"
-                className="absolute right-0 top-0 h-full w-full sm:w-170 bg-white shadow-2xl animate-slide-in-right"
+                className="absolute right-0 top-0 h-full w-full sm:w-250 bg-white shadow-2xl animate-slide-in-right"
             >
                 {children}
             </aside>

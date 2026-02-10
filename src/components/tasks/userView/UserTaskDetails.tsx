@@ -7,7 +7,7 @@ import { User } from "@/types/users";
 import { formatRelativeDate, translatePriority, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import TaskComments from "@/components/tasks/TaskComment";
+import TaskComments from "@/components/tasks/taskDetailsView/TaskComment";
 
 interface UserTaskDetailsProps {
     taskId: string;

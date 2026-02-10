@@ -22,7 +22,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         status: task.status,
         deadline: new Date(task.deadline).toISOString().split("T")[0],
         assigned_users: [],
-        scheduled_date: task.scheduled_date ? task.scheduled_date.split("T")[0] : undefined,
+        scheduled_date: new Date(task.scheduled_date).toISOString().split("T")[0],
         unit: task.unit,
         goal_type: task.goal_type || TaskGoalType.OPEN,
         target_quantity: task.target_quantity,
@@ -206,116 +206,133 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
                             Tildel til Medarbejdere
                         </h3>
                         <UserSelector
-                            selectedUserIds={formData.assigned_users}
+                            selectedUserIds={formData.assigned_users || []}
                             onSelectionChange={(userIds) => setFormData({ ...formData, assigned_users: userIds })}
                             label=""
                         />
                     </div>
                     {/* // )} */}
 
-                    {/* Advanced Options (Parent tasks only) */}
+                    {/* Advanced Options */}
                     {!isSubtask && (
                         <div className="space-y-4">
                             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
                                 Avancerede Indstillinger
                             </h3>
-                            <div>
-                                <label htmlFor="update-unit" className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Enhed
-                                </label>
-                                <select
-                                    id="update-unit"
-                                    value={formData.unit}
-                                    onChange={(e) => setFormData({ ...formData, unit: e.target.value as TaskUnit })}
-                                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
-                                >
-                                    <option value={TaskUnit.NONE}>Ingen</option>
-                                    <option value={TaskUnit.HOURS}>Timer</option>
-                                    <option value={TaskUnit.METERS}>Meter</option>
-                                    <option value={TaskUnit.KILOMETERS}>Kilometer</option>
-                                    <option value={TaskUnit.LITERS}>Liter</option>
-                                    <option value={TaskUnit.KILOGRAMS}>Kilogram</option>
-                                </select>
-                                <p className="mt-1 text-xs text-gray-500">Valgfrit: Måleenhed for målmængde</p>
-                            </div>
+
+
 
                             <div>
-                                <label htmlFor="update-goal_type" className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Måltype
+                                <label htmlFor="goal_type" className="block text-sm font-semibold text-gray-900 mb-2">
+                                    Mål
                                 </label>
-                                <select
-                                    id="update-goal_type"
-                                    value={formData.goal_type || TaskGoalType.OPEN}
-                                    onChange={(e) => setFormData({ ...formData, goal_type: e.target.value as TaskGoalType })}
-                                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
-                                >
-                                    <option value={TaskGoalType.OPEN}>Åben (manual afslutning)</option>
-                                    <option value={TaskGoalType.FIXED}>Fast mål (afslut ved nået mængde)</option>
-                                </select>
-                                <p className="mt-1 text-xs text-gray-500">Vælg om opgaven afsluttes manuelt eller via målmængde</p>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="goal_type"
+                                        checked={formData.goal_type === TaskGoalType.FIXED}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                goal_type: e.target.checked ? TaskGoalType.FIXED : TaskGoalType.OPEN,
+                                            })
+                                        }
+                                        className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                                    />
+                                    <label htmlFor="goal_type" className="text-sm text-gray-900">
+                                        Fast mål (afslut ved nået mængde)
+                                    </label>
+                                </div>
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Slå til hvis opgaven skal afsluttes ved målmængde. Ellers afsluttes den manuelt.
+                                </p>
                             </div>
 
-                            <div>
-                                <label htmlFor="update-target_quantity" className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Målmængde
-                                </label>
-                                <input
-                                    type="number"
-                                    id="update-target_quantity"
-                                    placeholder="F.eks. 100"
-                                    value={formData.target_quantity ?? ""}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        target_quantity: e.target.value ? Number(e.target.value) : undefined
-                                    })}
-                                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
-                                />
-                                <p className="mt-1 text-xs text-gray-500">Valgfrit: Angiv målmængde for denne opgave</p>
-                            </div>
+                            {/* Show these fields only when goal_type is FIXED */}
+                            {formData.goal_type === TaskGoalType.FIXED && (
+                                <>
+                                    <div>
+                                        <label htmlFor="unit" className="block text-sm font-semibold text-gray-900 mb-2">
+                                            Enhed
+                                        </label>
+                                        <select
+                                            id="unit"
+                                            value={formData.unit}
+                                            onChange={(e) => setFormData({ ...formData, unit: e.target.value as TaskUnit })}
+                                            className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                                        >
+                                            <option value={TaskUnit.NONE}>Ingen</option>
+                                            <option value={TaskUnit.HOURS}>Timer</option>
+                                            <option value={TaskUnit.METERS}>Meter</option>
+                                            <option value={TaskUnit.KILOMETERS}>Kilometer</option>
+                                            <option value={TaskUnit.LITERS}>Liter</option>
+                                            <option value={TaskUnit.KILOGRAMS}>Kilogram</option>
+                                        </select>
+                                        <p className="mt-1 text-xs text-gray-500">Valgfrit: Måleenhed for målmængde</p>
+                                    </div>
+                                    <div>
+                                        <label htmlFor="target_quantity" className="block text-sm font-semibold text-gray-900 mb-2">
+                                            Målmængde<span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="target_quantity"
+                                            placeholder="F.eks. 100"
+                                            required
+                                            value={formData.target_quantity ?? ""}
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                target_quantity: e.target.value ? Number(e.target.value) : undefined
+                                            })}
+                                            className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">Påkrævet når fast mål er aktiveret</p>
+                                    </div>
 
-                            <div>
-                                <label htmlFor="update-current_quantity" className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Udført mængde
-                                </label>
-                                <input
-                                    type="number"
-                                    id="update-current_quantity"
-                                    min={0}
-                                    step="any"
-                                    placeholder="F.eks. 37"
-                                    value={formData.current_quantity ?? ""}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        current_quantity: e.target.value ? Number(e.target.value) : 0
-                                    })}
-                                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
-                                />
-                                <p className="mt-1 text-xs text-gray-500">Valgfrit: Opdater nuværende fremskridt</p>
-                            </div>
+                                    <div>
+                                        <label htmlFor="current_quantity" className="block text-sm font-semibold text-gray-900 mb-2">
+                                            Start fremskridt
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="current_quantity"
+                                            min={0}
+                                            step="any"
+                                            placeholder="F.eks. 0"
+                                            value={formData.current_quantity ?? ""}
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                current_quantity: e.target.value ? Number(e.target.value) : 0
+                                            })}
+                                            className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">Valgfrit: Sæt allerede udført mængde</p>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
 
-                    {/* Subtask Options (Subtasks only) */}
-                    {isSubtask && (
-                        <div className="space-y-4">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
-                                Planlægning
-                            </h3>
-                            <div>
-                                <label htmlFor="update-scheduled_date" className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Planlagt dato
-                                </label>
-                                <input
-                                    type="date"
-                                    id="update-scheduled_date"
-                                    value={formData.scheduled_date || ""}
-                                    onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
-                                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
-                                />
-                                <p className="mt-1 text-xs text-gray-500">Valgfrit: Hvornår skal denne underopgave udføres?</p>
-                            </div>
+
+                    <div className="space-y-4">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
+                            Planlægning
+                        </h3>
+                        <div>
+                            <label htmlFor="update-scheduled_date" className="block text-sm font-semibold text-gray-900 mb-2">
+                                Planlagt dato
+                            </label>
+                            <input
+                                type="date"
+                                id="update-scheduled_date"
+                                value={formData.scheduled_date || ""}
+                                onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
+                                className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Valgfrit: Hvornår skal denne underopgave udføres?</p>
                         </div>
-                    )}
+                    </div>
+
                 </div>
             </div>
 
