@@ -10,6 +10,20 @@ export enum TaskStatus {
   REJECTED = "REJECTED",
 }
 
+export enum TaskUnit {
+  NONE = "NONE",
+  HOURS = "HOURS",
+  METERS = "METERS",
+  KILOMETERS = "KILOMETERS",
+  LITERS = "LITERS",
+  KILOGRAMS = "KILOGRAMS",
+}
+
+export enum TaskGoalType {
+  OPEN = "OPEN",
+  FIXED = "FIXED",
+}
+
 export interface Task {
   task_id: string;
   created_by: string;
@@ -20,6 +34,12 @@ export interface Task {
   deadline: string;
   created_at: string;
   updated_at: string;
+  parent_task_id?: string | null;
+  scheduled_date: string;
+  unit?: TaskUnit;
+  goal_type?: TaskGoalType | null;
+  target_quantity?: number | null;
+  current_quantity?: number | null;
 }
 
 export interface CreateTaskInput {
@@ -30,6 +50,12 @@ export interface CreateTaskInput {
   deadline: string;
   created_by: string;
   assigned_users: string[];
+  parent_task_id?: string | null;
+  scheduled_date: string;
+  unit?: TaskUnit;
+  goal_type?: TaskGoalType;
+  target_quantity?: number | null;
+  current_quantity?: number | null;
 }
 
 export interface UpdateTaskInput {
@@ -38,5 +64,17 @@ export interface UpdateTaskInput {
   priority?: TaskPriority;
   status?: TaskStatus;
   deadline?: string;
-  assigned_users: string[];
+  assigned_users?: string[];
+  scheduled_date?: string;
+  unit?: TaskUnit;
+  goal_type?: TaskGoalType;
+  target_quantity?: number | null;
+  current_quantity?: number | null;
+}
+
+export interface CreateSubtaskInput extends Omit<
+  CreateTaskInput,
+  "parent_task_id"
+> {
+  parent_task_id: string;
 }

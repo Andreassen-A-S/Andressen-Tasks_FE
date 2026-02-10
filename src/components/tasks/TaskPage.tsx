@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { getTasks } from "@/lib/api";
 import type { Task } from "@/types/task";
-import TaskList from "./TaskList";
+import TaskList from "./taskList/TaskList";
 import CreateTaskForm from "./CreateTaskForm";
 import Modal from "../modal/Modal";
 import Drawer from "../drawer/drawer";
-import TaskDetails from "./TaskDetails";
+import TaskDetails from "./taskDetailsView/TaskDetails";
 
 export default function TaskPage() {
     const [tasks, setTasks] = useState<Task[]>([]);

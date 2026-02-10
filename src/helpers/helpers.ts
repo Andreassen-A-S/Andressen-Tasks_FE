@@ -1,3 +1,5 @@
+import { TaskEvent } from "@/types/taskEvent";
+
 export function formatRelativeDate(isoDate: string | Date): string {
   const date =
     typeof isoDate === "string" ? new Date(isoDate.split("T")[0]) : isoDate;
@@ -24,6 +26,41 @@ export function formatRelativeDate(isoDate: string | Date): string {
   });
 }
 
+// Used in task details for created_at and updated_at
+export function formatDaDateTime(isoDate: string | Date): string {
+  const date = typeof isoDate === "string" ? new Date(isoDate) : isoDate;
+  if (Number.isNaN(date.getTime())) return "";
+
+  const datePart = date.toLocaleDateString("da-DK", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  const timePart = date
+    .toLocaleTimeString("da-DK", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+    .replace(":", ".");
+
+  return `${datePart} ${timePart}`;
+}
+
+export function formatDaDate(isoDate: string | Date): string {
+  const date = typeof isoDate === "string" ? new Date(isoDate) : isoDate;
+  if (Number.isNaN(date.getTime())) return "";
+
+  const datePart = date.toLocaleDateString("da-DK", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  return `${datePart}`;
+}
+
 export function formatCommentDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
@@ -42,6 +79,10 @@ export function formatCommentDate(dateString: string): string {
     month: "short",
     year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
   });
+}
+
+export function isoToDateString(iso: string): string {
+  return iso.split("T")[0];
 }
 
 // Translation functions
@@ -107,5 +148,37 @@ export function getAuthHeaders(): HeadersInit {
   return {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
+  };
+}
+
+export function toIsoEndOfDay(dateString: string): string {
+  // Converts YYYY-MM-DD to ISO-8601 DateTime at end of day
+  return new Date(dateString + "T23:59:59.000Z").toISOString();
+}
+
+export function translateTaskUnit(unit?: string | null): string {
+  switch (unit) {
+    case "HOURS":
+      return "timer";
+    case "METERS":
+      return "m";
+    case "KILOMETERS":
+      return "km";
+    case "LITERS":
+      return "l";
+    case "KILOGRAMS":
+      return "kg";
+    default:
+      return "";
+  }
+}
+
+// For timeline event descriptions
+
+export function getSubtaskInfo(e: TaskEvent) {
+  const aj = e.after_json as any;
+  return {
+    id: aj?.task_id as string | undefined,
+    title: aj?.title as string | undefined,
   };
 }

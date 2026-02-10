@@ -1,13 +1,19 @@
 import { getAuthHeaders } from "@/helpers/helpers";
 import { TaskAssignment, TaskAssignmentResponse } from "@/types/assignment";
 import { LoginRequest, LoginResponse, VerifyResponse } from "@/types/auth";
-import type { Task, CreateTaskInput, UpdateTaskInput } from "@/types/task";
+import type {
+  Task,
+  CreateTaskInput,
+  CreateSubtaskInput,
+  UpdateTaskInput,
+} from "@/types/task";
 import type { User } from "@/types/users";
 import {
   Comment,
   CreateCommentRequest,
   UpdateCommentRequest,
 } from "@/types/comment";
+import { CreateTaskEventInput, TaskEvent } from "@/types/taskEvent";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -52,6 +58,35 @@ export async function updateTask(
   if (!res.ok) throw new Error("Failed to update task");
   const data = await res.json();
   return data.data;
+}
+
+export async function createSubtask(task: CreateSubtaskInput): Promise<Task> {
+  const res = await fetch(`${API_URL}/tasks/subtasks`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(task),
+  });
+  if (!res.ok) throw new Error("Failed to create subtask");
+  const data = await res.json();
+  return data.data;
+}
+
+export interface AddTaskProgressInput {
+  quantity_done: number;
+  note?: string;
+}
+
+export async function addTaskProgress(
+  taskId: string,
+  payload: AddTaskProgressInput,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/tasks/${taskId}/progress`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) throw new Error("Failed to add task progress");
 }
 
 export async function deleteTask(id: string): Promise<void> {
@@ -222,4 +257,28 @@ export async function deleteComment(commentId: string): Promise<void> {
   if (!response.ok) {
     throw new Error("Failed to delete comment");
   }
+}
+
+// Event logging API function can be added here as needed
+
+export async function getTaskEvents(taskId: string): Promise<TaskEvent[]> {
+  const res = await fetch(`${API_URL}/task-events/${taskId}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to fetch task events");
+  const data = await res.json();
+  return data.data;
+}
+
+export async function createTaskEvent(
+  taskEvent: CreateTaskEventInput,
+): Promise<TaskEvent> {
+  const res = await fetch(`${API_URL}/task-events`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(taskEvent),
+  });
+  if (!res.ok) throw new Error("Failed to create task event");
+  const data = await res.json();
+  return data.data;
 }
