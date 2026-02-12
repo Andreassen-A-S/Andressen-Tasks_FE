@@ -9,7 +9,7 @@ interface ModalProps {
     title: string;
     children: ReactNode;
     footer?: ReactNode;
-    maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl";
+    maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
 }
 
 export default function Modal({
@@ -34,16 +34,26 @@ export default function Modal({
         return () => document.removeEventListener('keydown', handleEscape);
     }, [isOpen, onClose]);
 
-    // Prevent body scroll when modal is open
+    // Prevent body scroll when modal is open AND prevent layout shift
     useEffect(() => {
         if (isOpen) {
-            document.body.style.overflow = 'hidden';
+            // Calculate scrollbar width
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+            // Set CSS variable for scrollbar width
+            document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+
+            // Add data attribute to body (triggers CSS rules in globals.css)
+            document.body.setAttribute('data-scroll-locked', 'true');
         } else {
-            document.body.style.overflow = 'unset';
+            // Clean up
+            document.body.removeAttribute('data-scroll-locked');
+            document.documentElement.style.removeProperty('--scrollbar-width');
         }
 
         return () => {
-            document.body.style.overflow = 'unset';
+            document.body.removeAttribute('data-scroll-locked');
+            document.documentElement.style.removeProperty('--scrollbar-width');
         };
     }, [isOpen]);
 
@@ -61,16 +71,19 @@ export default function Modal({
         lg: "sm:max-w-lg",
         xl: "sm:max-w-xl",
         "2xl": "sm:max-w-2xl",
+        "3xl": "sm:max-w-3xl",
     };
 
     const modalContent = (
         <div
-            className="fixed inset-0 z-50 overflow-y-auto"
+            className="fixed inset-0 z-50 overflow-y-scroll"
             aria-labelledby="modal-title"
             role="dialog"
             aria-modal="true"
         >
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div
+                className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+            >
                 {/* Backdrop */}
                 <div
                     className="fixed inset-0 bg-black/40 transition-opacity"
@@ -79,7 +92,9 @@ export default function Modal({
                 ></div>
 
                 {/* Modal panel */}
-                <div className={`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full ${maxWidthClasses[maxWidth]}`}>
+                <div
+                    className={`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full ${maxWidthClasses[maxWidth]}`}
+                >
                     {/* Modal header */}
                     <div className="bg-white px-4 pb-4 pt-5 sm:p-6">
                         <div className="flex items-center justify-between mb-4">

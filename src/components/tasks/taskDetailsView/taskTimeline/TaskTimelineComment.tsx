@@ -1,7 +1,7 @@
 "use client";
 
 import type { TaskEvent } from "@/types/taskEvent";
-import SingleAvatar from "../../../label/singleAvatar";
+import SingleAvatar from "../../../common/label/singleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
 
 type Props = {

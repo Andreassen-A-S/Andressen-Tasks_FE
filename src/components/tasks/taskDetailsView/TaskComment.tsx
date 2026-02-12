@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SingleAvatar from "@/components/label/singleAvatar";
+import SingleAvatar from "@/components/common/label/singleAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 

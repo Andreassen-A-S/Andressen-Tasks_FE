@@ -6,7 +6,7 @@ import Image from "next/image";
 import { faChartColumn, faGear, faTasks, faUsers, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAuth } from "@/hooks/useAuth";
-import SingleAvatar from "@/components/label/singleAvatar";
+import SingleAvatar from "@/components/common/label/singleAvatar";
 
 export default function Sidebar() {
     const pathname = usePathname();

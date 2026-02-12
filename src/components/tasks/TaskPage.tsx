@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getTasks } from "@/lib/api";
 import type { Task } from "@/types/task";
 import TaskList from "./taskList/TaskList";
-import CreateTaskForm from "./CreateTaskForm";
+import CreateTaskForm from "./createTask/CreateTaskForm";
 import Modal from "../modal/Modal";
 import Drawer from "../drawer/drawer";
 import TaskDetails from "./taskDetailsView/TaskDetails";
@@ -31,10 +31,15 @@ export default function TaskPage() {
         loadTasks();
     }, [loadTasks]);
 
-    const handleTaskCreated = useCallback((task: Task) => {
-        setTasks((prev) => [task, ...prev]);
+    // const handleTaskCreated = useCallback((task: Task) => {
+    //     setTasks((prev) => [task, ...prev]);
+    //     setShowCreateModal(false);
+    // }, []);
+
+    const handleTaskCreated = useCallback(() => {
+        loadTasks();
         setShowCreateModal(false);
-    }, []);
+    }, [loadTasks]);
 
     const handleTaskDeleted = useCallback((taskId: string) => {
         setTasks((prev) => prev.filter((t) => t.task_id !== taskId));
@@ -76,6 +81,7 @@ export default function TaskPage() {
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
                 title="Opret Ny Opgave"
+                maxWidth="2xl"
             >
                 <CreateTaskForm
                     onSuccess={handleTaskCreated}

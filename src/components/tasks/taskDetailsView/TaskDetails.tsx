@@ -4,32 +4,21 @@ import { useEffect, useState } from "react";
 import { getTask, getUser } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { User } from "@/types/users";
-import { formatRelativeDate, formatDaDateTime, formatDaDate } from "@/helpers/helpers";
+import { formatDaDateTime, formatDaDate } from "@/helpers/helpers";
 
 import { getTaskAssignments } from "@/lib/api";
 import type { TaskAssignment } from "@/types/assignment";
 
 import Modal from "@/components/modal/Modal";
-import CreateTaskForm from "@/components/tasks/CreateTaskForm";
-import { TaskPriority, TaskStatus } from "@/types/task";
+import CreateTaskForm from "@/components/tasks/createTask/CreateTaskForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faCircle,
-    faCheckCircle,
-    faXmarkCircle,
     faClock,
     faCalendar,
-    faUser,
-    faArrowUp,
-    faArrowDown,
-    faMinus,
     faFlag,
-    faComment,
-    faEdit,
-    faUserPlus
 } from "@fortawesome/free-solid-svg-icons";
-import Badge from "../../label/badge";
-import SingleAvatar from "../../label/singleAvatar";
+import Badge from "../../common/label/badge";
+import SingleAvatar from "../../common/label/singleAvatar";
 import { getTaskEvents } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";

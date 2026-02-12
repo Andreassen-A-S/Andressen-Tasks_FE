@@ -15,6 +15,10 @@ import {
   UpdateCommentRequest,
 } from "@/types/comment";
 import { CreateTaskEventInput, TaskEvent } from "@/types/taskEvent";
+import {
+  CreateRecurringTemplateInput,
+  RecurringTemplate,
+} from "@/types/recuringTemplate";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -283,4 +287,24 @@ export async function createTaskEvent(
   if (!res.ok) throw new Error("Failed to create task event");
   const data = await res.json();
   return data.data;
+}
+
+// Recurring template API functions
+
+export async function createRecurringTemplate(
+  data: CreateRecurringTemplateInput,
+): Promise<RecurringTemplate> {
+  const res = await fetch(`${API_URL}/recurring-templates`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to create recurring template");
+  }
+
+  const response = await res.json();
+  return response.data;
 }
