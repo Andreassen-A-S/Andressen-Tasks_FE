@@ -19,13 +19,12 @@ export default function TaskTimelineComment({ event, actorName, label }: Props) 
     return (
         <div className="flex items-start gap-3">
             <SingleAvatar name={actorName} size="sm" />
-            <div className="flex-1 bg-white border border-gray-200 rounded-2xl shadow-sm">
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+            <div className="flex-1 bg-white border border-gray-200 rounded-md">
+                <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-1">
                         <span className="text-sm font-semibold text-gray-900">{actorName}</span>
-                        <span className="text-xs text-gray-500">{label}</span>
+                        <span className="text-sm text-gray-500">{formatCommentDate(event.created_at)}</span>
                     </div>
-                    <span className="text-xs text-gray-500">{formatCommentDate(event.created_at)}</span>
                 </div>
 
                 <div className="px-4 py-4">

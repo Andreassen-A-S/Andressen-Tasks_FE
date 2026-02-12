@@ -7,7 +7,7 @@ import { User } from "@/types/users";
 import { formatRelativeDate, translatePriority, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import TaskComments from "@/components/tasks/taskDetailsView/TaskComment";
+import UserTaskComment from "./UserTaskComment";
 
 interface UserTaskDetailsProps {
     taskId: string;
@@ -83,6 +83,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
             await addTaskProgress(task.task_id, {
                 quantity_done: delta,
                 note: progressNote.trim() || undefined,
+                unit: task.unit || undefined,
             });
             const updatedTask = await getTask(task.task_id);
             setTask(updatedTask);
@@ -244,7 +245,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                     {/* Comments Section */}
                     {/* Add Comment Input */}
                     <div className="mb-6 pb-6 border-b border-gray-100">
-                        <TaskComments taskId={taskId} />
+                        <UserTaskComment taskId={taskId} />
                     </div>
 
                     {/* Metadata Section */}

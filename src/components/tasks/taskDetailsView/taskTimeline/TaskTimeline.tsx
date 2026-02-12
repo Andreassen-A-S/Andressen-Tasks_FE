@@ -5,10 +5,11 @@ import { getTaskEvents, createComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
 import SingleAvatar from "../../../label/singleAvatar";
-import { formatCommentDate } from "@/helpers/helpers";
+import { formatCommentDate, formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { getSubtaskInfo } from "@/helpers/helpers";
+import TaskComment from "../TaskComment";
 import TaskTimelineComment from "./TaskTimelineComment";
 
 function isCommentEvent(type: string) {
@@ -26,19 +27,36 @@ function eventLabel(e: TaskEvent) {
             return "ændrede status";
         case "TASK_PRIORITY_CHANGED":
             return "ændrede prioritet";
-        case "ASSIGNMENT_CREATED":
-            return "tildelte en bruger";
-        case "ASSIGNMENT_DELETED":
-            return "fjernede en tildeling";
-        case "PROGRESS_LOGGED":
-            return "loggede fremskridt";
+        case "ASSIGNMENT_CREATED": {
+            const assignedUser =
+                (e.after_json as any)?.user?.name ||
+
+                "ukendt bruger";
+            return `tildelte ${assignedUser}`;
+        }
+        case "ASSIGNMENT_DELETED": {
+            const assignedUser =
+                (e.before_json as any)?.user?.name ||
+                "ukendt bruger";
+            return `fjernede tildelingen af ${assignedUser}`;
+        }
+        case "PROGRESS_LOGGED": {
+            console.log(e);
+            const progress =
+                (e.progress as any)?.quantity_done ??
+                "ukendt fremskridt";
+            const unit =
+                (e.progress as any)?.unit ??
+                "";
+            return `loggede fremskridt — ${progress}${unit ? `${translateTaskUnit(unit)}` : ""}`;
+        }
         case "SUBTASK_ADDED": {
             const sub = getSubtaskInfo(e);
-            return sub.title ? `tilføjede underopgave — “${sub.title}”` : "tilføjede en underopgave";
+            return sub.title ? `tilføjede underopgave - “${sub.title}”` : "tilføjede en underopgave";
         }
         case "SUBTASK_REMOVED": {
             const sub = (e.before_json as any)?.title;
-            return sub ? `fjernede underopgaven — “${sub}”` : "fjernede en underopgave";
+            return sub ? `fjernede underopgaven - “${sub}”` : "fjernede en underopgave";
         }
         case "COMMENT_CREATED":
             return "kommenterede";
@@ -59,7 +77,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [comment, setComment] = useState("");
+    // const [comment, setComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
     async function refresh() {
@@ -79,21 +97,15 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     useEffect(() => {
         if (!taskId) return;
         refresh();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [taskId]);
 
-    const commentCount = useMemo(
-        () => events.filter((e) => e.type === "COMMENT_CREATED").length,
-        [events]
-    );
 
-    async function handleSubmitComment() {
+    async function handleSubmitComment(comment: string) {
         if (!comment.trim()) return;
         setSubmitting(true);
         try {
             await createComment(taskId, { message: comment.trim() });
-            setComment("");
-            await refresh(); // simplest: re-fetch timeline so it stays consistent
+            await refresh();
         } catch (e) {
             console.error(e);
             alert("Kunne ikke tilføje kommentar");
@@ -120,40 +132,40 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
 
     return (
         <div>
-            <h2 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">
-                Aktivitet & kommentarer ({commentCount})
-            </h2>
-
             {/* Timeline */}
-            <div className="space-y-4">
+            <div className="relative space-y-4">
+                {/* Timeline vertical line */}
+                <div className="absolute left-16.75 -top-7.5 -bottom-6 w-0.5 bg-gray-300 z-0" />
+
                 {events.map((e) => {
                     const actorName = e.actor?.name || e.actor?.email || "Ukendt bruger";
 
-                    // COMMENT cards
                     if (isCommentEvent(e.type)) {
                         return (
-                            <TaskTimelineComment
-                                key={e.event_id}
-                                event={e}
-                                actorName={actorName}
-                                label={eventLabel(e)}
-                            />
+                            <div key={e.event_id} className="relative z-10">
+                                <TaskTimelineComment
+                                    event={e}
+                                    actorName={actorName}
+                                    label={eventLabel(e)}
+                                />
+                            </div>
                         );
                     }
 
-                    // Compact event rows
                     return (
-                        <div key={e.event_id} className="flex items-start gap-3">
-                            <div className="mt-1">
-                                <SingleAvatar name={actorName} size="sm" />
-                            </div>
+                        <div
+                            key={e.event_id}
+                            className="relative z-10 pl-14 flex items-center gap-3"
+                        >
+                            <SingleAvatar name={actorName} size="xs" />
                             <div className="flex-1">
                                 <div className="text-sm text-gray-800">
                                     <span className="font-semibold">{actorName}</span>{" "}
                                     <span className="text-gray-700">{eventLabel(e)}</span>
-
+                                    <span className="text-xs text-gray-500 mt-1">
+                                        {` • ${formatCommentDate(e.created_at)}`}
+                                    </span>
                                 </div>
-                                <div className="text-xs text-gray-500 mt-1">{formatCommentDate(e.created_at)}</div>
                             </div>
                         </div>
                     );
@@ -161,44 +173,11 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
             </div>
 
             {/* Composer (GitHub-style bottom box) */}
-            <div className="mt-8">
-                <div className="flex items-start gap-4">
-                    <SingleAvatar
-                        name={currentUser?.name || currentUser?.email || "Ukendt bruger"}
-                        size="sm"
-                    />
-                    <div className="flex-1">
-                        <textarea
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Tilføj en kommentar..."
-                            disabled={submitting}
-                            className="w-full bg-white border border-gray-300 rounded-2xl px-5 py-4 text-base text-gray-900 placeholder:text-gray-400 resize-none min-h-[120px]
-                focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500
-                disabled:bg-gray-50 disabled:text-gray-500"
-                        />
-                        <div className="mt-3 flex justify-end">
-                            <button
-                                type="button"
-                                onClick={handleSubmitComment}
-                                disabled={!comment.trim() || submitting}
-                                className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white
-                  hover:bg-green-700 transition-colors
-                  disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {submitting ? (
-                                    <>
-                                        <FontAwesomeIcon icon={faSpinner} spin />
-                                        Sender...
-                                    </>
-                                ) : (
-                                    "Kommenter"
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <TaskComment
+                currentUser={{ name: currentUser?.name, email: currentUser?.email }}
+                onSubmit={handleSubmitComment}
+                submitting={submitting}
+            />
         </div>
     );
 }

@@ -49,7 +49,8 @@ export default function TaskPage() {
     }
 
     return (
-        <div className="p-12">
+        // <div className="p-12">
+        <div className="w-full mx-auto p-6">
             <div className="flex justify-between mb-6">
                 <h1 className="text-3xl font-bold">Opgaver</h1>
                 <button

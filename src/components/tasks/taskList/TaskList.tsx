@@ -132,34 +132,36 @@ export default function TaskList({
     return (
         <>
             <div className="bg-white  rounded-lg border border-gray-200 overflow-hidden">
-                <table className="w-full text-sm text-left text-gray-700">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                            <th></th>
-                            <th className="px-2 py-3 font-medium">OPGAVE</th>
-                            <th className="px-6 py-3 font-medium">PRIORITET</th>
-                            <th className="px-6 py-3 font-medium">STATUS</th>
-                            <th className="px-6 py-3 font-medium">TILDELT TIL</th>
-                            <th className="px-6 py-3 font-medium">START DATO</th>
-                            <th className="px-6 py-3 font-medium">DEADLINE</th>
-                            <th className="px-6 py-3 font-medium">HANDLINGER</th>
-                        </tr>
-                    </thead>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-700">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th></th>
+                                <th className="py-3 font-medium">OPGAVE</th>
+                                <th className="px-6 py-3 font-medium">PRIORITET</th>
+                                <th className="px-6 py-3 font-medium">STATUS</th>
+                                <th className="px-6 py-3 font-medium">TILDELT TIL</th>
+                                <th className="px-6 py-3 font-medium">START DATO</th>
+                                <th className="px-6 py-3 font-medium">DEADLINE</th>
+                                <th className="px-6 py-3 font-medium">HANDLINGER</th>
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                        {parents.map((task) => (
-                            <ParentTaskRow
-                                key={task.task_id}
-                                task={task}
-                                subtasks={subtasksMap[task.task_id] || []}
-                                taskAssignments={taskAssignments}
-                                onTaskClick={handleTaskClick}
-                                onEditClick={handleEditClick}
-                                onDeleteClick={handleDelete}
-                            />
-                        ))}
-                    </tbody>
-                </table>
+                        <tbody>
+                            {parents.map((task) => (
+                                <ParentTaskRow
+                                    key={task.task_id}
+                                    task={task}
+                                    subtasks={subtasksMap[task.task_id] || []}
+                                    taskAssignments={taskAssignments}
+                                    onTaskClick={handleTaskClick}
+                                    onEditClick={handleEditClick}
+                                    onDeleteClick={handleDelete}
+                                />
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Edit Task Modal */}
