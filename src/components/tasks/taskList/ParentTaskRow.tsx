@@ -76,7 +76,7 @@ export default function ParentTaskRow({
                                     onClick={() => onTaskClick(task.task_id)}
                                     className="text-left cursor-pointer min-w-0"
                                 >
-                                    <div className="truncate text-base font-semibold text-gray-900 hover:underline">
+                                    <div className="text-base font-semibold text-gray-900 hover:underline wrap-break-word">
                                         {task.title}
                                     </div>
                                 </button>
@@ -146,7 +146,11 @@ export default function ParentTaskRow({
                             </div>
 
                             {task.description && (
-                                <div className="text-sm text-gray-500 mt-1">{task.description}</div>
+                                <div className="text-sm text-gray-500 mt-1 break-words">
+                                    {task.description.split(" ").length > 20
+                                        ? `${task.description.split(" ").slice(0, 20).join(" ")}...`
+                                        : task.description}
+                                </div>
                             )}
                         </div>
                     </div>

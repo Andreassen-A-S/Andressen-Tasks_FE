@@ -33,6 +33,7 @@ import SingleAvatar from "../../label/singleAvatar";
 import { getTaskEvents } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";
+import TaskDescriptionCard from "./TaskDescriptionCard";
 
 
 interface TaskDetailsProps {
@@ -76,59 +77,6 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     }, [taskId]);
 
 
-    const getStatusIcon = (status: TaskStatus) => {
-        switch (status) {
-            case TaskStatus.DONE:
-                return <FontAwesomeIcon icon={faCheckCircle} className="text-green-600" />;
-            case TaskStatus.REJECTED:
-                return <FontAwesomeIcon icon={faXmarkCircle} className="text-red-600" />;
-            case TaskStatus.PENDING:
-                return <FontAwesomeIcon icon={faCircle} className="text-yellow-600" />;
-            default:
-                return <FontAwesomeIcon icon={faCircle} className="text-gray-400" />;
-        }
-    };
-
-    const getStatusLabel = (status: TaskStatus) => {
-        switch (status) {
-            case TaskStatus.DONE:
-                return "Færdig";
-            case TaskStatus.REJECTED:
-                return "Afvist";
-            case TaskStatus.PENDING:
-                return "Afventer";
-            default:
-                return status;
-        }
-    };
-
-    const getPriorityIcon = (priority: TaskPriority) => {
-        switch (priority) {
-            case TaskPriority.HIGH:
-                return <FontAwesomeIcon icon={faArrowUp} className="text-red-600" />;
-            case TaskPriority.LOW:
-                return <FontAwesomeIcon icon={faArrowDown} className="text-blue-600" />;
-            case TaskPriority.MEDIUM:
-                return <FontAwesomeIcon icon={faMinus} className="text-yellow-600" />;
-            default:
-                return <FontAwesomeIcon icon={faMinus} className="text-gray-400" />;
-        }
-    };
-
-    const getPriorityLabel = (priority: TaskPriority) => {
-        switch (priority) {
-            case TaskPriority.HIGH:
-                return "Høj";
-            case TaskPriority.MEDIUM:
-                return "Mellem";
-            case TaskPriority.LOW:
-                return "Lav";
-            default:
-                return priority;
-        }
-    };
-
-
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -152,54 +100,29 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     return (
         <div className="flex flex-col h-full bg-white">
             {/* GitHub-style Header */}
-            <div className="px-8 py-6 border-b border-gray-200">
-                <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-start gap-3 flex-1">
-                        <div className="mt-1">
-                            {getStatusIcon(task.status)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2 break-words">
-                                {task.title}
-                            </h1>
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <span className="font-semibold">#{task.task_id.slice(0, 8)}</span>
-                                <span>•</span>
-                                <span>åbnet {formatRelativeDate(task.created_at)}</span>
-                                <span>af {creator?.name || creator?.email || 'Ukendt'}</span>
-                            </div>
-                        </div>
+            <div className="px-8 pt-6 pb-4 border-b border-gray-200">
+                <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start gap-3">
+                        {/* title */}
+                        <h1 className="text-4xl font-bold text-gray-900 wrap-break-word">
+                            {task.title}
+                        </h1>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg px-3 py-2 transition-all"
-                        aria-label="Luk"
-                    >
-                        <span className="text-xl">×</span>
-                    </button>
+                    {/* actions for task */}
+                    <div>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg px-3 py-2 transition-all"
+                            aria-label="Luk"
+                        >
+                            <span className="text-xl">×</span>
+                        </button>
+                    </div>
                 </div>
 
-                {/* Status and Priority badges */}
-                <div className="flex gap-2 ml-9">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${task.status === TaskStatus.DONE
-                        ? 'bg-green-100 text-green-800 border border-green-200'
-                        : task.status === TaskStatus.REJECTED
-                            ? 'bg-red-100 text-red-800 border border-red-200'
-                            : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                        }`}>
-                        {getStatusIcon(task.status)}
-                        {getStatusLabel(task.status)}
-                    </span>
-
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${task.priority === TaskPriority.HIGH
-                        ? 'bg-red-100 text-red-800 border border-red-200'
-                        : task.priority === TaskPriority.LOW
-                            ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                            : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                        }`}>
-                        {getPriorityIcon(task.priority)}
-                        Prioritet: {getPriorityLabel(task.priority)}
-                    </span>
+                {/* Status badge */}
+                <div className="flex">
+                    <Badge variant="status" value={task.status} />
                 </div>
             </div>
 
@@ -207,58 +130,13 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                 {/* Main Content Area with Timeline */}
                 <div className="flex-1 overflow-y-auto px-8 py-6">
                     {/* Description Card - GitHub style */}
-                    <div className="mb-6">
-                        <div className="border border-gray-200 rounded-lg overflow-hidden">
-                            {/* Card Header */}
-                            <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center gap-3">
-                                <SingleAvatar
-                                    name={creator?.name || creator?.email || "Ukendt"}
-                                    size="sm"
-                                />
-                                <div className="flex-1">
-                                    <div className="text-sm">
-                                        <span className="font-semibold text-gray-900">
-                                            {creator?.name || creator?.email || 'Ukendt'}
-                                        </span>
-                                        {' '}
-                                        <span className="text-gray-600">kommenterede</span>
-                                        {' '}
-                                        <span className="text-gray-500">
-                                            {formatRelativeDate(task.created_at)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Card Body */}
-                            <div className="p-4 bg-white">
-                                <div className="mb-4">
-                                    <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
-                                        Beskrivelse
-                                    </h3>
-                                    {task.description ? (
-                                        <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-line">
-                                            {task.description}
-                                        </div>
-                                    ) : (
-                                        <div className="text-gray-400 italic text-sm">
-                                            Ingen beskrivelse tilgængelig
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Subtask Action */}
-                                {task.parent_task_id == null && (
-                                    <button
-                                        onClick={() => setShowSubtaskModal(true)}
-                                        className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-md font-medium text-sm transition-colors border border-gray-300"
-                                    >
-                                        + Tilføj underopgave
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                    <TaskDescriptionCard
+                        creator={creator}
+                        createdAt={task.created_at}
+                        description={task.description}
+                        showSubtaskButton={task.parent_task_id == null}
+                        onAddSubtask={() => setShowSubtaskModal(true)}
+                    />
 
                     {/* Timeline Section */}
                     <TaskTimeline taskId={task.task_id} />

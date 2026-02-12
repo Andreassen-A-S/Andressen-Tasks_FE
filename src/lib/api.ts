@@ -6,6 +6,7 @@ import type {
   CreateTaskInput,
   CreateSubtaskInput,
   UpdateTaskInput,
+  TaskUnit,
 } from "@/types/task";
 import type { User } from "@/types/users";
 import {
@@ -73,6 +74,7 @@ export async function createSubtask(task: CreateSubtaskInput): Promise<Task> {
 
 export interface AddTaskProgressInput {
   quantity_done: number;
+  unit?: TaskUnit;
   note?: string;
 }
 
