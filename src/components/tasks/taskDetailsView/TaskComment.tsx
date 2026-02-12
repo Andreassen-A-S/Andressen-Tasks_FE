@@ -29,7 +29,7 @@ export default function TaskComment({
                     name={currentUser.name || currentUser.email || "Ukendt bruger"}
                     size="sm"
                 />
-                <div className="flex-1" >
+                <div className="flex-1">
                     {/* Header */}
                     <div className="mb-2 mt-[4px]">
                         <h3 className="text-base font-semibold text-gray-900">

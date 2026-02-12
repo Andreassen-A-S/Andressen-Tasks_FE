@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { getTaskEvents, createComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
 import SingleAvatar from "../../../label/singleAvatar";
-import { formatCommentDate, formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
+import { formatCommentDate, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { getSubtaskInfo } from "@/helpers/helpers";
