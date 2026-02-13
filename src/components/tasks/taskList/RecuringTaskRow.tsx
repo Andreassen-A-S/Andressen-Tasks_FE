@@ -3,7 +3,7 @@
 import { Fragment, useState } from "react";
 import { TaskGoalType, type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import { formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
+import { formatDaDate, formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
 import Badge from "../../common/label/badge";
 import TaskAssignedUsers from "../../common/label/taskAssignedUsers";
 import EditButton from "../../common/label/editButton";
@@ -48,11 +48,7 @@ export default function RecurringTaskRow({
 
     // Format occurrence date
     const formattedOccurrence = task.occurrence_date
-        ? new Date(task.occurrence_date).toLocaleDateString('da-DK', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-        })
+        ? formatDaDate(task.occurrence_date)
         : null;
 
     return (

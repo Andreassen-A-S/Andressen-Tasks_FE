@@ -16,13 +16,13 @@ import { formatDaDate, formatRelativeDate } from "@/helpers/helpers";
 import Badge from "@/components/common/label/badge";
 import Modal from "@/components/modal/Modal";
 
-interface ViewTemplateModalProps {
+interface ViewTemplateProps {
     template: RecurringTemplate;
     onClose: () => void;
     onUpdate: (template: RecurringTemplate) => void;
 }
 
-export default function ViewTemplateModal({ template, onClose, onUpdate }: ViewTemplateModalProps) {
+export default function ViewTemplate({ template, onClose, onUpdate }: ViewTemplateProps) {
     const [instances, setInstances] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

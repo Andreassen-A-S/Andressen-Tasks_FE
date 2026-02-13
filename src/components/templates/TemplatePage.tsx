@@ -10,8 +10,8 @@ import {
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { getRecurringTemplates, deleteRecurringTemplate, deactivateTemplate, reactivateTemplate } from "@/lib/api";
 import TemplateCard from "@/components/templates/TemplateCard";
-import CreateTemplateModal from "@/components/templates/CreateTemplateForm";
-import ViewTemplateModal from "@/components/templates/ViewTemplate";
+import CreateTemplateForm from "@/components/templates/CreateTemplateForm";
+import ViewTemplate from "@/components/templates/ViewTemplate";
 import Modal from "../modal/Modal";
 import UpdateTemplateForm from "./UpdateTemplateForm";
 
@@ -20,10 +20,10 @@ export default function RecurringTemplatesPage() {
     const [templates, setTemplates] = useState<RecurringTemplate[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
-    const [showEditTemplateModal, setShowEditTemplateModal] = useState(false);
+    const [showCreateTemplate, setShowCreateTemplate] = useState(false);
+    const [showEditTemplate, setShowEditTemplate] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<RecurringTemplate | null>(null);
-    const [showViewModal, setShowViewModal] = useState(false);
+    const [showViewTemplate, setShowViewTemplate] = useState(false);
     const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('active');
 
     type FilterKey = "all" | "active" | "inactive";
@@ -86,12 +86,12 @@ export default function RecurringTemplatesPage() {
 
     function handleViewTemplate(template: RecurringTemplate) {
         setSelectedTemplate(template);
-        setShowViewModal(true);
+        setShowViewTemplate(true);
     }
 
     function handleEditTemplate(template: RecurringTemplate) {
         setSelectedTemplate(template);
-        setShowEditTemplateModal(true);
+        setShowEditTemplate(true);
     }
 
     const filteredTemplates = templates.filter(template => {
@@ -125,7 +125,7 @@ export default function RecurringTemplatesPage() {
                         </p>
                     </div>
                     <button
-                        onClick={() => setShowCreateTemplateModal(true)}
+                        onClick={() => setShowCreateTemplate(true)}
                         className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                     >
                         <FontAwesomeIcon icon={faPlus} size="sm" />
@@ -153,7 +153,7 @@ export default function RecurringTemplatesPage() {
             </div>
 
             {/* Content */}
-            <div className="my-6 mx-8 px-4sm:px-6 lg:px-8 pb-12">
+            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
                         <p className="text-sm text-red-700">{error}</p>
@@ -173,7 +173,7 @@ export default function RecurringTemplatesPage() {
                         </p>
                         {filter === 'active' && (
                             <button
-                                onClick={() => setShowCreateTemplateModal(true)}
+                                onClick={() => setShowCreateTemplate(true)}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 <FontAwesomeIcon icon={faPlus} />
@@ -199,27 +199,27 @@ export default function RecurringTemplatesPage() {
 
             {/* Modals */}
             <Modal
-                isOpen={showCreateTemplateModal}
-                onClose={() => setShowCreateTemplateModal(false)}
+                isOpen={showCreateTemplate}
+                onClose={() => setShowCreateTemplate(false)}
                 title="Opret Ny Skabelon"
                 maxWidth="3xl"
             >
-                <CreateTemplateModal
-                    onCancel={() => setShowCreateTemplateModal(false)}
+                <CreateTemplateForm
+                    onCancel={() => setShowCreateTemplate(false)}
                     onSuccess={(template) => {
                         setTemplates([...templates, template]);
-                        setShowCreateTemplateModal(false);
+                        setShowCreateTemplate(false);
                     }}
                 />
 
             </Modal>
 
             {/* Edit Modal */}
-            {showEditTemplateModal && selectedTemplate && (
+            {showEditTemplate && selectedTemplate && (
                 <Modal
-                    isOpen={showEditTemplateModal}
+                    isOpen={showEditTemplate}
                     onClose={() => {
-                        setShowEditTemplateModal(false);
+                        setShowEditTemplate(false);
                         setSelectedTemplate(null);
                     }}
                     title="Rediger Skabelon"
@@ -228,25 +228,25 @@ export default function RecurringTemplatesPage() {
                     <UpdateTemplateForm
                         template={selectedTemplate}
                         onCancel={() => {
-                            setShowEditTemplateModal(false);
+                            setShowEditTemplate(false);
                             setSelectedTemplate(null);
                         }}
                         onSuccess={(updated) => {
                             setTemplates(templates.map(t =>
                                 t.id === updated.id ? updated : t
                             ));
-                            setShowEditTemplateModal(false);
+                            setShowEditTemplate(false);
                             setSelectedTemplate(null);
                         }}
                     />
                 </Modal>
             )}
 
-            {showViewModal && selectedTemplate && (
-                <ViewTemplateModal
+            {showViewTemplate && selectedTemplate && (
+                <ViewTemplate
                     template={selectedTemplate}
                     onClose={() => {
-                        setShowViewModal(false);
+                        setShowViewTemplate(false);
                         setSelectedTemplate(null);
                     }}
                     onUpdate={(updated) => {

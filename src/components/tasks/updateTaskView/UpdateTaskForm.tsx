@@ -33,7 +33,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         scheduled_date: new Date(task.scheduled_date).toISOString().split("T")[0],
         unit: task.unit,
         goal_type: task.goal_type || TaskGoalType.OPEN,
-        target_quantity: task.target_quantity || undefined,
+        target_quantity: task.target_quantity ?? undefined,
         current_quantity: task.current_quantity ?? 0,
     });
 
