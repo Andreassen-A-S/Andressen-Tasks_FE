@@ -38,6 +38,7 @@ export interface RecurringTemplate {
   day_of_month?: number;
   start_date: string;
   end_date?: string;
+  default_assignees?: string[];
   is_active: boolean;
   created_by: string;
   created_at: string;

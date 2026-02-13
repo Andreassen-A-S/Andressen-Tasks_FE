@@ -72,6 +72,8 @@ export interface UpdateTaskInput {
   goal_type?: TaskGoalType;
   target_quantity?: number | null;
   current_quantity?: number | null;
+  recurring_template_id?: string;
+  occurrence_date?: string;
 }
 
 export interface CreateSubtaskInput extends Omit<

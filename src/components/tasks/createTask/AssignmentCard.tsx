@@ -1,7 +1,7 @@
 import UserSelector from "../updateTaskView/UserSelector";
 
 interface AssignmentCardProps {
-    assignedUsers: string[];
+    assignedUsers?: string[];
     onAssignedUsersChange: (userIds: string[]) => void;
 }
 
@@ -15,7 +15,7 @@ export default function AssignmentCard({
                 Tildel til Medarbejdere
             </h3>
             <UserSelector
-                selectedUserIds={assignedUsers}
+                selectedUserIds={assignedUsers || []}
                 onSelectionChange={onAssignedUsersChange}
                 label=""
             />

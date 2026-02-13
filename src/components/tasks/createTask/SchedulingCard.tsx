@@ -1,5 +1,5 @@
 interface SchedulingCardProps {
-    scheduledDate: string;
+    scheduledDate?: string;
     onScheduledDateChange: (date: string) => void;
 }
 

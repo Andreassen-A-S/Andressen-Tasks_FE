@@ -68,12 +68,12 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
     };
 
     // Centralized handler for goal field changes
-    const handleGoalFieldChange = (field: string, value: any) => {
+    const handleGoalFieldChange = (field: string, value: number | TaskUnit | undefined) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     // Centralized handler for basic info field changes
-    const handleBasicInfoFieldChange = (field: string, value: any) => {
+    const handleBasicInfoFieldChange = (field: string, value: string | TaskPriority | TaskStatus | undefined) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -113,9 +113,9 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                     assigned_users: formData.assigned_users,
                 };
 
-                const template = await createRecurringTemplate(templateData);
-                // Return the first generated task instance
-                onSuccess(template as any); // You might want to fetch the first task instance instead
+                await createRecurringTemplate(templateData);
+                onCancel();
+
                 return;
             }
 
@@ -210,15 +210,6 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                         onFieldChange={handleBasicInfoFieldChange}
                     />
 
-                    {/* Recurring Card */}
-                    <RecurringCard
-                        isRecurring={isRecurring}
-                        setIsRecurring={setIsRecurring}
-                        recurringData={recurringData}
-                        setRecurringData={setRecurringData}
-                        isSubtask={isSubtask}
-                    />
-
                     {/* Assignment Section */}
                     <AssignmentCard
                         assignedUsers={formData.assigned_users}
@@ -234,6 +225,17 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                             currentQuantity={formData.current_quantity}
                             onGoalTypeChange={handleGoalTypeChange}
                             onFieldChange={handleGoalFieldChange}
+                        />
+                    )}
+
+                    {/* Recurring Card */}
+                    {!isSubtask && (
+                        <RecurringCard
+                            isRecurring={isRecurring}
+                            setIsRecurring={setIsRecurring}
+                            recurringData={recurringData}
+                            setRecurringData={setRecurringData}
+                            isSubtask={isSubtask}
                         />
                     )}
 
@@ -273,7 +275,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                         type="button"
                         onClick={onCancel}
                         disabled={loading}
-                        className="inline-flex w-full justify-center rounded-lg bg-white px-5 py-3 text-sm font-semibold text-gray-900 shadow-sm border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
+                        className="inline-flex w-full justify-center rounded-lg bg-white px-5 py-3 text-sm font-semibold text-gray-900 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
                     >
                         Annuller
                     </button>

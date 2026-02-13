@@ -1,16 +1,20 @@
-import { TaskPriority } from "@/types/task";
+"use client";
 
-interface BasicInfoCardProps {
-    title: string;
-    description: string;
-    priority: TaskPriority;
-    deadline: string;
+import { TaskPriority, TaskStatus } from "@/types/task";
+
+interface BasicInfoSectionProps {
+    title?: string;
+    description?: string;
+    priority?: TaskPriority;
+    deadline?: string;
     isSubtask: boolean;
     isRecurring: boolean;
-    onFieldChange: (field: string, value: any) => void;
+    onFieldChange: (field: string, value: string | TaskPriority | TaskStatus | undefined) => void;
+    showStatus?: boolean;
+    status?: TaskStatus;
 }
 
-export default function BasicInfoCard({
+export default function BasicInfoSection({
     title,
     description,
     priority,
@@ -18,7 +22,9 @@ export default function BasicInfoCard({
     isSubtask,
     isRecurring,
     onFieldChange,
-}: BasicInfoCardProps) {
+    showStatus = false,
+    status,
+}: BasicInfoSectionProps) {
     return (
         <div className="space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
@@ -27,44 +33,44 @@ export default function BasicInfoCard({
 
             {/* Title */}
             <div>
-                <label htmlFor="title" className="block text-sm font-semibold text-gray-900 mb-2">
+                <label htmlFor="task-title" className="block text-sm font-semibold text-gray-900 mb-2">
                     Opgave titel<span className="text-red-500">*</span>
                 </label>
                 <input
                     type="text"
-                    id="title"
-                    placeholder="Indtast titel..."
+                    id="task-title"
                     required
                     value={title}
                     onChange={(e) => onFieldChange('title', e.target.value)}
                     className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                    placeholder="F.eks. Fuldend projekt dokumentation"
                 />
             </div>
 
             {/* Description */}
             <div>
-                <label htmlFor="description" className="block text-sm font-semibold text-gray-900 mb-2">
+                <label htmlFor="task-description" className="block text-sm font-semibold text-gray-900 mb-2">
                     Beskrivelse<span className="text-red-500">*</span>
                 </label>
                 <textarea
-                    id="description"
+                    id="task-description"
                     required
-                    placeholder="Indtast beskrivelse..."
                     value={description}
                     onChange={(e) => onFieldChange('description', e.target.value)}
                     rows={4}
                     className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors resize-y"
+                    placeholder="Beskriv opgaven i detaljer..."
                 />
             </div>
 
-            {/* Priority & Deadline Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Priority, Status (optional), & Deadline */}
+            <div className={`grid grid-cols-1 ${showStatus ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-4`}>
                 <div>
-                    <label htmlFor="priority" className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label htmlFor="task-priority" className="block text-sm font-semibold text-gray-900 mb-2">
                         Prioritet
                     </label>
                     <select
-                        id="priority"
+                        id="task-priority"
                         value={priority}
                         onChange={(e) => onFieldChange('priority', e.target.value as TaskPriority)}
                         className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
@@ -75,22 +81,40 @@ export default function BasicInfoCard({
                     </select>
                 </div>
 
+                {showStatus && status && (
+                    <div>
+                        <label htmlFor="task-status" className="block text-sm font-semibold text-gray-900 mb-2">
+                            Status
+                        </label>
+                        <select
+                            id="task-status"
+                            value={status}
+                            onChange={(e) => onFieldChange('status', e.target.value as TaskStatus)}
+                            className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                        >
+                            <option value={TaskStatus.PENDING}>Afventer</option>
+                            <option value={TaskStatus.DONE}>Færdig</option>
+                            <option value={TaskStatus.REJECTED}>Afvist</option>
+                        </select>
+                    </div>
+                )}
+
                 <div>
-                    <label htmlFor="deadline" className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label htmlFor="task-deadline" className="block text-sm font-semibold text-gray-900 mb-2">
                         Deadline<span className="text-red-500">*</span>
                     </label>
                     <input
                         type="date"
-                        id="deadline"
-                        required={!isRecurring}
-                        disabled={isRecurring}
+                        id="task-deadline"
+                        required
                         value={deadline}
                         onChange={(e) => onFieldChange('deadline', e.target.value)}
-                        className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500"
+                        disabled={isRecurring}
+                        className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                     {isRecurring && (
                         <p className="mt-1 text-xs text-gray-500">
-                            Deadline er deaktiveret for gentagende opgaver
+                            Deadline sættes automatisk for hver gentagelse
                         </p>
                     )}
                 </div>

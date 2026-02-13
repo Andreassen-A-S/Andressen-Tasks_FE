@@ -6,7 +6,7 @@ interface GoalSectionProps {
     unit: TaskUnit | undefined;
     currentQuantity: number | undefined;
     onGoalTypeChange: (checked: boolean) => void;
-    onFieldChange: (field: string, value: any) => void;
+    onFieldChange: (field: string, value: number | TaskUnit | undefined) => void;
 }
 
 export default function GoalSection({
@@ -26,7 +26,7 @@ export default function GoalSection({
             </h3>
 
             {/* Checkbox */}
-            <div className="border border-amber-500">
+            <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                     <input
                         type="checkbox"
@@ -34,19 +34,20 @@ export default function GoalSection({
                         onChange={(e) => onGoalTypeChange(e.target.checked)}
                         className="rounded border-gray-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
                     />
+                </label>
+                <div>
                     <span className="text-sm font-semibold text-gray-900">
                         Mål
                     </span>
-                </label>
-                <p className="mt-1 ml-6 text-xs text-gray-500">
-                    Slå til for at tilføje målværdi og enhed til opgaven
-                </p>
+                    <p className="text-xs text-gray-500">
+                        Slå til for at tilføje målværdi og enhed til opgaven
+                    </p>
+                </div>
             </div>
 
             {/* Expanded fields */}
-            {/* border-2 border-gray-200 */}
             {isFixed && (
-                <div className="p-4 bg-gray-50 rounded-md  border border-amber-500">
+                <div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="target_quantity" className="block text-sm font-semibold text-gray-900 mb-2">

@@ -32,70 +32,77 @@ export default function RecurringCard({
     return (
         <>
             {/* Recurring Toggle Checkbox */}
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-4">
                 <input
                     type="checkbox"
-                    id="is_recurring"
                     checked={isRecurring}
                     onChange={(e) => setIsRecurring(e.target.checked)}
                     className="rounded border-gray-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
                 />
-                <label htmlFor="is_recurring" className="text-xs text-gray-600 cursor-pointer">
-                    Gentag denne opgave automatisk
-                </label>
+                <div>
+                    <span className="text-sm font-semibold text-gray-900">
+                        Gentag
+                    </span>
+                    <p className="text-xs text-gray-500">
+                        Slå til for at gentage denne opgave automatisk
+                    </p>
+                </div>
             </div>
 
-            {/* Recurring Options */}
+            {/* Recurring Expanded fields */}
             {isRecurring && (
-                <div className="space-y-4 p-4 bg-teal-50 rounded-lg border-2 border-teal-200 mt-4">
-                    {/* Frequency */}
-                    <div>
-                        <label htmlFor="frequency" className="block text-sm font-semibold text-gray-900 mb-2">
-                            Frekvens<span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            id="frequency"
-                            value={recurringData.frequency}
-                            onChange={(e) =>
-                                setRecurringData({
-                                    ...recurringData,
-                                    frequency: e.target.value as RecurrenceFrequency,
-                                })
-                            }
-                            className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
-                        >
-                            <option value={RecurrenceFrequency.DAILY}>Daglig</option>
-                            <option value={RecurrenceFrequency.WEEKLY}>Ugentlig</option>
-                            <option value={RecurrenceFrequency.MONTHLY}>Månedlig</option>
-                            <option value={RecurrenceFrequency.YEARLY}>Årlig</option>
-                        </select>
-                    </div>
-
-                    {/* Interval */}
-                    <div>
-                        <label htmlFor="interval" className="block text-sm font-semibold text-gray-900 mb-2">
-                            Gentag hver
-                        </label>
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="number"
-                                id="interval"
-                                min={1}
-                                value={recurringData.interval}
+                <div>
+                    {/* Interval & Frequency side by side */}
+                    <div className="flex gap-4 mb-4">
+                        {/* Frequency */}
+                        <div className="flex-1">
+                            <label htmlFor="frequency" className="block text-sm font-semibold text-gray-900 mb-2">
+                                Gentag hver<span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                id="frequency"
+                                value={recurringData.frequency}
                                 onChange={(e) =>
                                     setRecurringData({
                                         ...recurringData,
-                                        interval: parseInt(e.target.value) || 1,
+                                        frequency: e.target.value as RecurrenceFrequency,
                                     })
                                 }
-                                className="block w-20 rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
-                            />
-                            <span className="text-sm text-gray-700">
-                                {recurringData.frequency === RecurrenceFrequency.DAILY && "dag(e)"}
-                                {recurringData.frequency === RecurrenceFrequency.WEEKLY && "uge(r)"}
-                                {recurringData.frequency === RecurrenceFrequency.MONTHLY && "måned(er)"}
-                                {recurringData.frequency === RecurrenceFrequency.YEARLY && "år"}
-                            </span>
+                                className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                            >
+                                <option value={RecurrenceFrequency.DAILY}>Dag</option>
+                                <option value={RecurrenceFrequency.WEEKLY}>Uge</option>
+                                <option value={RecurrenceFrequency.MONTHLY}>Måned</option>
+                                <option value={RecurrenceFrequency.YEARLY}>År</option>
+                            </select>
+                        </div>
+
+                        {/* Interval */}
+                        <div className="flex-1">
+                            <label htmlFor="interval" className="block text-sm font-semibold text-gray-900 mb-2">
+                                Interval
+                            </label>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="number"
+                                    id="interval"
+                                    min={1}
+                                    value={recurringData.interval}
+                                    onChange={(e) =>
+                                        setRecurringData({
+                                            ...recurringData,
+                                            interval: parseInt(e.target.value) || 1,
+                                        })
+                                    }
+                                    className="block w-20 rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                                />
+                                <span className="text-sm text-gray-700">
+                                    {recurringData.frequency === RecurrenceFrequency.DAILY && "dag(e)"}
+                                    {recurringData.frequency === RecurrenceFrequency.WEEKLY && "uge(r)"}
+                                    {recurringData.frequency === RecurrenceFrequency.MONTHLY && "måned(er)"}
+                                    {recurringData.frequency === RecurrenceFrequency.YEARLY && "år"}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -123,8 +130,8 @@ export default function RecurringCard({
                                             setRecurringData({ ...recurringData, days_of_week: days });
                                         }}
                                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${recurringData.days_of_week.includes(day.value)
-                                                ? "bg-teal-600 text-white"
-                                                : "bg-white text-gray-700 border-2 border-gray-200 hover:border-teal-500"
+                                            ? "bg-teal-600 text-white"
+                                            : "bg-white text-gray-700 border-2 border-gray-200 hover:border-teal-500"
                                             }`}
                                     >
                                         {day.label}
