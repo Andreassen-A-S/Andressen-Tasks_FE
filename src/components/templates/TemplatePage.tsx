@@ -4,29 +4,35 @@ import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faPlus,
-    faRepeat,
     faCalendarDays,
-    faTrash,
-    faPause,
-    faPlay,
-    faEdit,
-    faEye,
     faSpinner
 } from "@fortawesome/free-solid-svg-icons";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { getRecurringTemplates, deleteRecurringTemplate, deactivateTemplate, reactivateTemplate } from "@/lib/api";
 import TemplateCard from "@/components/templates/TemplateCard";
-import CreateTemplateModal from "@/components/templates/CreateTemplateModal";
-import ViewTemplateModal from "@/components/templates/ViewTemplateModal";
+import CreateTemplateModal from "@/components/templates/CreateTemplateForm";
+import ViewTemplateModal from "@/components/templates/ViewTemplate";
+import Modal from "../modal/Modal";
+import UpdateTemplateForm from "./UpdateTemplateForm";
+
 
 export default function RecurringTemplatesPage() {
     const [templates, setTemplates] = useState<RecurringTemplate[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
+    const [showEditTemplateModal, setShowEditTemplateModal] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<RecurringTemplate | null>(null);
     const [showViewModal, setShowViewModal] = useState(false);
     const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('active');
+
+    type FilterKey = "all" | "active" | "inactive";
+
+    const filterOptions: { key: FilterKey; label: string; count: number }[] = [
+        { key: 'active', label: 'Aktive', count: templates.filter(t => t.is_active).length },
+        { key: 'inactive', label: 'Inaktive', count: templates.filter(t => !t.is_active).length },
+        { key: 'all', label: 'Alle', count: templates.length },
+    ];
 
     useEffect(() => {
         loadTemplates();
@@ -83,6 +89,11 @@ export default function RecurringTemplatesPage() {
         setShowViewModal(true);
     }
 
+    function handleEditTemplate(template: RecurringTemplate) {
+        setSelectedTemplate(template);
+        setShowEditTemplateModal(true);
+    }
+
     const filteredTemplates = templates.filter(template => {
         if (filter === 'all') return true;
         if (filter === 'active') return template.is_active;
@@ -101,66 +112,48 @@ export default function RecurringTemplatesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                                <FontAwesomeIcon icon={faRepeat} className="text-blue-600" />
-                                Gentagende Opgaver
-                            </h1>
-                            <p className="mt-1 text-sm text-gray-500">
-                                Administrer dine gentagende opgaveskabeloner
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => setShowCreateModal(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-                        >
-                            <FontAwesomeIcon icon={faPlus} />
-                            Opret Skabelon
-                        </button>
+            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="space-y-2">
+                        <h1 className="h1 flex items-center gap-3">
+                            Gentagende opgaver
+                        </h1>
+                        <p className="body-sm">
+                            Administrer dine gentagende opgaveskabeloner
+                        </p>
                     </div>
+                    <button
+                        onClick={() => setShowCreateTemplateModal(true)}
+                        className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <FontAwesomeIcon icon={faPlus} size="sm" />
+                        Opret skabelon
+                    </button>
                 </div>
             </div>
 
             {/* Filter Tabs */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex gap-2 border-b border-gray-200">
-                    <button
-                        onClick={() => setFilter('active')}
-                        className={`px-4 py-2 font-medium transition-colors border-b-2 ${filter === 'active'
-                            ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        Aktive ({templates.filter(t => t.is_active).length})
-                    </button>
-                    <button
-                        onClick={() => setFilter('inactive')}
-                        className={`px-4 py-2 font-medium transition-colors border-b-2 ${filter === 'inactive'
-                            ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        Inaktive ({templates.filter(t => !t.is_active).length})
-                    </button>
-                    <button
-                        onClick={() => setFilter('all')}
-                        className={`px-4 py-2 font-medium transition-colors border-b-2 ${filter === 'all'
-                            ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        Alle ({templates.length})
-                    </button>
+                    {filterOptions.map(({ key, label, count }) => (
+                        <button
+                            key={key}
+                            onClick={() => setFilter(key)}
+                            className={`px-4 py-2 font-medium transition-colors border-b-2 ${filter === key
+                                ? 'border-blue-600 label-lg'
+                                : 'border-transparent label-lg-gray hover:text-green-200'
+                                }`}
+                        >
+                            {label} ({count})
+                        </button>
+                    ))}
                 </div>
             </div>
 
             {/* Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+            <div className="my-6 mx-8 px-4sm:px-6 lg:px-8 pb-12">
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
                         <p className="text-sm text-red-700">{error}</p>
@@ -180,7 +173,7 @@ export default function RecurringTemplatesPage() {
                         </p>
                         {filter === 'active' && (
                             <button
-                                onClick={() => setShowCreateModal(true)}
+                                onClick={() => setShowCreateTemplateModal(true)}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 <FontAwesomeIcon icon={faPlus} />
@@ -189,7 +182,7 @@ export default function RecurringTemplatesPage() {
                         )}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {filteredTemplates.map(template => (
                             <TemplateCard
                                 key={template.id}
@@ -197,6 +190,7 @@ export default function RecurringTemplatesPage() {
                                 onView={() => handleViewTemplate(template)}
                                 onToggleActive={() => handleToggleActive(template)}
                                 onDelete={() => handleDelete(template.id)}
+                                onEdit={() => handleEditTemplate(template)}
                             />
                         ))}
                     </div>
@@ -204,14 +198,48 @@ export default function RecurringTemplatesPage() {
             </div>
 
             {/* Modals */}
-            {showCreateModal && (
+            <Modal
+                isOpen={showCreateTemplateModal}
+                onClose={() => setShowCreateTemplateModal(false)}
+                title="Opret Ny Skabelon"
+                maxWidth="3xl"
+            >
                 <CreateTemplateModal
-                    onClose={() => setShowCreateModal(false)}
+                    onCancel={() => setShowCreateTemplateModal(false)}
                     onSuccess={(template) => {
                         setTemplates([...templates, template]);
-                        setShowCreateModal(false);
+                        setShowCreateTemplateModal(false);
                     }}
                 />
+
+            </Modal>
+
+            {/* Edit Modal */}
+            {showEditTemplateModal && selectedTemplate && (
+                <Modal
+                    isOpen={showEditTemplateModal}
+                    onClose={() => {
+                        setShowEditTemplateModal(false);
+                        setSelectedTemplate(null);
+                    }}
+                    title="Rediger Skabelon"
+                    maxWidth="3xl"
+                >
+                    <UpdateTemplateForm
+                        template={selectedTemplate}
+                        onCancel={() => {
+                            setShowEditTemplateModal(false);
+                            setSelectedTemplate(null);
+                        }}
+                        onSuccess={(updated) => {
+                            setTemplates(templates.map(t =>
+                                t.id === updated.id ? updated : t
+                            ));
+                            setShowEditTemplateModal(false);
+                            setSelectedTemplate(null);
+                        }}
+                    />
+                </Modal>
             )}
 
             {showViewModal && selectedTemplate && (

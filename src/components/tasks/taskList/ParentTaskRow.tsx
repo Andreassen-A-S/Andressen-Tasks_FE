@@ -66,7 +66,7 @@ export default function ParentTaskRow({
                     )}
                 </td>
 
-                {/* Title + Description */}
+                {/* Title */}
                 <td className=" py-4 ">
                     <div className="flex items-start gap-3">
                         <div className="min-w-0 flex-1">
@@ -76,7 +76,7 @@ export default function ParentTaskRow({
                                     onClick={() => onTaskClick(task.task_id)}
                                     className="text-left cursor-pointer min-w-0"
                                 >
-                                    <div className="text-base font-semibold text-gray-900 hover:underline wrap-break-word">
+                                    <div className="text-base font-semibold text-gray-900 hover:underline wrap-break-word max-w-md">
                                         {task.title}
                                     </div>
                                 </button>

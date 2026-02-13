@@ -19,7 +19,7 @@ export default function TaskTimelineComment({ event, actorName, label }: Props) 
     return (
         <div className="flex items-start gap-3">
             <SingleAvatar name={actorName} size="sm" />
-            <div className="flex-1 bg-white border border-gray-200 rounded-md">
+            <div className="flex-1 bg-white border border-gray-200 rounded-lg">
                 <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-1">
                         <span className="text-sm font-semibold text-gray-900">{actorName}</span>

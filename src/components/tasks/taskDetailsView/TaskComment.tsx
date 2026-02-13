@@ -41,7 +41,7 @@ export default function TaskComment({
                         onChange={(e) => setComment(e.target.value)}
                         placeholder="Skriv din kommentar her..."
                         disabled={submitting}
-                        className="w-full bg-white border border-gray-300 rounded-md px-5 py-3 text-base text-gray-900 placeholder:text-gray-400 resize-none min-h-[120px]
+                        className="w-full bg-white border border-gray-300 rounded-lg px-5 py-3 text-base text-gray-900 placeholder:text-gray-400 resize-none min-h-[120px]
                         focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500
                         disabled:bg-gray-50 disabled:text-gray-500"
                     />
@@ -50,7 +50,7 @@ export default function TaskComment({
                             type="button"
                             onClick={handleSubmit}
                             disabled={!comment.trim() || submitting}
-                            className="inline-flex items-center gap-2 rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white
+                            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white
                             hover:bg-green-700 transition-colors
                             disabled:opacity-50 disabled:cursor-not-allowed"
                         >

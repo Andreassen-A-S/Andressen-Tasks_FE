@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
-    title: string;
+    title: string | ReactNode;
     children: ReactNode;
     footer?: ReactNode;
     maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
@@ -107,7 +107,7 @@ export default function Modal({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                className="rounded-lg bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
                                 <span className="sr-only">Close</span>
                                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">

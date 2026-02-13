@@ -8,7 +8,7 @@ interface CloseButtonProps {
 
 export default function CloseButton({
     onClick,
-    className = "rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
+    className = "rounded-lg bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
     ariaLabel = "Close",
 }: CloseButtonProps) {
     return (

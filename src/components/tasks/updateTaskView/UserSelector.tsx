@@ -52,7 +52,7 @@ export default function UserSelector({
             {loading ? (
                 <div className="text-sm text-gray-500">Indlæser medarbejdere...</div>
             ) : (
-                <div className={`space-y-2 ${maxHeight} overflow-y-auto border-2 border-gray-200 rounded-md p-3`}>
+                <div className={`space-y-2 ${maxHeight} overflow-y-auto border-2 border-gray-200 rounded-lg p-3`}>
                     {users.length === 0 ? (
                         <div className="text-sm text-gray-500">Ingen medarbejdere tilgængelige</div>
                     ) : (

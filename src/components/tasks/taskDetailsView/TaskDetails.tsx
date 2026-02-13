@@ -258,7 +258,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                 isOpen={showSubtaskModal}
                 onClose={() => setShowSubtaskModal(false)}
                 title="Tilføj underopgave"
-                maxWidth="lg"
+                maxWidth="3xl"
             >
 
                 <CreateTaskForm

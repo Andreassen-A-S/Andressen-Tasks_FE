@@ -20,7 +20,7 @@ export default function Sidebar() {
 
     const navItems = [
         { href: "/tasks", label: "Opgaver", icon: <FontAwesomeIcon icon={faTasks} size="lg" /> },
-        { href: "/templates", label: "Skabeloner", icon: <FontAwesomeIcon icon={faRepeat} size="lg" /> },
+        { href: "/templates", label: "Gentagende opgaver", icon: <FontAwesomeIcon icon={faRepeat} size="lg" /> },
         { href: "/employees", label: "Medarbejdere", icon: <FontAwesomeIcon icon={faUsers} size="lg" /> },
         { href: "/statistics", label: "Statistik", icon: <FontAwesomeIcon icon={faChartColumn} size="lg" /> },
         { href: "/settings", label: "Indstillinger", icon: <FontAwesomeIcon icon={faGear} size="lg" /> },

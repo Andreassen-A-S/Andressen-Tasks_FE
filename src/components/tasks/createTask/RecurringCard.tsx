@@ -1,7 +1,3 @@
-// RecurringCard.tsx
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRepeat } from "@fortawesome/free-solid-svg-icons";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
 
 interface RecurringCardProps {
@@ -17,6 +13,7 @@ interface RecurringCardProps {
     };
     setRecurringData: (data: any) => void;
     isSubtask: boolean;
+    hideToggle?: boolean;
 }
 
 export default function RecurringCard({
@@ -25,29 +22,33 @@ export default function RecurringCard({
     recurringData,
     setRecurringData,
     isSubtask,
+    hideToggle = false
 }: RecurringCardProps) {
     // Don't render for subtasks
     if (isSubtask) return null;
 
     return (
         <>
+
             {/* Recurring Toggle Checkbox */}
-            <div className="flex items-center gap-4">
-                <input
-                    type="checkbox"
-                    checked={isRecurring}
-                    onChange={(e) => setIsRecurring(e.target.checked)}
-                    className="rounded border-gray-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
-                />
-                <div>
-                    <span className="text-sm font-semibold text-gray-900">
-                        Gentag
-                    </span>
-                    <p className="text-xs text-gray-500">
-                        Slå til for at gentage denne opgave automatisk
-                    </p>
+            {!hideToggle && (
+                <div className="flex items-center gap-4">
+                    <input
+                        type="checkbox"
+                        checked={isRecurring}
+                        onChange={(e) => setIsRecurring(e.target.checked)}
+                        className="rounded border-gray-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    <div>
+                        <span className="text-sm font-semibold text-gray-900">
+                            Gentag
+                        </span>
+                        <p className="text-xs text-gray-500">
+                            Slå til for at gentage denne opgave automatisk
+                        </p>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Recurring Expanded fields */}
             {isRecurring && (

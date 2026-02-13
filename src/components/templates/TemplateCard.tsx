@@ -2,14 +2,10 @@
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faCalendarDays,
-    faRepeat,
-    faClock,
     faPlay,
     faPause,
     faTrash,
-    faEye,
-    faUsers
+    faPenToSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import Badge from "@/components/common/label/badge";
@@ -18,6 +14,7 @@ import { formatDaDate } from "@/helpers/helpers";
 interface TemplateCardProps {
     template: RecurringTemplate;
     onView: () => void;
+    onEdit: () => void;
     onToggleActive: () => void;
     onDelete: () => void;
 }
@@ -38,6 +35,7 @@ function getFrequencyText(template: RecurringTemplate): string {
 export default function TemplateCard({
     template,
     onView,
+    onEdit,
     onToggleActive,
     onDelete
 }: TemplateCardProps) {
@@ -45,121 +43,117 @@ export default function TemplateCard({
     const isActive = template.is_active;
 
     return (
-        <div className={`bg-white rounded-lg border-2 h-full flex flex-col ${isActive ? 'border-blue-200' : 'border-gray-200'
-            } shadow-sm hover:shadow-md transition-shadow overflow-hidden`}>
+        <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col transition-shadow duration-200 hover:shadow-md overflow-hidden">
             {/* Header */}
-            <div className={`px-5 py-4 border-b ${isActive ? 'bg-gradient-to-r from-blue-50 to-transparent border-blue-100' : 'bg-gray-50 border-gray-200'
-                }`}>
+            <div className="px-6 pt-5 pb-4">
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate">
+                        <h3 className="h5 truncate text-gray-900">
                             {template.title}
                         </h3>
                         {template.description && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                            <p className="body-xs mt-1 text-gray-400 line-clamp-2">
                                 {template.description}
                             </p>
                         )}
                     </div>
-                    <div className={`px-2.5 py-1 rounded-full text-xs font-semibold ${isActive
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-600'
+                    <span className={`badge px-2.5 py-0.5 rounded-full whitespace-nowrap ${isActive
+                        ? 'bg-green-50 text-green-600'
+                        : 'bg-gray-100 text-gray-400'
                         }`}>
                         {isActive ? 'Aktiv' : 'Inaktiv'}
-                    </div>
+                    </span>
                 </div>
             </div>
 
-            {/* Body */}
-            <div className="px-5 py-4 space-y-4 flex-1">
-                {/* Priority */}
-                <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Prioritet</span>
-                    <Badge variant="priority" value={template.priority} />
-                </div>
+            {/* Body — simple row layout */}
+            <div className="px-6 pb-5 flex-1">
+                <div className="border-t border-gray-200" />
 
                 {/* Frequency */}
-                <div className="flex items-center gap-3">
-                    <FontAwesomeIcon icon={faRepeat} className="w-4 h-4 text-blue-600" />
-                    <div className="flex-1">
-                        <div className="text-sm font-medium text-gray-900">
-                            {getFrequencyText(template)}
-                        </div>
-                        {template.days_of_week && Array.isArray(template.days_of_week) && template.days_of_week.length > 0 && (
-                            <div className="text-xs text-gray-500 mt-0.5">
-                                {template.days_of_week.map(day => {
-                                    const days = ['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'];
-                                    return days[day];
-                                }).join(', ')}
-                            </div>
-                        )}
-                    </div>
+                <div className="flex items-center justify-between py-3">
+                    <span className="body-xs text-gray-500">Frekvens</span>
+                    <span className="label-md text-gray-900">
+                        {getFrequencyText(template)}
+                    </span>
                 </div>
 
-                {/* Date Range */}
-                <div className="flex items-center gap-3">
-                    <FontAwesomeIcon icon={faCalendarDays} className="w-4 h-4 text-gray-400" />
-                    <div className="flex-1 text-sm text-gray-600">
-                        <div>Start: {formatDaDate(template.start_date)}</div>
-                        {template.end_date && (
-                            <div>Slut: {formatDaDate(template.end_date)}</div>
-                        )}
-                        {!template.end_date && (
-                            <div className="text-xs text-gray-500 mt-0.5">
-                                Fortsætter på ubestemt tid
-                            </div>
-                        )}
-                    </div>
+                {/* Priority */}
+                <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                    <span className="body-xs text-gray-500">Prioritet</span>
+                    <Badge variant="priority" value={template.priority} />
                 </div>
 
                 {/* Assignees */}
                 {assigneeCount > 0 && (
-                    <div className="flex items-center gap-3">
-                        <FontAwesomeIcon icon={faUsers} className="w-4 h-4 text-gray-400" />
-                        <div className="text-sm text-gray-600">
-                            {assigneeCount} {assigneeCount === 1 ? 'tildelt bruger' : 'tildelte brugere'}
-                        </div>
+                    <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                        <span className="body-xs text-gray-500">Tildelt</span>
+                        <span className="label-md text-gray-900">
+                            {assigneeCount} {assigneeCount === 1 ? 'bruger' : 'brugere'}
+                        </span>
                     </div>
                 )}
 
-                {/* Goal Info */}
+                {/* Start date */}
+                <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                    <span className="body-xs text-gray-500">Start</span>
+                    <span className="label-md text-gray-900">
+                        {formatDaDate(template.start_date)}
+                    </span>
+                </div>
+
+                {/* End date (only if set) */}
+                {template.end_date && (
+                    <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                        <span className="body-xs text-gray-500">Slut</span>
+                        <span className="label-md text-gray-900">
+                            {formatDaDate(template.end_date)}
+                        </span>
+                    </div>
+                )}
+
+                {/* Goal (only if fixed) */}
                 {template.goal_type === 'FIXED' && template.target_quantity && (
-                    <div className="flex items-center gap-3">
-                        <FontAwesomeIcon icon={faClock} className="w-4 h-4 text-gray-400" />
-                        <div className="text-sm text-gray-600">
-                            Mål: {template.target_quantity} {template.unit !== 'NONE' && template.unit?.toLowerCase()}
-                        </div>
+                    <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                        <span className="body-xs text-gray-500">Mål</span>
+                        <span className="label-md text-gray-900">
+                            {template.target_quantity} {template.unit !== 'NONE' && template.unit?.toLowerCase()}
+                        </span>
                     </div>
                 )}
             </div>
 
             {/* Footer Actions */}
-            <div className="px-5 py-3 bg-gray-50 border border-gray-200 flex items-center gap-2">
+            <div className="px-6 py-3.5 border-t border-gray-200 flex items-center gap-2">
                 <button
                     onClick={onView}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-3 btn-md text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                    <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
                     Se instanser
                 </button>
 
                 <button
+                    onClick={onEdit}
+                    className="px-3 py-2 text-gray-600 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors cursor-pointer"
+                    title="Rediger skabelon"
+                >
+                    <FontAwesomeIcon icon={faPenToSquare} className="w-3.5 h-3.5" />
+                </button>
+
+                <button
                     onClick={onToggleActive}
-                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isActive
-                        ? 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200'
-                        : 'text-green-700 bg-green-50 hover:bg-green-100 border border-green-200'
-                        }`}
+                    className={"px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-500 hover:bg-gray-100 border border-gray-200"}
                     title={isActive ? 'Pause skabelon' : 'Aktiver skabelon'}
                 >
-                    <FontAwesomeIcon icon={isActive ? faPause : faPlay} className="w-4 h-4" />
+                    <FontAwesomeIcon icon={isActive ? faPause : faPlay} className="w-3.5 h-3.5" />
                 </button>
 
                 <button
                     onClick={onDelete}
-                    className="px-3 py-2 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+                    className="px-3 py-2 text-red-500 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors cursor-pointer"
                     title="Slet skabelon"
                 >
-                    <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                    <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
                 </button>
             </div>
         </div>

@@ -176,7 +176,7 @@ export default function TaskList({
                 isOpen={showEditModal}
                 onClose={handleEditCancel}
                 title="Rediger Opgave"
-                maxWidth="2xl"
+                maxWidth="3xl"
             >
                 {selectedTask && (
                     <UpdateTaskForm

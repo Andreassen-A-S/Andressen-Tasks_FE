@@ -133,7 +133,7 @@ export default function UserTasksView() {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
                 <div className="max-w-md w-full">
-                    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 text-center">
+                    <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center">
                         <p className="text-red-800 font-medium mb-4">{error}</p>
                         <button
                             onClick={handleRetry}
