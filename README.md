@@ -44,3 +44,12 @@ Try deleting the .next directory and re-running the dev server:
 rm -rf .next
 npm run dev
 ```
+
+sometimes node_modules can also cause issues, so you can try deleting it and reinstalling dependencies:
+i had issues with globals.css not updating, and this fixed it for me:
+
+```bash
+rm -rf .next node_modules
+npm install
+npm run dev
+```

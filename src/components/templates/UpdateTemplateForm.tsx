@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { updateRecurringTemplate } from "@/lib/api";
-import { RecurringTemplate, RecurrenceFrequency } from "@/types/recuringTemplate";
+import { RecurringTemplate } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { toIsoEndOfDay } from "@/helpers/helpers";
 import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
+import { UpdateRecurringTemplateInput } from "@/types/recuringTemplate";
 
 interface UpdateTemplateFormProps {
     template: RecurringTemplate;
@@ -17,12 +18,13 @@ interface UpdateTemplateFormProps {
 }
 
 export default function UpdateTemplateForm({ template, onCancel, onSuccess }: UpdateTemplateFormProps) {
+
     const [formData, setFormData] = useState({
         title: template.title,
         description: template.description || "",
         priority: template.priority,
         assigned_users: template.default_assignees?.map(a => a.user_id) || [],
-        unit: template.unit !== 'NONE' ? template.unit : undefined,
+        unit: template.unit !== TaskUnit.NONE ? template.unit : undefined,
         goal_type: template.goal_type || TaskGoalType.OPEN,
         target_quantity: template.target_quantity || undefined,
         current_quantity: undefined as number | undefined,
@@ -62,38 +64,43 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
         setFormData(prev => ({ ...prev, assigned_users: userIds }));
     };
 
+
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
         try {
-            const templateData = {
+            const templateData: UpdateRecurringTemplateInput = {
                 title: formData.title,
                 description: formData.description || undefined,
                 priority: formData.priority,
                 unit: formData.unit || TaskUnit.NONE,
-                target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
+                target_quantity: formData.target_quantity,
                 goal_type: formData.goal_type || TaskGoalType.OPEN,
+                assigned_users: formData.assigned_users,
                 frequency: recurringData.frequency,
                 interval: recurringData.interval,
-                days_of_week: recurringData.days_of_week.length > 0 ? recurringData.days_of_week : undefined,
-                day_of_month: recurringData.day_of_month,
                 start_date: toIsoEndOfDay(recurringData.start_date),
-                end_date: recurringData.end_date ? toIsoEndOfDay(recurringData.end_date) : undefined,
-                assigned_users: formData.assigned_users,
+                end_date: recurringData.end_date ? toIsoEndOfDay(recurringData.end_date) : null,
             };
 
             const updatedTemplate = await updateRecurringTemplate(template.id, templateData);
-
             onSuccess(updatedTemplate);
         } catch (err) {
             console.error("Failed to update template:", err);
-            setError("Kunne ikke opdatere skabelon. Prøv igen.");
+            const errorMessage = err instanceof Error
+                ? err.message
+                : "Kunne ikke opdatere skabelon. Prøv igen.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
+
     }
+
+
 
     return (
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">

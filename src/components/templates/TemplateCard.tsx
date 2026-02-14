@@ -134,7 +134,7 @@ export default function TemplateCard({
 
                 <button
                     onClick={onEdit}
-                    className="px-3 py-2 text-gray-600 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors cursor-pointer"
+                    className="px-3 py-3 btn-md text-gray-600 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors cursor-pointer"
                     title="Rediger skabelon"
                 >
                     <FontAwesomeIcon icon={faPenToSquare} className="w-3.5 h-3.5" />
@@ -142,7 +142,7 @@ export default function TemplateCard({
 
                 <button
                     onClick={onToggleActive}
-                    className={"px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-500 hover:bg-gray-100 border border-gray-200"}
+                    className={"px-3 py-3 btn-md rounded-lg transition-colors cursor-pointer text-gray-500 hover:bg-gray-100 border border-gray-200"}
                     title={isActive ? 'Pause skabelon' : 'Aktiver skabelon'}
                 >
                     <FontAwesomeIcon icon={isActive ? faPause : faPlay} className="w-3.5 h-3.5" />
@@ -150,7 +150,7 @@ export default function TemplateCard({
 
                 <button
                     onClick={onDelete}
-                    className="px-3 py-2 text-red-500 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors cursor-pointer"
+                    className="px-3 py-3 btn-md text-red-500 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors cursor-pointer"
                     title="Slet skabelon"
                 >
                     <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
