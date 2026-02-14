@@ -64,6 +64,6 @@ export interface UpdateRecurringTemplateInput {
   days_of_week?: number[];
   day_of_month?: number;
   start_date?: string;
-  end_date?: string;
+  end_date?: string | null;
   assigned_users?: string[]; // Array of user IDs
 }

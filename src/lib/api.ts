@@ -360,7 +360,8 @@ export async function updateRecurringTemplate(
   });
 
   if (!res.ok) {
-    throw new Error("Failed to update recurring template");
+    const error = await res.json();
+    throw new Error(error.error || "Failed to update recurring template");
   }
 
   const response = await res.json();
