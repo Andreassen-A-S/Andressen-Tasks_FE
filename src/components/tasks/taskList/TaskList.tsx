@@ -9,6 +9,7 @@ import UpdateTaskForm from "../updateTaskView/UpdateTaskForm";
 import Drawer from "../../drawer/drawer";
 import TaskDetails from "../taskDetailsView/TaskDetails";
 import ParentTaskRow from "./ParentTaskRow";
+import RecurringTaskRow from "./RecuringTaskRow";
 
 interface TaskListProps {
     tasks: Task[];
@@ -148,17 +149,23 @@ export default function TaskList({
                         </thead>
 
                         <tbody>
-                            {parents.map((task) => (
-                                <ParentTaskRow
-                                    key={task.task_id}
-                                    task={task}
-                                    subtasks={subtasksMap[task.task_id] || []}
-                                    taskAssignments={taskAssignments}
-                                    onTaskClick={handleTaskClick}
-                                    onEditClick={handleEditClick}
-                                    onDeleteClick={handleDelete}
-                                />
-                            ))}
+                            {parents.map((task) => {
+                                const TaskRowComponent = task.recurring_template_id
+                                    ? RecurringTaskRow
+                                    : ParentTaskRow;
+
+                                return (
+                                    <TaskRowComponent
+                                        key={task.task_id}
+                                        task={task}
+                                        subtasks={subtasksMap[task.task_id] || []}
+                                        taskAssignments={taskAssignments}
+                                        onTaskClick={handleTaskClick}
+                                        onEditClick={handleEditClick}
+                                        onDeleteClick={handleDelete}
+                                    />
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -169,7 +176,7 @@ export default function TaskList({
                 isOpen={showEditModal}
                 onClose={handleEditCancel}
                 title="Rediger Opgave"
-                maxWidth="lg"
+                maxWidth="3xl"
             >
                 {selectedTask && (
                     <UpdateTaskForm

@@ -20,7 +20,7 @@ export default function Badge({ variant, value }: BadgeProps) {
         };
 
         return (
-            <span className={`px-3 py-2 text-xs rounded-md ${colorClasses[priority]}`}>
+            <span className={`px-3 py-2 text-xs rounded-lg ${colorClasses[priority]}`}>
                 {translatePriority(priority)}
             </span>
         );
@@ -35,7 +35,7 @@ export default function Badge({ variant, value }: BadgeProps) {
         };
 
         return (
-            <span className={`px-3 py-2 text-xs rounded-md ${colorClasses[status] || "bg-gray-100 text-gray-800"}`}>
+            <span className={`px-3 py-2 text-xs rounded-lg ${colorClasses[status] || "bg-gray-100 text-gray-800"}`}>
                 {translateStatus(status)}
             </span>
         );

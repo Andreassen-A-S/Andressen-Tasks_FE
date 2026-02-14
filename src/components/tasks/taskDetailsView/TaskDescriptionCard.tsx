@@ -1,4 +1,4 @@
-import SingleAvatar from "../../label/singleAvatar";
+import SingleAvatar from "../../common/label/singleAvatar";
 import type { User } from "@/types/users";
 import { formatRelativeDate } from "@/helpers/helpers";
 
@@ -23,7 +23,7 @@ export default function TaskDescriptionCard({
         <div className="mb-6 z-10 relative flex items-start gap-3">
             <SingleAvatar name={creatorName} size="sm" />
 
-            <div className="w-full overflow-hidden rounded-md border border-gray-200 bg-white">
+            <div className="w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
                 {/* Card Header (same layout as TaskTimelineComment) */}
                 <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex items-center justify-between">
                     <div className="flex items-center gap-1">
@@ -54,7 +54,7 @@ export default function TaskDescriptionCard({
                     {showSubtaskButton && (
                         <button
                             onClick={onAddSubtask}
-                            className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-md font-medium text-sm transition-colors border border-gray-300"
+                            className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors border border-gray-300"
                         >
                             + Tilføj underopgave
                         </button>

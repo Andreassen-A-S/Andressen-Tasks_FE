@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@/types/users";
-import SingleAvatar from "../label/singleAvatar";
+import SingleAvatar from "../common/label/singleAvatar";
 
 interface EmployeeListProps {
     employees: User[];

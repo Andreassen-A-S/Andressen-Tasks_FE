@@ -73,7 +73,7 @@ export default function LoginPage() {
                 </p>
 
                 {/* Development Warning */}
-                <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <div className="flex">
                         <div className="flex-shrink-0">
                             <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -141,7 +141,7 @@ export default function LoginPage() {
                     </div>
 
                     {error && (
-                        <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+                        <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
                             <div className="flex">
                                 <div className="flex-shrink-0">
                                     <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -161,7 +161,7 @@ export default function LoginPage() {
                             onClick={() => handleLogin(selectedRole!)}
                             disabled={!selectedRole || isLoading}
                             className={`
-                                w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white
+                                w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white
                                 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
                                 ${!selectedRole || isLoading
                                     ? 'bg-gray-400 cursor-not-allowed'
@@ -181,7 +181,7 @@ export default function LoginPage() {
                     </div>
 
                     {/* Demo Accounts Info */}
-                    <div className="mt-6 bg-gray-50 rounded-md p-4">
+                    <div className="mt-6 bg-gray-50 rounded-lg p-4">
                         <h4 className="text-sm font-medium text-gray-900 mb-2">Demo konti:</h4>
                         <div className="text-sm text-gray-600 space-y-1">
                             <div><strong>Bruger:</strong> Standard opgave visning</div>

@@ -40,6 +40,8 @@ export interface Task {
   goal_type?: TaskGoalType | null;
   target_quantity?: number | null;
   current_quantity?: number | null;
+  recurring_template_id?: string;
+  occurrence_date?: string;
 }
 
 export interface CreateTaskInput {
@@ -54,8 +56,8 @@ export interface CreateTaskInput {
   scheduled_date: string;
   unit?: TaskUnit;
   goal_type?: TaskGoalType;
-  target_quantity?: number | null;
-  current_quantity?: number | null;
+  target_quantity?: number;
+  current_quantity?: number;
 }
 
 export interface UpdateTaskInput {
@@ -70,6 +72,8 @@ export interface UpdateTaskInput {
   goal_type?: TaskGoalType;
   target_quantity?: number | null;
   current_quantity?: number | null;
+  recurring_template_id?: string;
+  occurrence_date?: string;
 }
 
 export interface CreateSubtaskInput extends Omit<

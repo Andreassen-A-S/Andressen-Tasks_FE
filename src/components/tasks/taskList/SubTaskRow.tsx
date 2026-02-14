@@ -1,6 +1,6 @@
-import Badge from "@/components/label/badge";
-import TaskAssignedUsers from "@/components/label/taskAssignedUsers";
-import EditButton from "@/components/label/editButton";
+import Badge from "@/components/common/label/badge";
+import TaskAssignedUsers from "@/components/common/label/taskAssignedUsers";
+import EditButton from "@/components/common/label/editButton";
 import { formatRelativeDate } from "@/helpers/helpers";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";

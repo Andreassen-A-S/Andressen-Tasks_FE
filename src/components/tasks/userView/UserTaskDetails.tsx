@@ -267,7 +267,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                     <button
                         onClick={handleCompleteTask}
                         disabled={isUpdating}
-                        className={`w-full py-4 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all mt-auto ${task.status === 'DONE'
+                        className={`w-full py-4 rounded-lg sm:rounded-2xl font-semibold text-base sm:text-lg transition-all mt-auto ${task.status === 'DONE'
                             ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             : 'bg-green-500 text-white hover:bg-green-600 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0'
                             } ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}

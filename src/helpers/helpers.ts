@@ -182,3 +182,13 @@ export function getSubtaskInfo(e: TaskEvent) {
     title: aj?.title as string | undefined,
   };
 }
+
+// Utility to remove undefined values from an object before sending to API
+
+export function removeUndefined<T extends Record<string, unknown>>(
+  obj: T,
+): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => value !== undefined),
+  ) as Partial<T>;
+}

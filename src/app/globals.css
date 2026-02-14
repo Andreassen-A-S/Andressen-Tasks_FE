@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -25,6 +26,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+body[data-scroll-locked="true"] {
+  overflow: hidden;
+  padding-right: var(--scrollbar-width, 0px);
+}
+
 @keyframes slideInRight {
   from {
     transform: translateX(100%);
@@ -50,4 +56,333 @@ body {
 
 .animate-fade-in {
   animation: fadeIn 0.3s ease;
+}
+
+/* ─── HEADINGS ──────────────────────────────────────────────── */
+
+.h1 {
+  font-family: "Outfit", sans-serif;
+  font-weight: 700;
+  font-size: 2.25rem; /* 36px */
+  line-height: 2.5rem; /* 40px */
+  letter-spacing: -0.03em;
+  color: #1b1d22;
+}
+
+.h2 {
+  font-family: "Outfit", sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem; /* 28px */
+  line-height: 2.125rem; /* 34px */
+  letter-spacing: -0.025em;
+  color: #1b1d22;
+}
+
+.h3 {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 1.375rem; /* 22px */
+  line-height: 1.75rem; /* 28px */
+  letter-spacing: -0.02em;
+  color: #1b1d22;
+}
+
+.h4 {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.5rem; /* 24px */
+  letter-spacing: -0.015em;
+  color: #1b1d22;
+}
+
+.h5 {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 1rem; /* 16px */
+  line-height: 1.375rem; /* 22px */
+  letter-spacing: -0.01em;
+  color: #1b1d22;
+}
+
+.h6 {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  letter-spacing: 0;
+  color: #1b1d22;
+}
+
+/* ─── BODY TEXT ─────────────────────────────────────────────── */
+
+.body-lg {
+  font-family: "Outfit", sans-serif;
+  font-weight: 400;
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.75rem; /* 28px */
+  color: #1b1d22;
+}
+
+.body-md {
+  font-family: "Outfit", sans-serif;
+  font-weight: 400;
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+  color: #1b1d22;
+}
+
+.body-sm {
+  font-family: "Outfit", sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  color: #6b7084;
+}
+
+.body-xs {
+  font-family: "Outfit", sans-serif;
+  font-weight: 400;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.125rem; /* 18px */
+  color: #6b7084;
+}
+
+.body-xs-black {
+  font-family: "Outfit", sans-serif;
+  font-weight: 400;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.125rem; /* 18px */
+  color: #0a0a0a;
+}
+
+/* ─── LABELS & UI TEXT ──────────────────────────────────────── */
+
+.label-lg {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  color: #1b1d22;
+}
+
+.label-lg-gray {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  color: #6b7084;
+}
+
+.label-lg-white {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  color: #ffffff;
+}
+
+.label-md {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.125rem; /* 18px */
+  color: #1b1d22;
+}
+
+.label-sm {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+  color: #6b7084;
+}
+
+/* ─── OVERLINES & CAPTIONS ──────────────────────────────────── */
+
+.overline {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.625rem; /* 10px */
+  line-height: 0.875rem; /* 14px */
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9da1b4;
+}
+
+.caption {
+  font-family: "Outfit", sans-serif;
+  font-weight: 400;
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1rem; /* 16px */
+  color: #9da1b4;
+}
+
+/* ─── TABLE HEADER ──────────────────────────────────────────── */
+
+.table-header {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.625rem; /* 10px */
+  line-height: 0.875rem; /* 14px */
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9da1b4;
+}
+
+/* ─── BADGES & TAGS ─────────────────────────────────────────── */
+
+.badge {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.625rem; /* 10px */
+  line-height: 0.875rem; /* 14px */
+  letter-spacing: 0.02em;
+}
+
+.tag {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.5625rem; /* 9px */
+  line-height: 0.75rem; /* 12px */
+  letter-spacing: 0.02em;
+}
+
+/* ─── BUTTON TEXT ───────────────────────────────────────────── */
+
+.btn-lg {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.9375rem; /* 15px */
+  line-height: 1.25rem; /* 20px */
+}
+
+.btn-md {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.125rem; /* 18px */
+}
+
+.btn-sm {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+}
+
+/* ─── NAVIGATION ────────────────────────────────────────────── */
+
+.nav-item {
+  font-family: "Outfit", sans-serif;
+  font-weight: 400;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.125rem; /* 18px */
+  color: #a8aabb;
+}
+
+.nav-item-active {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.125rem; /* 18px */
+  color: #ffffff;
+}
+
+.sidebar-brand {
+  font-family: "Outfit", sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem; /* 15px */
+  line-height: 1.25rem; /* 20px */
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.sidebar-brand-sub {
+  font-family: "Outfit", sans-serif;
+  font-weight: 400;
+  font-size: 0.625rem; /* 10px */
+  line-height: 0.875rem; /* 14px */
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #a8aabb;
+}
+
+/* ─── MONOSPACE (data, emails, IDs, percentages) ────────────── */
+
+.mono-md {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.125rem; /* 18px */
+  color: #6b7084;
+}
+
+.mono-sm {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 400;
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+  color: #6b7084;
+}
+
+.mono-xs {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+  font-size: 0.625rem; /* 10px */
+  line-height: 0.875rem; /* 14px */
+  color: #6b7084;
+}
+
+/* ─── LINKS ─────────────────────────────────────────────────── */
+
+.link {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1rem; /* 16px */
+  color: #2c5fe0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: #4a7af5;
+}
+
+.link-danger {
+  font-family: "Outfit", sans-serif;
+  font-weight: 500;
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1rem; /* 16px */
+  color: #d64545;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link-danger:hover {
+  color: #e25757;
+}
+
+/* ─── INITIALS (avatars) ────────────────────────────────────── */
+
+.initials-lg {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.8125rem; /* 13px */
+  color: #ffffff;
+}
+
+.initials-md {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.6875rem; /* 11px */
+  color: #ffffff;
+}
+
+.initials-sm {
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  font-size: 0.5625rem; /* 9px */
+  color: #ffffff;
 }
