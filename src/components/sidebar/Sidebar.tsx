@@ -19,24 +19,27 @@ export default function Sidebar() {
     };
 
     const navItems = [
-        { href: "/tasks", label: "Opgaver", icon: <FontAwesomeIcon icon={faTasks} size="lg" /> },
-        { href: "/templates", label: "Gentagende opgaver", icon: <FontAwesomeIcon icon={faRepeat} size="lg" /> },
-        { href: "/employees", label: "Medarbejdere", icon: <FontAwesomeIcon icon={faUsers} size="lg" /> },
-        { href: "/statistics", label: "Statistik", icon: <FontAwesomeIcon icon={faChartColumn} size="lg" /> },
-        { href: "/settings", label: "Indstillinger", icon: <FontAwesomeIcon icon={faGear} size="lg" /> },
+        { href: "/tasks", label: "Opgaver", icon: faTasks },
+        { href: "/templates", label: "Gentagende opgaver", icon: faRepeat },
+        { href: "/employees", label: "Medarbejdere", icon: faUsers },
+        { href: "/statistics", label: "Statistik", icon: faChartColumn },
+        { href: "/settings", label: "Indstillinger", icon: faGear },
     ];
 
     return (
-        <aside className="w-80 bg-gray-800 border-r h-screen flex flex-col fixed left-0 top-0">
-            {/* Header - Fixed size */}
-            <div className="p-6 border-b-2 border-gray-700 flex-shrink-0">
+        <aside className="w-75 bg-[#1B1D22] border-r border-[rgba(255,255,255,0.06)] h-screen flex flex-col fixed left-0 top-0">
+            {/* Header - Brand */}
+            <div className="p-6 border-b border-[rgba(255,255,255,0.06)] flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <Image src="/favicon.ico" alt="Andressen A/S" width={60} height={60} />
-                    <h1 className="text-xl font-semibold text-white">Andressen TMS</h1>
+                    <Image src="/favicon.ico" alt="Andressen A/S" width={80} height={34} />
+                    <div>
+                        <h1 className="sidebar-brand">Andressen A/S</h1>
+                        <span className="sidebar-brand-sub">task management</span>
+                    </div>
                 </div>
             </div>
 
-            {/* Navigation - Takes remaining space with scrolling */}
+            {/* Navigation */}
             <nav className="flex-1 p-4 overflow-y-auto">
                 <ul className="space-y-2">
                     {navItems.map((item) => {
@@ -45,13 +48,15 @@ export default function Sidebar() {
                             <li key={item.href}>
                                 <Link
                                     href={item.href}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                        ? "bg-green-900 text-green-500 font-medium"
-                                        : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                                    className={`flex items-center gap-3 px-4 py-2 rounded-[8px] transition-colors ${isActive
+                                        ? "bg-[rgba(255,255,255,0.08)] nav-item-active"
+                                        : "nav-item hover:bg-gray-700 hover:text-white"
                                         }`}
                                 >
-                                    <span className="text-xl">{item.icon}</span>
-                                    <span>{item.label}</span>
+                                    <span className="flex items-center justify-center w-5 h-5">
+                                        <FontAwesomeIcon icon={item.icon} className="w-3.5 h-3.5" />
+                                    </span>
+                                    <span className="truncate">{item.label}</span>
                                 </Link>
                             </li>
                         );
@@ -59,30 +64,28 @@ export default function Sidebar() {
                 </ul>
             </nav>
 
-            {/* User Profile - Always at bottom of screen */}
-            <div className="p-4 border-t-2 border-gray-700 flex-shrink-0 mt-auto">
+            {/* User Profile */}
+            <div className="p-4 border-t border-[rgba(255,255,255,0.06)] flex-shrink-0 mt-auto">
                 <div className="flex items-center mb-4">
                     <SingleAvatar
                         name={user?.name || "Unknown User"}
                         size="md"
-                        className="mr-3"
+                        className="mr-3 rounded-lg"
                     />
-                    <div className="text-sm min-w-0 flex-1">
-                        <p className="font-medium text-white truncate">
+                    <div className="min-w-0 flex-1">
+                        <p className="nav-item-active  text-white truncate">
                             {user?.name || "Unknown User"}
                         </p>
-                        <p className="text-gray-400 text-xs">
+                        <p className="text-[#A8AABB] nav-item ">
                             {userRole === "ADMIN" ? "Administrator" : "Bruger"}
                         </p>
-                        <p className="text-gray-500 text-xs truncate">
-                            {user?.email}
-                        </p>
+
                     </div>
                 </div>
 
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 nav-item text-[#A8AABB] hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
                 >
                     <FontAwesomeIcon icon={faSignOutAlt} />
                     <span>Log ud</span>
