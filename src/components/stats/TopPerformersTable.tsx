@@ -68,7 +68,7 @@ export default function TopPerformersTable({ data }: TopPerformersTableProps) {
                     <tbody className="divide-y divide-gray-100">
                         {data.map((performer, index) => (
                             <tr
-                                key={performer.userId}
+                                key={performer.user_id}
                                 className="hover:bg-gray-50 transition-colors"
                             >
                                 <td className="py-4 px-2">
@@ -85,7 +85,7 @@ export default function TopPerformersTable({ data }: TopPerformersTableProps) {
                                 </td>
                                 <td className="py-4 px-4 text-right">
                                     <span className="inline-flex items-center px-3 py-1 rounded-full label-md bg-green-100 text-green-800">
-                                        {performer.completedCount}
+                                        {performer.completed_count}
                                     </span>
                                 </td>
                             </tr>

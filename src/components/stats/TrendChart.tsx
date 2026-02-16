@@ -46,8 +46,8 @@ export default function TrendChart({ data }: TrendChartProps) {
 
             {/* Simple bar chart */}
             <div className="space-y-3">
-                {data.map((point, index) => (
-                    <div key={index} className="space-y-1">
+                {data.map((point) => (
+                    <div key={point.date} className="space-y-1">
                         <div className="flex items-center justify-between label-sm text-gray-600">
                             <span className="font-medium">{formatDate(point.date)}</span>
                             <div className="flex gap-3">

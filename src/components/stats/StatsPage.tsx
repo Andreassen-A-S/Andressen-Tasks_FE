@@ -94,7 +94,7 @@ export default function StatsPage() {
     }
 
     // Calculate completion rate for today
-    const todayCompletionRate = stats.completion.todayRate;
+    const todayCompletionRate = stats.completion.today_rate;
 
     return (
         <div className="min-h-screen">
@@ -117,7 +117,7 @@ export default function StatsPage() {
                 <div className="my-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard
                         title="Opgaver i alt"
-                        value={stats.overview.totalTasks}
+                        value={stats.overview.total_tasks}
                         variant="default"
                         icon={
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +128,7 @@ export default function StatsPage() {
 
                     <StatCard
                         title="Fuldført i dag"
-                        value={stats.overview.completedToday}
+                        value={stats.overview.completed_today}
                         variant="success"
                         subtitle={`${todayCompletionRate}% fuldførelsesrate`}
                         icon={
@@ -140,7 +140,7 @@ export default function StatsPage() {
 
                     <StatCard
                         title="Mangler"
-                        value={stats.overview.pendingTasks}
+                        value={stats.overview.pending_tasks}
                         variant="warning"
                         icon={
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,7 +151,7 @@ export default function StatsPage() {
 
                     <StatCard
                         title="Forfaldne"
-                        value={stats.overview.overdueTasks}
+                        value={stats.overview.overdue_tasks}
                         variant="danger"
                         icon={
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,19 +165,19 @@ export default function StatsPage() {
                 <div className="my-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <StatCard
                         title="I dag"
-                        value={`${stats.completion.todayRate}%`}
+                        value={`${stats.completion.today_rate}%`}
                         subtitle="Fuldførelsesrate"
                         tooltip="Procent af opgaver oprettet i dag, som er blevet færdiggjort. Beregnes som: (Færdige i dag / Oprettet i dag) × 100"
                     />
                     <StatCard
                         title="Denne uge"
-                        value={`${stats.completion.weekRate}%`}
+                        value={`${stats.completion.week_rate}%`}
                         subtitle="Fuldførelsesrate"
                         tooltip="Færdiggørelsesrate for denne uge (mandag-søndag). Viser hvor mange procent af ugens opgaver der er blevet færdiggjort"
                     />
                     <StatCard
                         title="Denne måned"
-                        value={`${stats.completion.monthRate}%`}
+                        value={`${stats.completion.month_rate}%`}
                         subtitle="Fuldførelsesrate"
                         tooltip="Færdiggørelsesrate for den nuværende måned. Beregnes som: (Færdige denne måned / Oprettet denne måned) × 100"
                     />
@@ -193,21 +193,21 @@ export default function StatsPage() {
                 <div className="my-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <StatCard
                         title="Aktive skabeloner"
-                        value={stats.recurring.activeTemplates}
+                        value={stats.recurring.active_templates}
                         subtitle="Gentagne opgaver"
                         variant="default"
                         tooltip="Antal gentagende opgaveskabeloner, der i øjeblikket er aktive og genererer nye opgaveinstanser"
                     />
                     <StatCard
                         title="Kommende opgaver"
-                        value={stats.recurring.upcomingInstances}
+                        value={stats.recurring.upcoming_instances}
                         subtitle="Næste 7 dage"
                         variant="warning"
                         tooltip="Afventende gentagende opgaveinstanser planlagt inden for de næste 7 dage, som ikke er blevet færdiggjort endnu"
                     />
                     <StatCard
                         title="Fuldførelsesrate"
-                        value={`${stats.recurring.completionRate}%`}
+                        value={`${stats.recurring.completion_rate}%`}
                         subtitle="Gentagende opgaver"
                         variant="success"
                         tooltip="Hvor mange procent af alle gentagende opgaveinstanser er blevet færdiggjort. Beregnes som: (Færdige instanser / Totale instanser) × 100"
@@ -216,7 +216,7 @@ export default function StatsPage() {
 
                 {/* Top Performers */}
                 <div className="my-6">
-                    <TopPerformersTable data={stats.topPerformers} />
+                    <TopPerformersTable data={stats.top_performers} />
                 </div>
 
                 {/* Status Distribution */}
@@ -228,7 +228,7 @@ export default function StatsPage() {
                             <p className="label-md text-yellow-700 mt-1">Mangler</p>
                         </div>
                         <div className="text-center p-4 rounded-lg bg-blue-50">
-                            <p className="h2 text-blue-600">{stats.status.inProgress}</p>
+                            <p className="h2 text-blue-600">{stats.status.in_progress}</p>
                             <p className="label-md text-blue-700 mt-1">I gang</p>
                         </div>
                         <div className="text-center p-4 rounded-lg bg-green-50">
@@ -246,7 +246,7 @@ export default function StatsPage() {
                 <div className="my-6 rounded-lg border border-gray-200 bg-white p-6 text-center">
                     <p className="label-md text-gray-600 mb-2">Gennemsnitlig fuldførelsestid</p>
                     <p className="h1 text-gray-900">
-                        {stats.completion.avgCompletionDays}
+                        {stats.completion.avg_completion_days}
                         <span className="h4 text-gray-600 ml-2">dage</span>
                     </p>
                 </div>
