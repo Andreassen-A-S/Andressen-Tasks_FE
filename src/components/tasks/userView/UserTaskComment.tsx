@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { AuthContext } from "@/contexts/AuthContext";
 import { formatCommentDate } from "@/helpers/helpers";
-import SingleAvatar from "../../label/singleAvatar";
+import SingleAvatar from "../../common/label/singleAvatar";
 
 interface TaskCommentsProps {
     taskId: string;

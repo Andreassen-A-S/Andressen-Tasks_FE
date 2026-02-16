@@ -1,4 +1,5 @@
 import { TaskEvent } from "@/types/taskEvent";
+import { TaskPriority, TaskStatus } from "@/types/task";
 
 export function formatRelativeDate(isoDate: string | Date): string {
   const date =
@@ -111,6 +112,41 @@ export function translateStatus(status: string): string {
       return status;
   }
 }
+
+export function translateStatusLowercase(status: string): string {
+  switch (status) {
+    case "PENDING":
+      return "mangler";
+    case "DONE":
+      return "afsluttet";
+    case "REJECTED":
+      return "annulleret";
+    case "IN_PROGRESS":
+      return "i gang";
+    case "ARCHIVED":
+      return "arkiveret";
+    default:
+      return status;
+  }
+}
+
+export const getPriorityColors = (priority: TaskPriority): string => {
+  const colors = {
+    [TaskPriority.HIGH]: "bg-red-100 text-red-600 border-red-200",
+    [TaskPriority.MEDIUM]: "bg-orange-100 text-orange-600 border-orange-200",
+    [TaskPriority.LOW]: "bg-yellow-100 text-yellow-600 border-yellow-200",
+  };
+  return colors[priority];
+};
+
+export const getStatusColors = (status: TaskStatus): string => {
+  const colors = {
+    [TaskStatus.DONE]: "bg-green-100 text-green-600 border-green-200",
+    [TaskStatus.PENDING]: "bg-yellow-100 text-yellow-600 border-yellow-200",
+    [TaskStatus.REJECTED]: "bg-red-100 text-red-600 border-red-200",
+  };
+  return colors[status] || "bg-gray-100 text-gray-800 border-gray-200";
+};
 
 // Avatar utilities
 export function getInitials(name: string): string {

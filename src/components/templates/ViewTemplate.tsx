@@ -15,6 +15,7 @@ import { getTemplateInstances } from "@/lib/api";
 import { formatDaDate, formatRelativeDate } from "@/helpers/helpers";
 import Badge from "@/components/common/label/badge";
 import Modal from "@/components/modal/Modal";
+import CloseButton from "../common/buttons/CloseButton";
 
 interface ViewTemplateProps {
     template: RecurringTemplate;
@@ -94,12 +95,7 @@ export default function ViewTemplate({ template, onClose, onUpdate }: ViewTempla
             <div>
                 Oprettet: {formatDaDate(template.created_at)}
             </div>
-            <button
-                onClick={onClose}
-                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-                Luk
-            </button>
+            <CloseButton onClick={onClose} />
         </div>
     );
 
