@@ -50,7 +50,6 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
     // Show loading spinner while checking authentication
     if (isLoading) {
-        // if (true) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
                 <div>

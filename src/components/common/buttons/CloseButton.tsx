@@ -9,7 +9,7 @@ interface CloseButtonProps {
 export default function CloseButton({
     onClick,
     className = "text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg w-9 h-9  transition-all",
-    ariaLabel = "Close",
+    ariaLabel = "Luk",
 }: CloseButtonProps) {
     return (
         <button

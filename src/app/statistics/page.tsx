@@ -1,5 +1,5 @@
 import StatsPage from "@/components/stats/StatsPage";
 
-export default function MyTasksPage() {
+export default function StatisticsPage() {
     return <StatsPage />;
 }
