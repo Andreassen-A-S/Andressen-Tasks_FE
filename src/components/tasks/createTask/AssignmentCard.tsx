@@ -12,7 +12,7 @@ interface AssignmentCardProps {
 export default function AssignmentCard({
     assignedUsers,
     onAssignedUsersChange,
-    creationMode,
+    creationMode = "combined",
     onCreationModeChange,
 }: AssignmentCardProps) {
     const selectedCount = assignedUsers?.length ?? 0;
