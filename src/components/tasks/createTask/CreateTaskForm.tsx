@@ -11,7 +11,7 @@ import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
 import BasicInfoSection from "./BasicInfoCard";
 import RecurringCard from "./RecurringCard";
-import AssignmentCard from "./AssignmentCard";
+import AssignmentCard, { type CreationMode } from "./AssignmentCard";
 import { createRecurringTemplate } from "@/lib/api";
 import GoalSection from "./GoalCard";
 import SchedulingCard from "./SchedulingCard";
@@ -39,6 +39,9 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         target_quantity: undefined,
         current_quantity: undefined,
     });
+
+    // bulk creation mode
+    const [creationMode, setCreationMode] = useState<CreationMode>("combined");
 
     // recurring-specific state
     const [isRecurring, setIsRecurring] = useState(false);
@@ -119,40 +122,48 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                 return;
             }
 
-            // Regular task or subtask creation
-            if (isSubtask && parentTaskId) {
-                const subtaskData: CreateSubtaskInput = {
-                    title: formData.title,
-                    description: formData.description,
-                    priority: formData.priority,
-                    status: formData.status,
-                    deadline: toIsoEndOfDay(formData.deadline),
-                    created_by: formData.created_by,
-                    assigned_users: formData.assigned_users,
-                    scheduled_date: toIsoEndOfDay(formData.scheduled_date),
-                    unit: formData.unit,
-                    goal_type: formData.goal_type || TaskGoalType.OPEN,
-                    target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
-                    current_quantity: formData.current_quantity,
-                    parent_task_id: parentTaskId,
-                };
-                newTask = await createSubtask(subtaskData);
+            // Build shared task fields
+            const sharedFields = {
+                title: formData.title,
+                description: formData.description,
+                priority: formData.priority,
+                status: formData.status,
+                deadline: toIsoEndOfDay(formData.deadline),
+                created_by: formData.created_by,
+                scheduled_date: toIsoEndOfDay(formData.scheduled_date),
+                unit: formData.unit,
+                goal_type: formData.goal_type || TaskGoalType.OPEN,
+                target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
+                current_quantity: formData.current_quantity,
+            };
+
+            const shouldCreateIndividual =
+                creationMode === "individual" && formData.assigned_users.length >= 2;
+
+            if (shouldCreateIndividual) {
+                // Create one task per selected user
+                const createFn = isSubtask && parentTaskId
+                    ? (users: string[]) => createSubtask({ ...sharedFields, assigned_users: users, parent_task_id: parentTaskId })
+                    : (users: string[]) => createTask({ ...sharedFields, assigned_users: users });
+
+                const results = await Promise.all(
+                    formData.assigned_users.map((userId) => createFn([userId]))
+                );
+                newTask = results[results.length - 1];
             } else {
-                const taskData: CreateTaskInput = {
-                    title: formData.title,
-                    description: formData.description,
-                    priority: formData.priority,
-                    status: formData.status,
-                    deadline: toIsoEndOfDay(formData.deadline),
-                    created_by: formData.created_by,
-                    assigned_users: formData.assigned_users,
-                    scheduled_date: toIsoEndOfDay(formData.scheduled_date),
-                    unit: formData.unit,
-                    goal_type: formData.goal_type || TaskGoalType.OPEN,
-                    target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
-                    current_quantity: formData.current_quantity,
-                };
-                newTask = await createTask(taskData);
+                // Single combined task (current behavior)
+                if (isSubtask && parentTaskId) {
+                    newTask = await createSubtask({
+                        ...sharedFields,
+                        assigned_users: formData.assigned_users,
+                        parent_task_id: parentTaskId,
+                    });
+                } else {
+                    newTask = await createTask({
+                        ...sharedFields,
+                        assigned_users: formData.assigned_users,
+                    });
+                }
             }
 
             onSuccess(newTask);
@@ -214,6 +225,8 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                     <AssignmentCard
                         assignedUsers={formData.assigned_users}
                         onAssignedUsersChange={handleAssignedUsersChange}
+                        creationMode={creationMode}
+                        onCreationModeChange={setCreationMode}
                     />
 
                     {/* Advanced Options - Goal Section */}
@@ -267,7 +280,9 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                             </>
                         ) : (
                             <span>
-                                Opret {isRecurring ? 'Gentagende Opgave' : isSubtask ? 'Delopgave' : 'Opgave'}
+                                {creationMode === "individual" && formData.assigned_users.length >= 2
+                                    ? `Opret ${formData.assigned_users.length} Opgaver`
+                                    : `Opret ${isRecurring ? 'Gentagende Opgave' : isSubtask ? 'Delopgave' : 'Opgave'}`}
                             </span>
                         )}
                     </button>
