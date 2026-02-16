@@ -2,6 +2,7 @@
 
 import { useEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
+import CloseButton from "../common/buttons/CloseButton";
 
 interface ModalProps {
     isOpen: boolean;
@@ -104,16 +105,7 @@ export default function Modal({
                             >
                                 {title}
                             </h3>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="rounded-lg bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >
-                                <span className="sr-only">Close</span>
-                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                            <CloseButton onClick={onClose} />
                         </div>
                         {/* Modal content */}
                         <div>
@@ -128,7 +120,7 @@ export default function Modal({
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 
     if (typeof document === "undefined") return null;

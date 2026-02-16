@@ -23,6 +23,7 @@ import { getTaskEvents } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";
 import TaskDescriptionCard from "./TaskDescriptionCard";
+import CloseButton from "@/components/common/buttons/CloseButton";
 
 
 interface TaskDetailsProps {
@@ -99,13 +100,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                     </div>
                     {/* actions for task */}
                     <div>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg px-3 py-2 transition-all"
-                            aria-label="Luk"
-                        >
-                            <span className="text-xl">×</span>
-                        </button>
+                        <CloseButton onClick={onClose} />
                     </div>
                 </div>
 

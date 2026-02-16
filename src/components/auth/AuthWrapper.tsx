@@ -50,9 +50,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
     // Show loading spinner while checking authentication
     if (isLoading) {
+        // if (true) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-blue-500" />
+                <div>
+                    <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-blue-500" />
+                </div>
             </div>
         );
     }

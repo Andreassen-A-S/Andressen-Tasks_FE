@@ -5,7 +5,7 @@ import { getTaskEvents, createComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
 import SingleAvatar from "../../../common/label/singleAvatar";
-import { formatCommentDate, translateTaskUnit } from "@/helpers/helpers";
+import { formatCommentDate, translateStatusLowercase, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { getSubtaskInfo } from "@/helpers/helpers";
@@ -23,8 +23,12 @@ function eventLabel(e: TaskEvent) {
             return "oprettede opgaven";
         case "TASK_UPDATED":
             return "opdaterede opgaven";
-        case "TASK_STATUS_CHANGED":
-            return "ændrede status";
+        case "TASK_STATUS_CHANGED": {
+            const to = (e.after_json as any)?.status;
+            return to
+                ? `ændrede status til ${translateStatusLowercase(to)}`
+                : "ændrede status";
+        }
         case "TASK_PRIORITY_CHANGED":
             return "ændrede prioritet";
         case "ASSIGNMENT_CREATED": {
