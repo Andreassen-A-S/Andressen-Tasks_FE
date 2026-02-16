@@ -5,10 +5,26 @@ export enum UserRole {
 
 export interface User {
   user_id: string;
-  name?: string;
+  name: string;
   email: string;
-  position?: string;
+  position: string;
   role: UserRole;
-  created_at?: string;
-  updated_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UpdateUserInput {
+  name?: string;
+  email?: string;
+  position?: string;
+  role?: UserRole;
+  password?: string;
+}
+
+export interface CreateUserInput {
+  name: string;
+  email: string;
+  position: string;
+  role: UserRole;
+  password: string;
 }
