@@ -1,5 +1,5 @@
 import { getAuthHeaders } from "@/helpers/helpers";
-import { User } from "@/types/users";
+import { CreateUserInput, UpdateUserInput, User } from "@/types/users";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -25,16 +25,10 @@ export async function getUser(userId: string): Promise<User> {
   return data.data;
 }
 
-export async function createUser(user: {
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  position: string;
-}): Promise<User> {
+export async function createUser(user: CreateUserInput): Promise<User> {
   const res = await fetch(`${API_URL}/users`, {
     method: "POST",
-    headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(user),
   });
   if (!res.ok) throw new Error("Failed to create user");
@@ -44,13 +38,7 @@ export async function createUser(user: {
 
 export async function updateUser(
   userId: string,
-  updates: Partial<{
-    name: string;
-    email: string;
-    password: string;
-    role: string;
-    position: string;
-  }>,
+  updates: Partial<UpdateUserInput>,
 ): Promise<User> {
   const res = await fetch(`${API_URL}/users/${userId}`, {
     method: "PATCH",
