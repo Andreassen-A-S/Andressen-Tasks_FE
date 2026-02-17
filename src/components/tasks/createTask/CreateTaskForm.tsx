@@ -165,7 +165,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
             {/* Info Banner for Subtasks */}
             {isSubtask && (
-                <div className="mb-6 p-4 bg-[#EBF0FD] border-l-4 border-[#2C5FE0] rounded-r-[12px]">
+                <div className="mb-6 p-4 bg-[#EBF0FD] border-l-4 border-[#2C5FE0] rounded-r-lg">
                     <div className="flex items-start gap-3">
                         <span className="text-[#2C5FE0] text-lg">
                             <FontAwesomeIcon icon={faCircleInfo} />

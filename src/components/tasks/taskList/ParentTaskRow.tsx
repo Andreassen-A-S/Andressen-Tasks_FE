@@ -149,7 +149,6 @@ export default function ParentTaskRow({
                                     : task.description}
                             </div>
                         )}
-                        {/* </div> */}
                     </div>
                 </td>
 

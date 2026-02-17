@@ -3,11 +3,11 @@
 import { Fragment, useState } from "react";
 import { TaskGoalType, type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import { formatDaDate, formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
+import { formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
 import Badge from "../../common/label/badge";
 import TaskAssignedUsers from "../../common/label/taskAssignedUsers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronRight, faRepeat, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { faChevronRight, faRepeat } from "@fortawesome/free-solid-svg-icons";
 import SubTaskRow from "./SubTaskRow";
 
 interface RecurringTaskRowProps {
@@ -55,7 +55,7 @@ export default function RecurringTaskRow({
                             type="button"
                             onClick={() => setIsExpanded((v) => !v)}
                             className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                                inline-flex items-center justify-center h-8 w-8 transition-transform duration-200 rounded-[8px] bg-[#EBF0FD]
+                                inline-flex items-center justify-center h-8 w-8 transition-transform duration-200 rounded-lg bg-[#EBF0FD]
                                 ${isExpanded ? "rotate-90 text-[#2C5FE0]" : "text-[#2C5FE0]"}`}
                             aria-label={isExpanded ? "Skjul delopgaver" : "Vis delopgaver"}
                             aria-expanded={isExpanded}
@@ -121,14 +121,14 @@ export default function RecurringTaskRow({
                                 {/* Quantity progress bar (fixed goals) */}
                                 {hasQuantityProgress && task.target_quantity != null && task.target_quantity > 0 && (
                                     <div className="flex items-center gap-2 min-w-30">
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-[#E8F7F0] text-[#2D9F6F] badge">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#E8F7F0] text-[#2D9F6F] badge">
                                             {task.current_quantity ?? 0}/{task.target_quantity}
                                             {progressUnit ? ` ${progressUnit}` : ""}
                                         </span>
 
-                                        <div className="relative w-24 h-2 bg-[#E8F7F0] rounded-[8px] overflow-hidden">
+                                        <div className="relative w-24 h-2 bg-[#E8F7F0] rounded-lg overflow-hidden">
                                             <div
-                                                className="absolute left-0 top-0 h-2 bg-[#2D9F6F] transition-all rounded-[8px]"
+                                                className="absolute left-0 top-0 h-2 bg-[#2D9F6F] transition-all rounded-lg"
                                                 style={{
                                                     width: `${Math.min(
                                                         100,

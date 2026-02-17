@@ -98,7 +98,7 @@ Clean Scandinavian minimalism. Professional and understated, never flashy. Think
 
 ### Structure
 
-- **Dark sidebar** (220px wide) with light content area — high contrast navigation
+- **Dark sidebar** (w-75 wide) with light content area — high contrast navigation
 - **Generous padding** (24–32px) around content areas
 - **Card-based containers** with `border-radius: lg` and 1px warm-gray borders
 - **Tables inside cards** with subtle row hover states
@@ -196,7 +196,7 @@ Clean Scandinavian minimalism. Professional and understated, never flashy. Think
 ## Sidebar Design
 
 - Background: `#1B1D22` (dark charcoal)
-- Width: 80w, fixed
+- Width: w-75, fixed
 - Brand: Outfit 15px/700, white
 - Brand subtitle: 10px uppercase, wide letter-spacing, `#A8AABB`
 - Nav items: 13px/400, `#A8AABB`
