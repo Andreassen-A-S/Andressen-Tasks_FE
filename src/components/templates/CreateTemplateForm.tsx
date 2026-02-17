@@ -151,7 +151,10 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
                     <button
                         type="submit"
                         disabled={loading}
-                        className="inline-flex w-full justify-center items-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
+                        className="inline-flex w-full justify-center items-center gap-2 rounded-lg bg-[#0f6e56] px-5 py-3 btn-lg text-white
+                        hover:bg-[#0a5551] transition-colors
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D9F6F]/30 focus-visible:ring-offset-2
+                        disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
                     >
                         {loading ? (
                             <>

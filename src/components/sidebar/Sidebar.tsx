@@ -65,7 +65,7 @@ export default function Sidebar() {
             </nav>
 
             {/* User Profile */}
-            <div className="p-4 border-t border-[rgba(255,255,255,0.06)] flex-shrink-0 mt-auto">
+            <div className="p-4 border-t border-[rgba(255,255,255,0.06)] shrink-0 mt-auto">
                 <div className="flex items-center mb-4">
                     <SingleAvatar
                         name={user?.name || "Unknown User"}

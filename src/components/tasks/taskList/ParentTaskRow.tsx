@@ -49,110 +49,107 @@ export default function ParentTaskRow({
     return (
         <Fragment>
             {/* Parent Task Row */}
-            <tr className="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                <td className="w-10 px-2 py-3 relative ">
+            <tr className="bg-white border-b border-[#E8E6E1] hover:bg-[#FAFAF7] transition-colors">
+                <td className="w-10 relative ">
                     {hasSubtasks && (
                         <button
                             type="button"
                             onClick={() => setIsExpanded((v) => !v)}
-                            className={` absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-        inline-flex items-center justify-center h-8 w-8 transition-transform duration-200
-        ${isExpanded ? "rotate-90 text-gray-300" : "text-gray-400"}`}
+                            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+        inline-flex items-center justify-center h-8 w-8 transition-transform duration-200 rounded-lg
+        ${isExpanded ? "rotate-90 text-[#E8E6E1]" : "text-gray-400"}`}
                             aria-label={isExpanded ? "Skjul delopgaver" : "Vis delopgaver"}
                             aria-expanded={isExpanded}
                         >
-                            <FontAwesomeIcon icon={faChevronRight} />
+                            <FontAwesomeIcon icon={faChevronRight} className="w-3.5 h-3.5" />
                         </button>
                     )}
                 </td>
 
                 {/* Title */}
-                <td className=" py-4 ">
-                    <div className="flex items-start gap-3">
-                        <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => onTaskClick(task.task_id)}
-                                    className="text-left cursor-pointer min-w-0"
-                                >
-                                    <div className="text-base font-semibold text-gray-900 hover:underline wrap-break-word max-w-md">
-                                        {task.title}
+                <td className="py-2">
+                    <div className="flex flex-col items-start">
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => onTaskClick(task.task_id)}
+                                className="text-left cursor-pointer min-w-0"
+                            >
+                                <div className="h5 wrap-break-word hover:underline">
+                                    {task.title}
+                                </div>
+                            </button>
+
+                            {/* Subtask progress bar */}
+                            {hasSubtasks && (
+                                <div className="flex items-center gap-2 min-w-30">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#EBF0FD] text-[#2C5FE0] badge">
+                                        {progress?.completed}/{progress?.total}
+                                    </span>
+
+                                    <div className="relative w-24 h-2 bg-[#EBF0FD] rounded-lg overflow-hidden">
+                                        <div
+                                            className="absolute left-0 top-0 h-2 bg-[#2C5FE0] transition-all rounded-lg"
+                                            style={{
+                                                width: `${progress ? (progress.completed / progress.total) * 100 : 0}%`,
+                                            }}
+                                        />
+                                        {progress && progress.total > 1 &&
+                                            Array.from({ length: progress.total - 1 }).map((_, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="absolute top-0 bottom-0 w-0.5 bg-white"
+                                                    style={{
+                                                        left: `${((i + 1) / progress.total) * 100}%`,
+                                                    }}
+                                                />
+                                            ))}
                                     </div>
-                                </button>
 
+                                    <span className="body-xs ml-1">
+                                        {progress ? Math.round((progress.completed / progress.total) * 100) : 0}%
+                                    </span>
+                                </div>
+                            )}
 
+                            {/* Quantity progress bar (fixed goals) */}
+                            {hasQuantityProgress && task.target_quantity != null && task.target_quantity > 0 && (
+                                <div className="flex items-center gap-2 min-w-30">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-[#E8F7F0] text-[#2D9F6F] badge">
+                                        {task.current_quantity ?? 0}/{task.target_quantity}
+                                        {progressUnit ? ` ${progressUnit}` : ""}
+                                    </span>
 
-                                {/* Subtask progress bar */}
-                                {hasSubtasks && (
-                                    <div className="flex items-center gap-2 min-w-30">
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-gray-500 rounded text-xs font-bold">
-                                            {progress?.completed}/{progress?.total}
-                                        </span>
-
-                                        <div className="relative w-24 h-2 bg-indigo-100 rounded overflow-hidden">
-                                            <div
-                                                className="absolute left-0 top-0 h-2 bg-indigo-500 transition-all"
-                                                style={{
-                                                    width: `${progress ? (progress.completed / progress.total) * 100 : 0}%`,
-                                                }}
-                                            />
-                                            {progress && progress.total > 1 &&
-                                                Array.from({ length: progress.total - 1 }).map((_, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="absolute top-0 bottom-0 w-0.5 bg-white"
-                                                        style={{
-                                                            left: `${((i + 1) / progress.total) * 100}%`,
-                                                        }}
-                                                    />
-                                                ))}
-                                        </div>
-
-                                        <span className="text-xs font-semibold text-gray-500 ml-1">
-                                            {progress ? Math.round((progress.completed / progress.total) * 100) : 0}%
-                                        </span>
+                                    <div className="relative w-24 h-2 bg-[#E8F7F0] rounded-[8px] overflow-hidden">
+                                        <div
+                                            className="absolute left-0 top-0 h-2 bg-[#2D9F6F] transition-all rounded-[8px]"
+                                            style={{
+                                                width: `${Math.min(
+                                                    100,
+                                                    ((task.current_quantity ?? 0) / task.target_quantity) * 100
+                                                )}%`,
+                                            }}
+                                        />
                                     </div>
-                                )}
 
-                                {/* Quantity progress bar (fixed goals) */}
-                                {hasQuantityProgress && task.target_quantity != null && task.target_quantity > 0 && (
-                                    <div className="flex items-center gap-2 min-w-30">
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-gray-500 rounded text-xs font-bold">
-                                            {task.current_quantity ?? 0}/{task.target_quantity}
-                                            {progressUnit ? ` ${progressUnit}` : ""}
-                                        </span>
-
-                                        <div className="relative w-24 h-2 bg-green-100 rounded overflow-hidden">
-                                            <div
-                                                className="absolute left-0 top-0 h-2 bg-green-500 transition-all"
-                                                style={{
-                                                    width: `${Math.min(
-                                                        100,
-                                                        ((task.current_quantity ?? 0) / task.target_quantity) * 100
-                                                    )}%`,
-                                                }}
-                                            />
-                                        </div>
-
-                                        <span className="text-xs font-semibold text-gray-500 ml-1">
-                                            {Math.round(
-                                                Math.min(1, (task.current_quantity ?? 0) / task.target_quantity) * 100
-                                            )}
-                                            %
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {task.description && (
-                                <div className="text-sm text-gray-500 mt-1 break-words">
-                                    {task.description.split(" ").length > 20
-                                        ? `${task.description.split(" ").slice(0, 20).join(" ")}...`
-                                        : task.description}
+                                    <span className="body-xs ml-1">
+                                        {Math.round(
+                                            Math.min(1, (task.current_quantity ?? 0) / task.target_quantity) * 100
+                                        )}
+                                        %
+                                    </span>
                                 </div>
                             )}
                         </div>
+
+                        {task.description && (
+                            <div className="body-xs mt-1 break-words">
+                                {task.description.split(" ").length > 15
+                                    ? `${task.description.split(" ").slice(0, 15).join(" ")}...`
+                                    : task.description}
+                            </div>
+                        )}
+                        {/* </div> */}
                     </div>
                 </td>
 
@@ -171,22 +168,24 @@ export default function ParentTaskRow({
                     />
                 </td>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 body-xs">
                     {formatRelativeDate(task.scheduled_date)}
                 </td>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 body-xs">
                     {formatRelativeDate(task.deadline)}
                 </td>
 
                 <td className="px-6 py-4">
                     <div className="flex gap-3">
-                        <EditButton
-                            onClick={() => onEditClick(task)}
-                            ariaLabel={`Rediger opgave: ${task.title}`}
-                        />
                         <button
-                            className="text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                            className="link"
+                            onClick={() => onEditClick(task)}
+                        >
+                            Rediger
+                        </button>
+                        <button
+                            className="link-danger"
                             onClick={() => onDeleteClick(task.task_id)}
                         >
                             Slet

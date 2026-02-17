@@ -93,14 +93,12 @@ export default function Modal({
                 ></div>
 
                 {/* Modal panel */}
-                <div
-                    className={`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full ${maxWidthClasses[maxWidth]}`}
-                >
+                <div className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full border border-[#E8E6E1] ${maxWidthClasses[maxWidth]}`}>
                     {/* Modal header */}
-                    <div className="bg-white px-4 pb-4 pt-5 sm:p-6">
+                    <div className="px-6 pb-4 pt-6 sm:p-8]">
                         <div className="flex items-center justify-between mb-4">
                             <h3
-                                className="text-lg font-semibold leading-6 text-gray-900"
+                                className="h3"
                                 id="modal-title"
                             >
                                 {title}
@@ -114,7 +112,7 @@ export default function Modal({
                     </div>
                     {/* Modal footer (optional) */}
                     {footer && (
-                        <div className="bg-gray-50 px-4 py-3 sm:px-6">
+                        <div className="bg-[#FAFAF7] px-6 py-4 sm:px-8 border-t border-[#E8E6E1]">
                             {footer}
                         </div>
                     )}

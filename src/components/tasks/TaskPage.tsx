@@ -69,6 +69,7 @@ export default function TaskPage() {
 
     return (
         <div className="min-h-screen">
+            {/* // <div className="min-h-screen max-w-7xl justify-center mx-auto"> */}
 
             <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -83,7 +84,7 @@ export default function TaskPage() {
                     </div>
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="inline-flex btn-lg items-center gap-2 px-5 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                        className="inline-flex btn-lg items-center gap-2 px-5 py-3 bg-[#0f6e56] text-white font-semibold rounded-lg hover:bg-[#0a5551] transition-colors"
                     >
                         <FontAwesomeIcon icon={faPlus} size="sm" />
                         Ny opgave
@@ -94,7 +95,7 @@ export default function TaskPage() {
             {/* Filter Tabs */}
             <div className="mx-8 px-4 sm:px-6 lg:px-8 py-2">
                 <div className="flex gap-2">
-                    {filterOptions.map(({ key, label, count }) => (
+                    {filterOptions.map(({ key, label }) => (
                         <button
                             key={key}
                             onClick={() => setFilter(key)}

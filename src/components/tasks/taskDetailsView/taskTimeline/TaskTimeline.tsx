@@ -17,57 +17,139 @@ function isCommentEvent(type: string) {
 }
 
 function eventLabel(e: TaskEvent) {
-    // Make these read nicely like GitHub
     switch (e.type) {
-        case "TASK_CREATED":
-            return "oprettede opgaven";
-        case "TASK_UPDATED":
-            return "opdaterede opgaven";
+        case "TASK_CREATED": {
+            return (
+                <>
+                    oprettede opgaven{" "}
+                </>
+            );
+        }
+        case "TASK_UPDATED": {
+            return (
+                <>
+                    opdaterede opgaven{" "}
+                </>
+            );
+        }
         case "TASK_STATUS_CHANGED": {
             const to = (e.after_json as any)?.status;
-            return to
-                ? `ændrede status til ${translateStatusLowercase(to)}`
-                : "ændrede status";
+            return to ? (
+                <>
+                    ændrede status til{" "}
+                    <span className="font-semibold text-[#1B1D22]">
+                        {translateStatusLowercase(to)}
+                    </span>
+                    {" "}
+                </>
+            ) : (
+                <>
+                    ændrede <span className="font-semibold text-[#1B1D22]">status</span>
+                    {" "}
+                </>
+            );
         }
-        case "TASK_PRIORITY_CHANGED":
-            return "ændrede prioritet";
+        case "TASK_PRIORITY_CHANGED": {
+            return (
+                <>
+                    ændrede <span className="font-semibold text-[#1B1D22]">prioritet</span>
+                    {" "}
+                </>
+            );
+        }
         case "ASSIGNMENT_CREATED": {
             const assignedUser =
                 (e.after_json as any)?.user?.name ||
-
                 "ukendt bruger";
-            return `tildelte ${assignedUser}`;
+            return (
+                <>
+                    tildelte{" "}
+                    <span className="font-semibold text-[#1B1D22]">{assignedUser}</span>
+                    {" "}
+                </>
+            );
         }
         case "ASSIGNMENT_DELETED": {
             const assignedUser =
                 (e.before_json as any)?.user?.name ||
                 "ukendt bruger";
-            return `fjernede tildelingen af ${assignedUser}`;
+            return (
+                <>
+                    fjernede tildelingen af{" "}
+                    <span className="font-semibold text-[#1B1D22]">{assignedUser}</span>
+                    {" "}
+                </>
+            );
         }
         case "PROGRESS_LOGGED": {
-            console.log(e);
             const progress =
                 (e.progress as any)?.quantity_done ??
                 "ukendt fremskridt";
             const unit =
                 (e.progress as any)?.unit ??
                 "";
-            return `loggede fremskridt — ${progress}${unit ? `${translateTaskUnit(unit)}` : ""}`;
+            return (
+                <>
+                    loggede fremskridt {" "}
+                    <span className="font-semibold text-[#1B1D22]">
+                        {progress}
+                        {unit ? `${translateTaskUnit(unit)}` : ""}
+                    </span>
+                    {" "}
+                </>
+            );
         }
         case "SUBTASK_ADDED": {
             const sub = getSubtaskInfo(e);
-            return sub.title ? `tilføjede underopgave - “${sub.title}”` : "tilføjede en underopgave";
+            return sub.title ? (
+                <>
+                    tilføjede underopgave {" "}
+                    <span className="font-semibold text-[#1B1D22]">“{sub.title}”</span>
+                    {" "}
+                </>
+            ) : (
+                <>
+                    tilføjede <span className="font-semibold text-[#1B1D22]">en underopgave</span>
+                    {" "}
+                </>
+            );
         }
         case "SUBTASK_REMOVED": {
             const sub = (e.before_json as any)?.title;
-            return sub ? `fjernede underopgaven - “${sub}”` : "fjernede en underopgave";
+            return sub ? (
+                <>
+                    fjernede underopgaven{" "}
+                    <span className="font-semibold text-[#1B1D22]">“{sub}”</span>
+                    {" "}
+                </>
+            ) : (
+                <>
+                    fjernede <span className="font-semibold text-[#1B1D22]">en underopgave</span>
+                    {" "}
+                </>
+            );
         }
         case "COMMENT_CREATED":
-            return "kommenterede";
+            return (
+                <>
+                    <span className="font-semibold text-[#1B1D22]">kommenterede</span>
+                    {" "}
+                </>
+            );
         case "COMMENT_UPDATED":
-            return "redigerede en kommentar";
+            return (
+                <>
+                    <span className="font-semibold text-[#1B1D22]">redigerede en kommentar</span>
+                    {" "}
+                </>
+            );
         case "COMMENT_DELETED":
-            return "slettede en kommentar";
+            return (
+                <>
+                    <span className="font-semibold text-[#1B1D22]">slettede en kommentar</span>
+                    {" "}
+                </>
+            );
         default:
             return e.message || e.type;
     }
@@ -80,8 +162,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     const [events, setEvents] = useState<TaskEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    // const [comment, setComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
     async function refresh() {
@@ -91,7 +171,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
             const data = await getTaskEvents(taskId);
             setEvents(data);
         } catch (e) {
-            console.error(e);
             setError("Kunne ikke hente aktivitet");
         } finally {
             setLoading(false);
@@ -103,7 +182,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
         refresh();
     }, [taskId]);
 
-
     async function handleSubmitComment(comment: string) {
         if (!comment.trim()) return;
         setSubmitting(true);
@@ -111,7 +189,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
             await createComment(taskId, { message: comment.trim() });
             await refresh();
         } catch (e) {
-            console.error(e);
             alert("Kunne ikke tilføje kommentar");
         } finally {
             setSubmitting(false);
@@ -121,14 +198,14 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     if (loading) {
         return (
             <div className="flex justify-center py-6">
-                <FontAwesomeIcon icon={faSpinner} spin className="text-gray-400" />
+                <FontAwesomeIcon icon={faSpinner} spin className="text-[#9DA1B4]" />
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-600 text-sm">
+            <div className="bg-[#FDECEC] border border-[#E8E6E1] rounded-[12px] p-3 body-sm text-[#D64545]">
                 {error}
             </div>
         );
@@ -139,7 +216,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
             {/* Timeline */}
             <div className="relative space-y-4">
                 {/* Timeline vertical line */}
-                <div className="absolute left-16.75 -top-7.5 -bottom-6 w-0.5 bg-gray-300 z-0" />
+                <div className="absolute left-16.75 -top-7.5 -bottom-6 w-0.5 bg-[#E8E6E1] z-0" />
 
                 {events.map((e) => {
                     const actorName = e.actor?.name || e.actor?.email || "Ukendt bruger";
@@ -163,11 +240,11 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                         >
                             <SingleAvatar name={actorName} size="xs" />
                             <div className="flex-1">
-                                <div className="text-sm text-gray-800">
-                                    <span className="font-semibold">{actorName}</span>{" "}
-                                    <span className="text-gray-700">{eventLabel(e)}</span>
-                                    <span className="text-xs text-gray-500 mt-1">
-                                        {` • ${formatCommentDate(e.created_at)}`}
+                                <div className="body-sm">
+                                    <span className="font-semibold text-[#1B1D22]">{actorName}</span>{" "}
+                                    {eventLabel(e)}
+                                    <span className="underline">
+                                        {`${formatCommentDate(e.created_at)}`}
                                     </span>
                                 </div>
                             </div>

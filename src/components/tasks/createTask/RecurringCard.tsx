@@ -29,21 +29,18 @@ export default function RecurringCard({
 
     return (
         <>
-
             {/* Recurring Toggle Checkbox */}
             {!hideToggle && (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 mb-4">
                     <input
                         type="checkbox"
                         checked={isRecurring}
                         onChange={(e) => setIsRecurring(e.target.checked)}
-                        className="rounded border-gray-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                        className="rounded border-[#E8E6E1] text-[#2C5FE0] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:border-[#2D9F6F] h-4 w-4"
                     />
                     <div>
-                        <span className="text-sm font-semibold text-gray-900">
-                            Gentag
-                        </span>
-                        <p className="text-xs text-gray-500">
+                        <span className="label-lg">Gentag</span>
+                        <p className="caption">
                             Slå til for at gentage denne opgave automatisk
                         </p>
                     </div>
@@ -52,13 +49,13 @@ export default function RecurringCard({
 
             {/* Recurring Expanded fields */}
             {isRecurring && (
-                <div>
+                <div className="space-y-6">
                     {/* Interval & Frequency side by side */}
-                    <div className="flex gap-4 mb-4">
+                    <div className="flex gap-4">
                         {/* Frequency */}
                         <div className="flex-1">
-                            <label htmlFor="frequency" className="block text-sm font-semibold text-gray-900 mb-2">
-                                Gentag hver<span className="text-red-500">*</span>
+                            <label htmlFor="frequency" className="label-lg mb-2 block">
+                                Gentag hver<span className="text-[#D64545]">*</span>
                             </label>
                             <select
                                 id="frequency"
@@ -69,7 +66,7 @@ export default function RecurringCard({
                                         frequency: e.target.value as RecurrenceFrequency,
                                     })
                                 }
-                                className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                                className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                             >
                                 <option value={RecurrenceFrequency.DAILY}>Dag</option>
                                 <option value={RecurrenceFrequency.WEEKLY}>Uge</option>
@@ -80,7 +77,7 @@ export default function RecurringCard({
 
                         {/* Interval */}
                         <div className="flex-1">
-                            <label htmlFor="interval" className="block text-sm font-semibold text-gray-900 mb-2">
+                            <label htmlFor="interval" className="label-lg mb-2 block">
                                 Interval
                             </label>
                             <div className="flex items-center gap-2">
@@ -95,9 +92,9 @@ export default function RecurringCard({
                                             interval: parseInt(e.target.value) || 1,
                                         })
                                     }
-                                    className="block w-20 rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                                    className="block w-20 rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                                 />
-                                <span className="text-sm text-gray-700">
+                                <span className="body-sm text-[#6B7084]">
                                     {recurringData.frequency === RecurrenceFrequency.DAILY && "dag(e)"}
                                     {recurringData.frequency === RecurrenceFrequency.WEEKLY && "uge(r)"}
                                     {recurringData.frequency === RecurrenceFrequency.MONTHLY && "måned(er)"}
@@ -110,7 +107,7 @@ export default function RecurringCard({
                     {/* Days of Week (for weekly) */}
                     {recurringData.frequency === RecurrenceFrequency.WEEKLY && (
                         <div>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">Ugedage</label>
+                            <label className="label-lg mb-2 block">Ugedage</label>
                             <div className="flex flex-wrap gap-2">
                                 {[
                                     { value: 1, label: "Man" },
@@ -130,16 +127,16 @@ export default function RecurringCard({
                                                 : [...recurringData.days_of_week, day.value];
                                             setRecurringData({ ...recurringData, days_of_week: days });
                                         }}
-                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${recurringData.days_of_week.includes(day.value)
-                                            ? "bg-teal-600 text-white"
-                                            : "bg-white text-gray-700 border-2 border-gray-200 hover:border-teal-500"
+                                        className={`px-4 py-2 rounded-lg btn-md font-medium transition-colors ${recurringData.days_of_week.includes(day.value)
+                                            ? "bg-[#2C5FE0] text-white"
+                                            : "bg-white text-[#6B7084] border border-[#E8E6E1] hover:border-[#2C5FE0]"
                                             }`}
                                     >
                                         {day.label}
                                     </button>
                                 ))}
                             </div>
-                            <p className="mt-2 text-xs text-gray-500">
+                            <p className="caption mt-2">
                                 Valgfrit: Lad tom for samme ugedag hver gang
                             </p>
                         </div>
@@ -148,7 +145,7 @@ export default function RecurringCard({
                     {/* Day of Month (for monthly) */}
                     {recurringData.frequency === RecurrenceFrequency.MONTHLY && (
                         <div>
-                            <label htmlFor="day_of_month" className="block text-sm font-semibold text-gray-900 mb-2">
+                            <label htmlFor="day_of_month" className="label-lg mb-2 block">
                                 Dag i måneden
                             </label>
                             <input
@@ -164,9 +161,9 @@ export default function RecurringCard({
                                         day_of_month: e.target.value ? parseInt(e.target.value) : undefined,
                                     })
                                 }
-                                className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                                className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white placeholder:text-[#9DA1B4] focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                             />
-                            <p className="mt-1 text-xs text-gray-500">
+                            <p className="caption mt-1">
                                 Valgfrit: Lad tom for samme dag hver måned
                             </p>
                         </div>
@@ -174,8 +171,8 @@ export default function RecurringCard({
 
                     {/* Start Date */}
                     <div>
-                        <label htmlFor="start_date" className="block text-sm font-semibold text-gray-900 mb-2">
-                            Start dato<span className="text-red-500">*</span>
+                        <label htmlFor="start_date" className="label-lg mb-2 block">
+                            Start dato<span className="text-[#D64545]">*</span>
                         </label>
                         <input
                             type="date"
@@ -185,13 +182,13 @@ export default function RecurringCard({
                             onChange={(e) =>
                                 setRecurringData({ ...recurringData, start_date: e.target.value })
                             }
-                            className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                            className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                         />
                     </div>
 
                     {/* End Date */}
                     <div>
-                        <label htmlFor="end_date" className="block text-sm font-semibold text-gray-900 mb-2">
+                        <label htmlFor="end_date" className="label-lg mb-2 block">
                             Slut dato (valgfrit)
                         </label>
                         <input
@@ -204,9 +201,11 @@ export default function RecurringCard({
                                     end_date: e.target.value || undefined,
                                 })
                             }
-                            className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                            className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                         />
-                        <p className="mt-1 text-xs text-gray-500">Lad tom for at fortsætte på ubestemt tid</p>
+                        <p className="caption mt-1">
+                            Lad tom for at fortsætte på ubestemt tid
+                        </p>
                     </div>
                 </div>
             )}

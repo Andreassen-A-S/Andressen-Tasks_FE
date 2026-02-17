@@ -19,7 +19,7 @@ export default function AssignmentCard({
 
     return (
         <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
+            <h3 className="overline pt-1">
                 Tildel til Medarbejdere
             </h3>
             <UserSelector
@@ -29,20 +29,20 @@ export default function AssignmentCard({
             />
 
             {selectedCount >= 2 && onCreationModeChange && (
-                <label className="flex items-start gap-3 cursor-pointer p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                <label className="flex items-start gap-3 cursor-pointer p-3 bg-[#FAFAF7] rounded-lg border border-[#E8E6E1] hover:bg-[#EBF0FD] transition-colors">
                     <input
                         type="checkbox"
                         checked={creationMode === "individual"}
                         onChange={(e) =>
                             onCreationModeChange(e.target.checked ? "individual" : "combined")
                         }
-                        className="mt-0.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                        className="mt-0.5 rounded border-[#E8E6E1] text-[#2C5FE0] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:border-[#2D9F6F]"
                     />
                     <div>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="label-lg">
                             Opret individuelle opgaver
                         </span>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="caption mt-0.5">
                             {creationMode === "individual"
                                 ? `Opretter ${selectedCount} separate opgaver — én per medarbejder`
                                 : "Opretter én fælles opgave delt af alle valgte medarbejdere"}

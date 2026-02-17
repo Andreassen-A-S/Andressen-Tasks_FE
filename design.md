@@ -100,7 +100,7 @@ Clean Scandinavian minimalism. Professional and understated, never flashy. Think
 
 - **Dark sidebar** (220px wide) with light content area — high contrast navigation
 - **Generous padding** (24–32px) around content areas
-- **Card-based containers** with `border-radius: 12px` and 1px warm-gray borders
+- **Card-based containers** with `border-radius: lg` and 1px warm-gray borders
 - **Tables inside cards** with subtle row hover states
 
 ### Spacing Scale
@@ -122,12 +122,12 @@ Clean Scandinavian minimalism. Professional and understated, never flashy. Think
 
 ### Buttons
 
-| Type      | Style                                                           |
-| --------- | --------------------------------------------------------------- |
-| Primary   | Solid accent blue (`#2C5FE0`), white text, `border-radius: 8px` |
-| Secondary | White background, `#E8E6E1` border, dark text                   |
-| Danger    | Red-tinted background (`#FDECEC`), red text, red border         |
-| Warning   | Amber-tinted background (`#FEF5E7`), amber text, amber border   |
+| Type      | Style                                                            |
+| --------- | ---------------------------------------------------------------- |
+| Primary   | Solid accent green (`#0f6e56`), white text, `border-radius: 8px` |
+| Secondary | White background, `#E8E6E1` border, dark text                    |
+| Danger    | Red-tinted background (`#FDECEC`), red text, red border          |
+| Warning   | Amber-tinted background (`#FEF5E7`), amber text, amber border    |
 
 ### Badges & Pills
 
@@ -138,14 +138,14 @@ Clean Scandinavian minimalism. Professional and understated, never flashy. Think
 
 ### Icon Containers
 
-- 32×32px boxes with `border-radius: 8px`
-- Accent blue background (`#EBF0FD`) for primary icons
+- 32×32px boxes with `border-radius: lg`
+- Accent green background (`#0f6e56`) for primary icons
 - Neutral gray background (`#F3F3F0`) for informational icons
 - Icons are 14px (`w-3.5 h-3.5`)
 
 ### Avatar Initials
 
-- **Rounded rectangles** (not circles) with `border-radius: 8px`
+- **Rounded rectangles** (not circles) with `border-radius: lg`
 - Colored backgrounds per user
 - White text, Outfit font, weight 600
 - Sizes: 34px (table), 26px (inline/stacked)
@@ -160,7 +160,7 @@ Clean Scandinavian minimalism. Professional and understated, never flashy. Think
 
 - White background on warm off-white page
 - `border: 1px solid #E8E6E1`
-- `border-radius: 12px`
+- `border-radius: lg`
 - Hover: subtle shadow `0 4px 20px rgba(0,0,0,0.06)`
 - Internal padding: 20–24px
 

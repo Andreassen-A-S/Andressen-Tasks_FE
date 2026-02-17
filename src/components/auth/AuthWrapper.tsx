@@ -7,6 +7,7 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
+
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading, userRole } = useAuth();
     const pathname = usePathname();
@@ -51,7 +52,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     // Show loading spinner while checking authentication
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <div className="flex items-center justify-center min-h-screen bg-background">
                 <div>
                     <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-blue-500" />
                 </div>
@@ -62,7 +63,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     // Not authenticated -> show loading while redirecting
     if (!isAuthenticated) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <div className="flex items-center justify-center min-h-screen bg-background">
                 <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-blue-500" />
             </div>
         );
@@ -71,7 +72,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     // USER role gets simple layout
     if (userRole === "USER") {
         return (
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-background">
                 {children}
             </div>
         );
@@ -79,7 +80,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
     // ADMIN role gets sidebar layout
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-background">
             <Sidebar />
             <main className="flex-1 ml-80">
                 {children}
