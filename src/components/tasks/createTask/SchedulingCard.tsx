@@ -1,3 +1,5 @@
+import React from "react";
+
 interface SchedulingCardProps {
     scheduledDate?: string;
     onScheduledDateChange: (date: string) => void;
@@ -9,12 +11,12 @@ export default function SchedulingCard({
 }: SchedulingCardProps) {
     return (
         <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
+            <h3 className="overline pt-1">
                 Planlægning
             </h3>
 
             <div>
-                <label htmlFor="scheduled_date" className="block text-sm font-semibold text-gray-900 mb-2">
+                <label htmlFor="scheduled_date" className="label-lg mb-2 block">
                     Planlagt dato
                 </label>
                 <input
@@ -22,9 +24,9 @@ export default function SchedulingCard({
                     id="scheduled_date"
                     value={scheduledDate || ""}
                     onChange={(e) => onScheduledDateChange(e.target.value)}
-                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                    className="block w-full rounded-[12px] border border-[#E8E6E1] px-4 py-3 body-md focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors bg-white text-[#1B1D22] placeholder:text-[#9DA1B4]"
                 />
-                <p className="mt-1 text-xs text-gray-500">Valgfrit: Hvornår skal denne opgave udføres?</p>
+                <p className="caption mt-1">Valgfrit: Hvornår skal denne opgave udføres?</p>
             </div>
         </div>
     );

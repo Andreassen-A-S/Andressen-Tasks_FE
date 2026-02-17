@@ -7,6 +7,8 @@ import StatCard from "@/components/stats/StatCard";
 import TrendChart from "@/components/stats/TrendChart";
 import PriorityChart from "@/components/stats/PriorityChart";
 import TopPerformersTable from "@/components/stats/TopPerformersTable";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 
 export default function StatsPage() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -33,7 +35,7 @@ export default function StatsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen">
                 <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
                     <div className="animate-pulse space-y-6">
                         {/* Header skeleton */}
@@ -107,8 +109,9 @@ export default function StatsPage() {
                     </div>
                     <button
                         onClick={() => window.location.reload()}
-                        className="inline-flex btn-lg items-center gap-2 px-5 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        className="inline-flex btn-lg bg-transparent text-gray-500 border border-gray-200  hover:border-gray-300 items-center gap-2 px-5 py-3  font-semibold rounded-lg  transition-colors"
                     >
+                        <FontAwesomeIcon icon={faRefresh} size="sm" />
                         Opdater
                     </button>
                 </div>

@@ -5,7 +5,7 @@ import { createSubtask, createTask } from "@/lib/api";
 import type { Task, CreateTaskInput, CreateSubtaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
-import { FontAwesomeIcon, } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toIsoEndOfDay } from "@/helpers/helpers";
 import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
@@ -40,10 +40,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         current_quantity: undefined,
     });
 
-    // bulk creation mode
     const [creationMode, setCreationMode] = useState<CreationMode>("combined");
-
-    // recurring-specific state
     const [isRecurring, setIsRecurring] = useState(false);
     const [recurringData, setRecurringData] = useState({
         frequency: RecurrenceFrequency.WEEKLY,
@@ -58,34 +55,28 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
 
     const isSubtask = !!parentTaskId;
 
-    // Centralized handler for goal type changes
     const handleGoalTypeChange = (checked: boolean) => {
         setFormData(prev => ({
             ...prev,
             goal_type: checked ? TaskGoalType.FIXED : TaskGoalType.OPEN,
-            // Reset values when unchecking
             target_quantity: checked ? prev.target_quantity : undefined,
             unit: checked ? prev.unit : undefined,
             current_quantity: checked ? prev.current_quantity : undefined,
         }));
     };
 
-    // Centralized handler for goal field changes
     const handleGoalFieldChange = (field: string, value: number | TaskUnit | undefined) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Centralized handler for basic info field changes
     const handleBasicInfoFieldChange = (field: string, value: string | TaskPriority | TaskStatus | undefined) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Centralized handler for assigned users
     const handleAssignedUsersChange = (userIds: string[]) => {
         setFormData(prev => ({ ...prev, assigned_users: userIds }));
     };
 
-    // Centralized handler for scheduled date
     const handleScheduledDateChange = (date: string) => {
         setFormData(prev => ({ ...prev, scheduled_date: date }));
     };
@@ -98,7 +89,6 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         try {
             let newTask;
 
-            // Recurring templates (only for parent tasks)
             if (isRecurring && !isSubtask) {
                 const templateData = {
                     title: formData.title,
@@ -118,11 +108,9 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
 
                 await createRecurringTemplate(templateData);
                 onCancel();
-
                 return;
             }
 
-            // Build shared task fields
             const sharedFields = {
                 title: formData.title,
                 description: formData.description,
@@ -141,7 +129,6 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                 creationMode === "individual" && formData.assigned_users.length >= 2;
 
             if (shouldCreateIndividual) {
-                // Create one task per selected user
                 const createFn = isSubtask && parentTaskId
                     ? (users: string[]) => createSubtask({ ...sharedFields, assigned_users: users, parent_task_id: parentTaskId })
                     : (users: string[]) => createTask({ ...sharedFields, assigned_users: users });
@@ -151,7 +138,6 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                 );
                 newTask = results[results.length - 1];
             } else {
-                // Single combined task (current behavior)
                 if (isSubtask && parentTaskId) {
                     newTask = await createSubtask({
                         ...sharedFields,
@@ -175,19 +161,18 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         }
     }
 
-
     return (
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
             {/* Info Banner for Subtasks */}
             {isSubtask && (
-                <div className="mb-6 p-4 bg-cyan-50 border-l-4 border-cyan-500 rounded-r-lg">
+                <div className="mb-6 p-4 bg-[#EBF0FD] border-l-4 border-[#2C5FE0] rounded-r-[12px]">
                     <div className="flex items-start gap-3">
-                        <span className="text-cyan-600 text-lg">
+                        <span className="text-[#2C5FE0] text-lg">
                             <FontAwesomeIcon icon={faCircleInfo} />
                         </span>
                         <div>
-                            <h4 className="text-sm font-semibold text-cyan-900">Opretter underopgave</h4>
-                            <p className="text-sm text-cyan-700 mt-1">
+                            <h4 className="h5">Opretter underopgave</h4>
+                            <p className="body-sm mt-1">
                                 Husk at angive brugertildelinger og enhed for denne underopgave nedenfor.
                             </p>
                         </div>
@@ -197,18 +182,18 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
 
             {/* Error Message */}
             {error && (
-                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                <div className="mb-6 p-4 bg-[#FDECEC] border-l-4 border-[#D64545] rounded-r-lg">
                     <div className="flex items-start gap-3">
-                        <span className="text-red-600 text-lg">
+                        <span className="text-[#D64545] text-lg">
                             <FontAwesomeIcon icon={faTriangleExclamation} />
                         </span>
-                        <p className="text-sm text-red-700">{error}</p>
+                        <p className="body-sm">{error}</p>
                     </div>
                 </div>
             )}
 
             {/* Scrollable Form Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto p-1">
                 <div className="space-y-6">
                     {/* Basic Info Section */}
                     <BasicInfoSection
@@ -263,12 +248,15 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
             </div>
 
             {/* Fixed Footer with Actions */}
-            <div className="mt-6 pt-6 border-t border-gray-200 bg-white">
+            <div className="mt-6 pt-6 border-t border-[#E8E6E1] bg-white">
                 <div className="flex flex-col-reverse sm:flex-row-reverse gap-3">
                     <button
                         type="submit"
                         disabled={loading}
-                        className="inline-flex w-full justify-center items-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
+                        className="inline-flex w-full justify-center items-center gap-2 rounded-lg bg-[#0f6e56] px-5 py-3 btn-lg text-white
+                        hover:bg-[#0a5551] transition-colors
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D9F6F]/30 focus-visible:ring-offset-2
+                        disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
                     >
                         {loading ? (
                             <>
@@ -290,7 +278,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                         type="button"
                         onClick={onCancel}
                         disabled={loading}
-                        className="inline-flex w-full justify-center rounded-lg bg-white px-5 py-3 text-sm font-semibold text-gray-900 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
+                        className="inline-flex w-full justify-center rounded-lg bg-white px-5 py-3 btn-lg text-[#1B1D22] border-2 border-[#E8E6E1] hover:bg-[#FAFAF7] hover:border-[#E8E6E1] disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
                     >
                         Annuller
                     </button>

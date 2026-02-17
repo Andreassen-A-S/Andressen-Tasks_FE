@@ -65,9 +65,9 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
 
     return (
         <>
-            <div className="rounded-lg border border-gray-200 overflow-hidden">
-                <table className="w-full">
-                    <thead className="w-full text-left">
+            <div className="rounded-lg bg-white border border-gray-200 overflow-hidden">
+                <table className="w-full ">
+                    <thead className="w-full text-left border-b border-gray-200">
                         <tr>
                             <th className="px-6 py-3 table-header">
                                 Medarbejder
@@ -86,7 +86,7 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="divide-y divide-gray-200">
                         {employees.map((employee) => (
                             <EmployeeRow
                                 key={employee.user_id}

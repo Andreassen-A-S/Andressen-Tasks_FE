@@ -6,7 +6,6 @@ import type { TaskAssignment } from "@/types/assignment";
 import { formatDaDate, formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
 import Badge from "../../common/label/badge";
 import TaskAssignedUsers from "../../common/label/taskAssignedUsers";
-import EditButton from "../../common/label/editButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight, faRepeat, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import SubTaskRow from "./SubTaskRow";
@@ -46,27 +45,22 @@ export default function RecurringTaskRow({
 
     const progressUnit = translateTaskUnit(task.unit);
 
-    // Format occurrence date
-    const formattedOccurrence = task.occurrence_date
-        ? formatDaDate(task.occurrence_date)
-        : null;
-
     return (
         <Fragment>
             {/* Recurring Task Row */}
-            <tr className="bg-gradient-to-r from-blue-50/50 to-transparent border-b border-blue-200 hover:from-blue-50 hover:to-blue-50/30 transition-all duration-200 border-l-4 border-l-blue-500">
+            <tr className=" bg-white border-b border-[#E8E6E1] hover:bg-[#FAFAF7] transition-all duration-200">
                 <td className="w-10 px-2 py-3 relative">
                     {hasSubtasks && (
                         <button
                             type="button"
                             onClick={() => setIsExpanded((v) => !v)}
                             className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                                inline-flex items-center justify-center h-8 w-8 transition-transform duration-200
-                                ${isExpanded ? "rotate-90 text-blue-400" : "text-blue-500"}`}
+                                inline-flex items-center justify-center h-8 w-8 transition-transform duration-200 rounded-[8px] bg-[#EBF0FD]
+                                ${isExpanded ? "rotate-90 text-[#2C5FE0]" : "text-[#2C5FE0]"}`}
                             aria-label={isExpanded ? "Skjul delopgaver" : "Vis delopgaver"}
                             aria-expanded={isExpanded}
                         >
-                            <FontAwesomeIcon icon={faChevronRight} />
+                            <FontAwesomeIcon icon={faChevronRight} className="w-3.5 h-3.5" />
                         </button>
                     )}
                 </td>
@@ -81,35 +75,27 @@ export default function RecurringTaskRow({
                                     onClick={() => onTaskClick(task.task_id)}
                                     className="text-left cursor-pointer min-w-0"
                                 >
-                                    <div className="text-base font-semibold text-gray-900 hover:underline wrap-break-word">
+                                    <div className="h5 wrap-break-word max-w-md hover:underline">
                                         {task.title}
                                     </div>
                                 </button>
 
                                 {/* Recurring badge */}
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full border border-blue-200">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 badge bg-[#EBF0FD] text-[#2C5FE0] rounded-lg">
                                     <FontAwesomeIcon icon={faRepeat} className="w-3 h-3" />
                                     Gentages
                                 </span>
 
-                                {/* Occurrence date badge */}
-                                {formattedOccurrence && (
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-blue-600 bg-white rounded-full border border-blue-200">
-                                        <FontAwesomeIcon icon={faCalendarDays} className="w-3 h-3" />
-                                        {formattedOccurrence}
-                                    </span>
-                                )}
-
                                 {/* Subtask progress bar */}
                                 {hasSubtasks && (
                                     <div className="flex items-center gap-2 min-w-30">
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-blue-600 rounded text-xs font-bold">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#EBF0FD] text-[#2C5FE0] badge">
                                             {progress?.completed}/{progress?.total}
                                         </span>
 
-                                        <div className="relative w-24 h-2 bg-blue-100 rounded overflow-hidden">
+                                        <div className="relative w-24 h-2 bg-[#EBF0FD] rounded-lg overflow-hidden">
                                             <div
-                                                className="absolute left-0 top-0 h-2 bg-blue-500 transition-all"
+                                                className="absolute left-0 top-0 h-2 bg-[#2C5FE0] transition-all rounded-lg"
                                                 style={{
                                                     width: `${progress ? (progress.completed / progress.total) * 100 : 0}%`,
                                                 }}
@@ -126,7 +112,7 @@ export default function RecurringTaskRow({
                                                 ))}
                                         </div>
 
-                                        <span className="text-xs font-semibold text-blue-600 ml-1">
+                                        <span className="body-xs ml-1">
                                             {progress ? Math.round((progress.completed / progress.total) * 100) : 0}%
                                         </span>
                                     </div>
@@ -135,14 +121,14 @@ export default function RecurringTaskRow({
                                 {/* Quantity progress bar (fixed goals) */}
                                 {hasQuantityProgress && task.target_quantity != null && task.target_quantity > 0 && (
                                     <div className="flex items-center gap-2 min-w-30">
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-blue-600 rounded text-xs font-bold">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-[#E8F7F0] text-[#2D9F6F] badge">
                                             {task.current_quantity ?? 0}/{task.target_quantity}
                                             {progressUnit ? ` ${progressUnit}` : ""}
                                         </span>
 
-                                        <div className="relative w-24 h-2 bg-blue-100 rounded overflow-hidden">
+                                        <div className="relative w-24 h-2 bg-[#E8F7F0] rounded-[8px] overflow-hidden">
                                             <div
-                                                className="absolute left-0 top-0 h-2 bg-blue-500 transition-all"
+                                                className="absolute left-0 top-0 h-2 bg-[#2D9F6F] transition-all rounded-[8px]"
                                                 style={{
                                                     width: `${Math.min(
                                                         100,
@@ -152,7 +138,7 @@ export default function RecurringTaskRow({
                                             />
                                         </div>
 
-                                        <span className="text-xs font-semibold text-blue-600 ml-1">
+                                        <span className="body-xs ml-1">
                                             {Math.round(
                                                 Math.min(1, (task.current_quantity ?? 0) / task.target_quantity) * 100
                                             )}
@@ -163,7 +149,7 @@ export default function RecurringTaskRow({
                             </div>
 
                             {task.description && (
-                                <div className="text-sm text-gray-600 mt-1 break-words">
+                                <div className="body-xs mt-1 break-words">
                                     {task.description.split(" ").length > 20
                                         ? `${task.description.split(" ").slice(0, 20).join(" ")}...`
                                         : task.description}
@@ -188,22 +174,24 @@ export default function RecurringTaskRow({
                     />
                 </td>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 body-xs">
                     {formatRelativeDate(task.scheduled_date)}
                 </td>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 body-xs">
                     {formatRelativeDate(task.deadline)}
                 </td>
 
                 <td className="px-6 py-4">
                     <div className="flex gap-3">
-                        <EditButton
-                            onClick={() => onEditClick(task)}
-                            ariaLabel={`Rediger opgave: ${task.title}`}
-                        />
                         <button
-                            className="text-red-600 hover:text-red-800 font-medium transition-colors text-sm"
+                            className="link"
+                            onClick={() => onEditClick(task)}
+                        >
+                            Rediger
+                        </button>
+                        <button
+                            className="link-danger"
                             onClick={() => onDeleteClick(task.task_id)}
                         >
                             Slet

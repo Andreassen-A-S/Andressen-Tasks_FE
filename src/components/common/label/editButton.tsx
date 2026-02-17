@@ -23,28 +23,29 @@ export default function EditButton({
     ...props
 }: EditButtonProps) {
     const sizeClasses = {
-        sm: "px-2 py-1 text-xs",
-        md: "px-3 py-1.5 text-sm",
-        lg: "px-4 py-2 text-base"
+        sm: "px-3 py-1 text-xs btn-sm",
+        md: "px-4 py-2 text-sm btn-md",
+        lg: "px-5 py-2.5 text-base btn-lg"
     };
 
     const variantClasses = {
         primary:
-            "text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 focus:ring-indigo-500",
-
-        secondary: "text-gray-600 hover:text-gray-800 focus:ring-gray-500"
+            "bg-[#2C5FE0] text-white hover:bg-[#4a7af5] focus:ring-[#2C5FE0] border-none",
+        secondary:
+            "bg-white border border-[#E8E6E1] text-[#1B1D22] hover:bg-[#F6F5F1] focus:ring-[#E8E6E1]"
     };
 
     const baseClasses = `
-        font-medium transition-colors 
-        focus:outline-none focus:ring-2 focus:ring-offset-1 rounded
+        font-semibold rounded-[8px] transition-colors
+        focus:outline-none focus:ring-2 focus:ring-offset-1
         disabled:opacity-50 disabled:cursor-not-allowed
+        shadow-sm
     `;
 
     const combinedClasses = `
-        ${baseClasses} 
-        ${sizeClasses[size]} 
-        ${variantClasses[variant]} 
+        ${baseClasses}
+        ${sizeClasses[size]}
+        ${variantClasses[variant]}
         ${className}
     `.trim();
 
@@ -60,10 +61,10 @@ export default function EditButton({
             {loading ? (
                 <div className="flex items-center gap-1">
                     <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                    Indlæser...
+                    <span className="btn-md">Indlæser...</span>
                 </div>
             ) : (
-                label
+                <span className="btn-md">{label}</span>
             )}
         </button>
     );

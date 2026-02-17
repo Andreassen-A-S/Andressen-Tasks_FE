@@ -73,7 +73,10 @@ export function formatCommentDate(dateString: string): string {
   if (diffMins < 1) return "Lige nu";
   if (diffMins < 60) return `${diffMins} min siden`;
   if (diffHours < 24) return `${diffHours} timer siden`;
-  if (diffDays < 7) return `${diffDays} dage siden`;
+  if (diffDays < 7) {
+    const dayLabel = diffDays === 1 ? "dag" : "dage";
+    return `${diffDays} ${dayLabel} siden`;
+  }
 
   return date.toLocaleDateString("da-DK", {
     day: "numeric",

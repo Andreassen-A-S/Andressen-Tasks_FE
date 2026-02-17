@@ -27,14 +27,14 @@ export default function BasicInfoSection({
 }: BasicInfoSectionProps) {
     return (
         <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-2 border-b-2 border-gray-200">
+            <h3 className="overline pt-1">
                 Opgave Detaljer
             </h3>
 
             {/* Title */}
             <div>
-                <label htmlFor="task-title" className="block text-sm font-semibold text-gray-900 mb-2">
-                    Opgave titel<span className="text-red-500">*</span>
+                <label htmlFor="task-title" className="label-lg mb-2 block">
+                    Opgave titel<span className="text-[#D64545]">*</span>
                 </label>
                 <input
                     type="text"
@@ -42,15 +42,15 @@ export default function BasicInfoSection({
                     required
                     value={title}
                     onChange={(e) => onFieldChange('title', e.target.value)}
-                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                    className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md placeholder:text-[#9DA1B4] bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                     placeholder="F.eks. Fuldend projekt dokumentation"
                 />
             </div>
 
             {/* Description */}
             <div>
-                <label htmlFor="task-description" className="block text-sm font-semibold text-gray-900 mb-2">
-                    Beskrivelse<span className="text-red-500">*</span>
+                <label htmlFor="task-description" className="label-lg mb-2 block">
+                    Beskrivelse<span className="text-[#D64545]">*</span>
                 </label>
                 <textarea
                     id="task-description"
@@ -58,7 +58,7 @@ export default function BasicInfoSection({
                     value={description}
                     onChange={(e) => onFieldChange('description', e.target.value)}
                     rows={4}
-                    className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors resize-y"
+                    className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md placeholder:text-[#9DA1B4] bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors resize-y"
                     placeholder="Beskriv opgaven i detaljer..."
                 />
             </div>
@@ -66,14 +66,14 @@ export default function BasicInfoSection({
             {/* Priority, Status (optional), & Deadline */}
             <div className={`grid grid-cols-1 ${showStatus ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-4`}>
                 <div>
-                    <label htmlFor="task-priority" className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label htmlFor="task-priority" className="label-lg mb-2 block">
                         Prioritet
                     </label>
                     <select
                         id="task-priority"
                         value={priority}
                         onChange={(e) => onFieldChange('priority', e.target.value as TaskPriority)}
-                        className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                        className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                     >
                         <option value={TaskPriority.LOW}>Lav</option>
                         <option value={TaskPriority.MEDIUM}>Mellem</option>
@@ -83,14 +83,14 @@ export default function BasicInfoSection({
 
                 {showStatus && status && (
                     <div>
-                        <label htmlFor="task-status" className="block text-sm font-semibold text-gray-900 mb-2">
+                        <label htmlFor="task-status" className="label-lg mb-2 block">
                             Status
                         </label>
                         <select
                             id="task-status"
                             value={status}
                             onChange={(e) => onFieldChange('status', e.target.value as TaskStatus)}
-                            className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors"
+                            className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                         >
                             <option value={TaskStatus.PENDING}>Afventer</option>
                             <option value={TaskStatus.DONE}>Færdig</option>
@@ -100,8 +100,8 @@ export default function BasicInfoSection({
                 )}
 
                 <div>
-                    <label htmlFor="task-deadline" className="block text-sm font-semibold text-gray-900 mb-2">
-                        Deadline<span className="text-red-500">*</span>
+                    <label htmlFor="task-deadline" className="label-lg mb-2 block">
+                        Deadline<span className="text-[#D64545]">*</span>
                     </label>
                     <input
                         type="date"
@@ -110,10 +110,10 @@ export default function BasicInfoSection({
                         value={deadline}
                         onChange={(e) => onFieldChange('deadline', e.target.value)}
                         disabled={isRecurring}
-                        className="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors disabled:bg-[#FAFAF7] disabled:cursor-not-allowed"
                     />
                     {isRecurring && (
-                        <p className="mt-1 text-xs text-gray-500">
+                        <p className="caption mt-1">
                             Deadline sættes automatisk for hver gentagelse
                         </p>
                     )}

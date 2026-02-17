@@ -14,17 +14,18 @@ export default function SingleAvatar({
     className = ""
 }: SingleAvatarProps) {
     const sizeClasses = {
-        xs: "w-6 h-6 text-[8px] border-[2px] border-white ",
-        sm: "w-8 h-8 text-xs",
-        md: "w-10 h-10 text-sm",
-        lg: "w-12 h-12 text-base"
+        xs: "w-6 h-6 initials-sm border-2",
+        sm: "w-8 h-8 text-[12px] initials-md",
+        md: "w-[26px] h-[26px] initials-md",
+        lg: "w-[34px] h-[34px] initials-lg ",
     };
 
     return (
         <div
             className={`
-                
-                ${sizeClasses[size]} rounded-full flex items-center justify-center text-white font-medium
+                ${sizeClasses[size]}
+                rounded-lg
+                flex items-center justify-center
                 ${getAvatarColor(name)}
                 ${className}
             `}

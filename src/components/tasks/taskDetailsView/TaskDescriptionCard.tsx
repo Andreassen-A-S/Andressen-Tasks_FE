@@ -23,15 +23,13 @@ export default function TaskDescriptionCard({
         <div className="mb-6 z-10 relative flex items-start gap-3">
             <SingleAvatar name={creatorName} size="sm" />
 
-            <div className="w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
-                {/* Card Header (same layout as TaskTimelineComment) */}
-                <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex items-center justify-between">
+            <div className="w-full overflow-hidden rounded-lg border border-[#E8E6E1] bg-white">
+                {/* Card Header */}
+                <div className="bg-[#FAFAF7] px-4 py-2 border-b border-[#E8E6E1] flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                        <span className="text-sm font-semibold text-gray-900">
-                            {creatorName}
-                        </span>
-                        <span className="text-sm text-gray-500">åbnet</span>
-                        <span className="text-sm text-gray-500">
+                        <span className="label-lg">{creatorName}</span>
+                        <span className="body-sm">åbnet</span>
+                        <span className="body-sm">
                             {formatRelativeDate(createdAt)}
                         </span>
                     </div>
@@ -41,11 +39,11 @@ export default function TaskDescriptionCard({
                 <div className="p-4">
                     <div className="mb-4">
                         {description ? (
-                            <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-line">
+                            <div className="body-md leading-relaxed whitespace-pre-line">
                                 {description}
                             </div>
                         ) : (
-                            <div className="text-gray-400 italic text-sm">
+                            <div className="body-sm italic text-[#9DA1B4]">
                                 Ingen beskrivelse tilgængelig
                             </div>
                         )}
@@ -54,7 +52,7 @@ export default function TaskDescriptionCard({
                     {showSubtaskButton && (
                         <button
                             onClick={onAddSubtask}
-                            className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors border border-gray-300"
+                            className="inline-flex items-center gap-2 bg-[#EBF0FD] hover:bg-[#dbe6fc] text-[#2C5FE0] px-3 py-1.5 rounded-lg font-medium btn-md transition-colors border border-[#E8E6E1]"
                         >
                             + Tilføj underopgave
                         </button>

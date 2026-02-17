@@ -19,8 +19,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Badge from "../../common/label/badge";
 import SingleAvatar from "../../common/label/singleAvatar";
-import { getTaskEvents } from "@/lib/api";
-import type { TaskEvent } from "@/types/taskEvent";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";
 import TaskDescriptionCard from "./TaskDescriptionCard";
 import CloseButton from "@/components/common/buttons/CloseButton";
@@ -47,10 +45,8 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                 const taskData = await getTask(taskId);
                 setTask(taskData);
 
-                // Fetch assignments
                 const assignmentData = await getTaskAssignments(taskId);
                 setAssignments(assignmentData);
-
 
                 if (taskData.created_by) {
                     const creatorData = await getUser(taskData.created_by);
@@ -70,7 +66,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <div className="text-gray-400 text-sm">Indlæser...</div>
+                <span className="body-sm">Indlæser...</span>
             </div>
         );
     }
@@ -79,9 +75,9 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
         return (
             <div className="h-full flex flex-col">
                 <div className="p-6 bg-red-50 border-b border-red-200">
-                    <div className="text-red-800 font-medium">
+                    <span className="label-lg text-red-800">
                         {error || "Opgave ikke fundet"}
-                    </div>
+                    </span>
                 </div>
             </div>
         );
@@ -89,31 +85,22 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
 
     return (
         <div className="flex flex-col h-full bg-white">
-            {/* GitHub-style Header */}
+            {/* Header */}
             <div className="px-8 pt-6 pb-4 border-b border-gray-200">
                 <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start gap-3">
-                        {/* title */}
-                        <h1 className="text-4xl font-bold text-gray-900 wrap-break-word">
-                            {task.title}
-                        </h1>
-                    </div>
-                    {/* actions for task */}
-                    <div>
-                        <CloseButton onClick={onClose} />
-                    </div>
+                    <h1 className="h2 wrap-break-word">
+                        {task.title}
+                    </h1>
+                    <CloseButton onClick={onClose} />
                 </div>
-
-                {/* Status badge */}
                 <div className="flex">
                     <Badge variant="status" value={task.status} />
                 </div>
             </div>
 
             <div className="flex flex-1 overflow-hidden">
-                {/* Main Content Area with Timeline */}
+                {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto px-8 py-6">
-                    {/* Description Card - GitHub style */}
                     <TaskDescriptionCard
                         creator={creator}
                         createdAt={task.created_at}
@@ -121,41 +108,34 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                         showSubtaskButton={task.parent_task_id == null}
                         onAddSubtask={() => setShowSubtaskModal(true)}
                     />
-
-                    {/* Timeline Section */}
                     <TaskTimeline taskId={task.task_id} />
-
                 </div>
 
-                {/* Sidebar - GitHub style */}
+                {/* Sidebar */}
                 <div className="w-80 border-l border-gray-200 overflow-y-auto px-6 py-6">
                     <div className="space-y-6">
                         {/* Priority */}
                         <div>
-                            <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                                Prioritet
-                            </h3>
+                            <h3 className="overline mb-3">Prioritet</h3>
                             <Badge variant="priority" value={task.priority} />
                         </div>
 
-                        <div className="border-t border-gray-200"></div>
+                        <div className="border-t border-gray-200" />
 
                         {/* Assignees */}
                         <div>
-                            <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                                Tildelt til
-                            </h3>
-                            <div className="text-sm text-gray-600">
+                            <h3 className="overline mb-3">Tildelt til</h3>
+                            <div>
                                 {isLoading ? (
                                     <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
                                 ) : assignments.length === 0 ? (
-                                    <span className="text-gray-400">Ingen tildelt</span>
+                                    <span className="body-xs">Ingen tildelt</span>
                                 ) : (
                                     <ul className="space-y-2">
                                         {assignments.map((assignment) => (
                                             <li key={assignment.user.user_id} className="flex items-center gap-2">
                                                 <SingleAvatar name={assignment.user.name} size="sm" />
-                                                <span className="text-gray-800">{assignment.user.name}</span>
+                                                <span className="label-md">{assignment.user.name}</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -163,44 +143,45 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                             </div>
                         </div>
 
-                        <div className="border-t border-gray-200"></div>
+                        <div className="border-t border-gray-200" />
 
-                        {/* Dates */}
+                        {/* Scheduled Date */}
                         <div>
-                            <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                                Planlagt dato
-                            </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-700">
-                                <FontAwesomeIcon icon={faCalendar} className="text-xs text-gray-500" />
-                                <span>{task.scheduled_date ? formatDaDate(task.scheduled_date) : 'Ikke planlagt'}</span>
+                            <h3 className="overline mb-3">Planlagt dato</h3>
+                            <div className="flex items-center gap-2">
+                                <FontAwesomeIcon icon={faCalendar} className="text-gray-400 text-xs" />
+                                <span className="body-sm">
+                                    {task.scheduled_date ? formatDaDate(task.scheduled_date) : 'Ikke planlagt'}
+                                </span>
                             </div>
                         </div>
 
-                        <div className="border-t border-gray-200"></div>
+                        <div className="border-t border-gray-200" />
 
+                        {/* Deadline */}
                         <div>
-                            <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                                Deadline
-                            </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-700">
-                                <FontAwesomeIcon icon={faClock} className="text-xs text-gray-500" />
-                                <span>{task.deadline ? formatDaDate(task.deadline) : 'Ingen deadline'}</span>
+                            <h3 className="overline mb-3">Deadline</h3>
+                            <div className="flex items-center gap-2">
+                                <FontAwesomeIcon icon={faClock} className="text-gray-400 text-xs" />
+                                <span className="body-sm">
+                                    {task.deadline ? formatDaDate(task.deadline) : 'Ingen deadline'}
+                                </span>
                             </div>
                         </div>
 
-                        {/* Goal Information */}
+                        {/* Goal */}
                         {task.goal_type === "FIXED" && task.target_quantity != null && (
                             <>
-                                <div className="border-t border-gray-200"></div>
+                                <div className="border-t border-gray-200" />
                                 <div>
-                                    <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                                    <h3 className="overline mb-3">
                                         <FontAwesomeIcon icon={faFlag} className="mr-1" />
                                         Mål
                                     </h3>
                                     <div className="space-y-2">
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-gray-600">Fremskridt:</span>
-                                            <span className="font-semibold text-gray-900">
+                                        <div className="flex justify-between">
+                                            <span className="body-xs">Fremskridt:</span>
+                                            <span className="label-md">
                                                 {task.current_quantity ?? 0} / {task.target_quantity}
                                                 {task.unit !== "NONE" && task.unit ? ` ${task.unit.toLowerCase()}` : ''}
                                             </span>
@@ -213,7 +194,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                                                 }}
                                             />
                                         </div>
-                                        <div className="text-xs text-gray-500 text-right">
+                                        <div className="caption text-right">
                                             {Math.round(Math.min(100, ((task.current_quantity ?? 0) / task.target_quantity) * 100))}% fuldført
                                         </div>
                                     </div>
@@ -221,28 +202,26 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                             </>
                         )}
 
-                        <div className="border-t border-gray-200"></div>
+                        <div className="border-t border-gray-200" />
 
                         {/* Metadata */}
-                        <div>
-                            <div className="space-y-2 text-xs text-gray-600">
-                                <div className="flex justify-between">
-                                    <span>Oprettet</span>
-                                    <span className="text-gray-900">{formatDaDateTime(task.created_at)}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Sidst opdateret</span>
-                                    <span className="text-gray-900">{formatDaDateTime(task.updated_at)}</span>
-                                </div>
-                                {task.parent_task_id && (
-                                    <div className="flex justify-between">
-                                        <span>Underopgave af:</span>
-                                        <span className="text-blue-600 hover:underline cursor-pointer">
-                                            #{task.parent_task_id.slice(0, 8)}
-                                        </span>
-                                    </div>
-                                )}
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <span className="caption">Oprettet</span>
+                                <span className="label-sm text-gray-900">{formatDaDateTime(task.created_at)}</span>
                             </div>
+                            <div className="flex justify-between">
+                                <span className="caption">Sidst opdateret</span>
+                                <span className="label-sm text-gray-900">{formatDaDateTime(task.updated_at)}</span>
+                            </div>
+                            {task.parent_task_id && (
+                                <div className="flex justify-between">
+                                    <span className="caption">Underopgave af</span>
+                                    <span className="link cursor-pointer hover:underline">
+                                        #{task.parent_task_id.slice(0, 8)}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -255,13 +234,11 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                 title="Tilføj underopgave"
                 maxWidth="3xl"
             >
-
                 <CreateTaskForm
                     onSuccess={() => setShowSubtaskModal(false)}
                     onCancel={() => setShowSubtaskModal(false)}
                     parentTaskId={task.task_id}
                 />
-
             </Modal>
         </div>
     );
