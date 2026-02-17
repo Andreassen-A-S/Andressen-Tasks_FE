@@ -99,7 +99,7 @@ export default function TaskPage() {
                             onClick={() => setFilter(key)}
                             className={`label-lg-gray px-4 py-2 rounded-lg transition-colors cursor-pointer ${filter === key
                                 ? 'bg-gray-900 label-lg-white'
-                                : 'bg-transparent text-gray-500 border border-gray-200  hover:border-gray-300'
+                                : 'bg-transparent border border-gray-200  hover:border-gray-300'
                                 }`}
                         >
                             {label}

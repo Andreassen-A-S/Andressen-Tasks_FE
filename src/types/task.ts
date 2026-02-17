@@ -8,6 +8,8 @@ export enum TaskStatus {
   DONE = "DONE",
   PENDING = "PENDING",
   REJECTED = "REJECTED",
+  IN_PROGRESS = "IN_PROGRESS",
+  ARCHIVED = "ARCHIVED",
 }
 
 export enum TaskUnit {

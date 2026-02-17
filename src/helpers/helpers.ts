@@ -14,9 +14,9 @@ export function formatRelativeDate(isoDate: string | Date): string {
   const diffMs = target.getTime() - today.getTime();
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return "i dag";
-  if (diffDays === 1) return "i morgen";
-  if (diffDays === -1) return "i går";
+  if (diffDays === 0) return "I dag";
+  if (diffDays === 1) return "I morgen";
+  if (diffDays === -1) return "I går";
 
   return target.toLocaleDateString("da-DK", {
     day: "numeric",
@@ -149,6 +149,24 @@ export const getStatusColors = (status: TaskStatus): string => {
     [TaskStatus.REJECTED]: "bg-red-100 text-red-600 border-red-200",
   };
   return colors[status] || "bg-gray-100 text-gray-800 border-gray-200";
+};
+
+export const getPriorityAccentColors = (priority: TaskPriority): string => {
+  const colors = {
+    [TaskPriority.HIGH]: "bg-red-600",
+    [TaskPriority.MEDIUM]: "bg-orange-600",
+    [TaskPriority.LOW]: "bg-yellow-600",
+  };
+  return colors[priority];
+};
+
+export const getStatusAccentColors = (status: TaskStatus): string => {
+  const colors = {
+    [TaskStatus.DONE]: "text-green-600",
+    [TaskStatus.PENDING]: "text-yellow-600",
+    [TaskStatus.REJECTED]: "text-red-600",
+  };
+  return colors[status] || "text-gray-800";
 };
 
 // Avatar utilities

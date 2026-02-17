@@ -8,14 +8,23 @@ type BadgeVariant = "priority" | "status";
 interface BadgeProps {
     variant: BadgeVariant;
     value: TaskPriority | TaskStatus;
+    size?: "sm" | "md" | "lg";
 }
 
-export default function Badge({ variant, value }: BadgeProps) {
+const sizeClasses = {
+    sm: "px-2 py-0.5 text-xs",
+    md: "px-2.5 py-1 text-sm",
+    lg: "px-3 py-1.5 text-base",
+};
+
+export default function Badge({ variant, value, size = "md" }: BadgeProps) {
+    const badgeSize = sizeClasses[size] || sizeClasses.md;
+
     if (variant === "priority") {
         const priority = value as TaskPriority;
         return (
             <span
-                className={`badge px-2.5 py-1 rounded-lg  ${getPriorityColors(priority)}`}
+                className={`badge rounded-lg ${badgeSize} ${getPriorityColors(priority)}`}
             >
                 {translatePriority(priority)}
             </span>
@@ -26,7 +35,7 @@ export default function Badge({ variant, value }: BadgeProps) {
         const status = value as TaskStatus;
         return (
             <span
-                className={`badge px-2.5 py-1 rounded-lg ${getStatusColors(status)}`}
+                className={`badge rounded-lg ${badgeSize} ${getStatusColors(status)}`}
             >
                 {translateStatus(status)}
             </span>
