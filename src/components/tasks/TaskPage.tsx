@@ -69,8 +69,6 @@ export default function TaskPage() {
 
     return (
         <div className="min-h-screen">
-            {/* // <div className="min-h-screen max-w-7xl justify-center mx-auto"> */}
-
             <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="space-y-2">

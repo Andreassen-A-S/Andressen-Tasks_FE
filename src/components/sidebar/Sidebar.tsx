@@ -73,7 +73,7 @@ export default function Sidebar() {
                         className="mr-3 rounded-lg"
                     />
                     <div className="min-w-0 flex-1">
-                        <p className="nav-item-active  text-white truncate">
+                        <p className="nav-item-active text-white truncate">
                             {user?.name || "Unknown User"}
                         </p>
                         <p className="text-[#A8AABB] nav-item ">
