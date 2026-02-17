@@ -95,7 +95,7 @@ export default function Modal({
                 {/* Modal panel */}
                 <div className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full border border-[#E8E6E1] ${maxWidthClasses[maxWidth]}`}>
                     {/* Modal header */}
-                    <div className="px-6 pb-4 pt-6 sm:p-8]">
+                    <div className="px-6 pb-4 pt-6 sm:p-8">
                         <div className="flex items-center justify-between mb-4">
                             <h3
                                 className="h3"
