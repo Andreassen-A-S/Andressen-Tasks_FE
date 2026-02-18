@@ -35,7 +35,7 @@ export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
             style={{ background: isCompleted ? '#FAFAF7' : '#FFFFFF' }}
         >
             {/* Priority left bar */}
-            <div className={`w-1 flex-shrink-0 ${getPriorityAccentColors(task.priority)}`} />
+            <div className={`w-1 shrink-0 ${getPriorityAccentColors(task.priority)}`} />
 
             {/* Card content */}
             <div className="flex-1 min-w-0 px-4 py-4 md:px-6 md:py-5">
@@ -48,7 +48,7 @@ export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
                         {task.title}
                     </h3>
                     <span
-                        className="mono-xs whitespace-nowrap flex-shrink-0 pt-0.5"
+                        className="mono-xs whitespace-nowrap shrink-0 pt-0.5"
                     >
                         {task.scheduled_date
                             ? formatRelativeDate(task.scheduled_date)
@@ -90,7 +90,7 @@ export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
 
                         {/* Completed badge */}
                         {isCompleted && (
-                            <span className="badge rounded-[6px] bg-[#E8F7F0] text-[#2D9F6F] px-2 py-0.5 flex items-center gap-1 uppercase tracking-[0.06em] font-bold">
+                            <span className="badge rounded-lg bg-[#E8F7F0] text-[#2D9F6F] px-2 py-0.5 flex items-center gap-1 uppercase tracking-[0.06em] font-bold">
                                 <FontAwesomeIcon icon={faCheck} className="w-2 h-2" />
                                 Færdig
                             </span>

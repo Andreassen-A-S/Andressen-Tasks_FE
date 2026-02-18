@@ -1,11 +1,15 @@
 import { getAuthHeaders } from "@/helpers/helpers";
-import { CreateCommentRequest, UpdateCommentRequest } from "@/types/comment";
+import {
+  CreateCommentRequest,
+  TaskComment,
+  UpdateCommentRequest,
+} from "@/types/comment";
 import { CreateTaskEventInput, TaskEvent } from "@/types/taskEvent";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Comment API functions
-export async function getTaskComments(taskId: string): Promise<Comment[]> {
+export async function getTaskComments(taskId: string): Promise<TaskComment[]> {
   const response = await fetch(`${API_URL}/comments/task/${taskId}`, {
     headers: getAuthHeaders(),
   });
@@ -21,7 +25,7 @@ export async function getTaskComments(taskId: string): Promise<Comment[]> {
 export async function createComment(
   taskId: string,
   data: CreateCommentRequest,
-): Promise<Comment> {
+): Promise<TaskComment> {
   const response = await fetch(`${API_URL}/comments/task/${taskId}`, {
     method: "POST",
     headers: getAuthHeaders(),
@@ -39,7 +43,7 @@ export async function createComment(
 export async function updateComment(
   commentId: string,
   data: UpdateCommentRequest,
-): Promise<Comment> {
+): Promise<TaskComment> {
   const response = await fetch(`${API_URL}/comments/${commentId}`, {
     method: "PATCH",
     headers: getAuthHeaders(),

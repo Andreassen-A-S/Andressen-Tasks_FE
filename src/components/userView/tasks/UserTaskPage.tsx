@@ -10,10 +10,10 @@ import { useRouter } from "next/navigation";
 import UserTaskDetails from "./taskDetails/UserTaskDetails";
 import UserTaskCard from "./UserTaskCard";
 import { sortTasks } from "@/helpers/sort";
-import { formatRelativeDate, isoToDateString } from "@/helpers/helpers";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { isoToDateString } from "@/helpers/helpers";
 import UserTaskHeader from "./UserTaskHeader";
 import UserTaskDateNavigator from "./UserTaskDateNavigator";
+import BottomSheetModal from "../common/bottomSheetModal";
 
 const FILTERS = [
     { key: "all", label: "Alle" },
@@ -31,6 +31,7 @@ export default function UserTasksView() {
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [filter, setFilter] = useState("all");
+    const [bottomSheetTaskId, setBottomSheetTaskId] = useState<string | null>(null);
 
     // Reusable function to fetch and set tasks
     const fetchAndSetTasks = useCallback(async () => {
@@ -90,7 +91,7 @@ export default function UserTasksView() {
     }, [fetchAndSetTasks]);
 
     const handleTaskClick = useCallback((taskId: string) => {
-        setSelectedTaskId(taskId);
+        setBottomSheetTaskId(taskId);
     }, []);
 
     const handleRetry = useCallback(() => {
@@ -189,7 +190,7 @@ export default function UserTasksView() {
             </div>
 
             {/* Filter pills */}
-            <div className="w-full mx-auto px-4 sm:px-6 mt-4 overflow-x-auto">
+            <div className="w-full mx-auto px-4 sm:px-6 mt-2 overflow-x-auto">
                 <div className="flex gap-2">
                     {FILTERS.map(({ key, label }) => (
                         <button
@@ -212,7 +213,7 @@ export default function UserTasksView() {
 
 
             {/* Content */}
-            <main className="max-w-4xl mx-auto p-4 sm:p-6">
+            <main className="w-full mx-auto px-4 mt-2 sm:p-6">
                 {filteredTasks.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm border-2 border-gray-200 p-8 sm:p-12 text-center">
                         <FontAwesomeIcon
@@ -239,6 +240,21 @@ export default function UserTasksView() {
                     </div>
                 )}
             </main>
+
+            {/* Bottom Sheet Modal for Task Details */}
+            <BottomSheetModal
+                open={!!bottomSheetTaskId}
+                onClose={() => setBottomSheetTaskId(null)}
+            >
+                {bottomSheetTaskId && (
+                    <div className="p-4 sm:p-6">
+                        <UserTaskDetails
+                            taskId={bottomSheetTaskId}
+                            onBack={() => setBottomSheetTaskId(null)}
+                        />
+                    </div>
+                )}
+            </BottomSheetModal>
         </div>
     );
 }

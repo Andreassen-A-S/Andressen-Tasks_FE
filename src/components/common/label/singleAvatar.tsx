@@ -14,7 +14,7 @@ export default function SingleAvatar({
     className = ""
 }: SingleAvatarProps) {
     const sizeClasses = {
-        xs: "w-6 h-6 initials-sm border-2",
+        xs: "w-6 h-6 initials-sm",
         sm: "w-8 h-8 text-[12px] initials-md",
         md: "w-[26px] h-[26px] initials-md",
         lg: "w-[34px] h-[34px] initials-lg ",

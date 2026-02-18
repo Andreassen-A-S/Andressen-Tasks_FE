@@ -162,11 +162,11 @@ export const getPriorityAccentColors = (priority: TaskPriority): string => {
 
 export const getStatusAccentColors = (status: TaskStatus): string => {
   const colors = {
-    [TaskStatus.DONE]: "text-green-600",
-    [TaskStatus.PENDING]: "text-yellow-600",
-    [TaskStatus.REJECTED]: "text-red-600",
+    [TaskStatus.DONE]: "bg-green-600",
+    [TaskStatus.PENDING]: "bg-yellow-600",
+    [TaskStatus.REJECTED]: "bg-red-600",
   };
-  return colors[status] || "text-gray-800";
+  return colors[status] || "bg-gray-600";
 };
 
 // Avatar utilities
