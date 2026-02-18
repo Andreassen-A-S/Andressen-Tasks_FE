@@ -435,3 +435,19 @@ body[data-scroll-locked="true"] {
   font-size: 0.5625rem; /* 9px */
   color: #ffffff;
 }
+
+/* ─── CALENDER ────────────────────────────────────── */
+
+.calendar-day-number {
+  font-size: 13px;
+  font-weight: 500;
+  font-family: "Outfit", sans-serif;
+  color: #1b1d22;
+}
+
+.calendar-day-number-today {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "Outfit", sans-serif;
+  color: #fff;
+}

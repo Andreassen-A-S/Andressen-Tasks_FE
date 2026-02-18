@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faFileClipboard } from "@fortawesome/free-regular-svg-icons";
 import { getUserAssignments } from "@/lib/api";
 import { Task } from "@/types/task";
 import UserTaskHeader from "../common/UserHeader";
@@ -135,9 +136,7 @@ export default function CalendarPage() {
                         {['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'].map((day) => (
                             <div
                                 key={day}
-                                className="text-[9px] font-semibold uppercase tracking-wider text-[#9DA1B4] text-center py-1"
-                                style={{ letterSpacing: '0.05em' }}
-                            >
+                                className="table-header text-center py-1">
                                 {day}
                             </div>
                         ))}
@@ -162,9 +161,7 @@ export default function CalendarPage() {
                   `}
                                 >
                                     <div
-                                        className={`text-[13px] font-medium ${isTodayDate ? 'text-white font-bold' : 'text-[#1B1D22]'
-                                            }`}
-                                        style={{ fontFamily: 'Outfit, sans-serif' }}
+                                        className={`calendar-day-number ${isTodayDate ? 'calendar-day-number-today' : ''}`}
                                     >
                                         {day.date.getDate()}
                                     </div>
@@ -187,8 +184,7 @@ export default function CalendarPage() {
             <div className="flex-1 px-3 pt-3 overflow-y-auto">
                 <div className="max-w-[430px] mx-auto">
                     <div
-                        className="text-[10px] font-semibold uppercase tracking-wider text-[#9DA1B4] mb-2.5 px-1"
-                        style={{ letterSpacing: '0.08em' }}
+                        className="table-header mb-2.5 px-1"
                     >
                         {selectedDate.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' })} — {selectedTasks.length} opgaver
                     </div>
@@ -199,13 +195,11 @@ export default function CalendarPage() {
                         </div>
                     ) : selectedTasks.length === 0 ? (
                         <div className="text-center py-12">
-                            <div className="w-14 h-14 bg-white border border-[#E8E6E1] rounded-2xl flex items-center justify-center mx-auto mb-3">
-                                <svg className="w-6 h-6 text-[#9DA1B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
+                            <div className="w-14 h-14 bg-white border border-[#E8E6E1] rounded-lg flex items-center justify-center mx-auto mb-3">
+                                <FontAwesomeIcon icon={faFileClipboard} size="lg" className="text-[#6B7084]" />
                             </div>
-                            <div className="text-[16px] font-semibold text-[#1B1D22] mb-1">Ingen opgaver</div>
-                            <div className="text-[13px] text-[#9DA1B4]">Der er ingen planlagte opgaver denne dag</div>
+                            <div className="h4 mb-1">Ingen opgaver</div>
+                            <div className="body-xs">Der er ingen planlagte opgaver denne dag</div>
                         </div>
                     ) : (
                         <div className="space-y-1.5">
