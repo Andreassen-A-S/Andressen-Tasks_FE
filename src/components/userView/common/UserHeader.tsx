@@ -2,20 +2,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import SingleAvatar from "@/components/common/label/singleAvatar";
 
-interface UserTaskHeaderProps {
+interface UserHeaderProps {
     user?: { name?: string; email?: string };
-    onLogout: () => void;
+    onLogout?: () => void;
+    header: string;
+    sub?: string;
 }
 
-export default function UserTaskHeader({ user, onLogout }: UserTaskHeaderProps) {
+export default function UserHeader({ user, onLogout, header, sub }: UserHeaderProps) {
     return (
         <header className="flex-1 bg-[#1B1D22] border-b border-[#E8E6E1] top-0 z-10">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                 <div className="min-w-0 flex-1">
-                    <h1 className="h3-white truncate">Mine Opgaver</h1>
-                    <p className="caption mt-1 truncate">
-                        Velkommen, {user?.name || user?.email}
-                    </p>
+                    <h1 className="h3-white truncate">{header}</h1>
+                    {sub && <p className="caption mt-1 truncate">{sub}</p>}
                 </div>
                 <SingleAvatar
                     size="lg"

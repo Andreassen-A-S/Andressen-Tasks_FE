@@ -11,7 +11,7 @@ import UserTaskDetails from "./taskDetails/UserTaskDetails";
 import UserTaskCard from "./UserTaskCard";
 import { sortTasks } from "@/helpers/sort";
 import { isoToDateString } from "@/helpers/helpers";
-import UserTaskHeader from "./UserTaskHeader";
+import UserTaskHeader from "../common/UserHeader";
 import UserTaskDateNavigator from "./UserTaskDateNavigator";
 import BottomSheetModal from "../common/bottomSheetModal";
 
@@ -184,7 +184,7 @@ export default function UserTasksView() {
 
             <div className="sticky">
                 {/* Header */}
-                <UserTaskHeader user={user!} onLogout={handleLogout} />
+                <UserTaskHeader user={user!} onLogout={handleLogout} header="Mine opgaver" sub={`Velkommen, ${user?.name || user?.email}`} />
                 {/* Date Navigation Bar */}
                 <UserTaskDateNavigator selectedDate={selectedDate} onDateChange={setSelectedDate} />
             </div>

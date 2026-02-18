@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Sidebar from "@/components/sidebar/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import BottomNav from "../userView/bottomNavBar/BottomNav";
 
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -33,8 +34,18 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             return;
         }
 
+        const userAllowedRoutes = [
+            "/my-tasks",
+            "/calendar",
+            "/profile",
+            // Add more allowed routes here
+        ];
+
         // Prevent users from accessing admin routes
-        if (userRole === "USER" && !pathname.startsWith("/my-tasks")) {
+        if (
+            userRole === "USER" &&
+            !userAllowedRoutes.some(route => pathname === route || pathname.startsWith(route + "/"))
+        ) {
             router.push("/my-tasks");
         }
 
@@ -73,7 +84,10 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     if (userRole === "USER") {
         return (
             <div className="min-h-screen bg-background">
-                {children}
+                <main className="flex-1">
+                    <BottomNav />
+                    {children}
+                </main>
             </div>
         );
     }

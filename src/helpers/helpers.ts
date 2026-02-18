@@ -27,6 +27,14 @@ export function formatRelativeDate(isoDate: string | Date): string {
   });
 }
 
+export function formatLocalDate(dateInput: string | Date, locale = "da-DK") {
+  const date =
+    typeof dateInput === "string"
+      ? new Date(dateInput.split("T")[0])
+      : dateInput;
+  return date.toLocaleDateString(locale);
+}
+
 // Used in task details for created_at and updated_at
 export function formatDaDateTime(isoDate: string | Date): string {
   const date = typeof isoDate === "string" ? new Date(isoDate) : isoDate;
@@ -154,8 +162,8 @@ export const getStatusColors = (status: TaskStatus): string => {
 export const getPriorityAccentColors = (priority: TaskPriority): string => {
   const colors = {
     [TaskPriority.HIGH]: "bg-red-600",
-    [TaskPriority.MEDIUM]: "bg-orange-600",
-    [TaskPriority.LOW]: "bg-yellow-600",
+    [TaskPriority.MEDIUM]: "bg-orange-400",
+    [TaskPriority.LOW]: "bg-yellow-400",
   };
   return colors[priority];
 };
