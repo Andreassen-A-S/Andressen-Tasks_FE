@@ -12,7 +12,7 @@ import CalendarMonthNavigator from "./CalendarMonthNavigator";
 import CalendarTaskCard from "./CalendarTaskCard";
 import UserTaskDetails from "../tasks/taskDetails/UserTaskDetails";
 import BottomSheetModal from "../common/bottomSheetModal";
-import { formatLocalDate } from "@/helpers/helpers";
+import { formatLocalDate, toLocalDateKey } from "@/helpers/helpers";
 
 export default function CalendarPage() {
     const { user, isLoading: authLoading } = useAuth();
@@ -79,7 +79,7 @@ export default function CalendarPage() {
         }
 
         // Next month days to fill grid (target 6 weeks = 42 cells)
-        const remainingDays = 42 - days.length;
+        const remainingDays = days.length % 7 === 0 ? 0 : 7 - (days.length % 7);
         for (let i = 1; i <= remainingDays; i++) {
             days.push({
                 date: new Date(year, month + 1, i),
@@ -91,9 +91,9 @@ export default function CalendarPage() {
     };
 
     const getTasksForDate = (date: Date) => {
-        const dateStr = formatLocalDate(date);
+        const dateStr = toLocalDateKey(date);
         return tasks.filter(task => {
-            const taskDate = formatLocalDate(task.scheduled_date);
+            const taskDate = toLocalDateKey(task.scheduled_date);
             return taskDate === dateStr;
         });
     };
