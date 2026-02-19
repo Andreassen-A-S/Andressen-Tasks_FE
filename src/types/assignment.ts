@@ -1,3 +1,5 @@
+import { Task } from "./task";
+
 export interface TaskAssignment {
   assignment_id: string;
   task_id: string;
@@ -10,6 +12,7 @@ export interface TaskAssignment {
     email: string;
     position: string;
   };
+  task: Task;
 }
 
 export interface TaskAssignmentResponse {

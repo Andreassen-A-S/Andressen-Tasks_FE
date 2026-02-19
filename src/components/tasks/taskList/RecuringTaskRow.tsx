@@ -9,6 +9,7 @@ import TaskAssignedUsers from "../../common/label/taskAssignedUsers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight, faRepeat } from "@fortawesome/free-solid-svg-icons";
 import SubTaskRow from "./SubTaskRow";
+import RecurringBadge from "@/components/common/label/recurringBadge";
 
 interface RecurringTaskRowProps {
     task: Task;
@@ -81,10 +82,9 @@ export default function RecurringTaskRow({
                                 </button>
 
                                 {/* Recurring badge */}
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 badge bg-[#EBF0FD] text-[#2C5FE0] rounded-lg">
-                                    <FontAwesomeIcon icon={faRepeat} className="w-3 h-3" />
-                                    Gentages
-                                </span>
+                                <RecurringBadge
+                                    size="md"
+                                />
 
                                 {/* Subtask progress bar */}
                                 {hasSubtasks && (

@@ -3,16 +3,24 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserAssignments, getTask } from "@/lib/api";
-import { Task } from "@/types/task";
+import { Task, TaskGoalType, TaskPriority, TaskStatus } from "@/types/task";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheckCircle, faSpinner, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import UserTaskDetails from "./UserTaskDetails";
+import UserTaskDetails from "./taskDetails/UserTaskDetails";
+import BottomSheetModal from "../common/bottomSheetModal";
 import UserTaskCard from "./UserTaskCard";
 import { sortTasks } from "@/helpers/sort";
-import { formatRelativeDate, isoToDateString } from "@/helpers/helpers";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { toLocalDateKey } from "@/helpers/helpers";
+import UserTaskHeader from "../common/UserHeader";
+import UserTaskDateNavigator from "./UserTaskDateNavigator";
 
+const FILTERS = [
+    { key: "all", label: "Alle" },
+    { key: "highPriority", label: "Høj prioritet" },
+    { key: "pending", label: "Mangler" },
+    { key: "fixedGoal", label: "Mål-opgaver" },
+];
 
 export default function UserTasksView() {
     const { user, logout, isLoading: authLoading } = useAuth();
@@ -20,8 +28,9 @@ export default function UserTasksView() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [filter, setFilter] = useState("all");
+    const [bottomSheetTaskId, setBottomSheetTaskId] = useState<string | null>(null);
 
     // Reusable function to fetch and set tasks
     const fetchAndSetTasks = useCallback(async () => {
@@ -74,14 +83,8 @@ export default function UserTasksView() {
         router.push("/login");
     }, [logout, router]);
 
-    const handleBackFromDetails = useCallback(() => {
-        setSelectedTaskId(null);
-        // Refresh tasks after returning from details
-        fetchAndSetTasks();
-    }, [fetchAndSetTasks]);
-
     const handleTaskClick = useCallback((taskId: string) => {
-        setSelectedTaskId(taskId);
+        setBottomSheetTaskId(taskId);
     }, []);
 
     const handleRetry = useCallback(() => {
@@ -89,37 +92,49 @@ export default function UserTasksView() {
     }, [fetchAndSetTasks]);
 
 
-    const todayStr = isoToDateString(selectedDate.toISOString());
+    const todayStr = toLocalDateKey(selectedDate);
 
-    const filteredTasks = tasks.filter(task => {
-        const isDone = task.status === "DONE";
-        const scheduledDate = task.scheduled_date ? isoToDateString(task.scheduled_date) : null;
-        const deadlineDate = task.deadline ? isoToDateString(task.deadline) : null;
+
+    const tasksForDay = tasks.filter(task => {
+        const isDone = task.status === TaskStatus.DONE;
+
+        const scheduledDate = task.scheduled_date
+            ? toLocalDateKey(task.scheduled_date)
+            : null;
+
+        const deadlineDate = task.deadline
+            ? toLocalDateKey(task.deadline)
+            : null;
 
         const isScheduledToday = scheduledDate === todayStr;
         const isCarryOverScheduled = !!scheduledDate && scheduledDate < todayStr && !isDone;
+
         const isDueToday = deadlineDate === todayStr;
         const isOverdue = !!deadlineDate && deadlineDate < todayStr && !isDone;
 
         return isScheduledToday || isCarryOverScheduled || isDueToday || isOverdue;
     });
 
-    // Show task details view
-    if (selectedTaskId) {
-        return (
-            <UserTaskDetails
-                taskId={selectedTaskId}
-                onBack={handleBackFromDetails}
-            />
-        );
-    }
+    const filteredTasks = tasksForDay.filter(task => {
+
+
+        // Filter logic
+        if (filter === "recurring") return task.recurring_template_id !== null;
+        if (filter === "highPriority") return task.priority === TaskPriority.HIGH;
+        if (filter === "pending") return (task.status === TaskStatus.PENDING || task.status === TaskStatus.IN_PROGRESS);
+        if (filter === "fixedGoal") return task.goal_type === TaskGoalType.FIXED;
+
+        return true;
+    });
+
+
 
     // Show loading state while auth OR tasks are loading
     if (authLoading || isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
                 <div className="text-center">
-                    <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-green-500 mb-4" />
+                    <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#0f6e56]" />
                     <p className="text-gray-600">
                         {authLoading ? "Verificerer login..." : "Indlæser opgaver..."}
                     </p>
@@ -149,61 +164,40 @@ export default function UserTasksView() {
 
     // Main view
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
 
-
-            {/* Header */}
-            <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-                    <div className="min-w-0 flex-1">
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
-                            Mine Opgaver
-                        </h1>
-                        <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">
-                            Velkommen, {user?.name || user?.email}
-                        </p>
-                    </div>
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0 ml-4"
-                        aria-label="Log ud"
-                    >
-                        <FontAwesomeIcon icon={faSignOutAlt} />
-                        <span className="hidden sm:inline">Log ud</span>
-                    </button>
-                </div>
-            </header>
-            {/* Date Navigation Bar */}
-            <div className="bg-white border-b border-gray-200 sticky top-0 z-20 flex items-center justify-center py-2">
-                <button
-                    onClick={() => setSelectedDate(prev => {
-                        const newDate = new Date(prev);
-                        newDate.setDate(newDate.getDate() - 1);
-                        return newDate;
-                    })}
-                    className="px-2 text-gray-600 hover:text-gray-900"
-                    aria-label="Forrige dag"
-                >
-                    <FontAwesomeIcon icon={faChevronLeft} />
-                </button>
-                <span className="mx-4 font-semibold text-gray-900">
-                    {formatRelativeDate(selectedDate)}
-                </span>
-                <button
-                    onClick={() => setSelectedDate(prev => {
-                        const newDate = new Date(prev);
-                        newDate.setDate(newDate.getDate() + 1);
-                        return newDate;
-                    })}
-                    className="px-2 text-gray-600 hover:text-gray-900"
-                    aria-label="Næste dag"
-                >
-                    <FontAwesomeIcon icon={faChevronRight} />
-                </button>
+            <div className="sticky">
+                {/* Header */}
+                <UserTaskHeader user={user!} onLogout={handleLogout} header="Mine opgaver" sub={`Velkommen, ${user?.name || user?.email}`} />
+                {/* Date Navigation Bar */}
+                <UserTaskDateNavigator selectedDate={selectedDate} onDateChange={setSelectedDate} />
             </div>
 
+            {/* Filter pills */}
+            <div className="w-full mx-auto px-4 sm:px-6 mt-2 overflow-x-auto">
+                <div className="flex gap-2">
+                    {FILTERS.map(({ key, label }) => (
+                        <button
+                            key={key}
+                            type="button"
+                            onClick={() => setFilter(key)}
+                            className={
+                                "label-lg-gray px-4 py-1.5 rounded-full border text-sm font-medium transition-colors whitespace-nowrap " +
+                                (filter === key
+                                    ? "bg-gray-900 label-lg-white"
+                                    : "bg-transparent border-gray-200 hover:border-gray-300")
+                            }
+                        >
+                            {key === "all" ? `${label} (${tasksForDay.length})` : label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+
+
             {/* Content */}
-            <main className="max-w-4xl mx-auto p-4 sm:p-6">
+            <main className="w-full mx-auto px-4 mt-2 sm:p-6">
                 {filteredTasks.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm border-2 border-gray-200 p-8 sm:p-12 text-center">
                         <FontAwesomeIcon
@@ -230,6 +224,19 @@ export default function UserTasksView() {
                     </div>
                 )}
             </main>
+
+            {/* Task Details */}
+            <BottomSheetModal
+                open={!!bottomSheetTaskId}
+                onClose={() => setBottomSheetTaskId(null)}
+            >
+                {bottomSheetTaskId && (
+                    <UserTaskDetails
+                        taskId={bottomSheetTaskId}
+                        onBack={() => setBottomSheetTaskId(null)}
+                    />
+                )}
+            </BottomSheetModal>
         </div>
     );
 }

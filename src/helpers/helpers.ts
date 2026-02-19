@@ -1,5 +1,6 @@
 import { TaskEvent } from "@/types/taskEvent";
 import { TaskPriority, TaskStatus } from "@/types/task";
+import { TaskAssignment } from "@/types/assignment";
 
 export function formatRelativeDate(isoDate: string | Date): string {
   const date =
@@ -14,9 +15,9 @@ export function formatRelativeDate(isoDate: string | Date): string {
   const diffMs = target.getTime() - today.getTime();
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return "i dag";
-  if (diffDays === 1) return "i morgen";
-  if (diffDays === -1) return "i går";
+  if (diffDays === 0) return "I dag";
+  if (diffDays === 1) return "I morgen";
+  if (diffDays === -1) return "I går";
 
   return target.toLocaleDateString("da-DK", {
     day: "numeric",
@@ -25,6 +26,36 @@ export function formatRelativeDate(isoDate: string | Date): string {
       year: "numeric",
     }),
   });
+}
+
+function parseDateInput(dateInput: string | Date): Date {
+  if (dateInput instanceof Date) return dateInput;
+
+  const datePart = dateInput.split("T")[0];
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(datePart);
+  if (isDateOnly) {
+    const [year, month, day] = datePart.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  return new Date(dateInput);
+}
+
+export function formatLocalDate(
+  dateInput: string | Date,
+  locale = "da-DK",
+  options?: Intl.DateTimeFormatOptions,
+) {
+  const date = parseDateInput(dateInput);
+  return date.toLocaleDateString(locale, options);
+}
+
+export function toLocalDateKey(dateInput: string | Date): string {
+  const date = parseDateInput(dateInput);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 // Used in task details for created_at and updated_at
@@ -151,6 +182,24 @@ export const getStatusColors = (status: TaskStatus): string => {
   return colors[status] || "bg-gray-100 text-gray-800 border-gray-200";
 };
 
+export const getPriorityAccentColors = (priority: TaskPriority): string => {
+  const colors = {
+    [TaskPriority.HIGH]: "bg-red-600",
+    [TaskPriority.MEDIUM]: "bg-orange-400",
+    [TaskPriority.LOW]: "bg-yellow-400",
+  };
+  return colors[priority];
+};
+
+export const getStatusAccentColors = (status: TaskStatus): string => {
+  const colors = {
+    [TaskStatus.DONE]: "bg-green-600",
+    [TaskStatus.PENDING]: "bg-yellow-600",
+    [TaskStatus.REJECTED]: "bg-red-600",
+  };
+  return colors[status] || "bg-gray-600";
+};
+
 // Avatar utilities
 export function getInitials(name: string): string {
   return name
@@ -210,6 +259,25 @@ export function translateTaskUnit(unit?: string | null): string {
     default:
       return "";
   }
+}
+
+// Count tasks assigned for today and completed today
+export function getTodayAssignmentStats(assignments: TaskAssignment[]) {
+  const today = toLocalDateKey(new Date());
+
+  const assignedToday = assignments.filter(
+    (a) =>
+      a.task?.scheduled_date && toLocalDateKey(a.task.scheduled_date) === today,
+  ).length;
+
+  const completedToday = assignments.filter(
+    (a) => a.completed_at && toLocalDateKey(a.completed_at) === today,
+  ).length;
+
+  return {
+    assignedToday,
+    completedToday,
+  };
 }
 
 // For timeline event descriptions

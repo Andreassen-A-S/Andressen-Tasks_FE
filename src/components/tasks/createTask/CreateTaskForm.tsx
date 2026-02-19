@@ -6,7 +6,7 @@ import type { Task, CreateTaskInput, CreateSubtaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { toIsoEndOfDay } from "@/helpers/helpers";
+import { toIsoEndOfDay, toLocalDateKey } from "@/helpers/helpers";
 import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
 import BasicInfoSection from "./BasicInfoCard";
@@ -30,10 +30,10 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         description: "",
         priority: TaskPriority.MEDIUM,
         status: TaskStatus.PENDING,
-        deadline: new Date().toISOString().split("T")[0],
+        deadline: toLocalDateKey(new Date()),
         created_by: user?.user_id || "",
         assigned_users: [],
-        scheduled_date: new Date().toISOString().split("T")[0],
+        scheduled_date: toLocalDateKey(new Date()),
         unit: undefined,
         goal_type: TaskGoalType.OPEN,
         target_quantity: undefined,
@@ -47,7 +47,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         interval: 1,
         days_of_week: [] as number[],
         day_of_month: undefined as number | undefined,
-        start_date: new Date().toISOString().split("T")[0],
+        start_date: toLocalDateKey(new Date()),
         end_date: undefined as string | undefined,
     });
     const [loading, setLoading] = useState(false);

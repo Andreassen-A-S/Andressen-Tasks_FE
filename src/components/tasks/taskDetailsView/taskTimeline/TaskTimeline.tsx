@@ -198,7 +198,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     if (loading) {
         return (
             <div className="flex justify-center py-6">
-                <FontAwesomeIcon icon={faSpinner} spin className="text-[#9DA1B4]" />
+                <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#9DA1B4]" />
             </div>
         );
     }
@@ -238,7 +238,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                             key={e.event_id}
                             className="relative z-10 pl-14 flex items-center gap-3"
                         >
-                            <SingleAvatar name={actorName} size="xs" />
+                            <SingleAvatar name={actorName} size="xs" className="border-2" />
                             <div className="flex-1">
                                 <div className="body-sm">
                                     <span className="font-semibold text-[#1B1D22]">{actorName}</span>{" "}
