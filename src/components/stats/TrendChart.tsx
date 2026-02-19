@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalDate } from "@/helpers/helpers";
 import type { TrendDataPoint } from "@/types/stats";
 
 interface TrendChartProps {
@@ -24,8 +25,7 @@ export default function TrendChart({ data }: TrendChartProps) {
 
     // Format date for display
     const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('da-DK', { month: 'short', day: 'numeric' });
+        return formatLocalDate(dateStr, "da-DK", { month: "short", day: "numeric" });
     };
 
     return (

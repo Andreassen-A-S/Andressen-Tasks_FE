@@ -93,6 +93,14 @@ body[data-scroll-locked="true"] {
   color: #1b1d22;
 }
 
+.h2-color {
+  font-family: "Outfit", sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem; /* 28px */
+  line-height: 2.125rem; /* 34px */
+  letter-spacing: -0.025em;
+}
+
 .h2-white {
   font-family: "Outfit", sans-serif;
   font-weight: 700;
@@ -450,4 +458,18 @@ body[data-scroll-locked="true"] {
   font-weight: 700;
   font-family: "Outfit", sans-serif;
   color: #fff;
+}
+
+/* ─── COLORS ────────────────────────────────────── */
+
+.accent-green {
+  color: #0f6e56;
+}
+
+.bg-egg-white {
+  background-color: #f6f5f1;
+}
+
+.dark-charcoal {
+  color: #1b1d22;
 }

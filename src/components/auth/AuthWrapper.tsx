@@ -65,7 +65,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         return (
             <div className="flex items-center justify-center min-h-screen bg-background">
                 <div>
-                    <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-blue-500" />
+                    <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-[#0f6e56]" />
                 </div>
             </div>
         );
@@ -75,7 +75,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     if (!isAuthenticated) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-background">
-                <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-blue-500" />
+                <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-[#0f6e56]" />
             </div>
         );
     }

@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
-import { formatRelativeDate } from "@/helpers/helpers";
+import { formatLocalDate, formatRelativeDate } from "@/helpers/helpers";
 
 interface UserTaskDateNavigatorProps {
     selectedDate: Date;
@@ -29,7 +29,7 @@ export default function UserTaskDateNavigator({
                     {formatRelativeDate(selectedDate)}
                 </span>
                 <span className="mono-xs">
-                    {selectedDate.toLocaleDateString("da-DK", {
+                    {formatLocalDate(selectedDate, "da-DK", {
                         weekday: "long",
                         day: "numeric",
                         month: "long",

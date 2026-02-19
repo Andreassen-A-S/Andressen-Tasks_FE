@@ -44,6 +44,7 @@ export interface Task {
   current_quantity?: number | null;
   recurring_template_id?: string;
   occurrence_date?: string;
+  completed_at?: string | null;
 }
 
 export interface CreateTaskInput {

@@ -6,7 +6,7 @@ import type { Task, UpdateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskUnit } from "@/types/task";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
-import { removeUndefined, toIsoEndOfDay } from "@/helpers/helpers";
+import { removeUndefined, toIsoEndOfDay, toLocalDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "../createTask/BasicInfoCard";
 import AssignmentCard from "../createTask/AssignmentCard";
 import GoalSection from "../createTask/GoalCard";
@@ -28,9 +28,9 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         description: task.description,
         priority: task.priority,
         status: task.status,
-        deadline: new Date(task.deadline).toISOString().split("T")[0],
+        deadline: toLocalDateKey(task.deadline),
         assigned_users: [],
-        scheduled_date: new Date(task.scheduled_date).toISOString().split("T")[0],
+        scheduled_date: toLocalDateKey(task.scheduled_date),
         unit: task.unit,
         goal_type: task.goal_type || TaskGoalType.OPEN,
         target_quantity: task.target_quantity ?? undefined,

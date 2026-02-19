@@ -139,7 +139,7 @@ export default function ViewTemplate({ template, onClose, onUpdate }: ViewTempla
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
                         <div className="flex flex-col items-center gap-3">
-                            <FontAwesomeIcon icon={faSpinner} className="w-8 h-8 text-blue-600 animate-spin" />
+                            <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#0f6e56]" />
                             <div className="text-sm text-gray-500">Indlæser instanser...</div>
                         </div>
                     </div>

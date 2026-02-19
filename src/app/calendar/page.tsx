@@ -1,5 +1,5 @@
-import CalenderPage from "@/components/userView/calendar/CalendarPage";
+import CalendarPage from "@/components/userView/calendar/CalendarPage";
 
-export default function CalendarPage() {
-    return <CalenderPage />;
+export default function MyCalendarPage() {
+    return <CalendarPage />;
 }

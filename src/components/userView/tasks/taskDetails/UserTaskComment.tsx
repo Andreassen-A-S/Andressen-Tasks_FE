@@ -109,7 +109,7 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
             <h2 className="overline mb-4">Kommentarer ({comments.length})</h2>
             {isLoadingComments ? (
                 <div className="flex justify-center py-4">
-                    <FontAwesomeIcon icon={faSpinner} spin className="text-[#9DA1B4]" />
+                    <FontAwesomeIcon icon={faSpinner} spin size="lg" className="text-[#0f6e56]" />
                 </div>
             ) : commentError ? (
                 <div className="bg-[#FDECEC] border border-[#D64545] rounded-lg p-3 text-[#D64545] caption mb-4">
@@ -172,7 +172,7 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
                             >
                                 {isSubmittingComment ? (
                                     <>
-                                        <FontAwesomeIcon icon={faSpinner} spin />
+                                        <FontAwesomeIcon icon={faSpinner} spin size="sm" className="text-white" />
                                         Sender...
                                     </>
                                 ) : (

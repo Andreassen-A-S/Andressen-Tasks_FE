@@ -1,5 +1,6 @@
 import { TaskEvent } from "@/types/taskEvent";
 import { TaskPriority, TaskStatus } from "@/types/task";
+import { TaskAssignment } from "@/types/assignment";
 
 export function formatRelativeDate(isoDate: string | Date): string {
   const date =
@@ -27,12 +28,34 @@ export function formatRelativeDate(isoDate: string | Date): string {
   });
 }
 
-export function formatLocalDate(dateInput: string | Date, locale = "da-DK") {
-  const date =
-    typeof dateInput === "string"
-      ? new Date(dateInput.split("T")[0])
-      : dateInput;
-  return date.toLocaleDateString(locale);
+function parseDateInput(dateInput: string | Date): Date {
+  if (dateInput instanceof Date) return dateInput;
+
+  const datePart = dateInput.split("T")[0];
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(datePart);
+  if (isDateOnly) {
+    const [year, month, day] = datePart.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  return new Date(dateInput);
+}
+
+export function formatLocalDate(
+  dateInput: string | Date,
+  locale = "da-DK",
+  options?: Intl.DateTimeFormatOptions,
+) {
+  const date = parseDateInput(dateInput);
+  return date.toLocaleDateString(locale, options);
+}
+
+export function toLocalDateKey(dateInput: string | Date): string {
+  const date = parseDateInput(dateInput);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 // Used in task details for created_at and updated_at
@@ -236,6 +259,25 @@ export function translateTaskUnit(unit?: string | null): string {
     default:
       return "";
   }
+}
+
+// Count tasks assigned for today and completed today
+export function getTodayAssignmentStats(assignments: TaskAssignment[]) {
+  const today = toLocalDateKey(new Date());
+
+  const assignedToday = assignments.filter(
+    (a) =>
+      a.task?.scheduled_date && toLocalDateKey(a.task.scheduled_date) === today,
+  ).length;
+
+  const completedToday = assignments.filter(
+    (a) => a.completed_at && toLocalDateKey(a.completed_at) === today,
+  ).length;
+
+  return {
+    assignedToday,
+    completedToday,
+  };
 }
 
 // For timeline event descriptions

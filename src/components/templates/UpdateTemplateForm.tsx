@@ -4,7 +4,7 @@ import { useState } from "react";
 import { updateRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
-import { toIsoEndOfDay } from "@/helpers/helpers";
+import { toIsoEndOfDay, toLocalDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
@@ -35,8 +35,8 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
         interval: template.interval,
         days_of_week: template.days_of_week || [],
         day_of_month: template.day_of_month || undefined,
-        start_date: template.start_date ? new Date(template.start_date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
-        end_date: template.end_date ? new Date(template.end_date).toISOString().split("T")[0] : undefined,
+        start_date: template.start_date ? toLocalDateKey(template.start_date) : toLocalDateKey(new Date()),
+        end_date: template.end_date ? toLocalDateKey(template.end_date) : undefined,
     });
 
     const [loading, setLoading] = useState(false);

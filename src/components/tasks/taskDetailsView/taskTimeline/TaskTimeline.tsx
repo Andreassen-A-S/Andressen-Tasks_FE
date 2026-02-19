@@ -198,7 +198,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     if (loading) {
         return (
             <div className="flex justify-center py-6">
-                <FontAwesomeIcon icon={faSpinner} spin className="text-[#9DA1B4]" />
+                <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#9DA1B4]" />
             </div>
         );
     }

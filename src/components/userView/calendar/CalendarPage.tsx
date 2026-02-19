@@ -108,7 +108,7 @@ export default function CalendarPage() {
     };
 
     const days = getDaysInMonth(currentDate);
-    const monthName = currentDate.toLocaleDateString('da-DK', { month: 'long', year: 'numeric' });
+    const monthName = formatLocalDate(currentDate, "da-DK", { month: "long", year: "numeric" });
     const selectedTasks = getTasksForDate(selectedDate);
 
 
@@ -186,12 +186,12 @@ export default function CalendarPage() {
                     <div
                         className="table-header mb-2.5 px-1"
                     >
-                        {selectedDate.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' })} — {selectedTasks.length} opgaver
+                        {formatLocalDate(selectedDate, "da-DK", { weekday: "long", day: "numeric", month: "long" })} — {selectedTasks.length} opgaver
                     </div>
 
                     {isLoading ? (
                         <div className="flex justify-center py-8">
-                            <FontAwesomeIcon icon={faSpinner} spin className="text-[#0f6e56] text-2xl" />
+                            <FontAwesomeIcon icon={faSpinner} spin size="2xl" className="text-[#0f6e56]" />
                         </div>
                     ) : selectedTasks.length === 0 ? (
                         <div className="text-center py-12">

@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import UserTaskDetails from "./taskDetails/UserTaskDetails";
 import UserTaskCard from "./UserTaskCard";
 import { sortTasks } from "@/helpers/sort";
-import { isoToDateString } from "@/helpers/helpers";
+import { toLocalDateKey } from "@/helpers/helpers";
 import UserTaskHeader from "../common/UserHeader";
 import UserTaskDateNavigator from "./UserTaskDateNavigator";
 import BottomSheetModal from "../common/bottomSheetModal";
@@ -99,18 +99,18 @@ export default function UserTasksView() {
     }, [fetchAndSetTasks]);
 
 
-    const todayStr = isoToDateString(selectedDate.toISOString());
+    const todayStr = toLocalDateKey(selectedDate);
 
 
     const tasksForDay = tasks.filter(task => {
         const isDone = task.status === TaskStatus.DONE;
 
         const scheduledDate = task.scheduled_date
-            ? isoToDateString(task.scheduled_date)
+            ? toLocalDateKey(task.scheduled_date)
             : null;
 
         const deadlineDate = task.deadline
-            ? isoToDateString(task.deadline)
+            ? toLocalDateKey(task.deadline)
             : null;
 
         const isScheduledToday = scheduledDate === todayStr;
@@ -150,7 +150,7 @@ export default function UserTasksView() {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
                 <div className="text-center">
-                    <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-green-500 mb-4" />
+                    <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#0f6e56]" />
                     <p className="text-gray-600">
                         {authLoading ? "Verificerer login..." : "Indlæser opgaver..."}
                     </p>

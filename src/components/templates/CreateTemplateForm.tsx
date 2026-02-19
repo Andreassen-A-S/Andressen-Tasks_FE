@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate, RecurrenceFrequency } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
-import { toIsoEndOfDay } from "@/helpers/helpers";
+import { toIsoEndOfDay, toLocalDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
@@ -32,7 +32,7 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
         interval: 1,
         days_of_week: [] as number[],
         day_of_month: undefined as number | undefined,
-        start_date: new Date().toISOString().split("T")[0],
+        start_date: toLocalDateKey(new Date()),
         end_date: undefined as string | undefined,
     });
 
