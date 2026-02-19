@@ -6,7 +6,6 @@ import type { TaskAssignment } from "@/types/assignment";
 import { formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
 import Badge from "../../common/label/badge";
 import TaskAssignedUsers from "../../common/label/taskAssignedUsers";
-import EditButton from "../../common/label/editButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import SubTaskRow from "./SubTaskRow";

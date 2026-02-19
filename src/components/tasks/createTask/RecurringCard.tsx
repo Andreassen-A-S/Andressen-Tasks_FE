@@ -7,11 +7,18 @@ interface RecurringCardProps {
         frequency: RecurrenceFrequency;
         interval: number;
         days_of_week: number[];
-        day_of_month?: number;
+        day_of_month: number | undefined;
         start_date: string;
-        end_date?: string;
+        end_date: string | undefined;
     };
-    setRecurringData: (data: any) => void;
+    setRecurringData: (data: {
+        frequency: RecurrenceFrequency;
+        interval: number;
+        days_of_week: number[];
+        day_of_month: number | undefined;
+        start_date: string;
+        end_date: string | undefined;
+    }) => void;
     isSubtask: boolean;
     hideToggle?: boolean;
 }

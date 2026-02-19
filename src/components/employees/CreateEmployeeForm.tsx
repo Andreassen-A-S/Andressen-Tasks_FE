@@ -62,7 +62,7 @@ export default function CreateEmployeeForm({ onCancel, onSuccess }: CreateEmploy
         try {
             const user = await createUser(formData);
             onSuccess(user);
-        } catch (err) {
+        } catch {
             setError("Kunne ikke oprette medarbejder. Prøv igen.");
         } finally {
             setLoading(false);

@@ -33,7 +33,7 @@ function eventLabel(e: TaskEvent) {
             );
         }
         case "TASK_STATUS_CHANGED": {
-            const to = (e.after_json as any)?.status;
+            const to = (e.after_json as { status?: string } | null | undefined)?.status;
             return to ? (
                 <>
                     ændrede status til{" "}
@@ -59,7 +59,7 @@ function eventLabel(e: TaskEvent) {
         }
         case "ASSIGNMENT_CREATED": {
             const assignedUser =
-                (e.after_json as any)?.user?.name ||
+                (e.after_json as { user?: { name?: string } } | null | undefined)?.user?.name ||
                 "ukendt bruger";
             return (
                 <>
@@ -71,7 +71,7 @@ function eventLabel(e: TaskEvent) {
         }
         case "ASSIGNMENT_DELETED": {
             const assignedUser =
-                (e.before_json as any)?.user?.name ||
+                (e.before_json as { user?: { name?: string } } | null | undefined)?.user?.name ||
                 "ukendt bruger";
             return (
                 <>
@@ -82,12 +82,9 @@ function eventLabel(e: TaskEvent) {
             );
         }
         case "PROGRESS_LOGGED": {
-            const progress =
-                (e.progress as any)?.quantity_done ??
-                "ukendt fremskridt";
-            const unit =
-                (e.progress as any)?.unit ??
-                "";
+            const prog = e.progress as { quantity_done?: number | string; unit?: string } | null | undefined;
+            const progress = prog?.quantity_done ?? "ukendt fremskridt";
+            const unit = prog?.unit ?? "";
             return (
                 <>
                     loggede fremskridt {" "}
@@ -115,7 +112,7 @@ function eventLabel(e: TaskEvent) {
             );
         }
         case "SUBTASK_REMOVED": {
-            const sub = (e.before_json as any)?.title;
+            const sub = (e.before_json as { title?: string } | null | undefined)?.title;
             return sub ? (
                 <>
                     fjernede underopgaven{" "}
@@ -170,7 +167,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
         try {
             const data = await getTaskEvents(taskId);
             setEvents(data);
-        } catch (e) {
+        } catch {
             setError("Kunne ikke hente aktivitet");
         } finally {
             setLoading(false);
@@ -180,6 +177,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     useEffect(() => {
         if (!taskId) return;
         refresh();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [taskId]);
 
     async function handleSubmitComment(comment: string) {
@@ -188,7 +186,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
         try {
             await createComment(taskId, { message: comment.trim() });
             await refresh();
-        } catch (e) {
+        } catch {
             alert("Kunne ikke tilføje kommentar");
         } finally {
             setSubmitting(false);
@@ -227,7 +225,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                                 <TaskTimelineComment
                                     event={e}
                                     actorName={actorName}
-                                    label={eventLabel(e)}
                                 />
                             </div>
                         );

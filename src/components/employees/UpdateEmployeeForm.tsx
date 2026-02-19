@@ -48,7 +48,7 @@ export default function UpdateEmployeeForm({ user, onCancel, onSuccess }: Update
             }
             const updatedUser = await updateUser(user.user_id, updates);
             onSuccess(updatedUser);
-        } catch (err) {
+        } catch {
             setError("Kunne ikke opdatere medarbejder. Prøv igen.");
         } finally {
             setLoading(false);

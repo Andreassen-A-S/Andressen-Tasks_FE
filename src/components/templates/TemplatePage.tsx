@@ -249,11 +249,6 @@ export default function RecurringTemplatesPage() {
                         setShowViewTemplate(false);
                         setSelectedTemplate(null);
                     }}
-                    onUpdate={(updated) => {
-                        setTemplates(templates.map(t =>
-                            t.id === updated.id ? updated : t
-                        ));
-                    }}
                 />
             )}
         </div>

@@ -6,7 +6,6 @@ import { getUserAssignments, getTask } from "@/lib/api";
 import { Task, TaskGoalType, TaskPriority, TaskStatus } from "@/types/task";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { useRouter } from "next/navigation";
 import UserTaskDetails from "./taskDetails/UserTaskDetails";
 import BottomSheetModal from "../common/bottomSheetModal";
 import UserTaskCard from "./UserTaskCard";
@@ -23,8 +22,7 @@ const FILTERS = [
 ];
 
 export default function UserTasksView() {
-    const { user, logout, isLoading: authLoading } = useAuth();
-    const router = useRouter();
+    const { user, isLoading: authLoading } = useAuth();
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -77,11 +75,6 @@ export default function UserTasksView() {
 
         fetchAndSetTasks();
     }, [user?.user_id, authLoading, fetchAndSetTasks]);
-
-    const handleLogout = useCallback(() => {
-        logout();
-        router.push("/login");
-    }, [logout, router]);
 
     const handleTaskClick = useCallback((taskId: string) => {
         setBottomSheetTaskId(taskId);
@@ -168,7 +161,7 @@ export default function UserTasksView() {
 
             <div className="sticky">
                 {/* Header */}
-                <UserTaskHeader user={user!} onLogout={handleLogout} header="Mine opgaver" sub={`Velkommen, ${user?.name || user?.email}`} />
+                <UserTaskHeader user={user!} header="Mine opgaver" sub={`Velkommen, ${user?.name || user?.email}`} />
                 {/* Date Navigation Bar */}
                 <UserTaskDateNavigator selectedDate={selectedDate} onDateChange={setSelectedDate} />
             </div>

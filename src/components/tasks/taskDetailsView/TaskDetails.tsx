@@ -52,7 +52,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                     const creatorData = await getUser(taskData.created_by);
                     setCreator(creatorData);
                 }
-            } catch (err) {
+            } catch {
                 setError("Kunne ikke hente opgave detaljer");
             } finally {
                 setIsLoading(false);

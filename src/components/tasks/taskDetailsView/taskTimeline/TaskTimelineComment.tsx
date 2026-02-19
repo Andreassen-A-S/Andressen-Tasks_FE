@@ -7,10 +7,9 @@ import { formatCommentDate } from "@/helpers/helpers";
 type Props = {
     event: TaskEvent;
     actorName: string;
-    label: React.ReactNode;
 };
 
-export default function TaskTimelineComment({ event, actorName, label }: Props) {
+export default function TaskTimelineComment({ event, actorName }: Props) {
     const message =
         event.type === "COMMENT_DELETED"
             ? "(Kommentar slettet)"

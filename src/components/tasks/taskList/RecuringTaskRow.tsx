@@ -7,7 +7,7 @@ import { formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
 import Badge from "../../common/label/badge";
 import TaskAssignedUsers from "../../common/label/taskAssignedUsers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronRight, faRepeat } from "@fortawesome/free-solid-svg-icons";
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import SubTaskRow from "./SubTaskRow";
 import RecurringBadge from "@/components/common/label/recurringBadge";
 

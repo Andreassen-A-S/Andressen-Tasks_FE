@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createSubtask, createTask } from "@/lib/api";
-import type { Task, CreateTaskInput, CreateSubtaskInput } from "@/types/task";
+import type { Task, CreateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -201,7 +201,6 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                         description={formData.description}
                         priority={formData.priority}
                         deadline={formData.deadline}
-                        isSubtask={isSubtask}
                         isRecurring={isRecurring}
                         onFieldChange={handleBasicInfoFieldChange}
                     />
