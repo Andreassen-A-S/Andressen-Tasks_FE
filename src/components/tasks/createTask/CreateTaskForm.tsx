@@ -201,7 +201,6 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                         description={formData.description}
                         priority={formData.priority}
                         deadline={formData.deadline}
-                        isSubtask={isSubtask}
                         isRecurring={isRecurring}
                         onFieldChange={handleBasicInfoFieldChange}
                     />

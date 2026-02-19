@@ -20,7 +20,6 @@ import CloseButton from "../common/buttons/CloseButton";
 interface ViewTemplateProps {
     template: RecurringTemplate;
     onClose: () => void;
-    onUpdate: (template: RecurringTemplate) => void;
 }
 
 export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {

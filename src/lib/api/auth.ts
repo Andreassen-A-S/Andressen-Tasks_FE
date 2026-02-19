@@ -35,8 +35,17 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
     throw new Error(error.message || "Failed to verify token");
   }
 
-  const response = await res.json();
-  const user = response.data.user;
+  // Backend returns { success: true, data: { user_id, role, email, name, iat, exp } }
+  // (decoded JWT payload — position/created_at/updated_at are not included)
+  const { data } = await res.json();
 
-  return { user };
+  return {
+    user: {
+      user_id: data.user_id,
+      email: data.email,
+      role: data.role,
+      name: data.name,
+      position: data.position ?? "",
+    },
+  };
 }

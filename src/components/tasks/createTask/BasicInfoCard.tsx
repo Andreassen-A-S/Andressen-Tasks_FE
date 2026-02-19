@@ -7,7 +7,6 @@ interface BasicInfoSectionProps {
     description?: string;
     priority?: TaskPriority;
     deadline?: string;
-    isSubtask: boolean;
     isRecurring: boolean;
     onFieldChange: (field: string, value: string | TaskPriority | TaskStatus | undefined) => void;
     showStatus?: boolean;

@@ -184,7 +184,6 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
                         description={formData.description}
                         priority={formData.priority}
                         deadline={formData.deadline}
-                        isSubtask={isSubtask}
                         isRecurring={false}
                         onFieldChange={handleBasicInfoFieldChange}
                         showStatus={true}
