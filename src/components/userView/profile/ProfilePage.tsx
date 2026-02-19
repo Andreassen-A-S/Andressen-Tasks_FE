@@ -101,19 +101,19 @@ export default function ProfilePage() {
                 <div className="max-w-[430px] mx-auto grid grid-cols-3 gap-2">
                     <div className="bg-white border border-[#E8E6E1] rounded-xl p-3">
                         <div className="h2">
-                            {isLoading ? "—" : assignedToday}
+                            {isLoading ? "—" : assignedToday || "n/a"}
                         </div>
                         <div className="overline">I dag</div>
                     </div>
                     <div className="bg-white border border-[#E8E6E1] rounded-xl p-3">
                         <div className="h2-color text-[#2D9F6F]">
-                            {isLoading ? "—" : completedToday}
+                            {isLoading ? "—" : completedToday || "n/a"}
                         </div>
                         <div className="overline">Færdige</div>
                     </div>
                     <div className="bg-white border border-[#E8E6E1] rounded-xl p-3">
                         <div className="h2-color text-[#D64545]">
-                            {isLoading ? "—" : stats?.overdue_tasks}
+                            {isLoading ? "—" : stats?.overdue_tasks || "n/a"}
                         </div>
                         <div className="overline">Forfaldne</div>
                     </div>
@@ -133,7 +133,7 @@ export default function ProfilePage() {
                             </div>
                             <span className="label-lg flex-1 ml-3">Fuldførelsesrate</span>
                             <span className="mono-md">
-                                {isLoading ? "—" : `${stats?.weekly_stats?.completion_rate}%`}
+                                {isLoading ? "—" : `${stats?.weekly_stats?.completion_rate || "n/a"}%`}
                             </span>
                         </div>
 
@@ -144,7 +144,7 @@ export default function ProfilePage() {
                             </div>
                             <span className="label-lg flex-1 ml-3">Opgaver tildelt</span>
                             <span className="mono-md">
-                                {isLoading ? "—" : stats?.weekly_stats?.assigned_tasks}
+                                {isLoading ? "—" : stats?.weekly_stats?.assigned_tasks || "n/a"}
                             </span>
                         </div>
 
@@ -155,7 +155,7 @@ export default function ProfilePage() {
                             </div>
                             <span className="label-lg flex-1 ml-3">Fuldført</span>
                             <span className="mono-md">
-                                {isLoading ? "—" : stats?.weekly_stats?.completed_tasks}
+                                {isLoading ? "—" : stats?.weekly_stats?.completed_tasks || "n/a"}
                             </span>
                         </div>
                     </div>

@@ -1,7 +1,6 @@
 import { Task, TaskGoalType } from "@/types/task";
 import Badge from "@/components/common/label/badge";
 import { formatLocalDate, getPriorityAccentColors, translateTaskUnit } from "@/helpers/helpers";
-import RecurrenceBadge from "@/components/common/label/recurringBadge";
 
 interface CalendarTaskCardProps {
     task: Task;

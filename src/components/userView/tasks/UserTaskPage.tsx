@@ -8,12 +8,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import UserTaskDetails from "./taskDetails/UserTaskDetails";
+import BottomSheetModal from "../common/bottomSheetModal";
 import UserTaskCard from "./UserTaskCard";
 import { sortTasks } from "@/helpers/sort";
 import { toLocalDateKey } from "@/helpers/helpers";
 import UserTaskHeader from "../common/UserHeader";
 import UserTaskDateNavigator from "./UserTaskDateNavigator";
-import BottomSheetModal from "../common/bottomSheetModal";
 
 const FILTERS = [
     { key: "all", label: "Alle" },
@@ -28,7 +28,6 @@ export default function UserTasksView() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [filter, setFilter] = useState("all");
     const [bottomSheetTaskId, setBottomSheetTaskId] = useState<string | null>(null);
@@ -84,12 +83,6 @@ export default function UserTasksView() {
         router.push("/login");
     }, [logout, router]);
 
-    const handleBackFromDetails = useCallback(() => {
-        setSelectedTaskId(null);
-        // Refresh tasks after returning from details
-        fetchAndSetTasks();
-    }, [fetchAndSetTasks]);
-
     const handleTaskClick = useCallback((taskId: string) => {
         setBottomSheetTaskId(taskId);
     }, []);
@@ -135,15 +128,6 @@ export default function UserTasksView() {
     });
 
 
-    // Show task details view
-    if (selectedTaskId) {
-        return (
-            <UserTaskDetails
-                taskId={selectedTaskId}
-                onBack={handleBackFromDetails}
-            />
-        );
-    }
 
     // Show loading state while auth OR tasks are loading
     if (authLoading || isLoading) {
@@ -241,18 +225,16 @@ export default function UserTasksView() {
                 )}
             </main>
 
-            {/* Bottom Sheet Modal for Task Details */}
+            {/* Task Details */}
             <BottomSheetModal
                 open={!!bottomSheetTaskId}
                 onClose={() => setBottomSheetTaskId(null)}
             >
                 {bottomSheetTaskId && (
-                    <div className="p-4 sm:p-6">
-                        <UserTaskDetails
-                            taskId={bottomSheetTaskId}
-                            onBack={() => setBottomSheetTaskId(null)}
-                        />
-                    </div>
+                    <UserTaskDetails
+                        taskId={bottomSheetTaskId}
+                        onBack={() => setBottomSheetTaskId(null)}
+                    />
                 )}
             </BottomSheetModal>
         </div>

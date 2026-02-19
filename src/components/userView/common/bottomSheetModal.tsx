@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface BottomSheetModalProps {
@@ -10,40 +10,56 @@ interface BottomSheetModalProps {
 }
 
 export default function BottomSheetModal({ open, onClose, children }: BottomSheetModalProps) {
+    const [isMounted, setIsMounted] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const mountTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const unmountTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (mountTimerRef.current) clearTimeout(mountTimerRef.current);
+        if (unmountTimerRef.current) clearTimeout(unmountTimerRef.current);
+
+        if (open) {
+            setIsMounted(true);
+            mountTimerRef.current = setTimeout(() => setIsVisible(true), 10);
+        } else {
+            setIsVisible(false);
+            unmountTimerRef.current = setTimeout(() => setIsMounted(false), 200);
+        }
+
+        return () => {
+            if (mountTimerRef.current) clearTimeout(mountTimerRef.current);
+            if (unmountTimerRef.current) clearTimeout(unmountTimerRef.current);
+        };
+    }, [open]);
+
     useEffect(() => {
         if (!open) return;
-
-        const prevOverflow = document.body.style.overflow;
+        const prev = document.body.style.overflow;
         document.body.style.overflow = "hidden";
+        return () => { document.body.style.overflow = prev; };
+    }, [open]);
 
-        const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
-        };
-
+    useEffect(() => {
+        if (!open) return;
+        const handleEsc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
         window.addEventListener("keydown", handleEsc);
-        return () => {
-            document.body.style.overflow = prevOverflow;
-            window.removeEventListener("keydown", handleEsc);
-        };
+        return () => window.removeEventListener("keydown", handleEsc);
     }, [open, onClose]);
 
-    if (typeof document === "undefined") return null;
-    if (!open) return null;
+    if (typeof document === "undefined" || !isMounted) return null;
 
     return createPortal(
         <div className="fixed inset-0 z-50">
-            {/* Overlay (click outside closes, no blur/tint) */}
             <div
                 onClick={onClose}
-                className="absolute inset-0 bg-black/10 transition-opacity"
+                className={`absolute inset-0 bg-[#1B1D22]/50 transition-opacity duration-200 ${isVisible ? "opacity-100" : "opacity-0"}`}
                 aria-hidden="true"
             />
-
-            {/* Bottom Sheet Panel */}
             <aside
                 role="dialog"
                 aria-modal="true"
-                className="absolute left-0 bottom-0 w-full sm:max-w-md sm:left-1/2 sm:-translate-x-1/2 bg-white border-t border-[#E8E6E1] rounded-t-2xl shadow-xl animate-slide-in-bottom"
+                className={`absolute left-0 bottom-0 w-full max-w-107.5 sm:left-1/2 sm:-translate-x-1/2 bg-white rounded-t-[20px] border border-[#E8E6E1] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-transform duration-200 ${isVisible ? "translate-y-0" : "translate-y-full"}`}
             >
                 {children}
             </aside>

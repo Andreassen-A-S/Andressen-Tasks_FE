@@ -8,10 +8,10 @@ import { getUserAssignments } from "@/lib/api";
 import { Task } from "@/types/task";
 import UserTaskHeader from "../common/UserHeader";
 import { useAuth } from "@/hooks/useAuth";
-import CalendarMonthNavigator from "./CalenderMonthNavigator";
+import CalendarMonthNavigator from "./CalendarMonthNavigator";
 import CalendarTaskCard from "./CalendarTaskCard";
-import BottomSheetModal from "../common/bottomSheetModal";
 import UserTaskDetails from "../tasks/taskDetails/UserTaskDetails";
+import BottomSheetModal from "../common/bottomSheetModal";
 import { formatLocalDate } from "@/helpers/helpers";
 
 export default function CalendarPage() {
@@ -78,8 +78,8 @@ export default function CalendarPage() {
             });
         }
 
-        // Next month days to fill grid
-        const remainingDays = 35 - days.length;
+        // Next month days to fill grid (target 6 weeks = 42 cells)
+        const remainingDays = 42 - days.length;
         for (let i = 1; i <= remainingDays; i++) {
             days.push({
                 date: new Date(year, month + 1, i),
@@ -210,18 +210,16 @@ export default function CalendarPage() {
                     )}
                 </div>
             </div>
-            {/* Bottom Sheet Modal for Task Details */}
+            {/* Task Details */}
             <BottomSheetModal
                 open={!!bottomSheetTaskId}
                 onClose={() => setBottomSheetTaskId(null)}
             >
                 {bottomSheetTaskId && (
-                    <div className="p-4 sm:p-6">
-                        <UserTaskDetails
-                            taskId={bottomSheetTaskId}
-                            onBack={() => setBottomSheetTaskId(null)}
-                        />
-                    </div>
+                    <UserTaskDetails
+                        taskId={bottomSheetTaskId}
+                        onBack={() => setBottomSheetTaskId(null)}
+                    />
                 )}
             </BottomSheetModal>
         </div>
