@@ -23,7 +23,7 @@ export default function BottomSheetModal({ open, onClose, children }: BottomShee
             setTimeout(() => setIsMounted(true), 0);
             mountTimerRef.current = setTimeout(() => setIsVisible(true), 10);
         } else {
-            setIsVisible(false);
+            setTimeout(() => setIsVisible(false), 0);
             unmountTimerRef.current = setTimeout(() => setIsMounted(false), 200);
         }
 
