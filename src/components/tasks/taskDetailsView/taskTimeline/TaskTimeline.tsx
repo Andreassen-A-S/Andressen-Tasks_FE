@@ -225,7 +225,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                                 <TaskTimelineComment
                                     event={e}
                                     actorName={actorName}
-                                    label={eventLabel(e)}
                                 />
                             </div>
                         );

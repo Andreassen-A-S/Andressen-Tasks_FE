@@ -121,7 +121,6 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
                         description={formData.description}
                         priority={formData.priority}
                         deadline={recurringData.start_date}
-                        isSubtask={false}
                         isRecurring={true}
                         onFieldChange={handleBasicInfoFieldChange}
                     />

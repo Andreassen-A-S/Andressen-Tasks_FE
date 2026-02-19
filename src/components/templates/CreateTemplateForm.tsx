@@ -113,7 +113,6 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
                         description={formData.description}
                         priority={formData.priority}
                         deadline={recurringData.start_date}
-                        isSubtask={false}
                         isRecurring={true}
                         onFieldChange={handleBasicInfoFieldChange}
                     />
