@@ -23,13 +23,14 @@ interface ViewTemplateProps {
     onUpdate: (template: RecurringTemplate) => void;
 }
 
-export default function ViewTemplate({ template, onClose, onUpdate }: ViewTemplateProps) {
+export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
     const [instances, setInstances] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadInstances();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [template.id]);
 
     async function loadInstances() {

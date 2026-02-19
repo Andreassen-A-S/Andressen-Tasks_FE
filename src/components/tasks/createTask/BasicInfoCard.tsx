@@ -19,7 +19,6 @@ export default function BasicInfoSection({
     description,
     priority,
     deadline,
-    isSubtask,
     isRecurring,
     onFieldChange,
     showStatus = false,

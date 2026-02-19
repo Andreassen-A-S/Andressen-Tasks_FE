@@ -30,6 +30,7 @@ export default function ProfilePage() {
             fetchUserDetails();
             fetchAssignments();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentUser]);
     const fetchUserDetails = async () => {
         if (!currentUser?.user_id) return;

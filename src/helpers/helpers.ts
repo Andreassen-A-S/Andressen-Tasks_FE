@@ -287,7 +287,7 @@ export function getTodayAssignmentStats(assignments: TaskAssignment[]) {
 // For timeline event descriptions
 
 export function getSubtaskInfo(e: TaskEvent) {
-  const aj = e.after_json as any;
+  const aj = e.after_json as { task_id?: string; title?: string } | null | undefined;
   return {
     id: aj?.task_id as string | undefined,
     title: aj?.title as string | undefined,

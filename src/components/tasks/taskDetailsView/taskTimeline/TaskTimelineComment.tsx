@@ -10,7 +10,7 @@ type Props = {
     label: React.ReactNode;
 };
 
-export default function TaskTimelineComment({ event, actorName, label }: Props) {
+export default function TaskTimelineComment({ event, actorName }: Props) {
     const message =
         event.type === "COMMENT_DELETED"
             ? "(Kommentar slettet)"

@@ -15,7 +15,7 @@ import BottomSheetModal from "../common/bottomSheetModal";
 import { formatLocalDate, toLocalDateKey } from "@/helpers/helpers";
 
 export default function CalendarPage() {
-    const { user, isLoading: authLoading } = useAuth();
+    const { user } = useAuth();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -24,6 +24,7 @@ export default function CalendarPage() {
 
     useEffect(() => {
         if (user) fetchTasks();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentDate, user]);
 
     const fetchTasks = async () => {

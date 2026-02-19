@@ -28,7 +28,7 @@ export default function LoginPage() {
             } else {
                 router.push("/");
             }
-        } catch (err) {
+        } catch {
             setError("Login fejlede. Prøv igen.");
         } finally {
             setIsLoading(false);
