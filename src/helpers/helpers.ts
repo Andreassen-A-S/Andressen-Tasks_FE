@@ -174,10 +174,12 @@ export const getPriorityColors = (priority: TaskPriority): string => {
 };
 
 export const getStatusColors = (status: TaskStatus): string => {
-  const colors = {
+  const colors: Record<TaskStatus, string> = {
     [TaskStatus.DONE]: "bg-green-100 text-green-600 border-green-200",
     [TaskStatus.PENDING]: "bg-yellow-100 text-yellow-600 border-yellow-200",
     [TaskStatus.REJECTED]: "bg-red-100 text-red-600 border-red-200",
+    [TaskStatus.IN_PROGRESS]: "bg-blue-100 text-blue-600 border-blue-200",
+    [TaskStatus.ARCHIVED]: "bg-gray-100 text-gray-600 border-gray-200",
   };
   return colors[status] || "bg-gray-100 text-gray-800 border-gray-200";
 };
@@ -192,10 +194,12 @@ export const getPriorityAccentColors = (priority: TaskPriority): string => {
 };
 
 export const getStatusAccentColors = (status: TaskStatus): string => {
-  const colors = {
+  const colors: Record<TaskStatus, string> = {
     [TaskStatus.DONE]: "bg-green-600",
     [TaskStatus.PENDING]: "bg-yellow-600",
     [TaskStatus.REJECTED]: "bg-red-600",
+    [TaskStatus.IN_PROGRESS]: "bg-blue-600",
+    [TaskStatus.ARCHIVED]: "bg-gray-600",
   };
   return colors[status] || "bg-gray-600";
 };

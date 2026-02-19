@@ -36,16 +36,7 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
   }
 
   const response = await res.json();
-  const data = response.data;
+  const user = response.data.user;
 
-  // Transform to expected format
-  const result = {
-    user: {
-      user_id: data.user_id,
-      email: data.email,
-      role: data.role,
-      name: data.name,
-    },
-  };
-  return result;
+  return { user };
 }

@@ -168,7 +168,7 @@ export default function UserTasksView() {
 
             <div className="sticky">
                 {/* Header */}
-                <UserTaskHeader user={user!} onLogout={handleLogout} header="Mine opgaver" sub={`Velkommen, ${user?.name || user?.email}`} />
+                <UserTaskHeader user={user!} header="Mine opgaver" sub={`Velkommen, ${user?.name || user?.email}`} />
                 {/* Date Navigation Bar */}
                 <UserTaskDateNavigator selectedDate={selectedDate} onDateChange={setSelectedDate} />
             </div>
