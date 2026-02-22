@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AndressenTMS",
-  description: "Andressen A/S Task Management System",
+  title: "AndreassenTMS",
+  description: "Andreassen A/S Task Management System",
 };
 
 export default function RootLayout({

@@ -11,7 +11,7 @@ export default function ProfileHeader({ user, position }: ProfileHeaderProps) {
         <div className="bg-[#1B1D22] px-5 pt-12 pb-6">
             <div className="max-w-[430px] mx-auto">
                 <div className="sidebar-brand-sub mb-3">
-                    Andressen A/S · Task Management
+                    Andreassen A/S · Task Management
                 </div>
                 <div className="flex items-center gap-3">
                     <SingleAvatar name={user.name} size="lg" />

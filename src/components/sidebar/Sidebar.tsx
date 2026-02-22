@@ -31,9 +31,9 @@ export default function Sidebar() {
             {/* Header - Brand */}
             <div className="p-6 border-b border-[rgba(255,255,255,0.06)] flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <Image src="/favicon.ico" alt="Andressen A/S" width={80} height={34} />
+                    <Image src="/favicon.ico" alt="Andreassen A/S" width={80} height={34} />
                     <div>
-                        <h1 className="sidebar-brand">Andressen A/S</h1>
+                        <h1 className="sidebar-brand">Andreassen A/S</h1>
                         <span className="sidebar-brand-sub">task management</span>
                     </div>
                 </div>
