@@ -212,7 +212,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
                                 >
                                     Registrer fremskridt
                                 </button>
-                                <div className="bg-[#E8E6E1] my-4" />
+                                <div className="h-px bg-[#E8E6E1] my-4" />
                             </>
                         )}
 
