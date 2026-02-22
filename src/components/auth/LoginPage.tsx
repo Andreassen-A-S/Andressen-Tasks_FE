@@ -61,8 +61,8 @@ export default function LoginPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="navn@andreassen.dk"
-                                className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 body-md bg-white focus:outline-none focus:ring-2 focus:ring-[#0f6e56] focus:border-transparent transition placeholder-gray-300"
-                                style={{ fontFamily: "Outfit, sans-serif" }}
+                                className=" label-lg-gray w-full px-3.5 py-2.5 rounded-lg border border-gray-200 body-md bg-white focus:outline-none focus:ring-2 focus:ring-[#0f6e56] focus:border-transparent transition placeholder-gray-300"
+
                             />
                         </div>
 
@@ -79,8 +79,8 @@ export default function LoginPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-gray-200 body-md bg-white focus:outline-none focus:ring-2 focus:ring-[#0f6e56] focus:border-transparent transition placeholder-gray-300"
-                                    style={{ fontFamily: "Outfit, sans-serif" }}
+                                    className="label-lg-gray w-full px-3.5 py-2.5 pr-10 rounded-lg border border-gray-200 body-md bg-white focus:outline-none focus:ring-2 focus:ring-[#0f6e56] focus:border-transparent transition placeholder-gray-300"
+
                                 />
                                 <button
                                     type="button"
