@@ -24,14 +24,13 @@ export default function TaskCommentBubble({
                 />
                 <span className="label-lg">{author?.name || author?.email || 'Ukendt bruger'}</span>
 
-                <span className="mono-xs text-[#9DA1B4]">{formatCommentDate(comment.created_at)}</span>
+                <span className="mono-xs">{formatCommentDate(comment.created_at)}</span>
             </div>
-
 
             {/* Comment bubble */}
             <div className="flex min-w-0 max-w-[75%]">
                 <div
-                    className={`min-w-0 rounded-lg px-3 py-2 bg-[#F6F5F1] text-[#1B1D22]`}
+                    className={`min-w-0 rounded-lg px-3 py-2 bg-[#F6F5F1]`}
 
                 >
                     <p className="body-sm leading-relaxed wrap-break-words">

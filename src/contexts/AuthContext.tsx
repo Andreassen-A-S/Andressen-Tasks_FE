@@ -10,24 +10,13 @@ interface AuthContextType {
     userRole: UserRole | null;
     user: User | null;
     isLoading: boolean;
-    login: (role: UserRole) => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
     logout: () => void;
 }
 
 interface AuthProviderProps {
     children: React.ReactNode;
 }
-
-const TEST_CREDENTIALS = {
-    ADMIN: {
-        email: "rasmus@andreassen.dk",
-        password: "123"
-    },
-    USER: {
-        email: "viktor@andreassen.dk",
-        password: "123"
-    }
-};
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -81,12 +70,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         initializeAuth();
     }, []);
 
-    const login = async (role: UserRole) => {
+    const login = async (email: string, password: string) => {
         try {
             setIsLoading(true);
 
-            const credentials = TEST_CREDENTIALS[role];
-            const response = await apiLogin(credentials);
+            const response = await apiLogin({ email, password });
 
             if (!response.token) {
                 console.error("Backend did not return a token.", response);
@@ -99,11 +87,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
 
             localStorage.setItem("authToken", response.token);
-            localStorage.setItem("userRole", role);
+            localStorage.setItem("userRole", response.user.role);
 
             setIsAuthenticated(true);
             setUser(response.user);
-            setUserRole(role);
+            setUserRole(response.user.role);
         } finally {
             setIsLoading(false);
         }

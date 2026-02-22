@@ -1,4 +1,4 @@
-# Andressen TMS — Design Language
+# Andreassen TMS — Design Language
 
 ## Concept A: "Nordic Precision"
 
