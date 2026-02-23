@@ -15,9 +15,10 @@ import RecurringBadge from "@/components/common/label/recurringBadge";
 interface UserTaskDetailsProps {
     taskId: string;
     onBack: () => void;
+    onTaskUpdate?: () => void;
 }
 
-export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps) {
+export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTaskDetailsProps) {
     const [task, setTask] = useState<Task | null>(null);
     const [creator, setCreator] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +61,10 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
             const newStatus = task.status === TaskStatus.DONE ? TaskStatus.PENDING : TaskStatus.DONE;
             const updatedTask = await updateTask(task.task_id, { status: newStatus });
             setTask(updatedTask);
+            if (onTaskUpdate) onTaskUpdate();
+            if (newStatus === TaskStatus.DONE) {
+                onBack();
+            }
         } catch (err) {
             console.error("Error updating task:", err);
             alert("Kunne ikke opdatere opgave");
@@ -125,7 +130,7 @@ export default function UserTaskDetails({ taskId, onBack }: UserTaskDetailsProps
         : `${currentQuantity}${unitLabel ? ` ${unitLabel}` : ""}`;
 
     return (
-        <div className="h-[93vh] flex flex-col">
+        <div className="h-full flex flex-col">
             {/* Handle */}
             <div className="flex items-center justify-center pt-3 pb-2 shrink-0">
                 <div className="w-9 h-1 rounded-full bg-[#E8E6E1]" />

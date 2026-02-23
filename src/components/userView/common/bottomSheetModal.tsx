@@ -59,7 +59,7 @@ export default function BottomSheetModal({ open, onClose, children }: BottomShee
             <aside
                 role="dialog"
                 aria-modal="true"
-                className={`absolute left-0 bottom-0 w-full max-w-107.5 sm:left-1/2 sm:-translate-x-1/2 bg-white rounded-t-[20px] border border-[#E8E6E1] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-transform duration-200 ${isVisible ? "translate-y-0" : "translate-y-full"}`}
+                className={`absolute left-0 bottom-0 h-160 w-full max-w-107.5 sm:left-1/2 sm:-translate-x-1/2 bg-white rounded-t-[20px] border border-[#E8E6E1] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-transform duration-200 ${isVisible ? "translate-y-0" : "translate-y-full"}`}
             >
                 {children}
             </aside>
