@@ -227,6 +227,7 @@ export default function UserTasksView() {
                     <UserTaskDetails
                         taskId={bottomSheetTaskId}
                         onBack={() => setBottomSheetTaskId(null)}
+                        onTaskUpdate={fetchAndSetTasks}
                     />
                 )}
             </BottomSheetModal>

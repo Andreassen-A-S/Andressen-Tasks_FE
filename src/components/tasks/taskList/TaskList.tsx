@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { deleteTask, getTaskAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
+import { TaskPriority } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
 import Modal from "../../modal/Modal";
 import UpdateTaskForm from "../updateTaskView/UpdateTaskForm";
@@ -10,6 +11,25 @@ import Drawer from "../../drawer/drawer";
 import TaskDetails from "../taskDetailsView/TaskDetails";
 import ParentTaskRow from "./ParentTaskRow";
 import RecurringTaskRow from "./RecuringTaskRow";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSortDown } from "@fortawesome/free-solid-svg-icons";
+import { faSortUp } from "@fortawesome/free-solid-svg-icons";
+import { faSort } from "@fortawesome/free-solid-svg-icons";
+
+
+type SortKey = "title" | "priority" | "status" | "scheduled_date" | "deadline";
+type SortDir = "asc" | "desc";
+
+const PRIORITY_ORDER: Record<string, number> = {
+    [TaskPriority.LOW]: 1,
+    [TaskPriority.MEDIUM]: 2,
+    [TaskPriority.HIGH]: 3,
+};
+
+function SortIcon({ column, sortKey, sortDir }: { column: SortKey; sortKey: SortKey | null; sortDir: SortDir }) {
+    if (sortKey !== column) return <span className="ml-1 opacity-30"><FontAwesomeIcon icon={faSort} className="w-3.5 h-3.5" /></span>;
+    return <span className="ml-1">{sortDir === "asc" ? <FontAwesomeIcon icon={faSortUp} className="w-3.5 h-3.5" /> : <FontAwesomeIcon icon={faSortDown} className="w-3.5 h-3.5" />}</span>;
+}
 
 interface TaskListProps {
     tasks: Task[];
@@ -28,10 +48,12 @@ export default function TaskList({
     const [taskAssignments, setTaskAssignments] = useState<
         Record<string, TaskAssignment[]>
     >({});
+    const [sortKey, setSortKey] = useState<SortKey | null>(null);
+    const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-    // Group tasks into parents and subtasks
+    // Group tasks into parents and subtasks, then sort parents
     const { parents, subtasksMap } = useMemo(() => {
-        const parents: Task[] = [];
+        const parentList: Task[] = [];
         const subtasksMap: Record<string, Task[]> = {};
 
         tasks.forEach(task => {
@@ -41,12 +63,26 @@ export default function TaskList({
                 }
                 subtasksMap[task.parent_task_id].push(task);
             } else {
-                parents.push(task);
+                parentList.push(task);
             }
         });
 
-        return { parents, subtasksMap };
-    }, [tasks]);
+        if (sortKey) {
+            parentList.sort((a, b) => {
+                let cmp = 0;
+                if (sortKey === "priority") {
+                    cmp = (PRIORITY_ORDER[a.priority] ?? 0) - (PRIORITY_ORDER[b.priority] ?? 0);
+                } else {
+                    const aVal = (a[sortKey] ?? "") as string;
+                    const bVal = (b[sortKey] ?? "") as string;
+                    cmp = aVal.localeCompare(bVal);
+                }
+                return sortDir === "asc" ? cmp : -cmp;
+            });
+        }
+
+        return { parents: parentList, subtasksMap };
+    }, [tasks, sortKey, sortDir]);
 
     // Load assignments for all tasks
     useEffect(() => {
@@ -86,6 +122,20 @@ export default function TaskList({
             active = false;
         };
     }, [tasks]);
+
+    function handleSort(key: SortKey) {
+        if (sortKey === key) {
+            if (sortDir === "asc") {
+                setSortDir("desc");
+            } else {
+                setSortKey(null);
+                setSortDir("asc");
+            }
+        } else {
+            setSortKey(key);
+            setSortDir("asc");
+        }
+    }
 
     function handleEditClick(task: Task) {
         setSelectedTask(task);
@@ -130,6 +180,8 @@ export default function TaskList({
         );
     }
 
+    const sortableHeaderClass = "px-6 py-3 table-header cursor-pointer select-none hover:text-[#1a1a2e] transition-colors";
+
     return (
         <>
             <div className="rounded-lg border border-[#E8E6E1] overflow-hidden">
@@ -138,12 +190,37 @@ export default function TaskList({
                         <thead className="bg-white border-b border-[#E8E6E1]">
                             <tr>
                                 <th></th>
-                                <th className="py-3 table-header">OPGAVE</th>
-                                <th className="px-6 py-3 table-header">PRIORITET</th>
-                                <th className="px-6 py-3 table-header">STATUS</th>
+                                <th
+                                    className={`py-3 table-header cursor-pointer select-none hover:text-[#1a1a2e] transition-colors`}
+                                    onClick={() => handleSort("title")}
+                                >
+                                    OPGAVE<SortIcon column="title" sortKey={sortKey} sortDir={sortDir} />
+                                </th>
+                                <th
+                                    className={sortableHeaderClass}
+                                    onClick={() => handleSort("priority")}
+                                >
+                                    PRIORITET<SortIcon column="priority" sortKey={sortKey} sortDir={sortDir} />
+                                </th>
+                                <th
+                                    className={sortableHeaderClass}
+                                    onClick={() => handleSort("status")}
+                                >
+                                    STATUS<SortIcon column="status" sortKey={sortKey} sortDir={sortDir} />
+                                </th>
                                 <th className="px-6 py-3 table-header">TILDELT TIL</th>
-                                <th className="px-6 py-3 table-header">START DATO</th>
-                                <th className="px-6 py-3 table-header">DEADLINE</th>
+                                <th
+                                    className={sortableHeaderClass}
+                                    onClick={() => handleSort("scheduled_date")}
+                                >
+                                    START DATO<SortIcon column="scheduled_date" sortKey={sortKey} sortDir={sortDir} />
+                                </th>
+                                <th
+                                    className={sortableHeaderClass}
+                                    onClick={() => handleSort("deadline")}
+                                >
+                                    DEADLINE<SortIcon column="deadline" sortKey={sortKey} sortDir={sortDir} />
+                                </th>
                                 <th className="px-6 py-3 table-header">HANDLINGER</th>
                             </tr>
                         </thead>
