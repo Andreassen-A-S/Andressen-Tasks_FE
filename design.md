@@ -57,6 +57,12 @@ Clean Scandinavian minimalism. Professional and understated, never flashy. Think
 
 ---
 
+### Focus Colors
+
+| Token         | Value     | Usage                                |
+| ------------- | --------- | ------------------------------------ |
+| Focus Outline | `#2D9F6F` | Focus rings for interactive elements |
+
 ## Typography
 
 ### Fonts
