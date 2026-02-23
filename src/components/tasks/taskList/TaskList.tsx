@@ -20,7 +20,7 @@ import { faSort } from "@fortawesome/free-solid-svg-icons";
 type SortKey = "title" | "priority" | "status" | "scheduled_date" | "deadline";
 type SortDir = "asc" | "desc";
 
-const PRIORITY_ORDER: Record<string, number> = {
+const PRIORITY_ORDER: Record<TaskPriority, number> = {
     [TaskPriority.LOW]: 1,
     [TaskPriority.MEDIUM]: 2,
     [TaskPriority.HIGH]: 3,
