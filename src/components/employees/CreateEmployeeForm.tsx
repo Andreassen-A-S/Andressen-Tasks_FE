@@ -115,7 +115,6 @@ export default function CreateEmployeeForm({ onCancel, onSuccess }: CreateEmploy
                         />
                         <button
                             type="button"
-                            tabIndex={-1}
                             aria-label={showPassword ? "Skjul adgangskode" : "Vis adgangskode"}
                             onClick={() => setShowPassword((v) => !v)}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9DA1B4] hover:text-[#6B7084] focus:outline-none transition-colors"
@@ -146,7 +145,7 @@ export default function CreateEmployeeForm({ onCancel, onSuccess }: CreateEmploy
                                 name="position"
                                 value={formData.position}
                                 onChange={handleChange}
-                                className="block w-full rounded-lg border-2 border-[#E8E6E1] px-4 py-3 text-[#1B1D22] focus:border-[#2C5FE0] focus:ring-2 focus:ring-[#EBF0FD] focus:outline-none transition-colors"
+                                className="block w-full rounded-lg border-2 border-[#E8E6E1] px-4 py-3 text-[#1B1D22] focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#EBF0FD] focus:outline-none transition-colors"
                             >
                                 <option value="">Vælg stilling...</option>
                                 {allPositions.map(pos => (
