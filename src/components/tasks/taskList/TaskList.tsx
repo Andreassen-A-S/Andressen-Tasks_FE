@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { deleteTask, getTaskAssignments } from "@/lib/api";
+import { deleteTask, getAllAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
 import { TaskPriority } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
@@ -84,33 +84,21 @@ export default function TaskList({
         return { parents: parentList, subtasksMap };
     }, [tasks, sortKey, sortDir]);
 
-    // Load assignments for all tasks
     useEffect(() => {
         let active = true;
 
         async function loadAllAssignments() {
-            const results = await Promise.all(
-                tasks.map(async (task) => {
-                    try {
-                        const assignments = await getTaskAssignments(task.task_id);
-                        return { taskId: task.task_id, assignments };
-                    } catch (err) {
-                        console.error(
-                            `Failed to load assignments for task ${task.task_id}:`,
-                            err
-                        );
-                        return { taskId: task.task_id, assignments: [] };
-                    }
-                })
-            );
-
-            const map: Record<string, TaskAssignment[]> = {};
-            results.forEach(({ taskId, assignments }) => {
-                map[taskId] = assignments;
-            });
-
-            if (active) {
+            try {
+                const assignments = await getAllAssignments();
+                if (!active) return;
+                const map: Record<string, TaskAssignment[]> = {};
+                for (const assignment of assignments) {
+                    if (!map[assignment.task_id]) map[assignment.task_id] = [];
+                    map[assignment.task_id].push(assignment);
+                }
                 setTaskAssignments(map);
+            } catch (err) {
+                console.error("Failed to load assignments:", err);
             }
         }
 

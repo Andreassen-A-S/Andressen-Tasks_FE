@@ -16,6 +16,17 @@ export async function getTaskAssignments(
   return result.data;
 }
 
+export async function getAllAssignments(): Promise<TaskAssignment[]> {
+  const response = await fetch(`${API_URL}/assignments`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch assignments");
+  }
+  const result: TaskAssignmentResponse = await response.json();
+  return result.data;
+}
+
 export async function getUserAssignments(
   userId: string,
 ): Promise<TaskAssignment[]> {
