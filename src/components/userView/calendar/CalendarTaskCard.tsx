@@ -1,4 +1,4 @@
-import { Task, TaskGoalType } from "@/types/task";
+import { Task, TaskGoalType, TaskUnit } from "@/types/task";
 import Badge from "@/components/common/label/badge";
 import { formatLocalDate, getPriorityAccentColors, translateTaskUnit } from "@/helpers/helpers";
 
@@ -24,7 +24,9 @@ export default function CalendarTaskCard({ task, onClick }: CalendarTaskCardProp
                     {`Deadline: ${formatLocalDate(task.deadline)}`}
                     {task.current_quantity != null && task.goal_type === TaskGoalType.FIXED && (
                         <span className="text-[#0f6e56] ml-2">
-                            {task.current_quantity}/{task.target_quantity} {translateTaskUnit(task.unit)}
+                            {task.unit === TaskUnit.NONE && task.target_quantity
+                                ? `${Math.min(100, Math.round((task.current_quantity / task.target_quantity) * 100))}%`
+                                : `${task.current_quantity}/${task.target_quantity} ${translateTaskUnit(task.unit)}`}
                         </span>
                     )}
                 </div>

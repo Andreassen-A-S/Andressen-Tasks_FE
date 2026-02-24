@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Task, TaskGoalType, TaskStatus } from "@/types/task";
+import { Task, TaskGoalType, TaskStatus, TaskUnit } from "@/types/task";
 import { addTaskProgress, getTask, updateTask, getUser } from "@/lib/api";
 import { User } from "@/types/users";
 import { formatDaDate, getPriorityAccentColors, translatePriority, translateTaskUnit } from "@/helpers/helpers";
@@ -125,6 +125,7 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
             ? Math.min(100, Math.round((currentQuantity / task.target_quantity) * 100))
             : null;
 
+    const isPercent = task?.unit === TaskUnit.NONE;
     const progressLabel = hasTarget && task
         ? `${currentQuantity} / ${task.target_quantity}${unitLabel ? ` ${unitLabel}` : ""}`
         : `${currentQuantity}${unitLabel ? ` ${unitLabel}` : ""}`;
@@ -192,7 +193,7 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
                             <>
                                 <div className="overline mb-2.5">Fremskridt</div>
                                 <div className="flex items-baseline justify-between mb-1.5">
-                                    <div className="mono-md text-[#1B1D22]">{progressLabel}</div>
+                                    {!isPercent && <div className="mono-md text-[#1B1D22]">{progressLabel}</div>}
                                     {progressPct !== null && <div className="mono-md text-[#9DA1B4]">{progressPct}%</div>}
                                 </div>
                                 <div className="h-2 rounded bg-[#E8E6E1] overflow-hidden mb-4">

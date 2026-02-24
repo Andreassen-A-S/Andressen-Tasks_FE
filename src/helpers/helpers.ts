@@ -260,6 +260,18 @@ export function translateTaskUnit(unit?: string | null): string {
       return "l";
     case "KILOGRAMS":
       return "kg";
+    case "M2":
+      return "m²";
+    case "M3":
+      return "m³";
+    case "LOADS":
+      return "læs";
+    case "PLUGS":
+      return "stik";
+    case "TONS":
+      return "t";
+    case "NONE":
+      return "%";
     default:
       return "";
   }
