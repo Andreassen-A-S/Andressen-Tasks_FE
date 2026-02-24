@@ -1,6 +1,6 @@
 "use client";
 
-import { Task, TaskGoalType, TaskStatus } from "@/types/task";
+import { Task, TaskGoalType, TaskStatus, TaskUnit } from "@/types/task";
 import { formatRelativeDate, getPriorityAccentColors, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
@@ -20,9 +20,10 @@ export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
     const unit = translateTaskUnit(task.unit);
     const hasProgress = task.current_quantity != null && task.goal_type === TaskGoalType.FIXED;
 
+    const isPercent = task.unit === TaskUnit.NONE;
     const progressPct = target ? Math.min(Math.round((progress / target) * 100), 100) : null;
 
-    const progressLabel = task.unit === "NONE"
+    const progressLabel = isPercent
         ? `${progressPct ?? 0}%`
         : target !== null
             ? `${progress} / ${target}${unit ? ` ${unit}` : ""}`

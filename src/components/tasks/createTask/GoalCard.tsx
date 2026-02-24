@@ -18,6 +18,7 @@ export default function GoalSection({
     onFieldChange,
 }: GoalSectionProps) {
     const isFixed = goalType === TaskGoalType.FIXED;
+    const isPercent = !unit || unit === TaskUnit.NONE;
 
     return (
         <div className="space-y-4">
@@ -31,7 +32,12 @@ export default function GoalSection({
                     <input
                         type="checkbox"
                         checked={isFixed}
-                        onChange={(e) => onGoalTypeChange(e.target.checked)}
+                        onChange={(e) => {
+                            onGoalTypeChange(e.target.checked);
+                            if (e.target.checked && isPercent) {
+                                onFieldChange('target_quantity', 100);
+                            }
+                        }}
                         className="rounded border-[#E8E6E1] text-[#2C5FE0] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:border-[#2D9F6F] h-4 w-4"
                     />
                 </label>
@@ -57,11 +63,12 @@ export default function GoalSection({
                                 min={0}
                                 step="any"
                                 placeholder="F.eks. 100"
-                                value={targetQuantity ?? ""}
+                                value={isPercent ? 100 : (targetQuantity ?? "")}
+                                disabled={isPercent}
                                 onChange={(e) =>
                                     onFieldChange('target_quantity', e.target.value === "" ? undefined : Number(e.target.value))
                                 }
-                                className="block w-full rounded-[12px] border border-[#E8E6E1] px-4 py-3 body-md placeholder:text-[#9DA1B4] bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
+                                className="block w-full rounded-[12px] border border-[#E8E6E1] px-4 py-3 body-md placeholder:text-[#9DA1B4] bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                         </div>
 
@@ -72,7 +79,13 @@ export default function GoalSection({
                             <select
                                 id="unit"
                                 value={unit || TaskUnit.NONE}
-                                onChange={(e) => onFieldChange('unit', e.target.value as TaskUnit)}
+                                onChange={(e) => {
+                                    const newUnit = e.target.value as TaskUnit;
+                                    onFieldChange('unit', newUnit);
+                                    if (newUnit === TaskUnit.NONE) {
+                                        onFieldChange('target_quantity', 100);
+                                    }
+                                }}
                                 className="block w-full rounded-[12px] border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                             >
                                 <option value={TaskUnit.NONE}>Ingen (vis %)</option>

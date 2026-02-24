@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { TaskGoalType, type Task } from "@/types/task";
+import { TaskGoalType, TaskUnit, type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
 import { formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
 import Badge from "../../common/label/badge";
@@ -114,12 +114,12 @@ export default function ParentTaskRow({
                             {/* Quantity progress bar (fixed goals) */}
                             {hasQuantityProgress && task.target_quantity != null && task.target_quantity > 0 && (
                                 <div className="flex items-center gap-2 min-w-30">
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-[#E8F7F0] text-[#2D9F6F] badge">
-                                        {task.unit === "NONE"
-                                            ? `${Math.round(Math.min(100, ((task.current_quantity ?? 0) / task.target_quantity) * 100))}%`
-                                            : `${task.current_quantity ?? 0}/${task.target_quantity}${progressUnit ? ` ${progressUnit}` : ""}`
-                                        }
-                                    </span>
+                                    {task.unit !== TaskUnit.NONE && (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-[#E8F7F0] text-[#2D9F6F] badge">
+                                            {task.current_quantity ?? 0}/{task.target_quantity}
+                                            {progressUnit ? ` ${progressUnit}` : ""}
+                                        </span>
+                                    )}
 
                                     <div className="relative w-24 h-2 bg-[#E8F7F0] rounded-[8px] overflow-hidden">
                                         <div

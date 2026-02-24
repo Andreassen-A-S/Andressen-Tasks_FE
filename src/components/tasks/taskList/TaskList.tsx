@@ -92,6 +92,9 @@ export default function TaskList({
                 const assignments = await getAllAssignments();
                 if (!active) return;
                 const map: Record<string, TaskAssignment[]> = {};
+                for (const task of tasks) {
+                    map[task.task_id] = [];
+                }
                 for (const assignment of assignments) {
                     if (!map[assignment.task_id]) map[assignment.task_id] = [];
                     map[assignment.task_id].push(assignment);
