@@ -24,7 +24,10 @@ export default function CalendarTaskCard({ task, onClick }: CalendarTaskCardProp
                     {`Deadline: ${formatLocalDate(task.deadline)}`}
                     {task.current_quantity != null && task.goal_type === TaskGoalType.FIXED && (
                         <span className="text-[#0f6e56] ml-2">
-                            {task.current_quantity}/{task.target_quantity} {translateTaskUnit(task.unit)}
+                            {task.unit === "NONE"
+                                ? `${Math.round(Math.min(100, ((task.current_quantity ?? 0) / (task.target_quantity ?? 1)) * 100))}%`
+                                : `${task.current_quantity}/${task.target_quantity} ${translateTaskUnit(task.unit)}`
+                            }
                         </span>
                     )}
                 </div>

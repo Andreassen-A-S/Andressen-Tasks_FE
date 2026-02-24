@@ -126,7 +126,9 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
             : null;
 
     const progressLabel = hasTarget && task
-        ? `${currentQuantity} / ${task.target_quantity}${unitLabel ? ` ${unitLabel}` : ""}`
+        ? task.unit === "NONE"
+            ? `${progressPct ?? 0}%`
+            : `${currentQuantity} / ${task.target_quantity}${unitLabel ? ` ${unitLabel}` : ""}`
         : `${currentQuantity}${unitLabel ? ` ${unitLabel}` : ""}`;
 
     return (

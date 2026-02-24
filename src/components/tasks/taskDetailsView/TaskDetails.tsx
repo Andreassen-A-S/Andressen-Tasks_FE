@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getTask, getUser } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { User } from "@/types/users";
-import { formatDaDateTime, formatDaDate } from "@/helpers/helpers";
+import { formatDaDateTime, formatDaDate, translateTaskUnit } from "@/helpers/helpers";
 
 import { getTaskAssignments } from "@/lib/api";
 import type { TaskAssignment } from "@/types/assignment";
@@ -182,8 +182,10 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                                         <div className="flex justify-between">
                                             <span className="body-xs">Fremskridt:</span>
                                             <span className="label-md">
-                                                {task.current_quantity ?? 0} / {task.target_quantity}
-                                                {task.unit !== "NONE" && task.unit ? ` ${task.unit.toLowerCase()}` : ''}
+                                                {task.unit === "NONE"
+                                                    ? `${Math.round(Math.min(100, ((task.current_quantity ?? 0) / task.target_quantity) * 100))}%`
+                                                    : `${task.current_quantity ?? 0} / ${task.target_quantity}${task.unit ? ` ${translateTaskUnit(task.unit)}` : ''}`
+                                                }
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-2">

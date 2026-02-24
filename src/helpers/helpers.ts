@@ -260,6 +260,16 @@ export function translateTaskUnit(unit?: string | null): string {
       return "l";
     case "KILOGRAMS":
       return "kg";
+    case "M2":
+      return "m²";
+    case "M3":
+      return "m³";
+    case "LOADS":
+      return "læs";
+    case "PLUGS":
+      return "stik";
+    case "TONS":
+      return "t";
     default:
       return "";
   }
@@ -287,7 +297,10 @@ export function getTodayAssignmentStats(assignments: TaskAssignment[]) {
 // For timeline event descriptions
 
 export function getSubtaskInfo(e: TaskEvent) {
-  const aj = e.after_json as { task_id?: string; title?: string } | null | undefined;
+  const aj = e.after_json as
+    | { task_id?: string; title?: string }
+    | null
+    | undefined;
   return {
     id: aj?.task_id as string | undefined,
     title: aj?.title as string | undefined,
