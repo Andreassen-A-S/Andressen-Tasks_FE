@@ -68,7 +68,7 @@ export default function TaskAssignedUsers({ assignments, loading = false, classN
 
             {/* Tooltip */}
             {showTooltip && assignments.length > 0 && (
-                <div className="absolute bottom-full left-0 mb-2 z-50 bg-white text-[#1B1D22] rounded-lg p-3 min-w-max border border-[#E8E6E1] animate-fade-in">
+                <div className="absolute bottom-full left-0 mb-2 z-200 bg-white text-[#1B1D22] rounded-lg p-3 min-w-max border border-[#E8E6E1] animate-fade-in">
                     <div className="space-y-1">
                         {assignments.map((assignment) => (
                             <div key={assignment.assignment_id} className="flex items-center space-x-2">

@@ -139,7 +139,7 @@ export function translateStatus(status: string): string {
     case "PENDING":
       return "MANGLER";
     case "DONE":
-      return "AFSLUTTET";
+      return "UDFØRT";
     case "REJECTED":
       return "ANNULLERET";
     default:
@@ -287,7 +287,10 @@ export function getTodayAssignmentStats(assignments: TaskAssignment[]) {
 // For timeline event descriptions
 
 export function getSubtaskInfo(e: TaskEvent) {
-  const aj = e.after_json as { task_id?: string; title?: string } | null | undefined;
+  const aj = e.after_json as
+    | { task_id?: string; title?: string }
+    | null
+    | undefined;
   return {
     id: aj?.task_id as string | undefined,
     title: aj?.title as string | undefined,
