@@ -96,12 +96,19 @@ export default function TaskList({
                     map[task.task_id] = [];
                 }
                 for (const assignment of assignments) {
-                    if (!map[assignment.task_id]) map[assignment.task_id] = [];
-                    map[assignment.task_id].push(assignment);
+                    if (map[assignment.task_id]) {
+                        map[assignment.task_id].push(assignment);
+                    }
                 }
                 setTaskAssignments(map);
             } catch (err) {
                 console.error("Failed to load assignments:", err);
+                if (!active) return;
+                const emptyMap: Record<string, TaskAssignment[]> = {};
+                for (const task of tasks) {
+                    emptyMap[task.task_id] = [];
+                }
+                setTaskAssignments(emptyMap);
             }
         }
 
