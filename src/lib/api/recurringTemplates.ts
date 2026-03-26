@@ -1,6 +1,7 @@
 import { getAuthHeaders } from "@/helpers/helpers";
 import {
   CreateRecurringTemplateInput,
+  UpdateRecurringTemplateInput,
   RecurringTemplate,
 } from "@/types/recuringTemplate";
 import { Task } from "@/types/task";
@@ -69,7 +70,7 @@ export async function createRecurringTemplate(
  */
 export async function updateRecurringTemplate(
   templateId: string,
-  updates: Partial<RecurringTemplate>,
+  updates: UpdateRecurringTemplateInput,
 ): Promise<RecurringTemplate> {
   const res = await fetch(`${API_URL}/recurring-templates/${templateId}`, {
     method: "PATCH",
