@@ -27,7 +27,7 @@ interface CreateTaskFormProps {
 export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, parentProjectId }: CreateTaskFormProps) {
     const { user } = useAuth();
     const [projectId, setProjectId] = useState(parentProjectId ?? "");
-    const [formData, setFormData] = useState<CreateTaskInput>({
+    const [formData, setFormData] = useState<Omit<CreateTaskInput, "project_id">>({
         parent_task_id: parentTaskId || undefined,
         title: "",
         description: "",
