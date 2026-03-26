@@ -16,6 +16,7 @@ export interface TemplateAssignee {
 
 export interface RecurringTemplate {
   id: string;
+  project_id: string;
   title: string;
   description?: string | null;
   priority: TaskPriority;
@@ -39,6 +40,7 @@ export interface RecurringTemplate {
 export interface CreateRecurringTemplateInput {
   title: string;
   description?: string;
+  project_id: string;
   priority?: TaskPriority;
   unit?: TaskUnit;
   target_quantity?: number;
@@ -55,6 +57,7 @@ export interface CreateRecurringTemplateInput {
 export interface UpdateRecurringTemplateInput {
   title?: string;
   description?: string;
+  project_id?: string;
   priority?: TaskPriority;
   unit?: TaskUnit;
   target_quantity?: number;

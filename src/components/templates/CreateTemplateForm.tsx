@@ -9,6 +9,7 @@ import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
+import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
 
 interface CreateTemplateFormProps {
     onCancel: () => void;
@@ -36,6 +37,7 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
         end_date: undefined as string | undefined,
     });
 
+    const [projectId, setProjectId] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +65,12 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (!projectId) {
+            setError("Vælg venligst et projekt.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -81,6 +89,7 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
                 start_date: toIsoEndOfDay(recurringData.start_date),
                 end_date: recurringData.end_date ? toIsoEndOfDay(recurringData.end_date) : undefined,
                 assigned_users: formData.assigned_users,
+                project_id: projectId,
             };
 
             const template = await createRecurringTemplate(templateData);
@@ -106,6 +115,12 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
             {/* Scrollable Form Content */}
             <div className="flex-1 overflow-y-auto">
                 <div className="space-y-6">
+
+                    {/* Project */}
+                    <ProjectPickerCard
+                        projectId={projectId}
+                        onProjectChange={setProjectId}
+                    />
 
                     {/* Basic Info */}
                     <BasicInfoSection

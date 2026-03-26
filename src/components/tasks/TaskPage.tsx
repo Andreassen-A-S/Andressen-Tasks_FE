@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { getTasks } from "@/lib/api";
+import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { getTasks, getProjects } from "@/lib/api";
 import { TaskGoalType, TaskPriority, type Task } from "@/types/task";
+import type { Project } from "@/types/project";
 import TaskList from "./taskList/TaskList";
 import CreateTaskForm from "./createTask/CreateTaskForm";
 import Modal from "../modal/Modal";
@@ -13,10 +14,12 @@ import TaskDetails from "./taskDetailsView/TaskDetails";
 
 export default function TaskPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [filter, setFilter] = useState<'all' | 'recurring' | 'highPriority' | 'fixedGoal' | 'hasSubtasks'>('all');
+    const [projectFilter, setProjectFilter] = useState<string>('all');
 
     type FilterKey = "all" | "recurring" | "highPriority" | "fixedGoal" | "hasSubtasks";
 
@@ -37,8 +40,9 @@ export default function TaskPage() {
     const loadTasks = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await getTasks();
-            setTasks(data);
+            const [tasksResult, projectsResult] = await Promise.allSettled([getTasks(), getProjects()]);
+            if (tasksResult.status === "fulfilled") setTasks(tasksResult.value);
+            if (projectsResult.status === "fulfilled") setProjects(projectsResult.value);
         } catch (error) {
             console.error("Failed to load tasks:", error);
         } finally {
@@ -92,19 +96,42 @@ export default function TaskPage() {
 
             {/* Filter Tabs */}
             <div className="mx-8 px-4 sm:px-6 lg:px-8 py-2">
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     {filterOptions.map(({ key, label }) => (
                         <button
                             key={key}
                             onClick={() => setFilter(key)}
                             className={`label-lg-gray px-4 py-2 rounded-lg transition-colors cursor-pointer ${filter === key
                                 ? 'bg-gray-900 label-lg-white'
-                                : 'bg-transparent border border-gray-200  hover:border-gray-300'
+                                : 'bg-transparent border border-gray-200 hover:border-gray-300'
                                 }`}
                         >
                             {label}
                         </button>
                     ))}
+                    {projects.length > 0 && (
+                        <div className="relative inline-flex">
+                            <select
+                                value={projectFilter}
+                                onChange={(e) => setProjectFilter(e.target.value)}
+                                className={`appearance-none label-lg-gray pl-4 pr-8 py-2 rounded-lg border transition-colors cursor-pointer ${projectFilter !== 'all'
+                                    ? 'bg-gray-900 label-lg-white border-gray-900'
+                                    : 'bg-transparent border-gray-200 hover:border-gray-300'
+                                    }`}
+                            >
+                                <option value="all">Alle projekter</option>
+                                {projects.map((p) => (
+                                    <option key={p.project_id} value={p.project_id}>{p.name}</option>
+                                ))}
+                            </select>
+                            <FontAwesomeIcon
+                                icon={faChevronDown}
+
+                                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 text-gray-500"
+                                size="xs"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -113,13 +140,12 @@ export default function TaskPage() {
             <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
                 <TaskList
                     tasks={tasks.filter(t => {
+                        if (projectFilter !== 'all' && t.project_id !== projectFilter) return false;
                         if (filter === 'recurring') return t.recurring_template_id !== null;
                         if (filter === 'highPriority') return t.priority === TaskPriority.HIGH;
                         if (filter === 'fixedGoal') return t.goal_type === TaskGoalType.FIXED;
                         if (filter === 'hasSubtasks') {
-                            // Include parents that have subtasks
                             const isParentWithSubtasks = tasks.some(st => st.parent_task_id === t.task_id);
-                            // Include subtasks whose parent has subtasks (i.e. the subtask itself)
                             const isSubtask = t.parent_task_id !== null;
                             return isParentWithSubtasks || isSubtask;
                         }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { faChartColumn, faGear, faTasks, faUsers, faSignOutAlt, faRepeat } from "@fortawesome/free-solid-svg-icons";
+import { faChartColumn, faFolder, faGear, faTasks, faUsers, faSignOutAlt, faRepeat } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAuth } from "@/hooks/useAuth";
 import SingleAvatar from "@/components/common/label/singleAvatar";
@@ -20,6 +20,7 @@ export default function Sidebar() {
 
     const navItems = [
         { href: "/tasks", label: "Opgaver", icon: faTasks },
+        { href: "/projects", label: "Projekter", icon: faFolder },
         { href: "/templates", label: "Gentagende opgaver", icon: faRepeat },
         { href: "/employees", label: "Medarbejdere", icon: faUsers },
         { href: "/statistics", label: "Statistik", icon: faChartColumn },
