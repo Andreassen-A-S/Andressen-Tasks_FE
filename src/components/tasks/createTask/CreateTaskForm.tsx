@@ -35,7 +35,6 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
         status: TaskStatus.PENDING,
         deadline: toLocalDateKey(new Date()),
         created_by: user?.user_id || "",
-        project_id: parentProjectId ?? "",
         assigned_users: [],
         scheduled_date: toLocalDateKey(new Date()),
         unit: undefined,

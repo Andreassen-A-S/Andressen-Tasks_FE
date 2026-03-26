@@ -40,9 +40,9 @@ export default function TaskPage() {
     const loadTasks = useCallback(async () => {
         try {
             setLoading(true);
-            const [data, projectData] = await Promise.all([getTasks(), getProjects()]);
-            setTasks(data);
-            setProjects(projectData);
+            const [tasksResult, projectsResult] = await Promise.allSettled([getTasks(), getProjects()]);
+            if (tasksResult.status === "fulfilled") setTasks(tasksResult.value);
+            if (projectsResult.status === "fulfilled") setProjects(projectsResult.value);
         } catch (error) {
             console.error("Failed to load tasks:", error);
         } finally {
