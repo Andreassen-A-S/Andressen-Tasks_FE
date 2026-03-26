@@ -11,7 +11,7 @@ import BasicInfoSection from "../createTask/BasicInfoCard";
 import AssignmentCard from "../createTask/AssignmentCard";
 import GoalSection from "../createTask/GoalCard";
 import SchedulingCard from "../createTask/SchedulingCard";
-import ProjectCard from "../createTask/ProjectCard";
+import ProjectPickerCard from "../createTask/ProjectPickerCard";
 import { TaskStatus } from "@/types/task";
 
 interface UpdateTaskFormProps {
@@ -95,6 +95,12 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (!projectId) {
+            setError("Vælg venligst et projekt.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -183,7 +189,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
                 <div className="space-y-6">
                     {/* Project Section */}
                     {!isSubtask && (
-                        <ProjectCard
+                        <ProjectPickerCard
                             projectId={projectId}
                             onProjectChange={setProjectId}
                         />

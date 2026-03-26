@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { getProjects } from "@/lib/api";
 import type { Project } from "@/types/project";
 
-interface ProjectCardProps {
+interface ProjectPickerCardProps {
   projectId: string;
   onProjectChange: (projectId: string) => void;
 }
 
-export default function ProjectCard({ projectId, onProjectChange }: ProjectCardProps) {
+export default function ProjectPickerCard({ projectId, onProjectChange }: ProjectPickerCardProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

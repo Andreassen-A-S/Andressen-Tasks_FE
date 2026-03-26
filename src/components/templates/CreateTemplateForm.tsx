@@ -9,7 +9,7 @@ import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
-import ProjectCard from "@/components/tasks/createTask/ProjectCard";
+import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
 
 interface CreateTemplateFormProps {
     onCancel: () => void;
@@ -65,6 +65,12 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (!projectId) {
+            setError("Vælg venligst et projekt.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -111,7 +117,7 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
                 <div className="space-y-6">
 
                     {/* Project */}
-                    <ProjectCard
+                    <ProjectPickerCard
                         projectId={projectId}
                         onProjectChange={setProjectId}
                     />

@@ -9,7 +9,7 @@ import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
-import ProjectCard from "@/components/tasks/createTask/ProjectCard";
+import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
 import { UpdateRecurringTemplateInput } from "@/types/recuringTemplate";
 
 interface UpdateTemplateFormProps {
@@ -70,6 +70,12 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (!projectId) {
+            setError("Vælg venligst et projekt.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -119,7 +125,7 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
                 <div className="space-y-6">
 
                     {/* Project */}
-                    <ProjectCard
+                    <ProjectPickerCard
                         projectId={projectId}
                         onProjectChange={setProjectId}
                     />

@@ -15,7 +15,7 @@ import AssignmentCard, { type CreationMode } from "./AssignmentCard";
 import { createRecurringTemplate } from "@/lib/api";
 import GoalSection from "./GoalCard";
 import SchedulingCard from "./SchedulingCard";
-import ProjectCard from "./ProjectCard";
+import ProjectPickerCard from "./ProjectPickerCard";
 
 interface CreateTaskFormProps {
     onSuccess: (task: Task) => void;
@@ -86,6 +86,12 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (!isSubtask && !projectId) {
+            setError("Vælg venligst et projekt.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -202,7 +208,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                 <div className="space-y-6">
                     {/* Project Section */}
                     {!isSubtask && (
-                        <ProjectCard
+                        <ProjectPickerCard
                             projectId={projectId}
                             onProjectChange={setProjectId}
                         />
