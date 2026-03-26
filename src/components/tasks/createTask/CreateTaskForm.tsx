@@ -15,15 +15,18 @@ import AssignmentCard, { type CreationMode } from "./AssignmentCard";
 import { createRecurringTemplate } from "@/lib/api";
 import GoalSection from "./GoalCard";
 import SchedulingCard from "./SchedulingCard";
+import ProjectCard from "./ProjectCard";
 
 interface CreateTaskFormProps {
     onSuccess: (task: Task) => void;
     onCancel: () => void;
     parentTaskId?: string;
+    parentProjectId?: string;
 }
 
-export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: CreateTaskFormProps) {
+export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, parentProjectId }: CreateTaskFormProps) {
     const { user } = useAuth();
+    const [projectId, setProjectId] = useState(parentProjectId ?? "");
     const [formData, setFormData] = useState<CreateTaskInput>({
         parent_task_id: parentTaskId || undefined,
         title: "",
@@ -32,6 +35,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
         status: TaskStatus.PENDING,
         deadline: toLocalDateKey(new Date()),
         created_by: user?.user_id || "",
+        project_id: parentProjectId ?? "",
         assigned_users: [],
         scheduled_date: toLocalDateKey(new Date()),
         unit: undefined,
@@ -104,6 +108,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                     start_date: toIsoEndOfDay(recurringData.start_date),
                     end_date: recurringData.end_date ? toIsoEndOfDay(recurringData.end_date) : undefined,
                     assigned_users: formData.assigned_users,
+                    project_id: projectId,
                 };
 
                 await createRecurringTemplate(templateData);
@@ -118,6 +123,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
                 status: formData.status,
                 deadline: toIsoEndOfDay(formData.deadline),
                 created_by: formData.created_by,
+                project_id: projectId,
                 scheduled_date: toIsoEndOfDay(formData.scheduled_date),
                 unit: formData.unit,
                 goal_type: formData.goal_type || TaskGoalType.OPEN,
@@ -195,6 +201,14 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId }: Cr
             {/* Scrollable Form Content */}
             <div className="flex-1 overflow-y-auto p-1">
                 <div className="space-y-6">
+                    {/* Project Section */}
+                    {!isSubtask && (
+                        <ProjectCard
+                            projectId={projectId}
+                            onProjectChange={setProjectId}
+                        />
+                    )}
+
                     {/* Basic Info Section */}
                     <BasicInfoSection
                         title={formData.title}

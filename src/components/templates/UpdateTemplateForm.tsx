@@ -9,6 +9,7 @@ import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
+import ProjectCard from "@/components/tasks/createTask/ProjectCard";
 import { UpdateRecurringTemplateInput } from "@/types/recuringTemplate";
 
 interface UpdateTemplateFormProps {
@@ -39,6 +40,7 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
         end_date: template.end_date ? toLocalDateKey(template.end_date) : undefined,
     });
 
+    const [projectId, setProjectId] = useState(template.project_id);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -74,6 +76,7 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
         try {
             const templateData: UpdateRecurringTemplateInput = {
                 title: formData.title,
+                project_id: projectId,
                 description: formData.description || undefined,
                 priority: formData.priority,
                 unit: formData.unit || TaskUnit.NONE,
@@ -114,6 +117,12 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
             {/* Scrollable Form Content */}
             <div className="flex-1 overflow-y-auto">
                 <div className="space-y-6">
+
+                    {/* Project */}
+                    <ProjectCard
+                        projectId={projectId}
+                        onProjectChange={setProjectId}
+                    />
 
                     {/* Basic Info */}
                     <BasicInfoSection

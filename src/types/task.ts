@@ -33,6 +33,7 @@ export enum TaskGoalType {
 
 export interface Task {
   task_id: string;
+  project_id: string;
   created_by: string;
   title: string;
   description: string;
@@ -59,6 +60,7 @@ export interface CreateTaskInput {
   status: TaskStatus;
   deadline: string;
   created_by: string;
+  project_id: string;
   assigned_users: string[];
   parent_task_id?: string | null;
   scheduled_date: string;
@@ -74,6 +76,7 @@ export interface UpdateTaskInput {
   priority?: TaskPriority;
   status?: TaskStatus;
   deadline?: string;
+  project_id?: string;
   assigned_users?: string[];
   scheduled_date?: string;
   unit?: TaskUnit;

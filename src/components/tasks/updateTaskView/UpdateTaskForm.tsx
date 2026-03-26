@@ -11,6 +11,7 @@ import BasicInfoSection from "../createTask/BasicInfoCard";
 import AssignmentCard from "../createTask/AssignmentCard";
 import GoalSection from "../createTask/GoalCard";
 import SchedulingCard from "../createTask/SchedulingCard";
+import ProjectCard from "../createTask/ProjectCard";
 import { TaskStatus } from "@/types/task";
 
 interface UpdateTaskFormProps {
@@ -37,6 +38,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         current_quantity: task.current_quantity ?? 0,
     });
 
+    const [projectId, setProjectId] = useState(task.project_id);
     const [loading, setLoading] = useState(false);
     const [loadingAssignments, setLoadingAssignments] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -100,6 +102,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
             // Convert date to ISO-8601 DateTime
             const taskData = removeUndefined({
                 ...formData,
+                project_id: projectId,
                 deadline: toIsoEndOfDay(formData.deadline ?? ""),
                 scheduled_date: formData.scheduled_date ? toIsoEndOfDay(formData.scheduled_date) : undefined,
             });
@@ -178,6 +181,14 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
             {/* Scrollable Form Content */}
             <div className="flex-1 overflow-y-auto">
                 <div className="space-y-6">
+                    {/* Project Section */}
+                    {!isSubtask && (
+                        <ProjectCard
+                            projectId={projectId}
+                            onProjectChange={setProjectId}
+                        />
+                    )}
+
                     {/* Basic Info Section */}
                     <BasicInfoSection
                         title={formData.title}

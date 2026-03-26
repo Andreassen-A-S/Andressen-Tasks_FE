@@ -238,6 +238,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                     onSuccess={() => setShowSubtaskModal(false)}
                     onCancel={() => setShowSubtaskModal(false)}
                     parentTaskId={task.task_id}
+                    parentProjectId={task.project_id}
                 />
             </Modal>
         </div>
