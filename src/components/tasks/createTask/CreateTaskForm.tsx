@@ -87,7 +87,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!isSubtask && !projectId) {
+        if (!projectId) {
             setError("Vælg venligst et projekt.");
             return;
         }

@@ -22,13 +22,15 @@ export default function ProjectPage() {
     async function load() {
         try {
             setLoading(true);
-            const [projectData, taskData] = await Promise.all([getProjects(), getTasks()]);
-            setProjects(projectData);
-            const counts: Record<string, number> = {};
-            for (const task of taskData) {
-                counts[task.project_id] = (counts[task.project_id] ?? 0) + 1;
+            const [projectsResult, tasksResult] = await Promise.allSettled([getProjects(), getTasks()]);
+            if (projectsResult.status === "fulfilled") setProjects(projectsResult.value);
+            if (tasksResult.status === "fulfilled") {
+                const counts: Record<string, number> = {};
+                for (const task of tasksResult.value) {
+                    counts[task.project_id] = (counts[task.project_id] ?? 0) + 1;
+                }
+                setTaskCounts(counts);
             }
-            setTaskCounts(counts);
         } catch (err) {
             console.error(err);
         } finally {
