@@ -6,7 +6,7 @@ import type { Task, CreateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { toIsoEndOfDay, toLocalDateKey } from "@/helpers/helpers";
+import { toIsoEndOfDay, toIsoStartOfDay, toLocalDateKey } from "@/helpers/helpers";
 import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
 import BasicInfoSection from "./BasicInfoCard";
@@ -129,7 +129,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                 deadline: toIsoEndOfDay(formData.deadline),
                 created_by: formData.created_by,
                 project_id: projectId,
-                scheduled_date: toIsoEndOfDay(formData.scheduled_date),
+                scheduled_date: toIsoStartOfDay(formData.scheduled_date),
                 unit: formData.unit,
                 goal_type: formData.goal_type || TaskGoalType.OPEN,
                 target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
