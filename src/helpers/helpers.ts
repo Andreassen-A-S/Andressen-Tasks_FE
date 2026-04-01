@@ -248,6 +248,11 @@ export function toIsoEndOfDay(dateString: string): string {
   return new Date(dateString + "T23:59:59.000Z").toISOString();
 }
 
+export function toIsoStartOfDay(dateString: string): string {
+  // Converts YYYY-MM-DD to ISO-8601 DateTime at start of day (UTC midnight)
+  return new Date(dateString + "T00:00:00.000Z").toISOString();
+}
+
 export function translateTaskUnit(unit?: string | null): string {
   switch (unit) {
     case "HOURS":
