@@ -18,6 +18,7 @@ const ALLOWED_MIME_TYPES = [
 interface PendingAttachment {
   id: string;
   file: File;
+  previewUrl: string | null; // object URL for images, null for non-images
 }
 
 interface TaskCommentProps {
@@ -51,7 +52,11 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
     }
 
     if (!valid.length) return;
-    const pending: PendingAttachment[] = valid.map((f) => ({ id: crypto.randomUUID(), file: f }));
+    const pending: PendingAttachment[] = valid.map((f) => ({
+      id: crypto.randomUUID(),
+      file: f,
+      previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : null,
+    }));
     setAttachments((prev) => [...prev, ...pending]);
   }
 
@@ -72,7 +77,11 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
   }
 
   function removeAttachment(id: string) {
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
+    setAttachments((prev) => {
+      const removed = prev.find((a) => a.id === id);
+      if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+      return prev.filter((a) => a.id !== id);
+    });
   }
 
   async function handleSubmit() {
@@ -97,7 +106,10 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
 
       await onSubmit(comment.trim(), tokens);
       setComment("");
-      setAttachments([]);
+      setAttachments((prev) => {
+        prev.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
+        return [];
+      });
     } catch {
       toast.error("Noget gik galt. Prøv igen.");
     }
@@ -138,12 +150,11 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
             {attachments.length > 0 && (
               <div className="px-4 pb-3 flex flex-wrap gap-2" style={{ borderTop: `1px solid ${colors.border}`, paddingTop: 12 }}>
                 {attachments.map((a) => {
-                  const isImage = a.file.type.startsWith("image/");
                   return (
                     <div key={a.id} className="relative group rounded-lg overflow-hidden border" style={{ borderColor: colors.border }}>
-                      {isImage ? (
+                      {a.previewUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={URL.createObjectURL(a.file)} alt={a.file.name} className="w-20 h-20 object-cover" />
+                        <img src={a.previewUrl} alt={a.file.name} className="w-20 h-20 object-cover" />
                       ) : (
                         <div className="w-36 h-12 flex items-center gap-2 px-3" style={{ backgroundColor: colors.eggWhite }}>
                           <FontAwesomeIcon icon={getFileIcon(a.file.type)} style={{ color: colors.textMuted }} className="text-sm shrink-0" />

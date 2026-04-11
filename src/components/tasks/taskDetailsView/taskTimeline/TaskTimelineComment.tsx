@@ -6,10 +6,11 @@ import type { TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/singleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperclip, faEllipsis, faTrash, faPencil, faLink } from "@fortawesome/free-solid-svg-icons";
+import { faPaperclip, faEllipsis, faTrash, faLink } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { toast } from "sonner";
 
 type Props = {
     event: TaskEvent;
@@ -115,14 +116,14 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                                     }
                                     items={[
                                         {
-                                            label: "Rediger",
-                                            icon: faPencil,
-                                            onClick: () => { },
-                                        },
-                                        {
                                             label: "Kopiér link",
                                             icon: faLink,
-                                            onClick: () => { },
+                                            onClick: () => {
+                                                const url = `${window.location.href.split("#")[0]}#comment-${commentId}`;
+                                                navigator.clipboard.writeText(url).then(() => {
+                                                    toast.success("Link kopieret");
+                                                });
+                                            },
                                         },
                                         {
                                             label: "Slet",
