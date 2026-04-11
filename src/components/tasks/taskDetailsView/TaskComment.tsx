@@ -41,9 +41,12 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const attachmentsRef = useRef(attachments);
-  attachmentsRef.current = attachments;
 
   const hasContent = comment.trim().length > 0 || attachments.length > 0;
+
+  useEffect(() => {
+    attachmentsRef.current = attachments;
+  });
 
   useEffect(() => {
     return () => {
