@@ -25,7 +25,6 @@ interface TaskCommentProps {
   taskId: string;
   currentUser: { name?: string; email?: string };
   onSubmit: (message: string, uploadTokens: string[]) => Promise<void>;
-  submitting: boolean;
 }
 
 function getFileIcon(mimeType: string) {
@@ -35,10 +34,11 @@ function getFileIcon(mimeType: string) {
   return faFile;
 }
 
-export default function TaskComment({ taskId, currentUser, onSubmit, submitting }: TaskCommentProps) {
+export default function TaskComment({ taskId, currentUser, onSubmit }: TaskCommentProps) {
   const [comment, setComment] = useState("");
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const attachmentsRef = useRef(attachments);
 
@@ -96,8 +96,9 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
   }
 
   async function handleSubmit() {
-    if (!hasContent || submitting) return;
+    if (!hasContent || uploading) return;
 
+    setUploading(true);
     try {
       const tokens: string[] = [];
 
@@ -123,6 +124,8 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
       });
     } catch {
       toast.error("Noget gik galt. Prøv igen.");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -151,7 +154,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
               onChange={(e) => setComment(e.target.value)}
               onPaste={handlePaste}
               placeholder="Skriv din kommentar her..."
-              disabled={submitting}
+              disabled={uploading}
               rows={4}
               className="w-full px-4 py-3 body-md resize-y focus:outline-none disabled:cursor-not-allowed"
               style={{ backgroundColor: colors.white, color: colors.textPrimary }}
@@ -172,7 +175,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
                           <span className="body-xs truncate">{a.file.name}</span>
                         </div>
                       )}
-                      {!submitting && (
+                      {!uploading && (
                         <button
                           onClick={() => removeAttachment(a.id)}
                           className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -193,7 +196,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={submitting}
+              disabled={uploading}
               className="flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               style={{ color: colors.textMuted }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.muted)}
@@ -206,11 +209,11 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!hasContent || submitting}
+              disabled={!hasContent || uploading}
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2 btn-md transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: colors.green, color: colors.textWhite }}
             >
-              {submitting ? (
+              {uploading ? (
                 <><FontAwesomeIcon icon={faSpinner} spin />Sender...</>
               ) : "Kommenter"}
             </button>

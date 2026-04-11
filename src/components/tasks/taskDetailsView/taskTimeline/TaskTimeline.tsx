@@ -161,7 +161,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     const [events, setEvents] = useState<TaskEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [submitting, setSubmitting] = useState(false);
 
     async function refresh(silent = false) {
         if (!silent) setLoading(true);
@@ -194,7 +193,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
 
     async function handleSubmitComment(message: string, uploadTokens: string[]) {
         if (!message && !uploadTokens.length) return;
-        setSubmitting(true);
         try {
             await createComment(taskId, {
                 message: message || undefined,
@@ -203,8 +201,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
             await refresh(true);
         } catch {
             throw new Error("Kunne ikke tilføje kommentar. Prøv igen.");
-        } finally {
-            setSubmitting(false);
         }
     }
 
@@ -273,7 +269,6 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                 taskId={taskId}
                 currentUser={{ name: currentUser?.name, email: currentUser?.email }}
                 onSubmit={handleSubmitComment}
-                submitting={submitting}
             />
         </div>
     );
