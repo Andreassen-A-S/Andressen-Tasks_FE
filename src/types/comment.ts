@@ -14,7 +14,8 @@ export interface TaskCommentWithAuthor extends TaskComment {
 }
 
 export interface CreateCommentRequest {
-  message: string;
+  message?: string;
+  upload_tokens?: string[];
 }
 
 export interface UpdateCommentRequest {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faPlus,
@@ -14,6 +15,7 @@ import CreateTemplateForm from "@/components/templates/CreateTemplateForm";
 import ViewTemplate from "@/components/templates/ViewTemplate";
 import Modal from "../modal/Modal";
 import UpdateTemplateForm from "./UpdateTemplateForm";
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 
 export default function RecurringTemplatesPage() {
@@ -25,6 +27,9 @@ export default function RecurringTemplatesPage() {
     const [selectedTemplate, setSelectedTemplate] = useState<RecurringTemplate | null>(null);
     const [showViewTemplate, setShowViewTemplate] = useState(false);
     const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('active');
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     type FilterKey = "all" | "active" | "inactive";
 
@@ -51,17 +56,25 @@ export default function RecurringTemplatesPage() {
         }
     }
 
-    async function handleDelete(templateId: string) {
-        if (!confirm("Er du sikker på, at du vil slette denne skabelon? Dette vil også slette alle fremtidige instanser.")) {
-            return;
-        }
+    function handleDelete(templateId: string) {
+        setPendingDeleteId(templateId);
+        setConfirmOpen(true);
+    }
 
+    async function handleConfirmDelete() {
+        if (!pendingDeleteId) return;
+        setDeleteLoading(true);
         try {
-            await deleteRecurringTemplate(templateId);
-            setTemplates(templates.filter(t => t.id !== templateId));
+            await deleteRecurringTemplate(pendingDeleteId);
+            setTemplates(templates.filter(t => t.id !== pendingDeleteId));
+            toast.success("Skabelon slettet");
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
         } catch (err) {
-            alert("Kunne ikke slette skabelon");
+            toast.error("Kunne ikke slette skabelon");
             console.error(err);
+        } finally {
+            setDeleteLoading(false);
         }
     }
 
@@ -72,14 +85,16 @@ export default function RecurringTemplatesPage() {
                 setTemplates(templates.map(t =>
                     t.id === template.id ? { ...t, is_active: false } : t
                 ));
+                toast.success("Skabelon deaktiveret");
             } else {
                 await reactivateTemplate(template.id);
                 setTemplates(templates.map(t =>
                     t.id === template.id ? { ...t, is_active: true } : t
                 ));
+                toast.success("Skabelon aktiveret");
             }
         } catch (err) {
-            alert("Kunne ikke ændre skabelonens status");
+            toast.error("Kunne ikke ændre skabelonens status");
             console.error(err);
         }
     }
@@ -251,6 +266,19 @@ export default function RecurringTemplatesPage() {
                     }}
                 />
             )}
+
+            {/* Delete Template Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmOpen}
+                onClose={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
+                onConfirm={handleConfirmDelete}
+                title="Slet skabelon"
+                description="Er du sikker på, at du vil slette denne skabelon?"
+                confirmLabel="Slet"
+                cancelLabel="Annuller"
+                danger
+                loading={deleteLoading}
+            />
         </div>
     );
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faSpinner, faFolder } from "@fortawesome/free-solid-svg-icons";
 import { getProjects, createProject, updateProject, deleteProject, getTasks } from "@/lib/api";
 import type { Project, CreateProjectInput, UpdateProjectInput } from "@/types/project";
 import ProjectCard from "./ProjectCard";
 import Modal from "@/components/modal/Modal";
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 export default function ProjectPage() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -14,6 +16,9 @@ export default function ProjectPage() {
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     useEffect(() => {
         load();
@@ -41,22 +46,35 @@ export default function ProjectPage() {
     async function handleCreate(input: CreateProjectInput) {
         const created = await createProject(input);
         setProjects((prev) => [...prev, created]);
+        toast.success("Projekt oprettet");
         setShowCreateModal(false);
     }
 
     async function handleUpdate(id: string, input: UpdateProjectInput) {
         const updated = await updateProject(id, input);
         setProjects((prev) => prev.map((p) => (p.project_id === id ? updated : p)));
+        toast.success("Projekt opdateret");
         setEditingProject(null);
     }
 
-    async function handleDelete(id: string) {
-        if (!confirm("Er du sikker på, at du vil slette dette projekt?")) return;
+    function handleDelete(id: string) {
+        setPendingDeleteId(id);
+        setConfirmOpen(true);
+    }
+
+    async function handleConfirmDelete() {
+        if (!pendingDeleteId) return;
+        setDeleteLoading(true);
         try {
-            await deleteProject(id);
-            setProjects((prev) => prev.filter((p) => p.project_id !== id));
+            await deleteProject(pendingDeleteId);
+            setProjects((prev) => prev.filter((p) => p.project_id !== pendingDeleteId));
+            toast.success("Projekt slettet");
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
         } catch {
-            alert("Kunne ikke slette projekt");
+            toast.error("Kunne ikke slette projekt");
+        } finally {
+            setDeleteLoading(false);
         }
     }
 
@@ -150,6 +168,19 @@ export default function ProjectPage() {
                     />
                 </Modal>
             )}
+
+            {/* Delete Project Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmOpen}
+                onClose={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
+                onConfirm={handleConfirmDelete}
+                title="Slet projekt"
+                description="Er du sikker på, at du vil slette dette projekt?"
+                confirmLabel="Slet"
+                cancelLabel="Annuller"
+                danger
+                loading={deleteLoading}
+            />
         </div>
     );
 }

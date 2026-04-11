@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Task, TaskGoalType, TaskStatus, TaskUnit } from "@/types/task";
 import { addTaskProgress, getTask, updateTask, getUser } from "@/lib/api";
 import { User } from "@/types/users";
@@ -67,7 +68,7 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
             }
         } catch (err) {
             console.error("Error updating task:", err);
-            alert("Kunne ikke opdatere opgave");
+            toast.error("Kunne ikke opdatere opgave");
         } finally {
             setIsUpdating(false);
         }
@@ -78,7 +79,7 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
         const delta = Number(progressDelta);
 
         if (!Number.isFinite(delta) || delta <= 0) {
-            alert("Indtast et gyldigt fremskridt over 0");
+            toast.warning("Indtast et gyldigt fremskridt over 0");
             return;
         }
 
@@ -95,7 +96,7 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
             setProgressNote("");
         } catch (err) {
             console.error("Error adding progress:", err);
-            alert("Kunne ikke registrere fremskridt");
+            toast.error("Kunne ikke registrere fremskridt");
         } finally {
             setIsUpdating(false);
         }

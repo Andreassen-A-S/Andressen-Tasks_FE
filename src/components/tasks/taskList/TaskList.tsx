@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { deleteTask, getAllAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
 import { TaskPriority } from "@/types/task";
@@ -15,6 +16,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSortDown } from "@fortawesome/free-solid-svg-icons";
 import { faSortUp } from "@fortawesome/free-solid-svg-icons";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 
 type SortKey = "title" | "priority" | "status" | "scheduled_date" | "deadline";
@@ -50,6 +52,9 @@ export default function TaskList({
     >({});
     const [sortKey, setSortKey] = useState<SortKey | null>(null);
     const [sortDir, setSortDir] = useState<SortDir>("asc");
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     // Group tasks into parents and subtasks, then sort parents
     const { parents, subtasksMap } = useMemo(() => {
@@ -151,14 +156,24 @@ export default function TaskList({
         setSelectedTask(null);
     }
 
-    async function handleDelete(taskId: string) {
-        if (!confirm("Er du sikker på at du vil slette denne opgave?")) return;
+    function handleDelete(taskId: string) {
+        setPendingDeleteId(taskId);
+        setConfirmOpen(true);
+    }
+
+    async function handleConfirmDelete() {
+        if (!pendingDeleteId) return;
+        setDeleteLoading(true);
         try {
-            await deleteTask(taskId);
-            onTaskDelete(taskId);
+            await deleteTask(pendingDeleteId);
+            onTaskDelete(pendingDeleteId);
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
         } catch (error) {
             console.error("Failed to delete task:", error);
-            alert("Kunne ikke slette opgaven. Prøv igen senere.");
+            toast.error("Kunne ikke slette opgaven. Prøv igen senere.");
+        } finally {
+            setDeleteLoading(false);
         }
     }
 
@@ -267,6 +282,19 @@ export default function TaskList({
                     <TaskDetails taskId={selectedTaskId} onClose={handleCloseDrawer} />
                 )}
             </Drawer>
+
+            {/* Delete Task Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmOpen}
+                onClose={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
+                onConfirm={handleConfirmDelete}
+                title="Slet opgave"
+                description="Er du sikker på, at du vil slette denne opgave?"
+                confirmLabel="Slet"
+                cancelLabel="Annuller"
+                danger
+                loading={deleteLoading}
+            />
         </>
     );
 }

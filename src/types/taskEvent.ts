@@ -1,3 +1,5 @@
+import { TaskAttachment } from "./attachment";
+
 export enum TaskEventType {
   TASK_CREATED = "TASK_CREATED",
   TASK_UPDATED = "TASK_UPDATED",
@@ -53,6 +55,7 @@ export interface TaskEvent {
     message: string;
     created_at: string;
     updated_at: string;
+    attachments: TaskAttachment[];
   } | null;
 
   assignment?: unknown | null;

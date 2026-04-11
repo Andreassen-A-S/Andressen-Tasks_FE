@@ -16,6 +16,7 @@ import { createRecurringTemplate } from "@/lib/api";
 import GoalSection from "./GoalCard";
 import SchedulingCard from "./SchedulingCard";
 import ProjectPickerCard from "./ProjectPickerCard";
+import { toast } from "sonner";
 
 interface CreateTaskFormProps {
     onSuccess: (task: Task) => void;
@@ -163,6 +164,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                 }
             }
 
+            toast.success("Opgave oprettet");
             onSuccess(newTask);
         } catch (error) {
             console.error("Failed to create task:", error);

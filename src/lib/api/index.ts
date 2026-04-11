@@ -1,4 +1,5 @@
 export * from "./tasks";
+export * from "./attachments";
 export * from "./users";
 export * from "./assignments";
 export * from "./auth";

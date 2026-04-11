@@ -11,6 +11,7 @@ import { User } from "@/types/users";
 import ProfileHeader from "./ProfileHeader";
 import { TaskAssignment } from "@/types/assignment";
 import { getTodayAssignmentStats } from "@/helpers/helpers";
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 
 export default function ProfilePage() {
@@ -20,6 +21,7 @@ export default function ProfilePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [userDetails, setUserDetails] = useState<User | null>(null);
     const [assignmentData, setAssignmentData] = useState<TaskAssignment[] | null>(null);
+    const [confirmOpen, setConfirmOpen] = useState(false);
     const { assignedToday, completedToday } = getTodayAssignmentStats(assignmentData || []);
 
 
@@ -75,9 +77,7 @@ export default function ProfilePage() {
     };
 
     const handleLogout = () => {
-        if (confirm("Er du sikker på at du vil logge ud?")) {
-            authContext?.logout();
-        }
+        setConfirmOpen(true);
     };
 
 
@@ -216,6 +216,18 @@ export default function ProfilePage() {
                     </button>
                 </div>
             </div>
+
+            {/* Logout Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={() => { authContext?.logout(); }}
+                title="Log ud"
+                description="Er du sikker på, at du vil logge ud?"
+                confirmLabel="Log ud"
+                cancelLabel="Annuller"
+                danger={false}
+            />
         </div>
     );
 }

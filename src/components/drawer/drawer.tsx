@@ -28,22 +28,23 @@ export default function Drawer({ open, onClose, children }: DrawerProps) {
     }, [open, onClose]);
 
     if (typeof document === "undefined") return null;
-    if (!open) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-50">
-            {/* Invisible overlay (click outside closes, no blur/tint) */}
+        <div
+            className={`fixed inset-0 z-50 transition-all duration-150 ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        >
+            {/* Overlay */}
             <div
                 onClick={onClose}
-                className="absolute inset-0 bg-transparent"
+                className={`absolute inset-0 bg-transparent transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"}`}
                 aria-hidden="true"
             />
 
-            {/* Drawer Panel (enter animation only) */}
+            {/* Drawer panel */}
             <aside
                 role="dialog"
                 aria-modal="true"
-                className="absolute right-0 top-0 h-full w-full sm:w-250 bg-white border-l border-[#E8E6E1] animate-slide-in-right"
+                className={`absolute right-0 top-0 h-full w-full sm:w-250 bg-white border-l border-[#E8E6E1] ${open ? "translate-x-0 transition-transform duration-150 ease-out" : "translate-x-full transition-transform duration-100 ease-in"}`}
             >
                 {children}
             </aside>

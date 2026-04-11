@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { updateUser } from "@/lib/api/users";
 import { UpdateUserInput, User } from "@/types/users";
+import { toast } from "sonner";
 
 interface UpdateEmployeeFormProps {
     user: User;
@@ -47,6 +48,7 @@ export default function UpdateEmployeeForm({ user, onCancel, onSuccess }: Update
                 updates.password = formData.password;
             }
             const updatedUser = await updateUser(user.user_id, updates);
+            toast.success("Medarbejder opdateret");
             onSuccess(updatedUser);
         } catch {
             setError("Kunne ikke opdatere medarbejder. Prøv igen.");

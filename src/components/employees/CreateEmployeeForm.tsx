@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { createUser } from "@/lib/api/users";
 import { User, UserRole } from "@/types/users";
+import { toast } from "sonner";
 
 interface CreateEmployeeFormProps {
     onCancel: () => void;
@@ -61,6 +62,7 @@ export default function CreateEmployeeForm({ onCancel, onSuccess }: CreateEmploy
         setError(null);
         try {
             const user = await createUser(formData);
+            toast.success("Medarbejder oprettet");
             onSuccess(user);
         } catch {
             setError("Kunne ikke oprette medarbejder. Prøv igen.");

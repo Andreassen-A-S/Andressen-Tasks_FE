@@ -11,6 +11,7 @@ import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
 import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
 import { UpdateRecurringTemplateInput } from "@/types/recuringTemplate";
+import { toast } from "sonner";
 
 interface UpdateTemplateFormProps {
     template: RecurringTemplate;
@@ -96,6 +97,7 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
             };
 
             const updatedTemplate = await updateRecurringTemplate(template.id, templateData);
+            toast.success("Skabelon opdateret");
             onSuccess(updatedTemplate);
         } catch (err) {
             console.error("Failed to update template:", err);
