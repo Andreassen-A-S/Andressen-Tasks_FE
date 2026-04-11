@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import { getTaskEvents, createComment } from "@/lib/api";
+import { getTaskEvents, createComment, deleteComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
+import { UserRole } from "@/types/users";
+import { toast } from "sonner";
 import SingleAvatar from "../../../common/label/singleAvatar";
 import { formatCommentDate, translateStatusLowercase, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -159,10 +161,9 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
     const [events, setEvents] = useState<TaskEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [submitting, setSubmitting] = useState(false);
 
-    async function refresh() {
-        setLoading(true);
+    async function refresh(silent = false) {
+        if (!silent) setLoading(true);
         setError(null);
         try {
             const data = await getTaskEvents(taskId);
@@ -170,7 +171,7 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
         } catch {
             setError("Kunne ikke hente aktivitet");
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }
 
@@ -180,16 +181,26 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [taskId]);
 
-    async function handleSubmitComment(comment: string) {
-        if (!comment.trim()) return;
-        setSubmitting(true);
+    async function handleDeleteComment(commentId: string) {
         try {
-            await createComment(taskId, { message: comment.trim() });
-            await refresh();
+            await deleteComment(commentId);
+            await refresh(true);
+            toast.success("Kommentar slettet");
         } catch {
-            alert("Kunne ikke tilføje kommentar");
-        } finally {
-            setSubmitting(false);
+            toast.error("Kunne ikke slette kommentar. Prøv igen.");
+        }
+    }
+
+    async function handleSubmitComment(message: string, uploadTokens: string[]) {
+        if (!message && !uploadTokens.length) return;
+        try {
+            await createComment(taskId, {
+                message: message || undefined,
+                upload_tokens: uploadTokens.length ? uploadTokens : undefined,
+            });
+            await refresh(true);
+        } catch {
+            throw new Error("Kunne ikke tilføje kommentar. Prøv igen.");
         }
     }
 
@@ -225,6 +236,9 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                                 <TaskTimelineComment
                                     event={e}
                                     actorName={actorName}
+                                    currentUserId={currentUser?.user_id}
+                                    isAdmin={currentUser?.role === UserRole.ADMIN}
+                                    onDelete={handleDeleteComment}
                                 />
                             </div>
                         );
@@ -252,9 +266,9 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
 
             {/* Composer (GitHub-style bottom box) */}
             <TaskComment
+                taskId={taskId}
                 currentUser={{ name: currentUser?.name, email: currentUser?.email }}
                 onSubmit={handleSubmitComment}
-                submitting={submitting}
             />
         </div>
     );

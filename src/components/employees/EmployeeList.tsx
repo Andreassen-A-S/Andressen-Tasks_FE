@@ -1,11 +1,13 @@
 "use client";
 
 import type { User } from "@/types/users";
+import { toast } from "sonner";
 import { useState } from "react";
 import { deleteUser } from "@/lib/api/users";
 import EmployeeRow from "./EmployeeRow";
 import Modal from "../modal/Modal";
 import UpdateEmployeeForm from "./UpdateEmployeeForm";
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 interface EmployeeListProps {
     employees: User[];
@@ -19,6 +21,9 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
 }: EmployeeListProps) {
     const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
 
     function handleEditClick(employee: User) {
@@ -37,14 +42,24 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
         setSelectedEmployee(null);
     }
 
-    async function handleDelete(employeeId: string) {
-        if (!confirm("Er du sikker på at du vil slette denne medarbejder?")) return;
+    function handleDelete(employeeId: string) {
+        setPendingDeleteId(employeeId);
+        setConfirmOpen(true);
+    }
+
+    async function handleConfirmDelete() {
+        if (!pendingDeleteId) return;
+        setDeleteLoading(true);
         try {
-            await deleteUser(employeeId);
-            onEmployeeDelete(employeeId);
+            await deleteUser(pendingDeleteId);
+            onEmployeeDelete(pendingDeleteId);
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
         } catch (error) {
             console.error("Failed to delete employee:", error);
-            alert("Kunne ikke slette medarbejderen. Prøv igen senere.");
+            toast.error("Kunne ikke slette medarbejderen. Prøv igen senere.");
+        } finally {
+            setDeleteLoading(false);
         }
     }
 
@@ -113,6 +128,19 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
                     />
                 )}
             </Modal>
+
+            {/* Delete Employee Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmOpen}
+                onClose={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
+                onConfirm={handleConfirmDelete}
+                title="Slet medarbejder"
+                description="Er du sikker på, at du vil slette denne medarbejder?"
+                confirmLabel="Slet"
+                cancelLabel="Annuller"
+                danger
+                loading={deleteLoading}
+            />
         </>
     );
 }

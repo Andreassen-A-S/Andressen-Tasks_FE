@@ -3,6 +3,7 @@
 import { useEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import CloseButton from "../common/buttons/CloseButton";
+import { colors } from "@/constants/colors";
 
 interface ModalProps {
     isOpen: boolean;
@@ -67,7 +68,7 @@ export default function Modal({
     }
 
     const maxWidthClasses = {
-        sm: "sm:max-w-sm",
+        sm: "sm:max-w-xs",
         md: "sm:max-w-md",
         lg: "sm:max-w-lg",
         xl: "sm:max-w-xl",
@@ -77,7 +78,7 @@ export default function Modal({
 
     const modalContent = (
         <div
-            className="fixed inset-0 z-50 overflow-y-scroll"
+            className="fixed inset-0 z-[200] overflow-y-scroll"
             aria-labelledby="modal-title"
             role="dialog"
             aria-modal="true"
@@ -93,28 +94,33 @@ export default function Modal({
                 ></div>
 
                 {/* Modal panel */}
-                <div className={`relative transform overflow-hidden rounded-lg bg-white text-left transition-all sm:my-8 sm:w-full border border-[#E8E6E1] ${maxWidthClasses[maxWidth]}`}>
-                    {/* Modal header */}
-                    <div className="px-6 pb-4 pt-6 sm:p-8">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3
-                                className="h3"
-                                id="modal-title"
-                            >
-                                {title}
-                            </h3>
-                            <CloseButton onClick={onClose} />
-                        </div>
-                        {/* Modal content */}
-                        <div>
-                            {children}
-                        </div>
-                    </div>
-                    {/* Modal footer (optional) */}
-                    {footer && (
-                        <div className="bg-[#FAFAF7] px-6 py-4 sm:px-8 border-t border-[#E8E6E1]">
-                            {footer}
-                        </div>
+                <div className={`relative transform overflow-hidden rounded-lg text-left transition-all sm:my-8 sm:w-full border ${maxWidthClasses[maxWidth]}`} style={{ borderColor: colors.border, backgroundColor: colors.white }}>
+                    {maxWidth === "sm" ? (
+                        <>
+                            <div className="flex items-center justify-between border-b p-3" style={{ borderColor: colors.border }}>
+                                <h3 className="h5" id="modal-title">{title}</h3>
+                                <CloseButton onClick={onClose} className="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg w-9 h-9 -mr-1 -my-1 transition-all" />
+                            </div>
+                            <div className="p-3">{children}</div>
+                            {footer && (
+                                <div className="bg-[#FAFAF7] border-t p-3" style={{ borderColor: colors.border }}>{footer}</div>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            <div className="px-6 pb-4 pt-6 sm:p-8">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="h3" id="modal-title">{title}</h3>
+                                    <CloseButton onClick={onClose} />
+                                </div>
+                                <div>{children}</div>
+                            </div>
+                            {footer && (
+                                <div className=" px-6 py-4 sm:px-8 border-t" style={{ borderColor: colors.border, backgroundColor: colors.eggWhite }}>
+                                    {footer}
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </div>

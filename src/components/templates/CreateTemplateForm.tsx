@@ -10,6 +10,7 @@ import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
 import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
+import { toast } from "sonner";
 
 interface CreateTemplateFormProps {
     onCancel: () => void;
@@ -94,6 +95,7 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
 
             const template = await createRecurringTemplate(templateData);
 
+            toast.success("Skabelon oprettet");
             onSuccess(template);
         } catch (err) {
             console.error("Failed to create template:", err);

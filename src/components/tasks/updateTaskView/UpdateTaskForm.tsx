@@ -13,6 +13,7 @@ import GoalSection from "../createTask/GoalCard";
 import SchedulingCard from "../createTask/SchedulingCard";
 import ProjectPickerCard from "../createTask/ProjectPickerCard";
 import { TaskStatus } from "@/types/task";
+import { toast } from "sonner";
 
 interface UpdateTaskFormProps {
     task: Task;
@@ -113,6 +114,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
                 scheduled_date: formData.scheduled_date ? toIsoStartOfDay(formData.scheduled_date) : undefined,
             });
             const updatedTask = await updateTask(task.task_id, taskData);
+            toast.success("Opgave opdateret");
             onSuccess(updatedTask);
         } catch (error) {
             console.error("Failed to update task:", error);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
+import { toast } from "sonner";
 import { getTaskComments, createComment, deleteComment, getUser } from "@/lib/api";
 import { TaskComment } from "@/types/comment";
 import { User } from "@/types/users";
@@ -9,6 +10,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { AuthContext } from "@/contexts/AuthContext";
 import TaskCommentBubble from "./UserTaskCommentBubble";
 import OwnTaskCommentBubble from "./OwnUserTaskCommentBubble";
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 interface TaskCommentsProps {
     taskId: string;
@@ -24,6 +26,9 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
     const [isSubmittingComment, setIsSubmittingComment] = useState(false);
     const [commentError, setCommentError] = useState<string | null>(null);
     const [comment, setComment] = useState("");
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     useEffect(() => {
         const fetchComments = async () => {
@@ -92,15 +97,24 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
         }
     };
 
-    const handleDeleteComment = async (commentId: string) => {
-        if (!confirm("Er du sikker på at du vil slette denne kommentar?")) return;
+    const handleDeleteComment = (commentId: string) => {
+        setPendingDeleteId(commentId);
+        setConfirmOpen(true);
+    };
 
+    const handleConfirmDeleteComment = async () => {
+        if (!pendingDeleteId) return;
+        setDeleteLoading(true);
         try {
-            await deleteComment(commentId);
-            setComments(prev => prev.filter(c => c.comment_id !== commentId));
+            await deleteComment(pendingDeleteId);
+            setComments(prev => prev.filter(c => c.comment_id !== pendingDeleteId));
+            setConfirmOpen(false);
+            setPendingDeleteId(null);
         } catch (err) {
             console.error("Error deleting comment:", err);
-            alert("Kunne ikke slette kommentar");
+            toast.error("Kunne ikke slette kommentar");
+        } finally {
+            setDeleteLoading(false);
         }
     };
 
@@ -183,6 +197,19 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Delete Comment Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmOpen}
+                onClose={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
+                onConfirm={handleConfirmDeleteComment}
+                title="Slet kommentar"
+                description="Er du sikker på, at du vil slette denne kommentar?"
+                confirmLabel="Slet"
+                cancelLabel="Annuller"
+                danger
+                loading={deleteLoading}
+            />
         </section >
     );
 }
