@@ -6,7 +6,7 @@ import { colors } from "@/constants/colors";
 interface ConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   title: string;
   description: string;
   confirmLabel?: string;

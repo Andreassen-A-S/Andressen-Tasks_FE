@@ -44,6 +44,7 @@ export default function Drawer({ open, onClose, children }: DrawerProps) {
             <aside
                 role="dialog"
                 aria-modal="true"
+                aria-hidden={!open}
                 className={`absolute right-0 top-0 h-full w-full sm:w-250 bg-white border-l border-[#E8E6E1] ${open ? "translate-x-0 transition-transform duration-150 ease-out" : "translate-x-full transition-transform duration-100 ease-in"}`}
             >
                 {children}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/singleAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faPaperclip, faXmark, faFile, faFilePdf, faFileWord, faFileExcel } from "@fortawesome/free-solid-svg-icons";
@@ -42,6 +42,13 @@ export default function TaskComment({ taskId, currentUser, onSubmit, submitting 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const hasContent = comment.trim().length > 0 || attachments.length > 0;
+
+  useEffect(() => {
+    return () => {
+      attachments.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function addFiles(files: File[]) {
     const valid = files.filter((f) => ALLOWED_MIME_TYPES.includes(f.type));

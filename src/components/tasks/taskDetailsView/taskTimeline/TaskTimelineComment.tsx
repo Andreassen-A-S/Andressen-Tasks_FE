@@ -120,9 +120,9 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                                             icon: faLink,
                                             onClick: () => {
                                                 const url = `${window.location.href.split("#")[0]}#comment-${commentId}`;
-                                                navigator.clipboard.writeText(url).then(() => {
-                                                    toast.success("Link kopieret");
-                                                });
+                                                navigator.clipboard.writeText(url)
+                                                    .then(() => toast.success("Link kopieret"))
+                                                    .catch(() => toast.error("Kunne ikke kopiere link"));
                                             },
                                         },
                                         {
