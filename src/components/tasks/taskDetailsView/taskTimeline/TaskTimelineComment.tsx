@@ -6,11 +6,10 @@ import type { TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/singleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperclip, faEllipsis, faTrash, faLink } from "@fortawesome/free-solid-svg-icons";
+import { faPaperclip, faEllipsis, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import ConfirmModal from "@/components/common/ConfirmModal";
-import { toast } from "sonner";
 
 type Props = {
     event: TaskEvent;
@@ -116,20 +115,9 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                                     }
                                     items={[
                                         {
-                                            label: "Kopiér link",
-                                            icon: faLink,
-                                            onClick: () => {
-                                                const url = `${window.location.href.split("#")[0]}#comment-${commentId}`;
-                                                navigator.clipboard.writeText(url)
-                                                    .then(() => toast.success("Link kopieret"))
-                                                    .catch(() => toast.error("Kunne ikke kopiere link"));
-                                            },
-                                        },
-                                        {
                                             label: "Slet",
                                             icon: faTrash,
                                             danger: true,
-                                            dividerBefore: true,
                                             onClick: () => setConfirmOpen(true),
                                         },
                                     ]}
