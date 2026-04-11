@@ -76,7 +76,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
 
     const attachments = event.comment?.attachments ?? [];
 
-    const canDelete = !isDeleted && onDelete && (isAdmin || currentUserId === event.actor_id);
+    const canDelete = !isDeleted && onDelete && !!commentId && (isAdmin || currentUserId === event.actor_id);
     const commentId = event.comment?.comment_id ?? event.comment_id;
 
     async function handleDelete() {
