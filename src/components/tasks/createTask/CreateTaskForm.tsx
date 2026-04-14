@@ -130,7 +130,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                 deadline: toIsoEndOfDay(formData.deadline),
                 created_by: formData.created_by,
                 project_id: projectId,
-                start_date: toIsoStartOfDay(formData.start_date),
+                start_date: toIsoStartOfDay(formData.start_date || toLocalDateKey(new Date())),
                 unit: formData.unit,
                 goal_type: formData.goal_type || TaskGoalType.OPEN,
                 target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,

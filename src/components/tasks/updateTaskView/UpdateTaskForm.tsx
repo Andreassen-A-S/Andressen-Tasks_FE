@@ -111,7 +111,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
                 ...formData,
                 project_id: projectId,
                 deadline: toIsoEndOfDay(formData.deadline ?? ""),
-                start_date: formData.start_date ? toIsoStartOfDay(formData.start_date) : undefined,
+                start_date: toIsoStartOfDay(formData.start_date || toLocalDateKey(new Date())),
             });
             const updatedTask = await updateTask(task.task_id, taskData);
             toast.success("Opgave opdateret");
