@@ -43,7 +43,7 @@ export interface Task {
   created_at: string;
   updated_at: string;
   parent_task_id?: string | null;
-  scheduled_date: string;
+  start_date: string;
   unit?: TaskUnit;
   goal_type?: TaskGoalType | null;
   target_quantity?: number | null;
@@ -63,7 +63,7 @@ export interface CreateTaskInput {
   project_id: string;
   assigned_users: string[];
   parent_task_id?: string | null;
-  scheduled_date: string;
+  start_date: string;
   unit?: TaskUnit;
   goal_type?: TaskGoalType;
   target_quantity?: number;
@@ -78,7 +78,7 @@ export interface UpdateTaskInput {
   deadline?: string;
   project_id?: string;
   assigned_users?: string[];
-  scheduled_date?: string;
+  start_date?: string;
   unit?: TaskUnit;
   goal_type?: TaskGoalType;
   target_quantity?: number | null;

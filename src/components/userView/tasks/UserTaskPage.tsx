@@ -91,16 +91,16 @@ export default function UserTasksView() {
     const tasksForDay = tasks.filter(task => {
         const isDone = task.status === TaskStatus.DONE;
 
-        const scheduledDate = task.scheduled_date
-            ? toLocalDateKey(task.scheduled_date)
+        const startDate = task.start_date
+            ? toLocalDateKey(task.start_date)
             : null;
 
         const deadlineDate = task.deadline
             ? toLocalDateKey(task.deadline)
             : null;
 
-        const isScheduledToday = scheduledDate === todayStr;
-        const isCarryOverScheduled = !!scheduledDate && scheduledDate < todayStr && !isDone;
+        const isScheduledToday = startDate === todayStr;
+        const isCarryOverScheduled = !!startDate && startDate < todayStr && !isDone;
 
         const isDueToday = deadlineDate === todayStr;
         const isOverdue = !!deadlineDate && deadlineDate < todayStr && !isDone;

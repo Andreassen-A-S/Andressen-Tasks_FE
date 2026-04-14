@@ -19,7 +19,7 @@ import { faSort } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "@/components/common/ConfirmModal";
 
 
-type SortKey = "title" | "priority" | "status" | "scheduled_date" | "deadline";
+type SortKey = "title" | "priority" | "status" | "start_date" | "deadline";
 type SortDir = "asc" | "desc";
 
 const PRIORITY_ORDER: Record<TaskPriority, number> = {
@@ -224,9 +224,9 @@ export default function TaskList({
                                 <th className="px-6 py-3 table-header">TILDELT TIL</th>
                                 <th
                                     className={sortableHeaderClass}
-                                    onClick={() => handleSort("scheduled_date")}
+                                    onClick={() => handleSort("start_date")}
                                 >
-                                    START DATO<SortIcon column="scheduled_date" sortKey={sortKey} sortDir={sortDir} />
+                                    START DATO<SortIcon column="start_date" sortKey={sortKey} sortDir={sortDir} />
                                 </th>
                                 <th
                                     className={sortableHeaderClass}

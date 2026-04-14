@@ -53,8 +53,8 @@ export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
                     <span
                         className="mono-xs whitespace-nowrap shrink-0 pt-0.5"
                     >
-                        {task.scheduled_date
-                            ? formatRelativeDate(task.scheduled_date)
+                        {task.start_date
+                            ? formatRelativeDate(task.start_date)
                             : formatRelativeDate(task.deadline)}
                     </span>
                 </div>

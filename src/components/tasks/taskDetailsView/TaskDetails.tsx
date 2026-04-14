@@ -147,11 +147,11 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
 
                         {/* Scheduled Date */}
                         <div>
-                            <h3 className="overline mb-3">Planlagt dato</h3>
+                            <h3 className="overline mb-3">Startdato</h3>
                             <div className="flex items-center gap-2">
                                 <FontAwesomeIcon icon={faCalendar} className="text-gray-400 text-xs" />
                                 <span className="body-sm">
-                                    {task.scheduled_date ? formatDaDate(task.scheduled_date) : 'Ikke planlagt'}
+                                    {task.start_date ? formatDaDate(task.start_date) : 'Ingen startdato'}
                                 </span>
                             </div>
                         </div>

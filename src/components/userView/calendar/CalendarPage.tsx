@@ -94,7 +94,7 @@ export default function CalendarPage() {
     const getTasksForDate = (date: Date) => {
         const dateStr = toLocalDateKey(date);
         return tasks.filter(task => {
-            const taskDate = toLocalDateKey(task.scheduled_date);
+            const taskDate = toLocalDateKey(task.start_date);
             return taskDate === dateStr;
         });
     };

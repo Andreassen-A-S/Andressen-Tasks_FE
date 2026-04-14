@@ -37,7 +37,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
         deadline: toLocalDateKey(new Date()),
         created_by: user?.user_id || "",
         assigned_users: [],
-        scheduled_date: toLocalDateKey(new Date()),
+        start_date: toLocalDateKey(new Date()),
         unit: undefined,
         goal_type: TaskGoalType.OPEN,
         target_quantity: undefined,
@@ -81,8 +81,8 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
         setFormData(prev => ({ ...prev, assigned_users: userIds }));
     };
 
-    const handleScheduledDateChange = (date: string) => {
-        setFormData(prev => ({ ...prev, scheduled_date: date }));
+    const handleStartDateChange = (date: string) => {
+        setFormData(prev => ({ ...prev, start_date: date }));
     };
 
     async function handleSubmit(e: React.FormEvent) {
@@ -130,7 +130,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                 deadline: toIsoEndOfDay(formData.deadline),
                 created_by: formData.created_by,
                 project_id: projectId,
-                scheduled_date: toIsoStartOfDay(formData.scheduled_date),
+                start_date: toIsoStartOfDay(formData.start_date),
                 unit: formData.unit,
                 goal_type: formData.goal_type || TaskGoalType.OPEN,
                 target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
@@ -260,8 +260,8 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                     {/* Scheduling (only for non-recurring tasks) */}
                     {!isRecurring && (
                         <SchedulingCard
-                            scheduledDate={formData.scheduled_date}
-                            onScheduledDateChange={handleScheduledDateChange}
+                            startDate={formData.start_date}
+                            onStartDateChange={handleStartDateChange}
                         />
                     )}
                 </div>
