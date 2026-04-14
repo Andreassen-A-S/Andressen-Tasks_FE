@@ -112,7 +112,7 @@ export default function SubTaskRow({
             </td>
 
             <td className="px-6 py-3 body-xs border-b border-[#E8E6E1]">
-                {formatRelativeDate(subtask.scheduled_date)}
+                {formatRelativeDate(subtask.start_date)}
             </td>
 
             <td className="px-6 py-3 body-xs border-b border-[#E8E6E1]">

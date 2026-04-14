@@ -169,7 +169,7 @@ export default function ParentTaskRow({
                 </td>
 
                 <td className="px-6 py-4 body-xs">
-                    {formatRelativeDate(task.scheduled_date)}
+                    {formatRelativeDate(task.start_date)}
                 </td>
 
                 <td className="px-6 py-4 body-xs">

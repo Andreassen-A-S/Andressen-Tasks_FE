@@ -288,7 +288,7 @@ export function getTodayAssignmentStats(assignments: TaskAssignment[]) {
 
   const assignedToday = assignments.filter(
     (a) =>
-      a.task?.scheduled_date && toLocalDateKey(a.task.scheduled_date) === today,
+      a.task?.start_date && toLocalDateKey(a.task.start_date) === today,
   ).length;
 
   const completedToday = assignments.filter(

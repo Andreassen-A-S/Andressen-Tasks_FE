@@ -32,7 +32,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         status: task.status,
         deadline: toLocalDateKey(task.deadline),
         assigned_users: [],
-        scheduled_date: toLocalDateKey(task.scheduled_date),
+        start_date: toLocalDateKey(task.start_date),
         unit: task.unit,
         goal_type: task.goal_type || TaskGoalType.OPEN,
         target_quantity: task.target_quantity ?? undefined,
@@ -89,9 +89,9 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         setFormData(prev => ({ ...prev, assigned_users: userIds }));
     };
 
-    // Centralized handler for scheduled date
-    const handleScheduledDateChange = (date: string) => {
-        setFormData(prev => ({ ...prev, scheduled_date: date }));
+    // Centralized handler for Start date
+    const handleStartDateChange = (date: string) => {
+        setFormData(prev => ({ ...prev, start_date: date }));
     };
 
     async function handleSubmit(e: React.FormEvent) {
@@ -111,7 +111,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
                 ...formData,
                 project_id: projectId,
                 deadline: toIsoEndOfDay(formData.deadline ?? ""),
-                scheduled_date: formData.scheduled_date ? toIsoStartOfDay(formData.scheduled_date) : undefined,
+                start_date: toIsoStartOfDay(formData.start_date || toLocalDateKey(new Date())),
             });
             const updatedTask = await updateTask(task.task_id, taskData);
             toast.success("Opgave opdateret");
@@ -229,8 +229,8 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
 
                     {/* Scheduling */}
                     <SchedulingCard
-                        scheduledDate={formData.scheduled_date}
-                        onScheduledDateChange={handleScheduledDateChange}
+                        startDate={formData.start_date}
+                        onStartDateChange={handleStartDateChange}
                     />
                 </div>
             </div>
