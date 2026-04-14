@@ -89,7 +89,7 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         setFormData(prev => ({ ...prev, assigned_users: userIds }));
     };
 
-    // Centralized handler for scheduled date
+    // Centralized handler for Start date
     const handleStartDateChange = (date: string) => {
         setFormData(prev => ({ ...prev, start_date: date }));
     };

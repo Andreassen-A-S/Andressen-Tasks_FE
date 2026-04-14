@@ -99,13 +99,13 @@ export default function UserTasksView() {
             ? toLocalDateKey(task.deadline)
             : null;
 
-        const isScheduledToday = startDate === todayStr;
-        const isCarryOverScheduled = !!startDate && startDate < todayStr && !isDone;
+        const isStartToday = startDate === todayStr;
+        const isCarryOver = !!startDate && startDate < todayStr && !isDone;
 
         const isDueToday = deadlineDate === todayStr;
         const isOverdue = !!deadlineDate && deadlineDate < todayStr && !isDone;
 
-        return isScheduledToday || isCarryOverScheduled || isDueToday || isOverdue;
+        return isStartToday || isCarryOver || isDueToday || isOverdue;
     });
 
     const filteredTasks = tasksForDay.filter(task => {

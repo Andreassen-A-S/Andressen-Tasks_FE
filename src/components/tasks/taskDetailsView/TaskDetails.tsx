@@ -145,7 +145,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
 
                         <div className="border-t border-gray-200" />
 
-                        {/* Scheduled Date */}
+                        {/* Start Date */}
                         <div>
                             <h3 className="overline mb-3">Startdato</h3>
                             <div className="flex items-center gap-2">
