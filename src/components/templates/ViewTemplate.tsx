@@ -12,7 +12,7 @@ import {
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { Task } from "@/types/task";
 import { getTemplateInstances } from "@/lib/api";
-import { formatDaDate, formatRelativeDate } from "@/helpers/helpers";
+import { formatDate, formatRelativeDate } from "@/helpers/helpers";
 import Badge from "@/components/common/label/badge";
 import Modal from "@/components/modal/Modal";
 import CloseButton from "../common/buttons/CloseButton";
@@ -93,7 +93,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
     const modalFooter = (
         <div className="flex justify-between items-center text-xs text-gray-500">
             <div>
-                Oprettet: {formatDaDate(template.created_at)}
+                Oprettet: {formatDate(template.created_at)}
             </div>
             <CloseButton onClick={onClose} />
         </div>
@@ -164,7 +164,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3">
                                         <div className="text-sm font-medium text-gray-900">
-                                            {instance.occurrence_date && formatDaDate(instance.occurrence_date)}
+                                            {instance.occurrence_date && formatDate(instance.occurrence_date)}
                                         </div>
                                         <Badge variant="status" value={instance.status} />
                                     </div>

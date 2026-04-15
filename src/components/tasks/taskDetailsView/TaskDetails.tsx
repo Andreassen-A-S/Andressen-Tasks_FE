@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getTask, getUser } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { User } from "@/types/users";
-import { formatDaDateTime, formatDaDate, translateTaskUnit } from "@/helpers/helpers";
+import { formatDateTime, formatDate, translateTaskUnit } from "@/helpers/helpers";
 
 import { getTaskAssignments } from "@/lib/api";
 import type { TaskAssignment } from "@/types/assignment";
@@ -151,7 +151,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                             <div className="flex items-center gap-2">
                                 <FontAwesomeIcon icon={faCalendar} className="text-gray-400 text-xs" />
                                 <span className="body-sm">
-                                    {task.start_date ? formatDaDate(task.start_date) : 'Ingen startdato'}
+                                    {task.start_date ? formatDate(task.start_date) : 'Ingen startdato'}
                                 </span>
                             </div>
                         </div>
@@ -164,7 +164,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                             <div className="flex items-center gap-2">
                                 <FontAwesomeIcon icon={faClock} className="text-gray-400 text-xs" />
                                 <span className="body-sm">
-                                    {task.deadline ? formatDaDate(task.deadline) : 'Ingen deadline'}
+                                    {task.deadline ? formatDate(task.deadline) : 'Ingen deadline'}
                                 </span>
                             </div>
                         </div>
@@ -208,11 +208,11 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <span className="caption">Oprettet</span>
-                                <span className="label-sm text-gray-900">{formatDaDateTime(task.created_at)}</span>
+                                <span className="label-sm text-gray-900">{formatDateTime(task.created_at)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="caption">Sidst opdateret</span>
-                                <span className="label-sm text-gray-900">{formatDaDateTime(task.updated_at)}</span>
+                                <span className="label-sm text-gray-900">{formatDateTime(task.updated_at)}</span>
                             </div>
                             {task.parent_task_id && (
                                 <div className="flex justify-between">

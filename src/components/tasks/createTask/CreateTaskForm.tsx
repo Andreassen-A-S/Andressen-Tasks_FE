@@ -6,7 +6,7 @@ import type { Task, CreateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { toIsoEndOfDay, toIsoStartOfDay, toLocalDateKey } from "@/helpers/helpers";
+import { toIsoDate, toDateKey } from "@/helpers/helpers";
 import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
 import BasicInfoSection from "./BasicInfoCard";
@@ -34,10 +34,10 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
         description: "",
         priority: TaskPriority.MEDIUM,
         status: TaskStatus.PENDING,
-        deadline: toLocalDateKey(new Date()),
+        deadline: toDateKey(new Date()),
         created_by: user?.user_id || "",
         assigned_users: [],
-        start_date: toLocalDateKey(new Date()),
+        start_date: toDateKey(new Date()),
         unit: undefined,
         goal_type: TaskGoalType.OPEN,
         target_quantity: undefined,
@@ -51,7 +51,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
         interval: 1,
         days_of_week: [] as number[],
         day_of_month: undefined as number | undefined,
-        start_date: toLocalDateKey(new Date()),
+        start_date: toDateKey(new Date()),
         end_date: undefined as string | undefined,
     });
     const [loading, setLoading] = useState(false);
@@ -111,8 +111,8 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                     interval: recurringData.interval,
                     days_of_week: recurringData.days_of_week.length > 0 ? recurringData.days_of_week : undefined,
                     day_of_month: recurringData.day_of_month,
-                    start_date: toIsoEndOfDay(recurringData.start_date),
-                    end_date: recurringData.end_date ? toIsoEndOfDay(recurringData.end_date) : undefined,
+                    start_date: toIsoDate(recurringData.start_date),
+                    end_date: recurringData.end_date ? toIsoDate(recurringData.end_date) : undefined,
                     assigned_users: formData.assigned_users,
                     project_id: projectId,
                 };
@@ -127,10 +127,10 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                 description: formData.description,
                 priority: formData.priority,
                 status: formData.status,
-                deadline: toIsoEndOfDay(formData.deadline),
+                deadline: toIsoDate(formData.deadline),
                 created_by: formData.created_by,
                 project_id: projectId,
-                start_date: toIsoStartOfDay(formData.start_date || toLocalDateKey(new Date())),
+                start_date: toIsoDate(formData.start_date || toDateKey(new Date())),
                 unit: formData.unit,
                 goal_type: formData.goal_type || TaskGoalType.OPEN,
                 target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,

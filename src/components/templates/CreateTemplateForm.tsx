@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate, RecurrenceFrequency } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
-import { toIsoEndOfDay, toLocalDateKey } from "@/helpers/helpers";
+import { toIsoDate, toDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
@@ -34,7 +34,7 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
         interval: 1,
         days_of_week: [] as number[],
         day_of_month: undefined as number | undefined,
-        start_date: toLocalDateKey(new Date()),
+        start_date: toDateKey(new Date()),
         end_date: undefined as string | undefined,
     });
 
@@ -87,8 +87,8 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
                 interval: recurringData.interval,
                 days_of_week: recurringData.days_of_week.length > 0 ? recurringData.days_of_week : undefined,
                 day_of_month: recurringData.day_of_month,
-                start_date: toIsoEndOfDay(recurringData.start_date),
-                end_date: recurringData.end_date ? toIsoEndOfDay(recurringData.end_date) : undefined,
+                start_date: toIsoDate(recurringData.start_date),
+                end_date: recurringData.end_date ? toIsoDate(recurringData.end_date) : undefined,
                 assigned_users: formData.assigned_users,
                 project_id: projectId,
             };

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { updateRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
-import { toIsoEndOfDay, toLocalDateKey } from "@/helpers/helpers";
+import { toIsoDate, toDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
 import GoalSection from "@/components/tasks/createTask/GoalCard";
@@ -37,8 +37,8 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
         interval: template.interval,
         days_of_week: template.days_of_week || [],
         day_of_month: template.day_of_month || undefined,
-        start_date: template.start_date ? toLocalDateKey(template.start_date) : toLocalDateKey(new Date()),
-        end_date: template.end_date ? toLocalDateKey(template.end_date) : undefined,
+        start_date: template.start_date ? toDateKey(template.start_date) : toDateKey(new Date()),
+        end_date: template.end_date ? toDateKey(template.end_date) : undefined,
     });
 
     const [projectId, setProjectId] = useState(template.project_id);
@@ -92,8 +92,8 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
                 assigned_users: formData.assigned_users,
                 frequency: recurringData.frequency,
                 interval: recurringData.interval,
-                start_date: toIsoEndOfDay(recurringData.start_date),
-                end_date: recurringData.end_date ? toIsoEndOfDay(recurringData.end_date) : null,
+                start_date: toIsoDate(recurringData.start_date),
+                end_date: recurringData.end_date ? toIsoDate(recurringData.end_date) : null,
             };
 
             const updatedTemplate = await updateRecurringTemplate(template.id, templateData);
