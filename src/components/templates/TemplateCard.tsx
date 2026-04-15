@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import Badge from "@/components/common/label/badge";
-import { formatDaDate } from "@/helpers/helpers";
+import { formatDate } from "@/helpers/helpers";
 
 interface TemplateCardProps {
     template: RecurringTemplate;
@@ -98,7 +98,7 @@ export default function TemplateCard({
                 <div className="flex items-center justify-between py-3 border-t border-gray-100">
                     <span className="body-xs text-gray-500">Start</span>
                     <span className="label-md text-gray-900">
-                        {formatDaDate(template.start_date)}
+                        {formatDate(template.start_date)}
                     </span>
                 </div>
 
@@ -107,7 +107,7 @@ export default function TemplateCard({
                     <div className="flex items-center justify-between py-3 border-t border-gray-100">
                         <span className="body-xs text-gray-500">Slut</span>
                         <span className="label-md text-gray-900">
-                            {formatDaDate(template.end_date)}
+                            {formatDate(template.end_date)}
                         </span>
                     </div>
                 )}

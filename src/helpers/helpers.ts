@@ -2,32 +2,6 @@ import { TaskEvent } from "@/types/taskEvent";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import { TaskAssignment } from "@/types/assignment";
 
-export function formatRelativeDate(isoDate: string | Date): string {
-  const date =
-    typeof isoDate === "string" ? new Date(isoDate.split("T")[0]) : isoDate;
-
-  const now = new Date();
-
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-  const diffMs = target.getTime() - today.getTime();
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "I dag";
-  if (diffDays === 1) return "I morgen";
-  if (diffDays === -1) return "I går";
-
-  return target.toLocaleDateString("da-DK", {
-    day: "numeric",
-    month: "short",
-    ...(target.getFullYear() !== today.getFullYear() && {
-      year: "numeric",
-    }),
-  });
-}
-
 function parseDateInput(dateInput: string | Date): Date {
   if (dateInput instanceof Date) return dateInput;
 
@@ -41,6 +15,25 @@ function parseDateInput(dateInput: string | Date): Date {
   return new Date(dateInput);
 }
 
+export function formatRelativeDate(isoDate: string | Date): string {
+  const date = parseDateInput(isoDate);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffMs = target.getTime() - today.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return "I dag";
+  if (diffDays === 1) return "I morgen";
+  if (diffDays === -1) return "I går";
+
+  return target.toLocaleDateString("da-DK", {
+    day: "numeric",
+    month: "short",
+    ...(target.getFullYear() !== today.getFullYear() && { year: "numeric" }),
+  });
+}
+
 export function formatLocalDate(
   dateInput: string | Date,
   locale = "da-DK",
@@ -50,7 +43,7 @@ export function formatLocalDate(
   return date.toLocaleDateString(locale, options);
 }
 
-export function toLocalDateKey(dateInput: string | Date): string {
+export function toDateKey(dateInput: string | Date): string {
   const date = parseDateInput(dateInput);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -59,7 +52,7 @@ export function toLocalDateKey(dateInput: string | Date): string {
 }
 
 // Used in task details for created_at and updated_at
-export function formatDaDateTime(isoDate: string | Date): string {
+export function formatDateTime(isoDate: string | Date): string {
   const date = typeof isoDate === "string" ? new Date(isoDate) : isoDate;
   if (Number.isNaN(date.getTime())) return "";
 
@@ -80,17 +73,14 @@ export function formatDaDateTime(isoDate: string | Date): string {
   return `${datePart} ${timePart}`;
 }
 
-export function formatDaDate(isoDate: string | Date): string {
-  const date = typeof isoDate === "string" ? new Date(isoDate) : isoDate;
+export function formatDate(isoDate: string | Date): string {
+  const date = parseDateInput(isoDate);
   if (Number.isNaN(date.getTime())) return "";
-
-  const datePart = date.toLocaleDateString("da-DK", {
+  return date.toLocaleDateString("da-DK", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
-
-  return `${datePart}`;
 }
 
 export function formatCommentDate(dateString: string): string {
@@ -116,8 +106,9 @@ export function formatCommentDate(dateString: string): string {
   });
 }
 
-export function isoToDateString(iso: string): string {
-  return iso.split("T")[0];
+// Convert YYYY-MM-DD to a full ISO 8601 UTC string for API submission
+export function toIsoDate(dateString: string): string {
+  return dateString + "T00:00:00.000Z";
 }
 
 // Translation functions
@@ -142,6 +133,10 @@ export function translateStatus(status: string): string {
       return "UDFØRT";
     case "REJECTED":
       return "ANNULLERET";
+    case "IN_PROGRESS":
+      return "I GANG";
+    case "ARCHIVED":
+      return "ARKIVERET";
     default:
       return status;
   }
@@ -243,15 +238,6 @@ export function getAuthHeaders(): HeadersInit {
   };
 }
 
-export function toIsoEndOfDay(dateString: string): string {
-  // Converts YYYY-MM-DD to ISO-8601 DateTime at end of day
-  return new Date(dateString + "T23:59:59.000Z").toISOString();
-}
-
-export function toIsoStartOfDay(dateString: string): string {
-  // Converts YYYY-MM-DD to ISO-8601 DateTime at start of day (UTC midnight)
-  return new Date(dateString + "T00:00:00.000Z").toISOString();
-}
 
 export function translateTaskUnit(unit?: string | null): string {
   switch (unit) {
@@ -284,15 +270,15 @@ export function translateTaskUnit(unit?: string | null): string {
 
 // Count tasks assigned for today and completed today
 export function getTodayAssignmentStats(assignments: TaskAssignment[]) {
-  const today = toLocalDateKey(new Date());
+  const today = toDateKey(new Date());
 
   const assignedToday = assignments.filter(
     (a) =>
-      a.task?.start_date && toLocalDateKey(a.task.start_date) === today,
+      a.task?.start_date && toDateKey(a.task.start_date) === today,
   ).length;
 
   const completedToday = assignments.filter(
-    (a) => a.completed_at && toLocalDateKey(a.completed_at) === today,
+    (a) => a.completed_at && toDateKey(a.completed_at) === today,
   ).length;
 
   return {

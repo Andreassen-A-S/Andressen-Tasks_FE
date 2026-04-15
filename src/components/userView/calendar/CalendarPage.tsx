@@ -12,7 +12,7 @@ import CalendarMonthNavigator from "./CalendarMonthNavigator";
 import CalendarTaskCard from "./CalendarTaskCard";
 import UserTaskDetails from "../tasks/taskDetails/UserTaskDetails";
 import BottomSheetModal from "../common/bottomSheetModal";
-import { formatLocalDate, toLocalDateKey } from "@/helpers/helpers";
+import { formatLocalDate, toDateKey } from "@/helpers/helpers";
 
 export default function CalendarPage() {
     const { user } = useAuth();
@@ -92,9 +92,9 @@ export default function CalendarPage() {
     };
 
     const getTasksForDate = (date: Date) => {
-        const dateStr = toLocalDateKey(date);
+        const dateStr = toDateKey(date);
         return tasks.filter(task => {
-            const taskDate = toLocalDateKey(task.start_date);
+            const taskDate = toDateKey(task.start_date);
             return taskDate === dateStr;
         });
     };

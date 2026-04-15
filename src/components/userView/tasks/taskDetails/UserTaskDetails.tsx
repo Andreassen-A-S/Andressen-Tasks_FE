@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Task, TaskGoalType, TaskStatus, TaskUnit } from "@/types/task";
 import { addTaskProgress, getTask, updateTask, getUser } from "@/lib/api";
 import { User } from "@/types/users";
-import { formatDaDate, getPriorityAccentColors, translatePriority, translateTaskUnit } from "@/helpers/helpers";
+import { formatDate, getPriorityAccentColors, translatePriority, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faCheck } from "@fortawesome/free-solid-svg-icons";
 import UserTaskComment from "./UserTaskComment";
@@ -235,7 +235,7 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
                     {/* Metadata */}
                     <div className="flex items-center justify-between pt-2 border-t border-[#E8E6E1] mono-xs text-[#9DA1B4]">
                         <span>Oprettet af: {creator?.name || creator?.email || task.created_by}</span>
-                        <span>{formatDaDate(task.created_at).replace(".", ". ")}</span>
+                        <span>{formatDate(task.created_at).replace(".", ". ")}</span>
                     </div>
 
                     {/* Complete Button */}

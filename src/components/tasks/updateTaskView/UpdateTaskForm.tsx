@@ -6,7 +6,7 @@ import type { Task, UpdateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskUnit } from "@/types/task";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
-import { removeUndefined, toIsoEndOfDay, toIsoStartOfDay, toLocalDateKey } from "@/helpers/helpers";
+import { removeUndefined, toIsoDate, toDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "../createTask/BasicInfoCard";
 import AssignmentCard from "../createTask/AssignmentCard";
 import GoalSection from "../createTask/GoalCard";
@@ -30,9 +30,9 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         description: task.description,
         priority: task.priority,
         status: task.status,
-        deadline: toLocalDateKey(task.deadline),
+        deadline: toDateKey(task.deadline),
         assigned_users: [],
-        start_date: toLocalDateKey(task.start_date),
+        start_date: toDateKey(task.start_date),
         unit: task.unit,
         goal_type: task.goal_type || TaskGoalType.OPEN,
         target_quantity: task.target_quantity ?? undefined,
@@ -106,12 +106,11 @@ export default function UpdateTaskForm({ task, onSuccess, onCancel }: UpdateTask
         setError(null);
 
         try {
-            // Convert date to ISO-8601 DateTime
             const taskData = removeUndefined({
                 ...formData,
                 project_id: projectId,
-                deadline: toIsoEndOfDay(formData.deadline ?? ""),
-                start_date: toIsoStartOfDay(formData.start_date || toLocalDateKey(new Date())),
+                deadline: formData.deadline ? toIsoDate(formData.deadline) : undefined,
+                start_date: toIsoDate(formData.start_date || toDateKey(new Date())),
             });
             const updatedTask = await updateTask(task.task_id, taskData);
             toast.success("Opgave opdateret");

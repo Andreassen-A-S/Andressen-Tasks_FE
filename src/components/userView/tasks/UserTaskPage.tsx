@@ -10,7 +10,7 @@ import UserTaskDetails from "./taskDetails/UserTaskDetails";
 import BottomSheetModal from "../common/bottomSheetModal";
 import UserTaskCard from "./UserTaskCard";
 import { sortTasks } from "@/helpers/sort";
-import { toLocalDateKey } from "@/helpers/helpers";
+import { toDateKey } from "@/helpers/helpers";
 import UserTaskHeader from "../common/UserHeader";
 import UserTaskDateNavigator from "./UserTaskDateNavigator";
 
@@ -85,18 +85,18 @@ export default function UserTasksView() {
     }, [fetchAndSetTasks]);
 
 
-    const todayStr = toLocalDateKey(selectedDate);
+    const todayStr = toDateKey(selectedDate);
 
 
     const tasksForDay = tasks.filter(task => {
         const isDone = task.status === TaskStatus.DONE;
 
         const startDate = task.start_date
-            ? toLocalDateKey(task.start_date)
+            ? toDateKey(task.start_date)
             : null;
 
         const deadlineDate = task.deadline
-            ? toLocalDateKey(task.deadline)
+            ? toDateKey(task.deadline)
             : null;
 
         const isStartToday = startDate === todayStr;
