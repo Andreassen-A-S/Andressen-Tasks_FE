@@ -27,6 +27,7 @@ const ALLOWED_MIME_TYPE_VALUES = new Set(Object.values(AllowedMimeType));
 interface PendingAttachment {
   id: string;
   file: File;
+  mimeType: AllowedMimeType;
   previewUrl: string | null; // object URL for images, null for non-images
 }
 
@@ -92,6 +93,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       return [...prev, ...toAdd.slice(0, remaining).map((f) => ({
         id: crypto.randomUUID(),
         file: f,
+        mimeType: f.type as AllowedMimeType,
         previewUrl: f.type.startsWith("image/") && f.type !== AllowedMimeType.HEIC ? URL.createObjectURL(f) : null,
       }))];
     });
@@ -131,7 +133,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       if (attachments.length > 0) {
         const prepared = await prepareAttachments(taskId, attachments.map((a) => ({
           file_name: a.file.name,
-          mime_type: a.file.type,
+          mime_type: a.mimeType,
           file_size: a.file.size,
         })));
 
