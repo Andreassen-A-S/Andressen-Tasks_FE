@@ -5,6 +5,7 @@ import SingleAvatar from "@/components/common/label/singleAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
+import { getFileExtension } from "@/helpers/helpers";
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
 
@@ -202,7 +203,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
                         <div className="w-20 h-20 flex flex-col justify-between p-2" style={{ backgroundColor: colors.eggWhite }}>
                           <span className="text-[10px] leading-tight break-all line-clamp-3" style={{ color: colors.textPrimary }}>{a.file.name}</span>
                           <span className="self-start text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide" style={{ border: `1px solid ${colors.border}`, color: colors.textMuted }}>
-                            {(() => { const i = a.file.name.lastIndexOf("."); return i > 0 && i < a.file.name.length - 1 ? a.file.name.slice(i + 1) : "fil"; })()}
+                            {getFileExtension(a.file.name)}
                           </span>
                         </div>
                       )}

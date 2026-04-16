@@ -1,3 +1,5 @@
+"use client";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faFileWord, faFileExcel, faFileImage, faFile } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";

@@ -309,3 +309,8 @@ export function removeUndefined<T extends Record<string, unknown>>(
     Object.entries(obj).filter(([, value]) => value !== undefined),
   ) as Partial<T>;
 }
+
+export function getFileExtension(name: string): string {
+  const i = name.lastIndexOf(".");
+  return i > 0 && i < name.length - 1 ? name.slice(i + 1) : "fil";
+}
