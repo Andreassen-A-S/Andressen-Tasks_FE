@@ -22,6 +22,7 @@ const MAX_FILE_SIZE: Record<AllowedMimeType, number> = {
 };
 
 const MAX_ATTACHMENTS = 20;
+const ALLOWED_MIME_TYPE_VALUES = new Set(Object.values(AllowedMimeType));
 
 interface PendingAttachment {
   id: string;
@@ -57,8 +58,8 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
   }, []);
 
   function addFiles(files: File[]) {
-    const valid = files.filter((f) => Object.values(AllowedMimeType).includes(f.type as AllowedMimeType));
-    const invalid = files.filter((f) => !Object.values(AllowedMimeType).includes(f.type as AllowedMimeType));
+    const valid = files.filter((f) => ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
+    const invalid = files.filter((f) => !ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
 
     if (invalid.length > 0) {
       toast.error("Kun billeder, PDF, Word og Excel filer er tilladt.");
@@ -250,7 +251,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
             ref={fileInputRef}
             type="file"
             multiple
-            accept={Object.values(AllowedMimeType).join(",")}
+            accept={[...ALLOWED_MIME_TYPE_VALUES].join(",")}
             className="hidden"
             onChange={handleFileInput}
           />
