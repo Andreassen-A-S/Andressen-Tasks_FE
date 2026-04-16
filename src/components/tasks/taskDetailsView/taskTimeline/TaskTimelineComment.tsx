@@ -20,8 +20,8 @@ type Props = {
 };
 
 function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
-    const images = attachments.filter((a) => a.type === "IMAGE");
-    const files = attachments.filter((a) => a.type === "FILE");
+    const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== "image/heic");
+    const files = attachments.filter((a) => a.type === "FILE" || a.mime_type === "image/heic");
 
     return (
         <div className="mt-3 space-y-3">

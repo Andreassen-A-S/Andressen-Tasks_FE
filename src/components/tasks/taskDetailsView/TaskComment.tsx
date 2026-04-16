@@ -15,6 +15,18 @@ const ALLOWED_MIME_TYPES = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ];
 
+const MAX_FILE_SIZE: Record<string, number> = {
+  "image/jpeg": 10 * 1024 * 1024,
+  "image/png": 10 * 1024 * 1024,
+  "image/webp": 10 * 1024 * 1024,
+  "image/heic": 10 * 1024 * 1024,
+  "application/pdf": 50 * 1024 * 1024,
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": 50 * 1024 * 1024,
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": 50 * 1024 * 1024,
+};
+
+const MAX_ATTACHMENTS = 20;
+
 interface PendingAttachment {
   id: string;
   file: File;
@@ -62,13 +74,33 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       toast.error("Kun billeder, PDF, Word og Excel filer er tilladt.");
     }
 
-    if (!valid.length) return;
-    const pending: PendingAttachment[] = valid.map((f) => ({
+    const oversized = valid.filter((f) => f.size > (MAX_FILE_SIZE[f.type] ?? 10 * 1024 * 1024));
+    const sized = valid.filter((f) => f.size <= (MAX_FILE_SIZE[f.type] ?? 10 * 1024 * 1024));
+
+    if (oversized.length > 0) {
+      toast.error(
+        oversized.length === 1
+          ? `${oversized[0].name} overskrider den maksimale filstørrelse.`
+          : `${oversized.length} filer overskrider den maksimale filstørrelse og blev ikke tilføjet.`
+      );
+    }
+
+    if (!sized.length) return;
+
+    const available = MAX_ATTACHMENTS - attachments.length;
+    if (available <= 0) {
+      toast.error("Du kan maksimalt vedhæfte 20 filer per kommentar.");
+      return;
+    }
+    const toAdd = sized.slice(0, available);
+    if (toAdd.length < sized.length) {
+      toast.error(`${sized.length - toAdd.length} filer blev ikke tilføjet. Maks 20 filer per kommentar.`);
+    }
+    setAttachments((prev) => [...prev, ...toAdd.map((f) => ({
       id: crypto.randomUUID(),
       file: f,
       previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : null,
-    }));
-    setAttachments((prev) => [...prev, ...pending]);
+    }))]);
   }
 
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
@@ -170,9 +202,11 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={a.previewUrl} alt={a.file.name} className="w-20 h-20 object-cover" />
                       ) : (
-                        <div className="w-36 h-12 flex items-center gap-2 px-3" style={{ backgroundColor: colors.eggWhite }}>
-                          <FontAwesomeIcon icon={getFileIcon(a.file.type)} style={{ color: colors.textMuted }} className="text-sm shrink-0" />
-                          <span className="body-xs truncate">{a.file.name}</span>
+                        <div className="w-20 h-20 flex flex-col justify-between p-2" style={{ backgroundColor: colors.eggWhite }}>
+                          <span className="text-[10px] leading-tight break-all line-clamp-3" style={{ color: colors.textPrimary }}>{a.file.name}</span>
+                          <span className="self-start text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide" style={{ border: `1px solid ${colors.border}`, color: colors.textMuted }}>
+                            {a.file.name.split(".").pop() ?? "fil"}
+                          </span>
                         </div>
                       )}
                       {!uploading && (
