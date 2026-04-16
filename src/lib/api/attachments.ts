@@ -1,4 +1,5 @@
 import { getAuthHeaders } from "@/helpers/helpers";
+import type { AllowedMimeType } from "@/types/attachment";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -9,7 +10,7 @@ export interface PreparedAttachment {
 
 export async function prepareAttachments(
   taskId: string,
-  files: { file_name: string; mime_type: string; file_size: number }[],
+  files: { file_name: string; mime_type: AllowedMimeType; file_size: number }[],
 ): Promise<PreparedAttachment[]> {
   const res = await fetch(`${API_URL}/attachments/prepare`, {
     method: "POST",

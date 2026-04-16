@@ -1,6 +1,8 @@
 import { TaskEvent } from "@/types/taskEvent";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import { TaskAssignment } from "@/types/assignment";
+import { faFile, faFilePdf, faFileWord, faFileExcel, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { AllowedMimeType } from "@/types/attachment";
 
 function parseDateInput(dateInput: string | Date): Date {
   if (dateInput instanceof Date) return dateInput;
@@ -308,4 +310,18 @@ export function removeUndefined<T extends Record<string, unknown>>(
   return Object.fromEntries(
     Object.entries(obj).filter(([, value]) => value !== undefined),
   ) as Partial<T>;
+}
+
+export function getFileExtension(name: string): string {
+  const i = name.lastIndexOf(".");
+  return i > 0 && i < name.length - 1 ? name.slice(i + 1) : "fil";
+}
+
+export function getFileIcon(mimeType?: string | null) {
+  if (!mimeType) return faFile;
+  if (mimeType === AllowedMimeType.PDF) return faFilePdf;
+  if (mimeType === AllowedMimeType.DOCX) return faFileWord;
+  if (mimeType === AllowedMimeType.XLSX) return faFileExcel;
+  if (mimeType === AllowedMimeType.JPEG || mimeType === AllowedMimeType.PNG || mimeType === AllowedMimeType.WEBP || mimeType === AllowedMimeType.HEIC) return faFileImage;
+  return faFile;
 }

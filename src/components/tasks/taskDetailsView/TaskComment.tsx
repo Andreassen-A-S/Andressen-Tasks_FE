@@ -3,21 +3,31 @@
 import { useEffect, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/singleAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faPaperclip, faXmark, faFile, faFilePdf, faFileWord, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
+import { getFileExtension } from "@/helpers/helpers";
+import { AllowedMimeType } from "@/types/attachment";
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
 
-const ALLOWED_MIME_TYPES = [
-  "image/jpeg", "image/png", "image/webp", "image/heic",
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-];
+
+const MAX_FILE_SIZE: Record<AllowedMimeType, number> = {
+  [AllowedMimeType.JPEG]: 10 * 1024 * 1024,
+  [AllowedMimeType.PNG]: 10 * 1024 * 1024,
+  [AllowedMimeType.WEBP]: 10 * 1024 * 1024,
+  [AllowedMimeType.HEIC]: 10 * 1024 * 1024,
+  [AllowedMimeType.PDF]: 50 * 1024 * 1024,
+  [AllowedMimeType.DOCX]: 50 * 1024 * 1024,
+  [AllowedMimeType.XLSX]: 50 * 1024 * 1024,
+};
+
+const MAX_ATTACHMENTS = 20;
+const ALLOWED_MIME_TYPE_VALUES = new Set(Object.values(AllowedMimeType));
 
 interface PendingAttachment {
   id: string;
   file: File;
+  mimeType: AllowedMimeType;
   previewUrl: string | null; // object URL for images, null for non-images
 }
 
@@ -27,12 +37,6 @@ interface TaskCommentProps {
   onSubmit: (message: string, uploadTokens: string[]) => Promise<void>;
 }
 
-function getFileIcon(mimeType: string) {
-  if (mimeType === "application/pdf") return faFilePdf;
-  if (mimeType.includes("word") || mimeType.includes("document")) return faFileWord;
-  if (mimeType.includes("sheet") || mimeType.includes("excel")) return faFileExcel;
-  return faFile;
-}
 
 export default function TaskComment({ taskId, currentUser, onSubmit }: TaskCommentProps) {
   const [comment, setComment] = useState("");
@@ -55,20 +59,44 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
   }, []);
 
   function addFiles(files: File[]) {
-    const valid = files.filter((f) => ALLOWED_MIME_TYPES.includes(f.type));
-    const invalid = files.filter((f) => !ALLOWED_MIME_TYPES.includes(f.type));
+    const valid = files.filter((f) => ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
+    const invalid = files.filter((f) => !ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
 
     if (invalid.length > 0) {
       toast.error("Kun billeder, PDF, Word og Excel filer er tilladt.");
     }
 
-    if (!valid.length) return;
-    const pending: PendingAttachment[] = valid.map((f) => ({
-      id: crypto.randomUUID(),
-      file: f,
-      previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : null,
-    }));
-    setAttachments((prev) => [...prev, ...pending]);
+    const oversized = valid.filter((f) => f.size > MAX_FILE_SIZE[f.type as AllowedMimeType]);
+    const sized = valid.filter((f) => f.size <= MAX_FILE_SIZE[f.type as AllowedMimeType]);
+
+    if (oversized.length > 0) {
+      toast.error(
+        oversized.length === 1
+          ? `${oversized[0].name} overskrider den maksimale filstørrelse.`
+          : `${oversized.length} filer overskrider den maksimale filstørrelse og blev ikke tilføjet.`
+      );
+    }
+
+    if (!sized.length) return;
+
+    const available = MAX_ATTACHMENTS - attachments.length;
+    if (available <= 0) {
+      toast.error(`Du kan maksimalt vedhæfte ${MAX_ATTACHMENTS} filer per kommentar.`);
+      return;
+    }
+    const toAdd = sized.slice(0, available);
+    if (toAdd.length < sized.length) {
+      toast.error(`${sized.length - toAdd.length} filer blev ikke tilføjet. Maks ${MAX_ATTACHMENTS} filer per kommentar.`);
+    }
+    setAttachments((prev) => {
+      const remaining = MAX_ATTACHMENTS - prev.length;
+      return [...prev, ...toAdd.slice(0, remaining).map((f) => ({
+        id: crypto.randomUUID(),
+        file: f,
+        mimeType: f.type as AllowedMimeType,
+        previewUrl: f.type.startsWith("image/") && f.type !== AllowedMimeType.HEIC ? URL.createObjectURL(f) : null,
+      }))];
+    });
   }
 
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
@@ -105,7 +133,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       if (attachments.length > 0) {
         const prepared = await prepareAttachments(taskId, attachments.map((a) => ({
           file_name: a.file.name,
-          mime_type: a.file.type,
+          mime_type: a.mimeType,
           file_size: a.file.size,
         })));
 
@@ -170,9 +198,11 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={a.previewUrl} alt={a.file.name} className="w-20 h-20 object-cover" />
                       ) : (
-                        <div className="w-36 h-12 flex items-center gap-2 px-3" style={{ backgroundColor: colors.eggWhite }}>
-                          <FontAwesomeIcon icon={getFileIcon(a.file.type)} style={{ color: colors.textMuted }} className="text-sm shrink-0" />
-                          <span className="body-xs truncate">{a.file.name}</span>
+                        <div className="w-20 h-20 flex flex-col justify-between p-2" style={{ backgroundColor: colors.eggWhite }}>
+                          <span className="text-[10px] leading-tight break-all line-clamp-3" style={{ color: colors.textPrimary }}>{a.file.name}</span>
+                          <span className="self-start text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide" style={{ border: `1px solid ${colors.border}`, color: colors.textMuted }}>
+                            {getFileExtension(a.file.name)}
+                          </span>
                         </div>
                       )}
                       {!uploading && (
@@ -223,7 +253,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
             ref={fileInputRef}
             type="file"
             multiple
-            accept={ALLOWED_MIME_TYPES.join(",")}
+            accept={[...ALLOWED_MIME_TYPE_VALUES].join(",")}
             className="hidden"
             onChange={handleFileInput}
           />

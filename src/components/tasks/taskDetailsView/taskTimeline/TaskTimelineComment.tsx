@@ -6,10 +6,12 @@ import type { TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/singleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperclip, faEllipsis, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsis, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { AllowedMimeType } from "@/types/attachment";
+import FileAttachmentCard from "../FileAttachmentCard";
 
 type Props = {
     event: TaskEvent;
@@ -20,8 +22,8 @@ type Props = {
 };
 
 function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
-    const images = attachments.filter((a) => a.type === "IMAGE");
-    const files = attachments.filter((a) => a.type === "FILE");
+    const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC);
+    const files = attachments.filter((a) => a.type === "FILE" || a.mime_type === AllowedMimeType.HEIC);
 
     return (
         <div className="mt-3 space-y-3">
@@ -46,17 +48,12 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
             {files.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
                     {files.map((file) => (
-                        <a
+                        <FileAttachmentCard
                             key={file.attachment_id}
-                            href={file.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ borderColor: colors.border, backgroundColor: colors.eggWhite, color: colors.textPrimary }}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border transition-colors body-sm hover:opacity-80"
-                        >
-                            <FontAwesomeIcon icon={faPaperclip} style={{ color: colors.textMuted }} className="text-xs" />
-                            <span className="truncate max-w-[200px]">{file.file_name ?? "Fil"}</span>
-                        </a>
+                            fileName={file.file_name ?? "Fil"}
+                            mimeType={file.mime_type}
+                            url={file.url}
+                        />
                     ))}
                 </div>
             )}
