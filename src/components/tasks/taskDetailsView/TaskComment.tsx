@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/singleAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faPaperclip, faXmark, faFile, faFilePdf, faFileWord, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
@@ -39,12 +39,6 @@ interface TaskCommentProps {
   onSubmit: (message: string, uploadTokens: string[]) => Promise<void>;
 }
 
-function getFileIcon(mimeType: string) {
-  if (mimeType === "application/pdf") return faFilePdf;
-  if (mimeType.includes("word") || mimeType.includes("document")) return faFileWord;
-  if (mimeType.includes("sheet") || mimeType.includes("excel")) return faFileExcel;
-  return faFile;
-}
 
 export default function TaskComment({ taskId, currentUser, onSubmit }: TaskCommentProps) {
   const [comment, setComment] = useState("");
@@ -89,18 +83,21 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
 
     const available = MAX_ATTACHMENTS - attachments.length;
     if (available <= 0) {
-      toast.error("Du kan maksimalt vedhæfte 20 filer per kommentar.");
+      toast.error(`Du kan maksimalt vedhæfte ${MAX_ATTACHMENTS} filer per kommentar.`);
       return;
     }
     const toAdd = sized.slice(0, available);
     if (toAdd.length < sized.length) {
-      toast.error(`${sized.length - toAdd.length} filer blev ikke tilføjet. Maks 20 filer per kommentar.`);
+      toast.error(`${sized.length - toAdd.length} filer blev ikke tilføjet. Maks ${MAX_ATTACHMENTS} filer per kommentar.`);
     }
-    setAttachments((prev) => [...prev, ...toAdd.map((f) => ({
-      id: crypto.randomUUID(),
-      file: f,
-      previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : null,
-    }))]);
+    setAttachments((prev) => {
+      const remaining = MAX_ATTACHMENTS - prev.length;
+      return [...prev, ...toAdd.slice(0, remaining).map((f) => ({
+        id: crypto.randomUUID(),
+        file: f,
+        previewUrl: f.type.startsWith("image/") && f.type !== "image/heic" ? URL.createObjectURL(f) : null,
+      }))];
+    });
   }
 
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
@@ -205,7 +202,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
                         <div className="w-20 h-20 flex flex-col justify-between p-2" style={{ backgroundColor: colors.eggWhite }}>
                           <span className="text-[10px] leading-tight break-all line-clamp-3" style={{ color: colors.textPrimary }}>{a.file.name}</span>
                           <span className="self-start text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide" style={{ border: `1px solid ${colors.border}`, color: colors.textMuted }}>
-                            {a.file.name.split(".").pop() ?? "fil"}
+                            {(() => { const i = a.file.name.lastIndexOf("."); return i > 0 && i < a.file.name.length - 1 ? a.file.name.slice(i + 1) : "fil"; })()}
                           </span>
                         </div>
                       )}
