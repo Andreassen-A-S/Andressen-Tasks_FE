@@ -1,4 +1,5 @@
 import { getAuthHeaders } from "@/helpers/helpers";
+import type { AllowedMimeType } from "@/types/attachment";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

@@ -6,24 +6,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
 import { getFileExtension } from "@/helpers/helpers";
+import { AllowedMimeType } from "@/types/attachment";
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
 
-const ALLOWED_MIME_TYPES = [
-  "image/jpeg", "image/png", "image/webp", "image/heic",
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-];
 
-const MAX_FILE_SIZE: Record<string, number> = {
-  "image/jpeg": 10 * 1024 * 1024,
-  "image/png": 10 * 1024 * 1024,
-  "image/webp": 10 * 1024 * 1024,
-  "image/heic": 10 * 1024 * 1024,
-  "application/pdf": 50 * 1024 * 1024,
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": 50 * 1024 * 1024,
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": 50 * 1024 * 1024,
+const MAX_FILE_SIZE: Record<AllowedMimeType, number> = {
+  [AllowedMimeType.JPEG]: 10 * 1024 * 1024,
+  [AllowedMimeType.PNG]: 10 * 1024 * 1024,
+  [AllowedMimeType.WEBP]: 10 * 1024 * 1024,
+  [AllowedMimeType.HEIC]: 10 * 1024 * 1024,
+  [AllowedMimeType.PDF]: 50 * 1024 * 1024,
+  [AllowedMimeType.DOCX]: 50 * 1024 * 1024,
+  [AllowedMimeType.XLSX]: 50 * 1024 * 1024,
 };
 
 const MAX_ATTACHMENTS = 20;
@@ -62,15 +57,15 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
   }, []);
 
   function addFiles(files: File[]) {
-    const valid = files.filter((f) => ALLOWED_MIME_TYPES.includes(f.type));
-    const invalid = files.filter((f) => !ALLOWED_MIME_TYPES.includes(f.type));
+    const valid = files.filter((f) => Object.values(AllowedMimeType).includes(f.type as AllowedMimeType));
+    const invalid = files.filter((f) => !Object.values(AllowedMimeType).includes(f.type as AllowedMimeType));
 
     if (invalid.length > 0) {
       toast.error("Kun billeder, PDF, Word og Excel filer er tilladt.");
     }
 
-    const oversized = valid.filter((f) => f.size > (MAX_FILE_SIZE[f.type] ?? 10 * 1024 * 1024));
-    const sized = valid.filter((f) => f.size <= (MAX_FILE_SIZE[f.type] ?? 10 * 1024 * 1024));
+    const oversized = valid.filter((f) => f.size > MAX_FILE_SIZE[f.type as AllowedMimeType]);
+    const sized = valid.filter((f) => f.size <= MAX_FILE_SIZE[f.type as AllowedMimeType]);
 
     if (oversized.length > 0) {
       toast.error(
@@ -96,7 +91,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       return [...prev, ...toAdd.slice(0, remaining).map((f) => ({
         id: crypto.randomUUID(),
         file: f,
-        previewUrl: f.type.startsWith("image/") && f.type !== "image/heic" ? URL.createObjectURL(f) : null,
+        previewUrl: f.type.startsWith("image/") && f.type !== AllowedMimeType.HEIC ? URL.createObjectURL(f) : null,
       }))];
     });
   }
@@ -255,7 +250,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
             ref={fileInputRef}
             type="file"
             multiple
-            accept={ALLOWED_MIME_TYPES.join(",")}
+            accept={Object.values(AllowedMimeType).join(",")}
             className="hidden"
             onChange={handleFileInput}
           />

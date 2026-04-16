@@ -10,6 +10,7 @@ import { faEllipsis, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { AllowedMimeType } from "@/types/attachment";
 import FileAttachmentCard from "../FileAttachmentCard";
 
 type Props = {
@@ -21,8 +22,8 @@ type Props = {
 };
 
 function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
-    const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== "image/heic");
-    const files = attachments.filter((a) => a.type === "FILE" || a.mime_type === "image/heic");
+    const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC);
+    const files = attachments.filter((a) => a.type === "FILE" || a.mime_type === AllowedMimeType.HEIC);
 
     return (
         <div className="mt-3 space-y-3">

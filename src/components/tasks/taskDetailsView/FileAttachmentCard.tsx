@@ -1,22 +1,13 @@
 "use client";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilePdf, faFileWord, faFileExcel, faFileImage, faFile } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
+import { getFileIcon } from "@/helpers/helpers";
 
 interface Props {
   fileName: string;
   mimeType?: string | null;
   url: string;
-}
-
-function getFileIcon(mimeType?: string | null) {
-  if (!mimeType) return faFile;
-  if (mimeType === "application/pdf") return faFilePdf;
-  if (mimeType.includes("word") || mimeType.includes("document")) return faFileWord;
-  if (mimeType.includes("sheet") || mimeType.includes("excel")) return faFileExcel;
-  if (mimeType.startsWith("image/")) return faFileImage;
-  return faFile;
 }
 
 export default function FileAttachmentCard({ fileName, mimeType, url }: Props) {
