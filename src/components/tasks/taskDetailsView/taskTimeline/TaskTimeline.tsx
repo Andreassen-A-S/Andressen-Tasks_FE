@@ -154,7 +154,7 @@ function eventLabel(e: TaskEvent) {
     }
 }
 
-export default function TaskTimeline({ taskId }: { taskId: string }) {
+export default function TaskTimeline({ taskId, creatorId }: { taskId: string; creatorId?: string }) {
     const auth = useContext(AuthContext);
     const currentUser = auth?.user;
 
@@ -189,6 +189,10 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
         } catch {
             toast.error("Kunne ikke slette kommentar. Prøv igen.");
         }
+    }
+
+    async function handleUpdateComment() {
+        await refresh(true);
     }
 
     async function handleSubmitComment(message: string, uploadTokens: string[]) {
@@ -238,7 +242,9 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                                     actorName={actorName}
                                     currentUserId={currentUser?.user_id}
                                     isAdmin={currentUser?.role === UserRole.ADMIN}
+                                    isAuthor={!!creatorId && e.actor_id === creatorId}
                                     onDelete={handleDeleteComment}
+                                    onUpdate={handleUpdateComment}
                                 />
                             </div>
                         );

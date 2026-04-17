@@ -20,4 +20,6 @@ export interface CreateCommentRequest {
 
 export interface UpdateCommentRequest {
   message: string;
+  upload_tokens?: string[];
+  remove_attachment_ids?: string[];
 }

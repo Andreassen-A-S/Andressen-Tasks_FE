@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, createContext, useContext } from "react";
 import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { colors } from "@/constants/colors";
+
+export const DropdownOpenContext = createContext(false);
 
 export interface DropdownMenuItem {
   label: string;
@@ -22,7 +24,8 @@ interface DropdownMenuProps {
 interface MenuPosition {
   top?: number;
   bottom?: number;
-  left: number;
+  left?: number;
+  right?: number;
 }
 
 export default function DropdownMenu({ trigger, items }: DropdownMenuProps) {
@@ -36,14 +39,23 @@ export default function DropdownMenu({ trigger, items }: DropdownMenuProps) {
 
     const rect = triggerRef.current.getBoundingClientRect();
     const estimatedHeight = items.length * 44 + 8;
+    const estimatedWidth = 160;
+
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUpward = spaceBelow < estimatedHeight && rect.top > estimatedHeight;
 
-    setPosition(
-      openUpward
-        ? { bottom: window.innerHeight - rect.top + 4, left: rect.left }
-        : { top: rect.bottom + 4, left: rect.left }
-    );
+    const spaceRight = window.innerWidth - rect.left;
+    const alignRight = spaceRight < estimatedWidth;
+
+    const vertical = openUpward
+      ? { bottom: window.innerHeight - rect.top + 4 }
+      : { top: rect.bottom + 4 };
+
+    const horizontal = alignRight
+      ? { right: window.innerWidth - rect.right }
+      : { left: rect.left };
+
+    setPosition({ ...vertical, ...horizontal });
     setOpen((v) => !v);
   }
 
@@ -79,9 +91,11 @@ export default function DropdownMenu({ trigger, items }: DropdownMenuProps) {
 
   return (
     <>
-      <div ref={triggerRef} onClick={handleOpen} className="cursor-pointer">
-        {trigger}
-      </div>
+      <DropdownOpenContext.Provider value={open}>
+        <div ref={triggerRef} onClick={handleOpen} className="cursor-pointer inline-flex">
+          {trigger}
+        </div>
+      </DropdownOpenContext.Provider>
 
       {open && typeof document !== "undefined" && createPortal(
         <div
@@ -93,6 +107,7 @@ export default function DropdownMenu({ trigger, items }: DropdownMenuProps) {
             top: position.top,
             bottom: position.bottom,
             left: position.left,
+            right: position.right,
           }}
         >
           {items.map((item, i) => (

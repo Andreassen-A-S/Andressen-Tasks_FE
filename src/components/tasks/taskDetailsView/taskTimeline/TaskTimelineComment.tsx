@@ -2,23 +2,26 @@
 
 import { useState } from "react";
 import type { TaskEvent } from "@/types/taskEvent";
-import type { TaskAttachment } from "@/types/attachment";
+import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/singleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsis, faTrash, faPencil } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
+import Button from "@/components/common/buttons/Button";
+import OutlineBadge from "@/components/common/label/OutlineBadge";
 import ConfirmModal from "@/components/common/ConfirmModal";
-import { AllowedMimeType } from "@/types/attachment";
 import FileAttachmentCard from "../FileAttachmentCard";
+import CommentEditForm from "./CommentEditForm";
 
 type Props = {
     event: TaskEvent;
     actorName: string;
     currentUserId?: string;
     isAdmin?: boolean;
+    isAuthor?: boolean;
     onDelete?: (commentId: string) => Promise<void>;
+    onUpdate?: () => Promise<void>;
 };
 
 function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
@@ -61,9 +64,10 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, onDelete }: Props) {
+export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isAuthor, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [editing, setEditing] = useState(false);
 
     const isDeleted = event.type === "COMMENT_DELETED";
     const message = isDeleted
@@ -74,6 +78,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
 
     const commentId = event.comment?.comment_id ?? event.comment_id;
     const canDelete = !isDeleted && onDelete && !!commentId && (isAdmin || currentUserId === event.actor_id);
+    const canEdit = !isDeleted && !!commentId && currentUserId === event.actor_id;
 
     async function handleDelete() {
         if (!onDelete || !commentId) return;
@@ -91,51 +96,67 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
             <div className="flex items-start gap-3">
                 <SingleAvatar name={actorName} size="sm" />
                 <div className="flex-1 rounded-lg overflow-hidden" style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}>
-                    <div className="pl-4 pr-2 py-2 flex items-center gap-1" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.eggWhite }}>
+                    <div className="pl-4 pr-1 py-1 flex items-center gap-1" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.eggWhite }}>
                         <span className="label-lg flex-shrink-0">{actorName}</span>
                         <span className="body-xs flex-shrink-0">kommenterede</span>
                         <span className="caption flex-shrink-0">{formatCommentDate(event.created_at)}</span>
 
-                        {canDelete && (
-                            <div className="ml-auto">
-                                <DropdownMenu
-                                    trigger={
-                                        <button
-                                            type="button"
-                                            className="w-7 h-7 flex items-center justify-center rounded-md transition-colors"
-                                            style={{ color: colors.textMuted }}
-                                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.border)}
-                                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                                        >
-                                            <FontAwesomeIcon icon={faEllipsis} />
-                                        </button>
-                                    }
-                                    items={[
-                                        {
-                                            label: "Slet",
-                                            icon: faTrash,
-                                            danger: true,
-                                            onClick: () => setConfirmOpen(true),
-                                        },
-                                    ]}
-                                />
-                            </div>
-                        )}
+                        <div className="ml-auto flex items-center gap-1 flex-shrink-0">
+                            {isAuthor && (
+                                <OutlineBadge label="Ejer" tooltip={currentUserId === event.actor_id ? "Du er opgavens ejer" : "Opgavens ejer"} />
+                            )}
+                            {(canEdit || canDelete) && (
+                                <div>
+                                    <DropdownMenu
+                                        trigger={
+                                            <Button variant="ghost" size="sm" icon={faEllipsis} iconOnly tooltip="Mere" />
+                                        }
+                                        items={[
+                                            ...(canEdit ? [{
+                                                label: "Rediger",
+                                                icon: faPencil,
+                                                onClick: () => setEditing(true),
+                                            }] : []),
+                                            ...(canDelete ? [{
+                                                label: "Slet",
+                                                icon: faTrash,
+                                                danger: true,
+                                                dividerBefore: canEdit,
+                                                onClick: () => setConfirmOpen(true),
+                                            }] : []),
+                                        ]}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="px-4 py-4">
-                        {message && (
-                            <p
-                                className="body-sm leading-relaxed whitespace-pre-wrap"
-                                style={isDeleted ? { color: colors.textMuted, fontStyle: "italic" } : undefined}
-                            >
-                                {message}
-                            </p>
-                        )}
-                        {attachments.length > 0 && (
+                        {editing && commentId ? (
+                            <CommentEditForm
+                                initialText={message}
+                                existingAttachments={attachments}
+                                taskId={event.task_id}
+                                commentId={commentId}
+                                onSave={async () => { await onUpdate?.(); setEditing(false); }}
+                                onCancel={() => setEditing(false)}
+                            />
+                        ) : (
                             <>
-                                {message && <hr style={{ borderColor: colors.border }} className="mt-3" />}
-                                <AttachmentSection attachments={attachments} />
+                                {message && (
+                                    <p
+                                        className="body-sm leading-relaxed whitespace-pre-wrap"
+                                        style={isDeleted ? { color: colors.textMuted, fontStyle: "italic" } : undefined}
+                                    >
+                                        {message}
+                                    </p>
+                                )}
+                                {attachments.length > 0 && (
+                                    <>
+                                        {message && <hr style={{ borderColor: colors.border }} className="mt-3" />}
+                                        <AttachmentSection attachments={attachments} />
+                                    </>
+                                )}
                             </>
                         )}
                     </div>

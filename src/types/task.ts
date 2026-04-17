@@ -1,3 +1,5 @@
+import type { ProjectSummary } from "@/types/project";
+
 export enum TaskPriority {
   LOW = "LOW",
   MEDIUM = "MEDIUM",
@@ -34,6 +36,7 @@ export enum TaskGoalType {
 export interface Task {
   task_id: string;
   project_id: string;
+  project?: ProjectSummary;
   created_by: string;
   title: string;
   description: string;

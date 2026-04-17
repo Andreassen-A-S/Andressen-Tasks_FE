@@ -1,3 +1,8 @@
+export interface ProjectSummary {
+  name: string;
+  color: string | null;
+}
+
 export interface Project {
   project_id: string;
   name: string;
