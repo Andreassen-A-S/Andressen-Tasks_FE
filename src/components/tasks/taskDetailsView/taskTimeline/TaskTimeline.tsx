@@ -238,7 +238,7 @@ export default function TaskTimeline({ taskId, creatorId }: { taskId: string; cr
                 {/* Timeline vertical line */}
                 <div className="absolute left-16.75 -top-7.5 -bottom-6 w-0.5 bg-[#E8E6E1] z-0" />
 
-                {events.map((e) => {
+                {events.filter((e) => e.type !== "COMMENT_UPDATED").map((e) => {
                     const actorName = e.actor?.name || e.actor?.email || "Ukendt bruger";
 
                     if (isCommentEvent(e.type)) {
