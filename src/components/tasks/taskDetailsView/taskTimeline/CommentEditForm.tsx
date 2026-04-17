@@ -25,14 +25,18 @@ export default function CommentEditForm({ initialText, existingAttachments, task
     const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const pendingAttachmentsRef = useRef(pendingAttachments);
 
     const visibleAttachments = existingAttachments.filter((a) => !removedIds.has(a.attachment_id));
 
     useEffect(() => {
+        pendingAttachmentsRef.current = pendingAttachments;
+    });
+
+    useEffect(() => {
         return () => {
-            pendingAttachments.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
+            pendingAttachmentsRef.current.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function addFiles(files: File[]) {
@@ -134,6 +138,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                         {visibleAttachments.map((a) => (
                             <div key={a.attachment_id} className="relative group rounded-md overflow-hidden border w-16 h-16 flex items-center justify-center" style={{ borderColor: colors.border, backgroundColor: colors.eggWhite }}>
                                 {a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
                                     <img src={a.url} alt={a.file_name ?? "Billede"} className="w-full h-full object-cover" />
                                 ) : (
                                     <span className="text-[10px] text-center px-1 break-all" style={{ color: colors.textMuted }}>{a.file_name}</span>
@@ -156,6 +161,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                         {pendingAttachments.map((a) => (
                             <div key={a.id} className="relative group rounded-md overflow-hidden border w-16 h-16 flex items-center justify-center" style={{ borderColor: colors.border, backgroundColor: colors.eggWhite }}>
                                 {a.previewUrl ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
                                     <img src={a.previewUrl} alt={a.file.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <span className="text-[10px] text-center px-1 break-all" style={{ color: colors.textMuted }}>{a.file.name}</span>
