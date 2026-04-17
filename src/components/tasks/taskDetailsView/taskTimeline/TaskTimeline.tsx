@@ -242,7 +242,7 @@ export default function TaskTimeline({ taskId, creatorId }: { taskId: string; cr
                                     actorName={actorName}
                                     currentUserId={currentUser?.user_id}
                                     isAdmin={currentUser?.role === UserRole.ADMIN}
-                                    isAuthor={!!creatorId && e.actor_id === creatorId}
+                                    isTaskOwner={!!creatorId && e.actor_id === creatorId}
                                     onDelete={handleDeleteComment}
                                     onUpdate={handleUpdateComment}
                                 />

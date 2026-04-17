@@ -19,7 +19,7 @@ type Props = {
     actorName: string;
     currentUserId?: string;
     isAdmin?: boolean;
-    isAuthor?: boolean;
+    isTaskOwner?: boolean;
     onDelete?: (commentId: string) => Promise<void>;
     onUpdate?: () => Promise<void>;
 };
@@ -64,7 +64,7 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isAuthor, onDelete, onUpdate }: Props) {
+export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -102,7 +102,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                         <span className="caption flex-shrink-0">{formatCommentDate(event.created_at)}</span>
 
                         <div className="ml-auto flex items-center gap-1 flex-shrink-0">
-                            {isAuthor && (
+                            {isTaskOwner && (
                                 <OutlineBadge label="Ejer" tooltip={currentUserId === event.actor_id ? "Du er opgavens ejer" : "Opgavens ejer"} />
                             )}
                             {(canEdit || canDelete) && (

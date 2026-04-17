@@ -29,6 +29,7 @@ import TaskDescriptionCard from "./TaskDescriptionCard";
 import Button from "@/components/common/buttons/Button";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import { getTaskAttachments } from "@/lib/api";
+import { toast } from "sonner";
 
 
 interface TaskDetailsProps {
@@ -75,11 +76,15 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     useEffect(() => {
         const el = sidebarRef.current;
         if (!el) return;
-        const observer = new ResizeObserver(([entry]) => {
-            setSidebarTop(Math.max(0, window.innerHeight - entry.contentRect.height));
-        });
+        const update = (height: number) => setSidebarTop(Math.max(0, window.innerHeight - height));
+        const observer = new ResizeObserver(([entry]) => update(entry.contentRect.height));
         observer.observe(el);
-        return () => observer.disconnect();
+        const handleResize = () => update(el.getBoundingClientRect().height);
+        window.addEventListener("resize", handleResize);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("resize", handleResize);
+        };
     }, []);
 
     async function handleDownloadAllImages() {
@@ -90,6 +95,10 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
             const images = attachments.filter((a) => a.type === "IMAGE");
             for (const image of images) {
                 const response = await fetch(image.url);
+                if (!response.ok) {
+                    toast.error(`Kunne ikke hente ${image.file_name ?? "billede"}`);
+                    continue;
+                }
                 const blob = await response.blob();
                 const blobUrl = URL.createObjectURL(blob);
                 const a = document.createElement("a");

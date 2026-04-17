@@ -75,7 +75,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
     }
 
     async function handleSave() {
-        if (!editText.trim()) return;
+        if (!editText.trim() && visibleAttachments.length === 0 && pendingAttachments.length === 0) return;
         setSaving(true);
         try {
             let upload_tokens: string[] = [];
@@ -132,6 +132,8 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                                     <span className="text-[10px] text-center px-1 break-all" style={{ color: colors.textMuted }}>{a.file_name}</span>
                                 )}
                                 <button
+                                    type="button"
+                                    aria-label="Fjern vedhæftning"
                                     onClick={() => removeExisting(a.attachment_id)}
                                     className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                     style={{ backgroundColor: colors.charcoal }}
@@ -152,7 +154,12 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                                     <span className="text-[10px] text-center px-1 break-all" style={{ color: colors.textMuted }}>{a.file.name}</span>
                                 )}
                                 <button
-                                    onClick={() => setPendingAttachments((prev) => prev.filter((x) => x.id !== a.id))}
+                                    type="button"
+                                    aria-label="Fjern vedhæftning"
+                                    onClick={() => {
+                                        if (a.previewUrl) URL.revokeObjectURL(a.previewUrl);
+                                        setPendingAttachments((prev) => prev.filter((x) => x.id !== a.id));
+                                    }}
                                     className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                     style={{ backgroundColor: colors.charcoal }}
                                 >
@@ -168,7 +175,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                     </Button>
                     <div className="flex items-center gap-2">
                         <Button variant="secondary" size="md" onClick={handleCancel}>Annuller</Button>
-                        <Button variant="primary" size="md" loading={saving} disabled={!editText.trim()} onClick={handleSave}>Gem</Button>
+                        <Button variant="primary" size="md" loading={saving} disabled={!editText.trim() && visibleAttachments.length === 0 && pendingAttachments.length === 0} onClick={handleSave}>Gem</Button>
                     </div>
                 </div>
             </div>
