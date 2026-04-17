@@ -85,8 +85,10 @@ export default function CommentEditForm({ initialText, existingAttachments, task
         setRemovedIds((prev) => new Set([...prev, id]));
     }
 
+    const hasChanges = editText.trim() !== initialText || pendingAttachments.length > 0 || removedIds.size > 0;
+
     async function handleSave() {
-        if (!editText.trim() && visibleAttachments.length === 0 && pendingAttachments.length === 0) return;
+        if (!hasChanges) return;
         setSaving(true);
         try {
             let upload_tokens: string[] = [];
@@ -189,7 +191,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                     </Button>
                     <div className="flex items-center gap-2">
                         <Button variant="secondary" size="md" onClick={handleCancel}>Annuller</Button>
-                        <Button variant="primary" size="md" loading={saving} disabled={!editText.trim() && visibleAttachments.length === 0 && pendingAttachments.length === 0} onClick={handleSave}>Gem</Button>
+                        <Button variant="primary" size="md" loading={saving} disabled={!hasChanges} onClick={handleSave}>Gem</Button>
                     </div>
                 </div>
             </div>
