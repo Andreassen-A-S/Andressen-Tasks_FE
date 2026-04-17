@@ -15,7 +15,8 @@ import { getTemplateInstances } from "@/lib/api";
 import { formatDate, formatRelativeDate } from "@/helpers/helpers";
 import Badge from "@/components/common/label/badge";
 import Modal from "@/components/modal/Modal";
-import CloseButton from "../common/buttons/CloseButton";
+import Button from "@/components/common/buttons/Button";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 interface ViewTemplateProps {
     template: RecurringTemplate;
@@ -95,7 +96,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
             <div>
                 Oprettet: {formatDate(template.created_at)}
             </div>
-            <CloseButton onClick={onClose} />
+            <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} aria-label="Luk" />
         </div>
     );
 

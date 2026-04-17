@@ -9,7 +9,8 @@ import { formatDate, getPriorityAccentColors, translatePriority, translateTaskUn
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faCheck } from "@fortawesome/free-solid-svg-icons";
 import UserTaskComment from "./UserTaskComment";
-import CloseButton from "@/components/common/buttons/CloseButton";
+import Button from "@/components/common/buttons/Button";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import Badge from "@/components/common/label/badge";
 import RecurringBadge from "@/components/common/label/recurringBadge";
 
@@ -148,7 +149,7 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
                     <Badge variant="status" value={task.status} size="lg" />
                 ) : null}
                 <div className="border border-gray-200 rounded-lg">
-                    <CloseButton onClick={onBack} />
+                    <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onBack} aria-label="Luk" />
                 </div>
             </div>
 

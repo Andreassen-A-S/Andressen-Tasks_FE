@@ -1,5 +1,5 @@
 import { getAuthHeaders } from "@/helpers/helpers";
-import type { AllowedMimeType } from "@/types/attachment";
+import type { AllowedMimeType, TaskAttachment } from "@/types/attachment";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -20,6 +20,18 @@ export async function prepareAttachments(
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? "Failed to prepare attachments");
+  }
+  const data = await res.json();
+  return data.data;
+}
+
+export async function getTaskAttachments(taskId: string): Promise<TaskAttachment[]> {
+  const res = await fetch(`${API_URL}/attachments/task/${taskId}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? "Failed to fetch attachments");
   }
   const data = await res.json();
   return data.data;

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getTask, getUser } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { User } from "@/types/users";
-import { formatDateTime, formatDate, translateTaskUnit } from "@/helpers/helpers";
+import { formatDateTime, formatDate } from "@/helpers/helpers";
 
 import { getTaskAssignments } from "@/lib/api";
 import type { TaskAssignment } from "@/types/assignment";
@@ -16,12 +16,20 @@ import {
     faClock,
     faCalendar,
     faFlag,
+    faEllipsis,
+    faImages,
+    faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Badge from "../../common/label/badge";
+import ProjectBadge from "../../common/label/ProjectBadge";
 import SingleAvatar from "../../common/label/singleAvatar";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";
 import TaskDescriptionCard from "./TaskDescriptionCard";
-import CloseButton from "@/components/common/buttons/CloseButton";
+
+import Button from "@/components/common/buttons/Button";
+import DropdownMenu from "@/components/common/DropdownMenu";
+import { getTaskAttachments } from "@/lib/api";
+import { toast } from "sonner";
 
 
 interface TaskDetailsProps {
@@ -36,6 +44,7 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     const [error, setError] = useState<string | null>(null);
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
     const [assignments, setAssignments] = useState<TaskAssignment[]>([]);
+    const [isDownloading, setIsDownloading] = useState(false);
 
 
     useEffect(() => {
@@ -61,6 +70,41 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
 
         if (taskId) fetchTask();
     }, [taskId]);
+
+
+    async function handleDownloadAllImages() {
+        if (!task || isDownloading) return;
+        setIsDownloading(true);
+        try {
+            const attachments = await getTaskAttachments(task.task_id);
+            const images = attachments.filter((a) => a.type === "IMAGE");
+            if (images.length === 0) {
+                toast.info("Ingen billeder at downloade");
+                return;
+            }
+            for (const image of images) {
+                const response = await fetch(image.url);
+                if (!response.ok) {
+                    toast.error(`Kunne ikke hente ${image.file_name ?? "billede"}`);
+                    continue;
+                }
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = blobUrl;
+                a.download = image.file_name ?? "billede";
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            }
+        } catch {
+            toast.error("Kunne ikke hente billeder. Prøv igen.");
+        } finally {
+            setIsDownloading(false);
+        }
+    }
 
 
     if (isLoading) {
@@ -91,16 +135,31 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                     <h1 className="h2 wrap-break-word">
                         {task.title}
                     </h1>
-                    <CloseButton onClick={onClose} />
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                        <DropdownMenu
+                            trigger={
+                                <Button variant="ghost" size="md" icon={faEllipsis} iconOnly tooltip="Mere" />
+                            }
+                            items={[
+                                {
+                                    label: isDownloading ? "Henter billeder..." : "Download alle billeder",
+                                    icon: faImages,
+                                    onClick: handleDownloadAllImages,
+                                },
+                            ]}
+                        />
+                        <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />
+                    </div>
                 </div>
-                <div className="flex">
+                <div className="flex items-center gap-3">
                     <Badge variant="status" value={task.status} />
+                    {task.project?.name && <ProjectBadge name={task.project.name} />}
                 </div>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-y-auto">
                 {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto px-8 py-6">
+                <div className="flex-1 pl-8 pr-4 pt-6">
                     <TaskDescriptionCard
                         creator={creator}
                         createdAt={task.created_at}
@@ -108,11 +167,15 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                         showSubtaskButton={task.parent_task_id == null}
                         onAddSubtask={() => setShowSubtaskModal(true)}
                     />
-                    <TaskTimeline taskId={task.task_id} />
+                    <TaskTimeline taskId={task.task_id} creatorId={task.created_by} />
+                    <div className="h-12" />
                 </div>
 
                 {/* Sidebar */}
-                <div className="w-80 border-l border-gray-200 overflow-y-auto px-6 py-6">
+                <div
+                    className="w-80 pl-4 pr-6 py-6 self-start"
+                    style={{ position: "sticky", top: 0 }}
+                >
                     <div className="space-y-6">
                         {/* Priority */}
                         <div>

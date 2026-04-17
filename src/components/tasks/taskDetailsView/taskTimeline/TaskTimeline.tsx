@@ -15,7 +15,7 @@ import TaskComment from "../TaskComment";
 import TaskTimelineComment from "./TaskTimelineComment";
 
 function isCommentEvent(type: string) {
-    return type === "COMMENT_CREATED" || type === "COMMENT_UPDATED" || type === "COMMENT_DELETED";
+    return type === "COMMENT_CREATED" || type === "COMMENT_DELETED";
 }
 
 function eventLabel(e: TaskEvent) {
@@ -154,7 +154,7 @@ function eventLabel(e: TaskEvent) {
     }
 }
 
-export default function TaskTimeline({ taskId }: { taskId: string }) {
+export default function TaskTimeline({ taskId, creatorId }: { taskId: string; creatorId?: string }) {
     const auth = useContext(AuthContext);
     const currentUser = auth?.user;
 
@@ -191,6 +191,10 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
         }
     }
 
+    async function handleUpdateComment() {
+        await refresh(true);
+    }
+
     async function handleSubmitComment(message: string, uploadTokens: string[]) {
         if (!message && !uploadTokens.length) return;
         try {
@@ -201,6 +205,13 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
             await refresh(true);
         } catch {
             throw new Error("Kunne ikke tilføje kommentar. Prøv igen.");
+        }
+    }
+
+    const editedByMap = new Map<string, string>();
+    for (const e of events) {
+        if (e.type === "COMMENT_UPDATED" && e.comment_id) {
+            editedByMap.set(e.comment_id, e.actor?.name || e.actor?.email || "Ukendt bruger");
         }
     }
 
@@ -227,10 +238,11 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                 {/* Timeline vertical line */}
                 <div className="absolute left-16.75 -top-7.5 -bottom-6 w-0.5 bg-[#E8E6E1] z-0" />
 
-                {events.map((e) => {
+                {events.filter((e) => e.type !== "COMMENT_UPDATED").map((e) => {
                     const actorName = e.actor?.name || e.actor?.email || "Ukendt bruger";
 
                     if (isCommentEvent(e.type)) {
+                        const commentId = e.comment?.comment_id ?? e.comment_id;
                         return (
                             <div key={e.event_id} className="relative z-10">
                                 <TaskTimelineComment
@@ -238,7 +250,10 @@ export default function TaskTimeline({ taskId }: { taskId: string }) {
                                     actorName={actorName}
                                     currentUserId={currentUser?.user_id}
                                     isAdmin={currentUser?.role === UserRole.ADMIN}
+                                    isTaskOwner={!!creatorId && e.actor_id === creatorId}
+                                    editedBy={commentId ? editedByMap.get(commentId) : undefined}
                                     onDelete={handleDeleteComment}
+                                    onUpdate={handleUpdateComment}
                                 />
                             </div>
                         );

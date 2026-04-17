@@ -3,33 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/singleAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
+import { faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
+import Button from "@/components/common/buttons/Button";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
 import { getFileExtension } from "@/helpers/helpers";
-import { AllowedMimeType } from "@/types/attachment";
+import { AllowedMimeType, ALLOWED_MIME_TYPE_VALUES, MAX_ATTACHMENTS, MAX_FILE_SIZE, type PendingAttachment } from "@/types/attachment";
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
-
-
-const MAX_FILE_SIZE: Record<AllowedMimeType, number> = {
-  [AllowedMimeType.JPEG]: 10 * 1024 * 1024,
-  [AllowedMimeType.PNG]: 10 * 1024 * 1024,
-  [AllowedMimeType.WEBP]: 10 * 1024 * 1024,
-  [AllowedMimeType.HEIC]: 10 * 1024 * 1024,
-  [AllowedMimeType.PDF]: 50 * 1024 * 1024,
-  [AllowedMimeType.DOCX]: 50 * 1024 * 1024,
-  [AllowedMimeType.XLSX]: 50 * 1024 * 1024,
-};
-
-const MAX_ATTACHMENTS = 20;
-const ALLOWED_MIME_TYPE_VALUES = new Set(Object.values(AllowedMimeType));
-
-interface PendingAttachment {
-  id: string;
-  file: File;
-  mimeType: AllowedMimeType;
-  previewUrl: string | null; // object URL for images, null for non-images
-}
 
 interface TaskCommentProps {
   taskId: string;
@@ -93,7 +73,6 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       return [...prev, ...toAdd.slice(0, remaining).map((f) => ({
         id: crypto.randomUUID(),
         file: f,
-        mimeType: f.type as AllowedMimeType,
         previewUrl: f.type.startsWith("image/") && f.type !== AllowedMimeType.HEIC ? URL.createObjectURL(f) : null,
       }))];
     });
@@ -133,7 +112,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       if (attachments.length > 0) {
         const prepared = await prepareAttachments(taskId, attachments.map((a) => ({
           file_name: a.file.name,
-          mime_type: a.mimeType,
+          mime_type: a.file.type as AllowedMimeType,
           file_size: a.file.size,
         })));
 
@@ -223,30 +202,26 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
 
           {/* Toolbar row */}
           <div className="mt-2 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
+            <Button
+              variant="ghost"
+              size="md"
+              icon={faPaperclip}
               disabled={uploading}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ color: colors.textMuted }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.muted)}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              onClick={() => fileInputRef.current?.click()}
             >
-              <FontAwesomeIcon icon={faPaperclip} className="text-sm" />
-              <span className="caption">Træk filer hertil eller klik for at tilføje</span>
-            </button>
+              Træk filer hertil eller klik for at tilføje
+            </Button>
 
-            <button
-              type="button"
-              onClick={handleSubmit}
+            <Button
+              variant="primary"
+              size="md"
+              loading={uploading}
               disabled={!hasContent || uploading}
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 btn-md transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: colors.green, color: colors.textWhite }}
+              onClick={handleSubmit}
+              tooltip={!hasContent ? "Skriv en kommentar først" : undefined}
             >
-              {uploading ? (
-                <><FontAwesomeIcon icon={faSpinner} spin />Sender...</>
-              ) : "Kommenter"}
-            </button>
+              Kommenter
+            </Button>
           </div>
 
           <input

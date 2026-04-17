@@ -2,7 +2,8 @@
 
 import { useEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
-import CloseButton from "../common/buttons/CloseButton";
+import Button from "../common/buttons/Button";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
 
 interface ModalProps {
@@ -99,7 +100,7 @@ export default function Modal({
                         <>
                             <div className="flex items-center justify-between border-b p-3" style={{ borderColor: colors.border }}>
                                 <h3 className="h5" id="modal-title">{title}</h3>
-                                <CloseButton onClick={onClose} className="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg w-9 h-9 -mr-1 -my-1 transition-all" />
+                                <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} aria-label="Luk" />
                             </div>
                             <div className="p-3">{children}</div>
                             {footer && (
@@ -111,7 +112,7 @@ export default function Modal({
                             <div className="px-6 pb-4 pt-6 sm:p-8">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="h3" id="modal-title">{title}</h3>
-                                    <CloseButton onClick={onClose} />
+                                    <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} aria-label="Luk" />
                                 </div>
                                 <div>{children}</div>
                             </div>
