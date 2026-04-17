@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { faPaperclip, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { updateComment, prepareAttachments, uploadToGcs } from "@/lib/api";
@@ -27,6 +27,13 @@ export default function CommentEditForm({ initialText, existingAttachments, task
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const visibleAttachments = existingAttachments.filter((a) => !removedIds.has(a.attachment_id));
+
+    useEffect(() => {
+        return () => {
+            pendingAttachments.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     function addFiles(files: File[]) {
         const valid = files.filter((f) => ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
@@ -60,7 +67,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
             ...toAdd.map((f) => ({
                 id: crypto.randomUUID(),
                 file: f,
-                previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : null,
+                previewUrl: f.type.startsWith("image/") && f.type !== AllowedMimeType.HEIC ? URL.createObjectURL(f) : null,
             })),
         ]);
     }
@@ -90,7 +97,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
             }
             await updateComment(commentId, {
                 message: editText.trim(),
-                upload_tokens,
+                upload_tokens: upload_tokens.length > 0 ? upload_tokens : undefined,
                 remove_attachment_ids: removedIds.size > 0 ? [...removedIds] : undefined,
             });
             pendingAttachments.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });

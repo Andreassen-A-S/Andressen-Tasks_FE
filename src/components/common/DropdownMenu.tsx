@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, createContext, useContext } from "react";
+import { useEffect, useRef, useState, createContext } from "react";
 import { createPortal } from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";

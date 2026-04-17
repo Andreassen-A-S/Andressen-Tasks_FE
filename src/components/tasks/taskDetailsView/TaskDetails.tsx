@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { getTask, getUser } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { User } from "@/types/users";
@@ -45,8 +45,6 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
     const [assignments, setAssignments] = useState<TaskAssignment[]>([]);
     const [isDownloading, setIsDownloading] = useState(false);
-    const sidebarRef = useRef<HTMLDivElement>(null);
-    const [sidebarTop, setSidebarTop] = useState(0);
 
 
     useEffect(() => {
@@ -73,19 +71,6 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
         if (taskId) fetchTask();
     }, [taskId]);
 
-    useEffect(() => {
-        const el = sidebarRef.current;
-        if (!el) return;
-        const update = (height: number) => setSidebarTop(Math.max(0, window.innerHeight - height));
-        const observer = new ResizeObserver(([entry]) => update(entry.contentRect.height));
-        observer.observe(el);
-        const handleResize = () => update(el.getBoundingClientRect().height);
-        window.addEventListener("resize", handleResize);
-        return () => {
-            observer.disconnect();
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
 
     async function handleDownloadAllImages() {
         if (!task || isDownloading) return;
@@ -93,6 +78,10 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
         try {
             const attachments = await getTaskAttachments(task.task_id);
             const images = attachments.filter((a) => a.type === "IMAGE");
+            if (images.length === 0) {
+                toast.info("Ingen billeder at downloade");
+                return;
+            }
             for (const image of images) {
                 const response = await fetch(image.url);
                 if (!response.ok) {
@@ -110,6 +99,8 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                 document.body.removeChild(a);
                 setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
             }
+        } catch {
+            toast.error("Kunne ikke hente billeder. Prøv igen.");
         } finally {
             setIsDownloading(false);
         }
@@ -182,9 +173,8 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
 
                 {/* Sidebar */}
                 <div
-                    ref={sidebarRef}
                     className="w-80 pl-4 pr-6 py-6 self-start"
-                    style={{ position: "sticky", top: sidebarTop }}
+                    style={{ position: "sticky", top: 0 }}
                 >
                     <div className="space-y-6">
                         {/* Priority */}
