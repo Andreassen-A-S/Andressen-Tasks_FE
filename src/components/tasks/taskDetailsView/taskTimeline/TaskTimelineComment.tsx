@@ -5,7 +5,8 @@ import type { TaskEvent } from "@/types/taskEvent";
 import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/singleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
-import { faEllipsis, faTrash, faPencil } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsis, faTrash, faPencil, faCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import Button from "@/components/common/buttons/Button";
@@ -20,6 +21,7 @@ type Props = {
     currentUserId?: string;
     isAdmin?: boolean;
     isTaskOwner?: boolean;
+    editedBy?: string;
     onDelete?: (commentId: string) => Promise<void>;
     onUpdate?: () => Promise<void>;
 };
@@ -64,7 +66,7 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, onDelete, onUpdate }: Props) {
+export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, editedBy, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -98,8 +100,18 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                 <div className="flex-1 rounded-lg overflow-hidden" style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}>
                     <div className="pl-4 pr-1 py-1 flex items-center gap-1" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.eggWhite }}>
                         <span className="label-lg flex-shrink-0">{actorName}</span>
-                        <span className="body-xs flex-shrink-0">kommenterede</span>
-                        <span className="caption flex-shrink-0">{formatCommentDate(event.created_at)}</span>
+                        {editedBy ? (
+                            <span className="body-xs flex-shrink-0 inline-flex items-center gap-1.5">
+                                {formatCommentDate(event.created_at)}
+                                <FontAwesomeIcon icon={faCircle} style={{ fontSize: 2 }} />
+                                redigeret af {editedBy}
+                            </span>
+                        ) : (
+                            <>
+                                <span className="body-xs flex-shrink-0">kommenterede</span>
+                                <span className="body-xs flex-shrink-0">{formatCommentDate(event.created_at)}</span>
+                            </>
+                        )}
 
                         <div className="ml-auto flex items-center gap-1 flex-shrink-0">
                             {isTaskOwner && (

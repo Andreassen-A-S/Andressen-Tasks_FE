@@ -99,8 +99,9 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 await Promise.all(prepared.map((p, i) => uploadToGcs(p.upload_url, pendingAttachments[i].file)));
                 upload_tokens = prepared.map((p) => p.upload_token);
             }
+            const trimmed = editText.trim();
             await updateComment(commentId, {
-                message: editText.trim(),
+                message: trimmed !== initialText ? trimmed : undefined,
                 upload_tokens: upload_tokens.length > 0 ? upload_tokens : undefined,
                 remove_attachment_ids: removedIds.size > 0 ? [...removedIds] : undefined,
             });

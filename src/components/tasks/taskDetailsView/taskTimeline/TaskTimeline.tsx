@@ -15,7 +15,7 @@ import TaskComment from "../TaskComment";
 import TaskTimelineComment from "./TaskTimelineComment";
 
 function isCommentEvent(type: string) {
-    return type === "COMMENT_CREATED" || type === "COMMENT_UPDATED" || type === "COMMENT_DELETED";
+    return type === "COMMENT_CREATED" || type === "COMMENT_DELETED";
 }
 
 function eventLabel(e: TaskEvent) {
@@ -208,6 +208,13 @@ export default function TaskTimeline({ taskId, creatorId }: { taskId: string; cr
         }
     }
 
+    const editedByMap = new Map<string, string>();
+    for (const e of events) {
+        if (e.type === "COMMENT_UPDATED" && e.comment_id) {
+            editedByMap.set(e.comment_id, e.actor?.name || e.actor?.email || "Ukendt bruger");
+        }
+    }
+
     if (loading) {
         return (
             <div className="flex justify-center py-6">
@@ -235,6 +242,7 @@ export default function TaskTimeline({ taskId, creatorId }: { taskId: string; cr
                     const actorName = e.actor?.name || e.actor?.email || "Ukendt bruger";
 
                     if (isCommentEvent(e.type)) {
+                        const commentId = e.comment?.comment_id ?? e.comment_id;
                         return (
                             <div key={e.event_id} className="relative z-10">
                                 <TaskTimelineComment
@@ -243,6 +251,7 @@ export default function TaskTimeline({ taskId, creatorId }: { taskId: string; cr
                                     currentUserId={currentUser?.user_id}
                                     isAdmin={currentUser?.role === UserRole.ADMIN}
                                     isTaskOwner={!!creatorId && e.actor_id === creatorId}
+                                    editedBy={commentId ? editedByMap.get(commentId) : undefined}
                                     onDelete={handleDeleteComment}
                                     onUpdate={handleUpdateComment}
                                 />
