@@ -69,7 +69,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
         setPendingAttachments((prev) => [
             ...prev,
             ...toAdd.map((f) => ({
-                id: (crypto.randomUUID ?? (() => `${Date.now()}-${Math.random().toString(36).slice(2)}`))()
+                id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
                 file: f,
                 previewUrl: f.type.startsWith("image/") && f.type !== AllowedMimeType.HEIC ? URL.createObjectURL(f) : null,
             })),

@@ -71,7 +71,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
     setAttachments((prev) => {
       const remaining = MAX_ATTACHMENTS - prev.length;
       return [...prev, ...toAdd.slice(0, remaining).map((f) => ({
-        id: (crypto.randomUUID ?? (() => `${Date.now()}-${Math.random().toString(36).slice(2)}`))()
+        id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
         file: f,
         previewUrl: f.type.startsWith("image/") && f.type !== AllowedMimeType.HEIC ? URL.createObjectURL(f) : null,
       }))];
