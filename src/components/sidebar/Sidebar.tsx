@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
 import { faChartColumn, faFolder, faGear, faTasks, faUsers, faSignOutAlt, faRepeat } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAuth } from "@/hooks/useAuth";
@@ -32,7 +31,7 @@ export default function Sidebar() {
             {/* Header - Brand */}
             <div className="p-6 border-b border-[rgba(255,255,255,0.06)] flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <Image src="/favicon.ico" alt="Andreassen A/S" width={80} height={34} />
+                    <img src="/logo.png" alt="Andreassen A/S" width={80} />
                     <div>
                         <h1 className="sidebar-brand">Andreassen A/S</h1>
                         <span className="sidebar-brand-sub">task management</span>

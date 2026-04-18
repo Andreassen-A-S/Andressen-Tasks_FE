@@ -36,7 +36,7 @@ export default function LoginPage() {
                 {/* Logo & branding */}
                 <div className="flex flex-col items-center mb-8">
                     <Image
-                        src="/favicon.ico"
+                        src="/logo.png"
                         alt="Andreassen A/S"
                         width={180}
                         height={56}
