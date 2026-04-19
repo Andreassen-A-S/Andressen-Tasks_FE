@@ -8,6 +8,7 @@ interface TaskDescriptionCardProps {
     description: string | null;
     showSubtaskButton?: boolean;
     onAddSubtask?: () => void;
+    isArchived?: boolean;
 }
 
 export default function TaskDescriptionCard({
@@ -16,6 +17,7 @@ export default function TaskDescriptionCard({
     description,
     showSubtaskButton = false,
     onAddSubtask,
+    isArchived = false,
 }: TaskDescriptionCardProps) {
     const creatorName = creator?.name || creator?.email || "Ukendt";
 
@@ -49,7 +51,7 @@ export default function TaskDescriptionCard({
                         )}
                     </div>
 
-                    {showSubtaskButton && (
+                    {showSubtaskButton && !isArchived && (
                         <button
                             onClick={onAddSubtask}
                             className="inline-flex items-center gap-2 bg-[#EBF0FD] hover:bg-[#dbe6fc] text-[#2C5FE0] px-3 py-1.5 rounded-lg font-medium btn-md transition-colors border border-[#E8E6E1]"
