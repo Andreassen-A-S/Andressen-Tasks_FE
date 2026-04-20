@@ -251,6 +251,7 @@ export default function TaskTimeline({ taskId, creatorId, isArchived = false }: 
                                     currentUserId={currentUser?.user_id}
                                     isAdmin={currentUser?.role === UserRole.ADMIN}
                                     isTaskOwner={!!creatorId && e.actor_id === creatorId}
+                                    isArchived={isArchived}
                                     editedBy={commentId ? editedByMap.get(commentId) : undefined}
                                     onDelete={handleDeleteComment}
                                     onUpdate={handleUpdateComment}

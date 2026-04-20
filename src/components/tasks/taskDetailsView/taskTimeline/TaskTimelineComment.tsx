@@ -21,6 +21,7 @@ type Props = {
     currentUserId?: string;
     isAdmin?: boolean;
     isTaskOwner?: boolean;
+    isArchived?: boolean;
     editedBy?: string;
     onDelete?: (commentId: string) => Promise<void>;
     onUpdate?: () => Promise<void>;
@@ -66,7 +67,7 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, editedBy, onDelete, onUpdate }: Props) {
+export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, isArchived = false, editedBy, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -79,8 +80,8 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
     const attachments = event.comment?.attachments ?? [];
 
     const commentId = event.comment?.comment_id ?? event.comment_id;
-    const canDelete = !isDeleted && onDelete && !!commentId && (isAdmin || currentUserId === event.actor_id);
-    const canEdit = !isDeleted && !!commentId && currentUserId === event.actor_id;
+    const canDelete = !isArchived && !isDeleted && onDelete && !!commentId && (isAdmin || currentUserId === event.actor_id);
+    const canEdit = !isArchived && !isDeleted && !!commentId && currentUserId === event.actor_id;
 
     async function handleDelete() {
         if (!onDelete || !commentId) return;
