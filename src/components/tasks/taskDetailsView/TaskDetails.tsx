@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getTask, getUser } from "@/lib/api";
 import type { Task } from "@/types/task";
+import { TaskStatus } from "@/types/task";
 import type { User } from "@/types/users";
 import { formatDateTime, formatDate } from "@/helpers/helpers";
 
@@ -19,6 +20,7 @@ import {
     faEllipsis,
     faImages,
     faXmark,
+    faBoxArchive,
 } from "@fortawesome/free-solid-svg-icons";
 import Badge from "../../common/label/badge";
 import ProjectBadge from "../../common/label/ProjectBadge";
@@ -30,6 +32,7 @@ import Button from "@/components/common/buttons/Button";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import { getTaskAttachments } from "@/lib/api";
 import { toast } from "sonner";
+import { colors } from "@/constants/colors";
 
 
 interface TaskDetailsProps {
@@ -127,8 +130,25 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
         );
     }
 
+    const isArchived = task.status === TaskStatus.ARCHIVED;
+
     return (
         <div className="flex flex-col h-full bg-white">
+            {/* Archived banner */}
+            {isArchived && (
+                <div
+                    className="flex items-center gap-2 px-4 py-2"
+                    style={{
+                        backgroundColor: colors.muted,
+                        borderBottom: `1px solid ${colors.border}`,
+                        color: colors.textSecondary,
+                    }}
+                >
+                    <FontAwesomeIcon icon={faBoxArchive} className="text-xs" />
+                    <span className="label-sm">Denne opgave er arkiveret og kan ikke redigeres</span>
+                </div>
+            )}
+
             {/* Header */}
             <div className="px-8 pt-6 pb-4 border-b border-gray-200">
                 <div className="flex items-start justify-between mb-3">
@@ -166,8 +186,9 @@ export default function TaskDetails({ taskId, onClose }: TaskDetailsProps) {
                         description={task.description}
                         showSubtaskButton={task.parent_task_id == null}
                         onAddSubtask={() => setShowSubtaskModal(true)}
+                        isArchived={isArchived}
                     />
-                    <TaskTimeline taskId={task.task_id} creatorId={task.created_by} />
+                    <TaskTimeline taskId={task.task_id} creatorId={task.created_by} isArchived={isArchived} />
                     <div className="h-12" />
                 </div>
 

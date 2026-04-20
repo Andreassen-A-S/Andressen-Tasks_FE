@@ -154,7 +154,7 @@ function eventLabel(e: TaskEvent) {
     }
 }
 
-export default function TaskTimeline({ taskId, creatorId }: { taskId: string; creatorId?: string }) {
+export default function TaskTimeline({ taskId, creatorId, isArchived = false }: { taskId: string; creatorId?: string; isArchived?: boolean }) {
     const auth = useContext(AuthContext);
     const currentUser = auth?.user;
 
@@ -251,6 +251,7 @@ export default function TaskTimeline({ taskId, creatorId }: { taskId: string; cr
                                     currentUserId={currentUser?.user_id}
                                     isAdmin={currentUser?.role === UserRole.ADMIN}
                                     isTaskOwner={!!creatorId && e.actor_id === creatorId}
+                                    isArchived={isArchived}
                                     editedBy={commentId ? editedByMap.get(commentId) : undefined}
                                     onDelete={handleDeleteComment}
                                     onUpdate={handleUpdateComment}
@@ -280,11 +281,13 @@ export default function TaskTimeline({ taskId, creatorId }: { taskId: string; cr
             </div>
 
             {/* Composer (GitHub-style bottom box) */}
-            <TaskComment
-                taskId={taskId}
-                currentUser={{ name: currentUser?.name, email: currentUser?.email }}
-                onSubmit={handleSubmitComment}
-            />
+            {!isArchived && (
+                <TaskComment
+                    taskId={taskId}
+                    currentUser={{ name: currentUser?.name, email: currentUser?.email }}
+                    onSubmit={handleSubmitComment}
+                />
+            )}
         </div>
     );
 }
