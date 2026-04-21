@@ -21,6 +21,7 @@ interface Props {
   onClose: () => void;
   value: string | null;
   onSelect: (isoDate: string | null) => void;
+  clearable?: boolean;
 }
 
 const SHEET_WIDTH = 328;
@@ -50,7 +51,7 @@ function isSameDay(a: Date, b: Date) {
     a.getDate() === b.getDate();
 }
 
-export default function DetailsDatePicker({ open, triggerEl, onClose, value, onSelect }: Props) {
+export default function DetailsDatePicker({ open, triggerEl, onClose, value, onSelect, clearable }: Props) {
   const today = new Date();
   const selected = value ? toLocalDate(value) : null;
   const initialViewDate = selected ?? today;
@@ -180,7 +181,7 @@ export default function DetailsDatePicker({ open, triggerEl, onClose, value, onS
 
         {/* Footer */}
         <div className="flex items-center gap-1 px-4 pb-4">
-          <Button variant="ghost" size="sm" onClick={() => { onSelect(null); onClose(); }}>Ryd</Button>
+          {clearable && <Button variant="ghost" size="sm" onClick={() => { onSelect(null); onClose(); }}>Ryd</Button>}
           <Button variant="ghost" size="sm" onClick={() => { onSelect(toIso(new Date())); onClose(); }}>I dag</Button>
         </div>
       </div>

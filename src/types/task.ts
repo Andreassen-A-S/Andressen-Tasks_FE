@@ -78,10 +78,10 @@ export interface UpdateTaskInput {
   description?: string;
   priority?: TaskPriority;
   status?: TaskStatus;
-  deadline?: string | null;
+  deadline?: string;
   project_id?: string;
   assigned_users?: string[];
-  start_date?: string | null;
+  start_date?: string;
   unit?: TaskUnit;
   goal_type?: TaskGoalType;
   target_quantity?: number | null;
