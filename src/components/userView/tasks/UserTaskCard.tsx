@@ -38,7 +38,7 @@ export default function UserTaskCard({ task, onClick }: UserTaskCardProps) {
             style={{ background: isCompleted ? '#FAFAF7' : '#FFFFFF' }}
         >
             {/* Priority left bar */}
-            <div className={`w-1 shrink-0 ${getPriorityAccentColors(task.priority)}`} />
+            <div className={`w-1 shrink-0 bg-${getPriorityAccentColors(task.priority).accent}`} />
 
             {/* Card content */}
             <div className="flex-1 min-w-0 px-4 py-4 md:px-6 md:py-5">

@@ -11,7 +11,7 @@ export default function CalendarTaskCard({ task, onClick }: CalendarTaskCardProp
     return (
         <div className="bg-white border border-[#E8E6E1] rounded-lg flex overflow-hidden"
             onClick={onClick}>
-            <div className={`w-1 flex-shrink-0 ${getPriorityAccentColors(task.priority)}`} />
+            <div className={`w-1 flex-shrink-0 bg-${getPriorityAccentColors(task.priority).accent}`} />
             <div className="flex-1 px-2.5 py-2.5">
                 <div className="flex items-start justify-between gap-2 mb-1">
                     <span className="h5">

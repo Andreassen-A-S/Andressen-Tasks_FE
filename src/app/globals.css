@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+@source inline("border-red-600 border-orange-400 border-yellow-400 border-yellow-600 border-green-600 border-gray-600");
 
 :root {
   --background: #f6f5f1;
@@ -245,9 +246,22 @@ body[data-scroll-locked="true"] {
 .badge {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-sm {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+}
+
+.badge-md {
   font-size: 0.625rem; /* 10px */
   line-height: 0.875rem; /* 14px */
-  letter-spacing: 0.02em;
+}
+
+.badge-lg {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
 }
 
 .tag {
