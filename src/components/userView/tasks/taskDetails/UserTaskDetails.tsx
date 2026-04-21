@@ -178,7 +178,7 @@ export default function UserTaskDetails({ taskId, onBack, onTaskUpdate }: UserTa
                         {/* Priority Badge */}
                         <div className="flex items-center gap-2 mb-2.5">
                             <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md ${priorityBgClass()}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${getPriorityAccentColors(task.priority)}`} />
+                                <span className={`w-1.5 h-1.5 rounded-full bg-${getPriorityAccentColors(task.priority).accent}`} />
                                 <span className="badge">{translatePriority(task.priority)} prioritet</span>
                             </div>
                             {task.recurring_template_id && <RecurringBadge size="md" />}

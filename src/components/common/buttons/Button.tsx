@@ -19,6 +19,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: IconDefinition;
   iconPosition?: "left" | "right";
   iconOnly?: boolean;
+  iconClassName?: string;
   fullWidth?: boolean;
   tooltip?: string;
 }
@@ -56,6 +57,7 @@ export default function Button({
   icon,
   iconPosition = "left",
   iconOnly = false,
+  iconClassName,
   fullWidth = false,
   tooltip,
   disabled,
@@ -119,12 +121,12 @@ export default function Button({
         <FontAwesomeIcon icon={faSpinner} spin className="text-current" />
       ) : (
         icon && iconPosition === "left" && (
-          <FontAwesomeIcon icon={icon} className="text-current w-4 h-4" />
+          <FontAwesomeIcon icon={icon} className={iconClassName ?? "text-current w-4 h-4"} />
         )
       )}
       {children}
       {!loading && icon && iconPosition === "right" && (
-        <FontAwesomeIcon icon={icon} className="text-current w-4 h-4" />
+        <FontAwesomeIcon icon={icon} className={iconClassName ?? "text-current w-4 h-4"} />
       )}
     </button>
   );

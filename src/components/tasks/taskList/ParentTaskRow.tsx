@@ -15,8 +15,6 @@ interface ParentTaskRowProps {
     subtasks: Task[];
     taskAssignments: Record<string, TaskAssignment[]>;
     onTaskClick: (taskId: string) => void;
-    onEditClick: (task: Task) => void;
-    onDeleteClick: (taskId: string) => void;
 }
 
 export default function ParentTaskRow({
@@ -24,8 +22,6 @@ export default function ParentTaskRow({
     subtasks,
     taskAssignments,
     onTaskClick,
-    onEditClick,
-    onDeleteClick,
 }: ParentTaskRowProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -115,7 +111,7 @@ export default function ParentTaskRow({
                             {hasQuantityProgress && task.target_quantity != null && task.target_quantity > 0 && (
                                 <div className="flex items-center gap-2 min-w-30">
                                     {task.unit !== TaskUnit.NONE && (
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-[#E8F7F0] text-[#2D9F6F] badge">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-[#E8F7F0] text-[#2D9F6F] badge badge-md">
                                             {task.current_quantity ?? 0}/{task.target_quantity}
                                             {progressUnit ? ` ${progressUnit}` : ""}
                                         </span>
@@ -176,22 +172,6 @@ export default function ParentTaskRow({
                     {formatRelativeDate(task.deadline)}
                 </td>
 
-                <td className="px-6 py-4">
-                    <div className="flex gap-3">
-                        <button
-                            className="link"
-                            onClick={() => onEditClick(task)}
-                        >
-                            Rediger
-                        </button>
-                        <button
-                            className="link-danger"
-                            onClick={() => onDeleteClick(task.task_id)}
-                        >
-                            Slet
-                        </button>
-                    </div>
-                </td>
             </tr>
 
             {/* Subtasks Rows */}
@@ -208,7 +188,6 @@ export default function ParentTaskRow({
                             isLast={isLast}
                             taskAssignments={taskAssignments}
                             onTaskClick={onTaskClick}
-                            onEditClick={onEditClick}
                         />
                     );
                 })}

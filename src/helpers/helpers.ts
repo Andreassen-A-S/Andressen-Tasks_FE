@@ -1,7 +1,13 @@
 import { TaskEvent } from "@/types/taskEvent";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import { TaskAssignment } from "@/types/assignment";
-import { faFile, faFilePdf, faFileWord, faFileExcel, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFile,
+  faFilePdf,
+  faFileWord,
+  faFileExcel,
+  faFileImage,
+} from "@fortawesome/free-solid-svg-icons";
 import { AllowedMimeType } from "@/types/attachment";
 
 function parseDateInput(dateInput: string | Date): Date {
@@ -117,11 +123,11 @@ export function toIsoDate(dateString: string): string {
 export function translatePriority(priority: string): string {
   switch (priority) {
     case "LOW":
-      return "LAV";
+      return "Lav";
     case "MEDIUM":
-      return "MELLEM";
+      return "Mellem";
     case "HIGH":
-      return "HØJ";
+      return "Høj";
     default:
       return priority;
   }
@@ -130,15 +136,15 @@ export function translatePriority(priority: string): string {
 export function translateStatus(status: string): string {
   switch (status) {
     case "PENDING":
-      return "MANGLER";
+      return "Mangler";
     case "DONE":
-      return "UDFØRT";
+      return "Udført";
     case "REJECTED":
-      return "ANNULLERET";
+      return "Annulleret";
     case "IN_PROGRESS":
-      return "I GANG";
+      return "I gang";
     case "ARCHIVED":
-      return "ARKIVERET";
+      return "Arkiveret";
     default:
       return status;
   }
@@ -181,24 +187,28 @@ export const getStatusColors = (status: TaskStatus): string => {
   return colors[status] || "bg-gray-100 text-gray-800 border-gray-200";
 };
 
-export const getPriorityAccentColors = (priority: TaskPriority): string => {
-  const colors = {
-    [TaskPriority.HIGH]: "bg-red-600",
-    [TaskPriority.MEDIUM]: "bg-orange-400",
-    [TaskPriority.LOW]: "bg-yellow-400",
+export const getPriorityAccentColors = (
+  priority: TaskPriority,
+): { accent: string; bg: string } => {
+  const map = {
+    [TaskPriority.HIGH]: { accent: "red-600", bg: "red-100" },
+    [TaskPriority.MEDIUM]: { accent: "orange-400", bg: "orange-100" },
+    [TaskPriority.LOW]: { accent: "yellow-400", bg: "yellow-100" },
   };
-  return colors[priority];
+  return map[priority];
 };
 
-export const getStatusAccentColors = (status: TaskStatus): string => {
-  const colors: Record<TaskStatus, string> = {
-    [TaskStatus.DONE]: "bg-green-600",
-    [TaskStatus.PENDING]: "bg-yellow-600",
-    [TaskStatus.REJECTED]: "bg-red-600",
-    [TaskStatus.IN_PROGRESS]: "bg-blue-600",
-    [TaskStatus.ARCHIVED]: "bg-gray-600",
+export const getStatusAccentColors = (
+  status: TaskStatus,
+): { accent: string; bg: string } => {
+  const map: Record<TaskStatus, { accent: string; bg: string }> = {
+    [TaskStatus.DONE]: { accent: "green-600", bg: "green-100" },
+    [TaskStatus.PENDING]: { accent: "yellow-400", bg: "yellow-100" },
+    [TaskStatus.REJECTED]: { accent: "red-600", bg: "red-100" },
+    [TaskStatus.IN_PROGRESS]: { accent: "blue-600", bg: "blue-100" },
+    [TaskStatus.ARCHIVED]: { accent: "gray-600", bg: "gray-100" },
   };
-  return colors[status] || "bg-gray-600";
+  return map[status] ?? { accent: "gray-600", bg: "gray-100" };
 };
 
 // Avatar utilities
@@ -240,7 +250,6 @@ export function getAuthHeaders(): HeadersInit {
   };
 }
 
-
 export function translateTaskUnit(unit?: string | null): string {
   switch (unit) {
     case "HOURS":
@@ -275,8 +284,7 @@ export function getTodayAssignmentStats(assignments: TaskAssignment[]) {
   const today = toDateKey(new Date());
 
   const assignedToday = assignments.filter(
-    (a) =>
-      a.task?.start_date && toDateKey(a.task.start_date) === today,
+    (a) => a.task?.start_date && toDateKey(a.task.start_date) === today,
   ).length;
 
   const completedToday = assignments.filter(
@@ -322,6 +330,12 @@ export function getFileIcon(mimeType?: string | null) {
   if (mimeType === AllowedMimeType.PDF) return faFilePdf;
   if (mimeType === AllowedMimeType.DOCX) return faFileWord;
   if (mimeType === AllowedMimeType.XLSX) return faFileExcel;
-  if (mimeType === AllowedMimeType.JPEG || mimeType === AllowedMimeType.PNG || mimeType === AllowedMimeType.WEBP || mimeType === AllowedMimeType.HEIC) return faFileImage;
+  if (
+    mimeType === AllowedMimeType.JPEG ||
+    mimeType === AllowedMimeType.PNG ||
+    mimeType === AllowedMimeType.WEBP ||
+    mimeType === AllowedMimeType.HEIC
+  )
+    return faFileImage;
   return faFile;
 }

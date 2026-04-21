@@ -3,7 +3,6 @@ import TaskAssignedUsers from "@/components/common/label/taskAssignedUsers";
 import { formatRelativeDate } from "@/helpers/helpers";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import EditButton from "@/components/common/label/editButton";
 
 const lineX = 19;
 const dotX = 50;
@@ -18,7 +17,6 @@ interface SubTaskRowProps {
     isLast: boolean;
     taskAssignments: Record<string, TaskAssignment[]>;
     onTaskClick: (taskId: string) => void;
-    onEditClick: (task: Task) => void;
 }
 
 export default function SubTaskRow({
@@ -27,7 +25,6 @@ export default function SubTaskRow({
     isLast,
     taskAssignments,
     onTaskClick,
-    onEditClick,
 }: SubTaskRowProps) {
     return (
         <tr className="bg-[#FAFAF7] hover:bg-[#F6F5F1] transition-colors border-b border-[#E8E6E1]">
@@ -117,15 +114,6 @@ export default function SubTaskRow({
 
             <td className="px-6 py-3 body-xs border-b border-[#E8E6E1]">
                 {formatRelativeDate(subtask.deadline)}
-            </td>
-
-            <td className="px-6 py-3 border-b border-[#E8E6E1]">
-                <div className="flex gap-2">
-                    <EditButton
-                        onClick={() => onEditClick(subtask)}
-                        ariaLabel={`Rediger delopgave: ${subtask.title}`}
-                    />
-                </div>
             </td>
         </tr>
     );

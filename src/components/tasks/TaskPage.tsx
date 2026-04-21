@@ -151,7 +151,6 @@ export default function TaskPage() {
                         }
                         return true;
                     })}
-                    onTaskUpdate={loadTasks}
                     onTaskDelete={handleTaskDeleted}
                 />
 

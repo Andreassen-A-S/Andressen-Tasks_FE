@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { deleteTask, getAllAssignments } from "@/lib/api";
+import { getAllAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
 import { TaskPriority } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import Modal from "../../modal/Modal";
-import UpdateTaskForm from "../updateTaskView/UpdateTaskForm";
 import Drawer from "../../drawer/drawer";
 import TaskDetails from "../taskDetailsView/TaskDetails";
 import ParentTaskRow from "./ParentTaskRow";
@@ -16,7 +13,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSortDown } from "@fortawesome/free-solid-svg-icons";
 import { faSortUp } from "@fortawesome/free-solid-svg-icons";
 import { faSort } from "@fortawesome/free-solid-svg-icons";
-import ConfirmModal from "@/components/common/ConfirmModal";
 
 
 type SortKey = "title" | "priority" | "status" | "start_date" | "deadline";
@@ -35,26 +31,19 @@ function SortIcon({ column, sortKey, sortDir }: { column: SortKey; sortKey: Sort
 
 interface TaskListProps {
     tasks: Task[];
-    onTaskUpdate: () => void;
     onTaskDelete: (taskId: string) => void;
 }
 
 export default function TaskList({
     tasks = [],
-    onTaskUpdate,
     onTaskDelete,
 }: TaskListProps) {
-    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-    const [showEditModal, setShowEditModal] = useState(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [taskAssignments, setTaskAssignments] = useState<
         Record<string, TaskAssignment[]>
     >({});
     const [sortKey, setSortKey] = useState<SortKey | null>(null);
     const [sortDir, setSortDir] = useState<SortDir>("asc");
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-    const [deleteLoading, setDeleteLoading] = useState(false);
 
     // Group tasks into parents and subtasks, then sort parents
     const { parents, subtasksMap } = useMemo(() => {
@@ -140,43 +129,6 @@ export default function TaskList({
         }
     }
 
-    function handleEditClick(task: Task) {
-        setSelectedTask(task);
-        setShowEditModal(true);
-    }
-
-    function handleEditSuccess() {
-        setShowEditModal(false);
-        setSelectedTask(null);
-        onTaskUpdate();
-    }
-
-    function handleEditCancel() {
-        setShowEditModal(false);
-        setSelectedTask(null);
-    }
-
-    function handleDelete(taskId: string) {
-        setPendingDeleteId(taskId);
-        setConfirmOpen(true);
-    }
-
-    async function handleConfirmDelete() {
-        if (!pendingDeleteId) return;
-        setDeleteLoading(true);
-        try {
-            await deleteTask(pendingDeleteId);
-            onTaskDelete(pendingDeleteId);
-            setConfirmOpen(false);
-            setPendingDeleteId(null);
-        } catch (error) {
-            console.error("Failed to delete task:", error);
-            toast.error("Kunne ikke slette opgaven. Prøv igen senere.");
-        } finally {
-            setDeleteLoading(false);
-        }
-    }
-
     function handleTaskClick(taskId: string) {
         setSelectedTaskId(taskId);
     }
@@ -234,7 +186,6 @@ export default function TaskList({
                                 >
                                     DEADLINE<SortIcon column="deadline" sortKey={sortKey} sortDir={sortDir} />
                                 </th>
-                                <th className="px-6 py-3 table-header">HANDLINGER</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -250,8 +201,6 @@ export default function TaskList({
                                         subtasks={subtasksMap[task.task_id] || []}
                                         taskAssignments={taskAssignments}
                                         onTaskClick={handleTaskClick}
-                                        onEditClick={handleEditClick}
-                                        onDeleteClick={handleDelete}
                                     />
                                 );
                             })}
@@ -259,42 +208,16 @@ export default function TaskList({
                     </table>
                 </div>
             </div>
-
-            {/* Edit Task Modal */}
-            <Modal
-                isOpen={showEditModal}
-                onClose={handleEditCancel}
-                title="Rediger Opgave"
-                maxWidth="3xl"
-            >
-                {selectedTask && (
-                    <UpdateTaskForm
-                        task={selectedTask}
-                        onSuccess={handleEditSuccess}
-                        onCancel={handleEditCancel}
-                    />
-                )}
-            </Modal>
-
             {/* Task Details Drawer */}
             <Drawer open={!!selectedTaskId} onClose={handleCloseDrawer}>
                 {selectedTaskId && (
-                    <TaskDetails taskId={selectedTaskId} onClose={handleCloseDrawer} />
+                    <TaskDetails
+                        taskId={selectedTaskId}
+                        onClose={handleCloseDrawer}
+                        onDelete={onTaskDelete}
+                    />
                 )}
             </Drawer>
-
-            {/* Delete Task Confirm Modal */}
-            <ConfirmModal
-                isOpen={confirmOpen}
-                onClose={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
-                onConfirm={handleConfirmDelete}
-                title="Slet opgave"
-                description="Er du sikker på, at du vil slette denne opgave?"
-                confirmLabel="Slet"
-                cancelLabel="Annuller"
-                danger
-                loading={deleteLoading}
-            />
         </>
     );
 }
