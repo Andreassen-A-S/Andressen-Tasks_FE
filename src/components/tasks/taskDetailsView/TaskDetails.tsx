@@ -182,7 +182,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     async function handleStartDateSelect(isoDate: string | null) {
         if (!task) return;
         try {
-            const updated = await updateTask(task.task_id, { start_date: isoDate ? isoDate + "T00:00:00.000Z" : undefined });
+            const updated = await updateTask(task.task_id, { start_date: isoDate ? isoDate + "T00:00:00.000Z" : null });
             setTask(updated);
         } catch {
             toast.error("Kunne ikke opdatere startdato");
@@ -192,7 +192,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     async function handleDeadlineSelect(isoDate: string | null) {
         if (!task) return;
         try {
-            const updated = await updateTask(task.task_id, { deadline: isoDate ? isoDate + "T00:00:00.000Z" : undefined });
+            const updated = await updateTask(task.task_id, { deadline: isoDate ? isoDate + "T00:00:00.000Z" : null });
             setTask(updated);
         } catch {
             toast.error("Kunne ikke opdatere deadline");

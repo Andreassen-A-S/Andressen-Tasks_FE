@@ -56,7 +56,7 @@ export default function DetailsSectionHeader({ label, onGearClick, onClose, isOp
           {label}
         </h3>
         {!disabled && (
-          <FontAwesomeIcon icon={faGear} style={{ fontSize: "label-sm", color: colors.textMuted }} />
+          <FontAwesomeIcon icon={faGear} style={{ fontSize: "0.6875rem", color: colors.textMuted }} />
         )}
       </button>
       {children ?? (emptyText && (

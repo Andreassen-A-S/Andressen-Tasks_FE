@@ -24,7 +24,7 @@ export default function Badge({ variant, value, size = "md" }: BadgeProps) {
         const priority = value as TaskPriority;
         return (
             <span
-                className={`badge rounded-lg border borderColor-${getPriorityColors(priority).split(' ')[0]} ${badgeSize} ${getPriorityColors(priority)}`}
+                className={`badge rounded-lg border ${badgeSize} ${getPriorityColors(priority)}`}
             >
                 {translatePriority(priority)}
             </span>
@@ -35,7 +35,7 @@ export default function Badge({ variant, value, size = "md" }: BadgeProps) {
         const status = value as TaskStatus;
         return (
             <span
-                className={`badge rounded-lg border borderColor-${getStatusColors(status).split(' ')[0]} ${badgeSize} ${getStatusColors(status)}`}
+                className={`badge rounded-lg border ${badgeSize} ${getStatusColors(status)}`}
             >
                 {translateStatus(status)}
             </span>

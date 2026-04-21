@@ -102,11 +102,13 @@ export default function DetailsMultiPicker({
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
+        if (filteredRef.current.length === 0) return;
         const next = Math.min(activeIndexRef.current + 1, filteredRef.current.length - 1);
         setActiveIndex(next);
         activeIndexRef.current = next;
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
+        if (filteredRef.current.length === 0) return;
         const next = Math.max(activeIndexRef.current - 1, 0);
         setActiveIndex(next);
         activeIndexRef.current = next;
