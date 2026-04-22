@@ -27,21 +27,21 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const variantBaseStyle: Record<ButtonVariant, CSSProperties> = {
   primary: { backgroundColor: colors.green, color: colors.textWhite },
   secondary: { backgroundColor: colors.white, color: colors.textPrimary, border: `1px solid ${colors.border}` },
-  danger:    { backgroundColor: colors.white, color: colors.red, border: `1px solid ${colors.red}` },
-  ghost:     { backgroundColor: "transparent", color: colors.textSecondary },
+  danger: { backgroundColor: colors.white, color: colors.red, border: `1px solid ${colors.red}` },
+  ghost: { backgroundColor: "transparent", color: colors.textSecondary },
 };
 
 const variantHoverBg: Record<ButtonVariant, string> = {
-  primary:   colors.greenHover,
+  primary: colors.greenHover,
   secondary: colors.muted,
-  danger:    colors.redLight,
-  ghost:     colors.border,
+  danger: colors.redLight,
+  ghost: colors.border,
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 btn-sm rounded-md gap-1.5",
-  md: "px-4 py-2 btn-md rounded-md gap-2",
-  lg: "px-5 py-2.5 btn-lg rounded-lg gap-2",
+  sm: "h-7 px-3 btn-sm rounded-md gap-1.5",
+  md: "h-8 px-3 btn-md rounded-md gap-2",
+  lg: "h-10 px-4 btn-lg rounded-lg gap-2",
 };
 
 const iconOnlySizeClasses: Record<ButtonSize, string> = {
@@ -86,14 +86,21 @@ export default function Button({
     setTooltipPos(null);
   }
 
+  const resolvedVariantStyle: CSSProperties =
+    variant === "ghost" && dropdownOpen
+      ? { ...variantBaseStyle[variant], backgroundColor: colors.muted }
+      : variantBaseStyle[variant];
+  const resolvedHoverBg =
+    variant === "ghost" && dropdownOpen ? colors.border : variantHoverBg[variant];
+
   const button = (
     <button
       ref={buttonRef}
       {...props}
       disabled={isDisabled}
-      style={{ ...variantBaseStyle[variant], ...style }}
+      style={{ ...resolvedVariantStyle, ...style }}
       className={[
-        "inline-flex items-center justify-center transition-colors",
+        "inline-flex shrink-0 items-center justify-center transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#0f6e56]",
         iconOnly ? iconOnlySizeClasses[size] : sizeClasses[size],
         !iconOnly && fullWidth ? "w-full" : "",
@@ -103,12 +110,13 @@ export default function Button({
         .filter(Boolean)
         .join(" ")}
       onMouseEnter={(e) => {
-        if (!isDisabled) e.currentTarget.style.backgroundColor = variantHoverBg[variant];
+        if (!isDisabled) e.currentTarget.style.backgroundColor = resolvedHoverBg;
         if (!isDisabled) showTooltip();
         onMouseEnter?.(e);
       }}
       onMouseLeave={(e) => {
-        if (!isDisabled) e.currentTarget.style.backgroundColor = variantBaseStyle[variant].backgroundColor as string;
+        if (!isDisabled) e.currentTarget.style.backgroundColor = resolvedVariantStyle.backgroundColor as string;
+        if (!isDisabled) e.currentTarget.style.color = resolvedVariantStyle.color as string;
         hideTooltip();
         onMouseLeave?.(e);
       }}

@@ -1,5 +1,67 @@
 # Andreassen TMS — Design Language
 
+## Current UI Direction
+
+The app is currently being normalized toward a denser, flatter, more GitHub-like product UI. When this document conflicts with older sections below, follow this section.
+
+### Layout And Spacing
+
+- Use Tailwind's default spacing scale only.
+- Preferred spacing values: `p-1`, `p-2`, `p-3`, `p-4`, `p-6`, `p-8`, `p-12`
+- Inside components such as cards, inputs, list rows, and picker surfaces, prefer `p-2` to `p-4`
+- Between major page sections, prefer `gap-6` to `gap-8` or `my-6` to `my-8`
+- Between inline items such as badges, icons, avatars, and compact controls, prefer `gap-1` to `gap-2`
+- Do not use arbitrary spacing values such as `p-[10px]` or `mt-[15px]`
+
+### Borders, Radius, Density
+
+- Prefer `border` and `border-solid` to separate UI, not heavy shadow-driven cards
+- Use `rounded-md` for most interactive surfaces and containers
+- Use `rounded` or `rounded-sm` for smaller elements such as badges and tiny pills
+- Prefer dense rows: `py-2 px-4` is the baseline for list rows and table-like rows
+- Use hover backgrounds for row interactivity, not permanent tinted backgrounds
+- Secondary and muted information should sit inline where possible instead of creating extra stacked blocks
+
+### Page Layout
+
+- Use `max-w-screen-xl` as the default maximum content width
+- Keep primary content left-aligned, not centered like a marketing page
+- Fixed sidebars should generally be `w-60` or `w-64`
+- Avoid nested card stacks and decorative spacing
+
+### Shared Control Rules
+
+- Use the shared `Button` component for actions
+- Do not force `Button` onto segmented controls, filter chips, picker rows, or toolbar selectors unless the component is explicitly designed for that pattern
+- Use shared field primitives for form controls:
+  - `TextInput`
+  - `SelectField`
+  - `TextArea`
+  - `ColorInput`
+- Modal footers should be owned by `Modal`, not by child forms
+
+### Typography Direction
+
+- The app is moving toward a smaller approved set of text styles
+- Prefer shared semantic tokens such as `h1` to `h5`, `body-md`, `body-sm`, `label-md`, `label-sm`, and `caption`
+- Do not create new color-specific typography classes
+- Apply typography and color separately where possible
+
+### Icon Language
+
+These pairings should stay consistent across filters, sort menus, and related lightweight controls:
+
+| Meaning | Icon |
+| --- | --- |
+| Deadline | outline clock |
+| Start date | outline calendar |
+| Priority | outline flag |
+| Goal | dartboard |
+| Sort ascending | arrow up wide-short |
+| Sort descending | arrow down wide-short |
+
+If a new filter or sort option is added, prefer extending this icon language instead of choosing icons ad hoc per screen.
+
 ## Concept A: "Nordic Precision"
 
 > A warm-white Scandinavian interface with a dark sidebar, Outfit typography, restrained blue accents, and a focus on clean hierarchy and quiet professionalism — like Linear meets a Danish design studio.

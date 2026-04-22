@@ -64,11 +64,14 @@ const STATUS_OPTIONS = [
 ].map((s) => ({ value: s, label: sc(translateStatus(s)), color: getStatusAccentColors(s) }));
 
 export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsProps) {
+    const subtaskFormId = "create-subtask-form";
     const [task, setTask] = useState<Task | null>(null);
     const [creator, setCreator] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
+    const [subtaskCreateLoading, setSubtaskCreateLoading] = useState(false);
+    const [subtaskSubmitLabel, setSubtaskSubmitLabel] = useState("Opret delopgave");
     const [assignments, setAssignments] = useState<TaskAssignment[]>([]);
     const [allUsers, setAllUsers] = useState<User[]>([]);
     const [projects, setProjects] = useState<Project[]>([]);
@@ -601,10 +604,35 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                 onClose={() => setShowSubtaskModal(false)}
                 title="Tilføj underopgave"
                 maxWidth="3xl"
+                footer={
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
+                        <Button
+                            type="submit"
+                            form={subtaskFormId}
+                            loading={subtaskCreateLoading}
+                            variant="primary"
+                            size="md"
+                        >
+                            {subtaskSubmitLabel}
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => setShowSubtaskModal(false)}
+                            disabled={subtaskCreateLoading}
+                            variant="secondary"
+                            size="md"
+                        >
+                            Annuller
+                        </Button>
+                    </div>
+                }
             >
                 <CreateTaskForm
+                    formId={subtaskFormId}
+                    onLoadingChange={setSubtaskCreateLoading}
+                    onSubmitLabelChange={setSubtaskSubmitLabel}
                     onSuccess={() => setShowSubtaskModal(false)}
-                    onCancel={() => setShowSubtaskModal(false)}
+                    onComplete={() => setShowSubtaskModal(false)}
                     parentTaskId={task.task_id}
                     parentProjectId={task.project_id}
                 />

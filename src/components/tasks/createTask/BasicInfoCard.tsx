@@ -1,6 +1,9 @@
 "use client";
 
 import { TaskPriority, TaskStatus } from "@/types/task";
+import SelectField from "@/components/common/forms/SelectField";
+import TextInput from "@/components/common/forms/TextInput";
+import TextArea from "@/components/common/forms/TextArea";
 
 interface BasicInfoSectionProps {
     title?: string;
@@ -34,13 +37,12 @@ export default function BasicInfoSection({
                 <label htmlFor="task-title" className="label-lg mb-2 block">
                     Opgave titel<span className="text-[#D64545]">*</span>
                 </label>
-                <input
+                <TextInput
                     type="text"
                     id="task-title"
                     required
                     value={title}
                     onChange={(e) => onFieldChange('title', e.target.value)}
-                    className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md placeholder:text-[#9DA1B4] bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                     placeholder="F.eks. Fuldend projekt dokumentation"
                 />
             </div>
@@ -50,13 +52,12 @@ export default function BasicInfoSection({
                 <label htmlFor="task-description" className="label-lg mb-2 block">
                     Beskrivelse<span className="text-[#D64545]">*</span>
                 </label>
-                <textarea
+                <TextArea
                     id="task-description"
                     required
                     value={description}
                     onChange={(e) => onFieldChange('description', e.target.value)}
                     rows={4}
-                    className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md placeholder:text-[#9DA1B4] bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors resize-y"
                     placeholder="Beskriv opgaven i detaljer..."
                 />
             </div>
@@ -67,16 +68,15 @@ export default function BasicInfoSection({
                     <label htmlFor="task-priority" className="label-lg mb-2 block">
                         Prioritet
                     </label>
-                    <select
+                    <SelectField
                         id="task-priority"
                         value={priority}
                         onChange={(e) => onFieldChange('priority', e.target.value as TaskPriority)}
-                        className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                     >
                         <option value={TaskPriority.LOW}>Lav</option>
                         <option value={TaskPriority.MEDIUM}>Mellem</option>
                         <option value={TaskPriority.HIGH}>Høj</option>
-                    </select>
+                    </SelectField>
                 </div>
 
                 {showStatus && status && (
@@ -84,16 +84,15 @@ export default function BasicInfoSection({
                         <label htmlFor="task-status" className="label-lg mb-2 block">
                             Status
                         </label>
-                        <select
+                        <SelectField
                             id="task-status"
                             value={status}
                             onChange={(e) => onFieldChange('status', e.target.value as TaskStatus)}
-                            className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                         >
                             <option value={TaskStatus.PENDING}>Afventer</option>
                             <option value={TaskStatus.DONE}>Færdig</option>
                             <option value={TaskStatus.REJECTED}>Afvist</option>
-                        </select>
+                        </SelectField>
                     </div>
                 )}
 
@@ -101,14 +100,13 @@ export default function BasicInfoSection({
                     <label htmlFor="task-deadline" className="label-lg mb-2 block">
                         Deadline<span className="text-[#D64545]">*</span>
                     </label>
-                    <input
+                    <TextInput
                         type="date"
                         id="task-deadline"
                         required
                         value={deadline}
                         onChange={(e) => onFieldChange('deadline', e.target.value)}
                         disabled={isRecurring}
-                        className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors disabled:bg-[#FAFAF7] disabled:cursor-not-allowed"
                     />
                     {isRecurring && (
                         <p className="caption mt-1">

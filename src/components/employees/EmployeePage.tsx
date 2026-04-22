@@ -6,13 +6,15 @@ import type { User } from "@/types/users";
 import EmployeeList from "./EmployeeList";
 import Modal from "../modal/Modal";
 import CreateEmployeeForm from "./CreateEmployeeForm";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import Button from "../common/buttons/Button";
 
 export default function EmployeePage() {
     const [employees, setEmployees] = useState<User[]>([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [createLoading, setCreateLoading] = useState(false);
     const [loading, setLoading] = useState(true);
+    const createFormId = "create-employee-form";
 
     const loadEmployees = useCallback(async () => {
         setLoading(true);
@@ -63,13 +65,14 @@ export default function EmployeePage() {
                             {employees.length} medarbejdere
                         </p>
                     </div>
-                    <button
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        icon={faPlus}
                         onClick={() => setShowCreateModal(true)}
-                        className="inline-flex btn-lg items-center gap-2 px-5 py-3 bg-[#0f6e56] text-white font-semibold rounded-lg hover:bg-[#0a5551] transition-colors"
                     >
-                        <FontAwesomeIcon icon={faPlus} size="sm" />
                         Ny medarbejder
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -83,11 +86,34 @@ export default function EmployeePage() {
                     isOpen={showCreateModal}
                     onClose={() => setShowCreateModal(false)}
                     title="Opret Ny Medarbejder"
-                    maxWidth="xl"
+                    maxWidth="sm"
+                    footer={
+                        <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
+                            <Button
+                                type="submit"
+                                form={createFormId}
+                                loading={createLoading}
+                                variant="primary"
+                                size="md"
+                            >
+                                Opret medarbejder
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => setShowCreateModal(false)}
+                                disabled={createLoading}
+                                variant="secondary"
+                                size="md"
+                            >
+                                Annuller
+                            </Button>
+                        </div>
+                    }
                 >
                     <CreateEmployeeForm
+                        formId={createFormId}
+                        onLoadingChange={setCreateLoading}
                         onSuccess={handleEmployeeCreated}
-                        onCancel={() => setShowCreateModal(false)}
                     />
                 </Modal>
             </div>

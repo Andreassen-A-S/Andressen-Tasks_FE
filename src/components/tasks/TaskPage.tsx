@@ -1,48 +1,105 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { faCalendar, faClock, faFlag } from "@fortawesome/free-regular-svg-icons";
+import {
+    faArrowDownWideShort,
+    faArrowUpShortWide,
+    faCaretDown,
+    faClockRotateLeft,
+    faFont,
+    faPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { getTasks, getProjects } from "@/lib/api";
-import { TaskGoalType, TaskPriority, type Task } from "@/types/task";
+import { getAllAssignments, getProjects, getTasks, getUsers } from "@/lib/api";
+import { TaskPriority, TaskStatus, type Task } from "@/types/task";
 import type { Project } from "@/types/project";
+import type { TaskAssignment } from "@/types/assignment";
+import type { User } from "@/types/users";
 import TaskList from "./taskList/TaskList";
 import CreateTaskForm from "./createTask/CreateTaskForm";
 import Modal from "../modal/Modal";
 import Drawer from "../drawer/drawer";
 import TaskDetails from "./taskDetailsView/TaskDetails";
+import { colors } from "@/constants/colors";
+import Button from "../common/buttons/Button";
+import DropdownMenu from "../common/DropdownMenu";
+
+type SortField = "created_at" | "deadline" | "start_date" | "priority" | "title";
+type SortDirection = "asc" | "desc";
+
+const statusLabelMap: Record<TaskStatus, string> = {
+    [TaskStatus.PENDING]: "Mangler",
+    [TaskStatus.IN_PROGRESS]: "I gang",
+    [TaskStatus.DONE]: "Udført",
+    [TaskStatus.REJECTED]: "Annulleret",
+    [TaskStatus.ARCHIVED]: "Arkiveret",
+};
+
+const sortFieldLabelMap: Record<SortField, string> = {
+    created_at: "Seneste",
+    deadline: "Deadline",
+    start_date: "Startdato",
+    priority: "Prioritet",
+    title: "Titel",
+};
 
 export default function TaskPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [taskAssignments, setTaskAssignments] = useState<Record<string, TaskAssignment[]>>({});
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [createLoading, setCreateLoading] = useState(false);
+    const [createSubmitLabel, setCreateSubmitLabel] = useState("Opret opgave");
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-    const [filter, setFilter] = useState<'all' | 'recurring' | 'highPriority' | 'fixedGoal' | 'hasSubtasks'>('all');
-    const [projectFilter, setProjectFilter] = useState<string>('all');
+    const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
+    const [projectFilter, setProjectFilter] = useState<string>("all");
+    const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
+    const [creatorFilter, setCreatorFilter] = useState<string>("all");
+    const [sortField, setSortField] = useState<SortField>("created_at");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-    type FilterKey = "all" | "recurring" | "highPriority" | "fixedGoal" | "hasSubtasks";
+    const createFormId = "create-task-form";
 
-    const filterOptions: { key: FilterKey; label: string; count: number }[] = [
-        { key: 'all', label: 'Alle', count: tasks.length },
-        { key: 'recurring', label: 'Gentages', count: tasks.filter(t => t.recurring_template_id !== null).length },
-        { key: 'highPriority', label: 'Høj prioritet', count: tasks.filter(t => t.priority === TaskPriority.HIGH).length },
-        { key: 'fixedGoal', label: 'Mål-opgaver', count: tasks.filter(t => t.goal_type === TaskGoalType.FIXED).length },
-        {
-            key: 'hasSubtasks',
-            label: 'Har delopgaver',
-            count: tasks.filter(parent =>
-                tasks.some(t => t.parent_task_id === parent.task_id)
-            ).length
-        },
-    ];
+    const selectedProjectLabel = projectFilter === "all"
+        ? "Alle projekter"
+        : projects.find((project) => project.project_id === projectFilter)?.name ?? "Alle projekter";
+    const selectedAssigneeLabel = assigneeFilter === "all"
+        ? "Alle"
+        : users.find((user) => user.user_id === assigneeFilter)?.name ?? "Alle";
+    const selectedCreatorLabel = creatorFilter === "all"
+        ? "Alle"
+        : users.find((user) => user.user_id === creatorFilter)?.name ?? "Alle";
+    const selectedStatusLabel = statusFilter === "all"
+        ? "Alle"
+        : statusLabelMap[statusFilter];
 
     const loadTasks = useCallback(async () => {
         try {
             setLoading(true);
-            const [tasksResult, projectsResult] = await Promise.allSettled([getTasks(), getProjects()]);
+            const [tasksResult, projectsResult, usersResult, assignmentsResult] = await Promise.allSettled([
+                getTasks(),
+                getProjects(),
+                getUsers(),
+                getAllAssignments(),
+            ]);
             if (tasksResult.status === "fulfilled") setTasks(tasksResult.value);
             if (projectsResult.status === "fulfilled") setProjects(projectsResult.value);
+            if (usersResult.status === "fulfilled") setUsers(usersResult.value);
+            if (tasksResult.status === "fulfilled" && assignmentsResult.status === "fulfilled") {
+                const assignmentMap: Record<string, TaskAssignment[]> = {};
+                for (const task of tasksResult.value) {
+                    assignmentMap[task.task_id] = [];
+                }
+                for (const assignment of assignmentsResult.value) {
+                    if (assignmentMap[assignment.task_id]) {
+                        assignmentMap[assignment.task_id].push(assignment);
+                    }
+                }
+                setTaskAssignments(assignmentMap);
+            }
         } catch (error) {
             console.error("Failed to load tasks:", error);
         } finally {
@@ -53,6 +110,56 @@ export default function TaskPage() {
     useEffect(() => {
         loadTasks();
     }, [loadTasks]);
+
+    const filteredTasks = useMemo(() => {
+        const filtered = tasks.filter((task) => {
+            if (statusFilter !== "all" && task.status !== statusFilter) return false;
+            if (projectFilter !== "all" && task.project_id !== projectFilter) return false;
+            if (creatorFilter !== "all" && task.created_by !== creatorFilter) return false;
+            if (assigneeFilter !== "all") {
+                const assignments = taskAssignments[task.task_id] ?? [];
+                if (!assignments.some((assignment) => assignment.user_id === assigneeFilter)) return false;
+            }
+            return true;
+        });
+
+        return [...filtered].sort((a, b) => {
+            let result = 0;
+
+            switch (sortField) {
+                case "deadline":
+                    result = a.deadline.localeCompare(b.deadline);
+                    break;
+                case "start_date":
+                    result = a.start_date.localeCompare(b.start_date);
+                    break;
+                case "priority": {
+                    const order = {
+                        [TaskPriority.HIGH]: 3,
+                        [TaskPriority.MEDIUM]: 2,
+                        [TaskPriority.LOW]: 1,
+                    };
+                    result = order[a.priority] - order[b.priority];
+                    break;
+                }
+                case "title":
+                    result = a.title.localeCompare(b.title, "da");
+                    break;
+                case "created_at":
+                default:
+                    result = a.created_at.localeCompare(b.created_at);
+                    break;
+            }
+
+            return sortDirection === "asc" ? result : -result;
+        });
+    }, [assigneeFilter, creatorFilter, projectFilter, sortDirection, sortField, statusFilter, taskAssignments, tasks]);
+
+    const anyFiltersActive =
+        statusFilter !== "all" ||
+        projectFilter !== "all" ||
+        assigneeFilter !== "all" ||
+        creatorFilter !== "all";
 
     const handleTaskCreated = useCallback(() => {
         loadTasks();
@@ -80,77 +187,173 @@ export default function TaskPage() {
                             Opgaver
                         </h1>
                         <p className="body-sm">
-                            {/* num of taks and num of task with status high */}
-                            {tasks.length} opgaver - {tasks.filter(t => t.priority === TaskPriority.HIGH).length}  med høj prioritet
+                            {filteredTasks.length} opgaver
                         </p>
                     </div>
-                    <button
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        icon={faPlus}
                         onClick={() => setShowCreateModal(true)}
-                        className="inline-flex btn-lg items-center gap-2 px-5 py-3 bg-[#0f6e56] text-white font-semibold rounded-lg hover:bg-[#0a5551] transition-colors"
                     >
-                        <FontAwesomeIcon icon={faPlus} size="sm" />
                         Ny opgave
-                    </button>
+                    </Button>
                 </div>
             </div>
 
-            {/* Filter Tabs */}
             <div className="mx-8 px-4 sm:px-6 lg:px-8 py-2">
-                <div className="flex flex-wrap items-center gap-2">
-                    {filterOptions.map(({ key, label }) => (
-                        <button
-                            key={key}
-                            onClick={() => setFilter(key)}
-                            className={`label-lg-gray px-4 py-2 rounded-lg transition-colors cursor-pointer ${filter === key
-                                ? 'bg-gray-900 label-lg-white'
-                                : 'bg-transparent border border-gray-200 hover:border-gray-300'
-                                }`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                    {projects.length > 0 && (
-                        <div className="relative inline-flex">
-                            <select
-                                value={projectFilter}
-                                onChange={(e) => setProjectFilter(e.target.value)}
-                                className={`appearance-none label-lg-gray pl-4 pr-8 py-2 rounded-lg border transition-colors cursor-pointer ${projectFilter !== 'all'
-                                    ? 'bg-gray-900 label-lg-white border-gray-900'
-                                    : 'bg-transparent border-gray-200 hover:border-gray-300'
-                                    }`}
-                            >
-                                <option value="all">Alle projekter</option>
-                                {projects.map((p) => (
-                                    <option key={p.project_id} value={p.project_id}>{p.name}</option>
-                                ))}
-                            </select>
-                            <FontAwesomeIcon
-                                icon={faChevronDown}
-
-                                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 text-gray-500"
-                                size="xs"
+                <div
+                    className="flex flex-col gap-2 rounded-lg border px-3 py-2 md:flex-row md:items-center md:justify-between"
+                    style={{ borderColor: colors.border, backgroundColor: colors.white }}
+                >
+                    <div className="flex flex-wrap items-center gap-1">
+                        <DropdownMenu
+                            trigger={
+                                <Button variant="ghost" size="md" className="-ml-1">
+                                    Status: {selectedStatusLabel}
+                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                </Button>
+                            }
+                            items={[
+                                { label: "Alle", checked: statusFilter === "all", onClick: () => setStatusFilter("all") },
+                                { label: "Mangler", checked: statusFilter === TaskStatus.PENDING, onClick: () => setStatusFilter(TaskStatus.PENDING) },
+                                { label: "I gang", checked: statusFilter === TaskStatus.IN_PROGRESS, onClick: () => setStatusFilter(TaskStatus.IN_PROGRESS) },
+                                { label: "Udført", checked: statusFilter === TaskStatus.DONE, onClick: () => setStatusFilter(TaskStatus.DONE) },
+                                { label: "Annulleret", checked: statusFilter === TaskStatus.REJECTED, onClick: () => setStatusFilter(TaskStatus.REJECTED) },
+                                { label: "Arkiveret", checked: statusFilter === TaskStatus.ARCHIVED, onClick: () => setStatusFilter(TaskStatus.ARCHIVED) },
+                            ]}
+                        />
+                        {projects.length > 0 && (
+                            <DropdownMenu
+                                trigger={
+                                    <Button variant="ghost" size="md">
+                                        Projekt: {selectedProjectLabel}
+                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                    </Button>
+                                }
+                                items={[
+                                    {
+                                        label: "Alle projekter",
+                                        checked: projectFilter === "all",
+                                        onClick: () => setProjectFilter("all"),
+                                    },
+                                    ...projects.map((project) => ({
+                                        label: project.name,
+                                        checked: projectFilter === project.project_id,
+                                        onClick: () => setProjectFilter(project.project_id),
+                                    })),
+                                ]}
                             />
-                        </div>
-                    )}
+                        )}
+                        <DropdownMenu
+                            trigger={
+                                <Button variant="ghost" size="md">
+                                    Tildelte: {selectedAssigneeLabel}
+                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                </Button>
+                            }
+                            items={[
+                                { label: "Alle", checked: assigneeFilter === "all", onClick: () => setAssigneeFilter("all") },
+                                ...users.map((user) => ({
+                                    label: user.name,
+                                    checked: assigneeFilter === user.user_id,
+                                    onClick: () => setAssigneeFilter(user.user_id),
+                                })),
+                            ]}
+                        />
+                        <DropdownMenu
+                            trigger={
+                                <Button variant="ghost" size="md">
+                                    Oprettet af: {selectedCreatorLabel}
+                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                </Button>
+                            }
+                            items={[
+                                { label: "Alle", checked: creatorFilter === "all", onClick: () => setCreatorFilter("all") },
+                                ...users.map((user) => ({
+                                    label: user.name,
+                                    checked: creatorFilter === user.user_id,
+                                    onClick: () => setCreatorFilter(user.user_id),
+                                })),
+                            ]}
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                        {anyFiltersActive && (
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                onClick={() => {
+                                    setStatusFilter("all");
+                                    setProjectFilter("all");
+                                    setAssigneeFilter("all");
+                                    setCreatorFilter("all");
+                                }}
+                            >
+                                Ryd filtre
+                            </Button>
+                        )}
+                        <DropdownMenu
+                            trigger={
+                                <Button variant="ghost" size="md" className="-mr-1">
+                                    Sortér: {sortFieldLabelMap[sortField]}
+                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                </Button>
+                            }
+                            items={[
+                                {
+                                    label: "Seneste",
+                                    icon: faClockRotateLeft,
+                                    checked: sortField === "created_at",
+                                    onClick: () => setSortField("created_at"),
+                                },
+                                {
+                                    label: "Deadline",
+                                    icon: faClock,
+                                    checked: sortField === "deadline",
+                                    onClick: () => setSortField("deadline"),
+                                },
+                                {
+                                    label: "Startdato",
+                                    icon: faCalendar,
+                                    checked: sortField === "start_date",
+                                    onClick: () => setSortField("start_date"),
+                                },
+                                {
+                                    label: "Prioritet",
+                                    icon: faFlag,
+                                    checked: sortField === "priority",
+                                    onClick: () => setSortField("priority"),
+                                },
+                                {
+                                    label: "Titel",
+                                    icon: faFont,
+                                    checked: sortField === "title",
+                                    onClick: () => setSortField("title"),
+                                },
+                                {
+                                    label: "Stigende",
+                                    icon: faArrowUpShortWide,
+                                    checked: sortDirection === "asc",
+                                    dividerBefore: true,
+                                    onClick: () => setSortDirection("asc"),
+                                },
+                                {
+                                    label: "Faldende",
+                                    icon: faArrowDownWideShort,
+                                    checked: sortDirection === "desc",
+                                    onClick: () => setSortDirection("desc"),
+                                },
+                            ]}
+                        />
+                    </div>
                 </div>
             </div>
 
-
-            {/* content */}
             <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
                 <TaskList
-                    tasks={tasks.filter(t => {
-                        if (projectFilter !== 'all' && t.project_id !== projectFilter) return false;
-                        if (filter === 'recurring') return t.recurring_template_id !== null;
-                        if (filter === 'highPriority') return t.priority === TaskPriority.HIGH;
-                        if (filter === 'fixedGoal') return t.goal_type === TaskGoalType.FIXED;
-                        if (filter === 'hasSubtasks') {
-                            const isParentWithSubtasks = tasks.some(st => st.parent_task_id === t.task_id);
-                            const isSubtask = t.parent_task_id !== null;
-                            return isParentWithSubtasks || isSubtask;
-                        }
-                        return true;
-                    })}
+                    tasks={filteredTasks}
                     onTaskDelete={handleTaskDeleted}
                 />
 
@@ -165,10 +368,35 @@ export default function TaskPage() {
                     onClose={() => setShowCreateModal(false)}
                     title="Opret Ny Opgave"
                     maxWidth="3xl"
+                    footer={
+                        <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
+                            <Button
+                                type="submit"
+                                form={createFormId}
+                                loading={createLoading}
+                                variant="primary"
+                                size="md"
+                            >
+                                {createSubmitLabel}
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => setShowCreateModal(false)}
+                                disabled={createLoading}
+                                variant="secondary"
+                                size="md"
+                            >
+                                Annuller
+                            </Button>
+                        </div>
+                    }
                 >
                     <CreateTaskForm
+                        formId={createFormId}
+                        onLoadingChange={setCreateLoading}
+                        onSubmitLabelChange={setCreateSubmitLabel}
                         onSuccess={handleTaskCreated}
-                        onCancel={() => setShowCreateModal(false)}
+                        onComplete={handleTaskCreated}
                     />
                 </Modal>
             </div>

@@ -116,7 +116,7 @@ export default function DetailsDatePicker({ open, triggerEl, onClose, value, onS
           width: SHEET_WIDTH,
           backgroundColor: colors.white,
           border: `1px solid ${colors.border}`,
-          boxShadow: "0 8px 24px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
+          boxShadow: "0 8px 24px rgba(140, 149, 159, 0.2)",
         }}
         className={`z-[9999] flex flex-col rounded-xl overflow-hidden${isPositioned ? " animate-in fade-in" : ""}`}
         {...getFloatingProps()}

@@ -45,7 +45,8 @@ export default function Drawer({ open, onClose, children }: DrawerProps) {
                 role="dialog"
                 aria-modal="true"
                 aria-hidden={!open}
-                className={`absolute right-0 top-0 h-full w-full sm:w-250 bg-white border-l border-[#E8E6E1] shadow-[-4px_0_12px_-2px_rgba(0,0,0,0.06)] ${open ? "translate-x-0 transition-transform duration-150 ease-out" : "translate-x-full transition-transform duration-100 ease-in"}`}
+                style={{ boxShadow: "-1px 0 2px rgba(140,149,159,0.05), -4px 0 12px rgba(140,149,159,0.1), -12px 0 32px rgba(140,149,159,0.15)" }}
+                className={`absolute right-0 top-0 h-full w-full sm:w-250 bg-white border-l border-[#E8E6E1] ${open ? "translate-x-0 transition-transform duration-150 ease-out" : "translate-x-full transition-transform duration-100 ease-in"}`}
             >
                 {children}
             </aside>

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { getProjects } from "@/lib/api";
 import type { Project } from "@/types/project";
+import SelectField from "@/components/common/forms/SelectField";
+import { colors } from "@/constants/colors";
 
 interface ProjectPickerCardProps {
   projectId: string;
@@ -29,15 +31,14 @@ export default function ProjectPickerCard({ projectId, onProjectChange }: Projec
           Projekt
         </label>
         {error ? (
-          <p className="body-sm text-[#D64545]">Kunne ikke hente projekter. Prøv at genindlæse siden.</p>
+          <p className="body-sm" style={{ color: colors.red }}>Kunne ikke hente projekter. Prøv at genindlæse siden.</p>
         ) : (
-          <select
+          <SelectField
             id="project_id"
             value={projectId}
             onChange={(e) => onProjectChange(e.target.value)}
             required
             disabled={loading || projects.length === 0}
-            className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors bg-white text-[#1B1D22] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="" disabled>
               {loading ? "Henter projekter..." : projects.length === 0 ? "Ingen projekter — opret et projekt først" : "Vælg projekt..."}
@@ -47,7 +48,7 @@ export default function ProjectPickerCard({ projectId, onProjectChange }: Projec
                 {p.name}
               </option>
             ))}
-          </select>
+          </SelectField>
         )}
       </div>
     </div>

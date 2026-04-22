@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
 import { updateUser } from "@/lib/api/users";
 import { UpdateUserInput, User } from "@/types/users";
 import { toast } from "sonner";
+import { colors } from "@/constants/colors";
+import TextInput from "@/components/common/forms/TextInput";
+import SelectField from "@/components/common/forms/SelectField";
 
 interface UpdateEmployeeFormProps {
+    formId: string;
     user: User;
-    onCancel: () => void;
     onSuccess: (user: User) => void;
+    onLoadingChange?: (loading: boolean) => void;
 }
 
-export default function UpdateEmployeeForm({ user, onCancel, onSuccess }: UpdateEmployeeFormProps) {
+export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingChange }: UpdateEmployeeFormProps) {
     const [formData, setFormData] = useState({
         name: user.name || "",
         email: user.email || "",
@@ -23,9 +25,6 @@ export default function UpdateEmployeeForm({ user, onCancel, onSuccess }: Update
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    // Show/hide password state
-    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -57,115 +56,84 @@ export default function UpdateEmployeeForm({ user, onCancel, onSuccess }: Update
         }
     }
 
+    useEffect(() => {
+        onLoadingChange?.(loading);
+    }, [loading, onLoadingChange]);
+
     return (
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-6">
+        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-6">
+            <p className="body-sm" style={{ color: colors.textSecondary }}>
+                Opdater medarbejderens oplysninger, rolle og stilling.
+            </p>
+
             {error && (
-                <div className="p-4 bg-[#FDECEC] border-l-4 border-[#D64545] rounded-r-lg">
-                    <p className="text-sm text-[#D64545]">{error}</p>
+                <div
+                    className="rounded-md border p-3"
+                    style={{ backgroundColor: colors.redLight, borderColor: colors.redBorder }}
+                >
+                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
                 </div>
             )}
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="name" className="label-md">Navn</label>
-                    <input
+                    <label htmlFor="name" className="label-md block mb-2">Navn</label>
+                    <TextInput
                         id="name"
                         name="name"
                         type="text"
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        className="block w-full rounded-lg border-2 border-[#E8E6E1] px-4 py-3 text-[#1B1D22] placeholder:text-[#9DA1B4] focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#EBF0FD] focus:outline-none transition-colors"
                     />
                 </div>
                 <div>
-                    <label htmlFor="email" className="label-md">Email</label>
-                    <input
+                    <label htmlFor="email" className="label-md block mb-2">Email</label>
+                    <TextInput
                         id="email"
                         name="email"
                         type="email"
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="block w-full rounded-lg border-2 border-[#E8E6E1] px-4 py-3 text-[#1B1D22] placeholder:text-[#9DA1B4] focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#EBF0FD] focus:outline-none transition-colors"
                     />
                 </div>
                 <div>
-                    <label htmlFor="password" className="label-md">Ny adgangskode</label>
-                    <div className="relative">
-                        <input
-                            id="password"
-                            name="password"
-                            type={showPassword ? "text" : "password"}
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Efterlad tom for at beholde nuværende"
-                            className="block w-full rounded-lg border-2 border-[#E8E6E1] px-4 py-3 text-[#1B1D22] placeholder:text-[#9DA1B4] focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#EBF0FD] focus:outline-none transition-colors pr-12"
-                        />
-                        <button
-                            type="button"
-                            // tabIndex={-1}
-                            aria-label={showPassword ? "Skjul adgangskode" : "Vis adgangskode"}
-                            onClick={() => setShowPassword((v) => !v)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9DA1B4] hover:text-[#6B7084] focus:outline-none transition-colors"
-                        >
-                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                        </button>
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                        <label htmlFor="password" className="label-md block">Ny adgangskode</label>
                     </div>
+                    <TextInput
+                        id="password"
+                        name="password"
+                        type="password"
+                        sensitive
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Efterlad tom for at beholde nuværende"
+                    />
+
                 </div>
                 <div>
-                    <label htmlFor="role" className="label-md">Rolle</label>
-                    <select
+                    <label htmlFor="role" className="label-md block mb-2">Rolle</label>
+                    <SelectField
                         id="role"
                         name="role"
                         value={formData.role}
                         onChange={handleChange}
-                        className="block w-full rounded-lg border-2 border-[#E8E6E1] px-4 py-3 text-[#1B1D22] focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#EBF0FD] focus:outline-none transition-colors"
                     >
                         <option value="USER">Bruger</option>
                         <option value="ADMIN">Administrator</option>
-                    </select>
+                    </SelectField>
                 </div>
                 <div>
-                    <label htmlFor="position" className="label-md">Stilling</label>
-                    <input
+                    <label htmlFor="position" className="label-md block mb-2">Stilling</label>
+                    <TextInput
                         id="position"
                         name="position"
                         type="text"
                         value={formData.position}
                         onChange={handleChange}
-                        className="block w-full rounded-lg border-2 border-[#E8E6E1] px-4 py-3 text-[#1B1D22] placeholder:text-[#9DA1B4] focus:border-[#2C5FE0] focus:ring-2 focus:ring-[#EBF0FD] focus:outline-none transition-colors"
                     />
                 </div>
-            </div>
-            <div className="mt-6 pt-6 border-t border-[#E8E6E1] bg-white flex flex-col-reverse sm:flex-row-reverse gap-3">
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="inline-flex w-full justify-center items-center gap-2 rounded-lg bg-[#0f6e56] px-5 py-3 btn-lg text-white
-                        hover:bg-[#0a5551] transition-colors
-                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D9F6F]/30 focus-visible:ring-offset-2
-                        disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
-                >
-                    {loading ? (
-                        <>
-                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span>Opdaterer...</span>
-                        </>
-                    ) : (
-                        <span>Opdater medarbejder</span>
-                    )}
-                </button>
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    disabled={loading}
-                    className="inline-flex w-full justify-center rounded-lg bg-white px-5 py-3 btn-lg text-[#1B1D22] border border-[#E8E6E1] hover:bg-[#FAFAF7] hover:border-[#d4d1cb] disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
-                >
-                    Annuller
-                </button>
             </div>
         </form>
     );

@@ -8,6 +8,7 @@ import EmployeeRow from "./EmployeeRow";
 import Modal from "../modal/Modal";
 import UpdateEmployeeForm from "./UpdateEmployeeForm";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import Button from "../common/buttons/Button";
 
 interface EmployeeListProps {
     employees: User[];
@@ -21,9 +22,11 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
 }: EmployeeListProps) {
     const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const editFormId = "edit-employee-form";
 
 
     function handleEditClick(employee: User) {
@@ -117,14 +120,37 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
             <Modal
                 isOpen={showEditModal}
                 onClose={handleEditCancel}
-                title={<span className="h3">Rediger Medarbejder</span>}
-                maxWidth="md"
+                title="Rediger medarbejder"
+                maxWidth="sm"
+                footer={
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
+                        <Button
+                            type="submit"
+                            form={editFormId}
+                            loading={editLoading}
+                            variant="primary"
+                            size="md"
+                        >
+                            Opdater medarbejder
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleEditCancel}
+                            disabled={editLoading}
+                            variant="secondary"
+                            size="md"
+                        >
+                            Annuller
+                        </Button>
+                    </div>
+                }
             >
                 {selectedEmployee && (
                     <UpdateEmployeeForm
+                        formId={editFormId}
                         user={selectedEmployee}
+                        onLoadingChange={setEditLoading}
                         onSuccess={handleEditSuccess}
-                        onCancel={handleEditCancel}
                     />
                 )}
             </Modal>

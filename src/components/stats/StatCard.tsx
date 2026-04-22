@@ -104,7 +104,7 @@ export default function StatCard({
                     </div>
                     <p className={`mt-2 h1 ${textColors[variant]}`}>{value}</p>
                     {subtitle && (
-                        <p className={`mt-1 label-lg-gray ${subtitleColors[variant]}`}>{subtitle}</p>
+                        <p className={`mt-1 label-lg ${subtitleColors[variant]}`}>{subtitle}</p>
                     )}
                     {trend && trendValue && (
                         <div className={`mt-2 flex items-center gap-1 label-md ${trendColors[trend]}`}>

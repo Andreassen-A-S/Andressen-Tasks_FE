@@ -16,14 +16,20 @@ import ViewTemplate from "@/components/templates/ViewTemplate";
 import Modal from "../modal/Modal";
 import UpdateTemplateForm from "./UpdateTemplateForm";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { colors } from "@/constants/colors";
+import Button from "@/components/common/buttons/Button";
 
 
 export default function RecurringTemplatesPage() {
+    const createTemplateFormId = "create-template-form";
+    const editTemplateFormId = "edit-template-form";
     const [templates, setTemplates] = useState<RecurringTemplate[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showCreateTemplate, setShowCreateTemplate] = useState(false);
+    const [createLoading, setCreateLoading] = useState(false);
     const [showEditTemplate, setShowEditTemplate] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<RecurringTemplate | null>(null);
     const [showViewTemplate, setShowViewTemplate] = useState(false);
     const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('active');
@@ -139,13 +145,14 @@ export default function RecurringTemplatesPage() {
                             Administrer dine gentagende opgaveskabeloner
                         </p>
                     </div>
-                    <button
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        icon={faPlus}
                         onClick={() => setShowCreateTemplate(true)}
-                        className="inline-flex btn-lg items-center gap-2 px-5 py-3 bg-[#0f6e56] text-white font-semibold rounded-lg hover:bg-[#0a5551] transition-colors"
                     >
-                        <FontAwesomeIcon icon={faPlus} size="sm" />
                         Opret skabelon
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -156,10 +163,11 @@ export default function RecurringTemplatesPage() {
                         <button
                             key={key}
                             onClick={() => setFilter(key)}
-                            className={`px-4 py-2 font-medium transition-colors border-b-2 ${filter === key
-                                ? 'border-blue-600 label-lg'
-                                : 'border-transparent label-lg-gray hover:text-green-200'
+                            className={`label-lg px-4 py-2 transition-colors border-b-2 ${filter === key
+                                ? 'border-blue-600'
+                                : 'border-transparent hover:text-green-200'
                                 }`}
+                            style={filter === key ? undefined : { color: colors.textSecondary }}
                         >
                             {label} ({count})
                         </button>
@@ -187,13 +195,16 @@ export default function RecurringTemplatesPage() {
                             Opret en gentagende opgaveskabelon for at komme i gang
                         </p>
                         {filter === 'active' && (
-                            <button
-                                onClick={() => setShowCreateTemplate(true)}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                <FontAwesomeIcon icon={faPlus} />
-                                Opret Din Første Skabelon
-                            </button>
+                            <div className="flex justify-center">
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    icon={faPlus}
+                                    onClick={() => setShowCreateTemplate(true)}
+                                >
+                                    Opret Din Første Skabelon
+                                </Button>
+                            </div>
                         )}
                     </div>
                 ) : (
@@ -218,9 +229,32 @@ export default function RecurringTemplatesPage() {
                 onClose={() => setShowCreateTemplate(false)}
                 title="Opret Ny Skabelon"
                 maxWidth="3xl"
+                footer={
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
+                        <Button
+                            type="submit"
+                            form={createTemplateFormId}
+                            loading={createLoading}
+                            variant="primary"
+                            size="md"
+                        >
+                            Opret gentagende opgave
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => setShowCreateTemplate(false)}
+                            disabled={createLoading}
+                            variant="secondary"
+                            size="md"
+                        >
+                            Annuller
+                        </Button>
+                    </div>
+                }
             >
                 <CreateTemplateForm
-                    onCancel={() => setShowCreateTemplate(false)}
+                    formId={createTemplateFormId}
+                    onLoadingChange={setCreateLoading}
                     onSuccess={(template) => {
                         setTemplates([...templates, template]);
                         setShowCreateTemplate(false);
@@ -239,13 +273,36 @@ export default function RecurringTemplatesPage() {
                     }}
                     title="Rediger Skabelon"
                     maxWidth="3xl"
+                    footer={
+                        <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
+                            <Button
+                                type="submit"
+                                form={editTemplateFormId}
+                                loading={editLoading}
+                                variant="primary"
+                                size="md"
+                            >
+                                Gem ændringer
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    setShowEditTemplate(false);
+                                    setSelectedTemplate(null);
+                                }}
+                                disabled={editLoading}
+                                variant="secondary"
+                                size="md"
+                            >
+                                Annuller
+                            </Button>
+                        </div>
+                    }
                 >
                     <UpdateTemplateForm
+                        formId={editTemplateFormId}
+                        onLoadingChange={setEditLoading}
                         template={selectedTemplate}
-                        onCancel={() => {
-                            setShowEditTemplate(false);
-                            setSelectedTemplate(null);
-                        }}
                         onSuccess={(updated) => {
                             setTemplates(templates.map(t =>
                                 t.id === updated.id ? updated : t

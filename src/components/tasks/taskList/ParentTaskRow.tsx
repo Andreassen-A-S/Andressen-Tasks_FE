@@ -78,7 +78,7 @@ export default function ParentTaskRow({
                             {/* Subtask progress bar */}
                             {hasSubtasks && (
                                 <div className="flex items-center gap-2 min-w-30">
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#EBF0FD] text-[#2C5FE0] badge">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#EBF0FD] text-[#2C5FE0] badge badge-md">
                                         {progress?.completed}/{progress?.total}
                                     </span>
 

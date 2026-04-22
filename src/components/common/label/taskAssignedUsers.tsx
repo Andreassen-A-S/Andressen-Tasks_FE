@@ -9,17 +9,42 @@ interface TaskAssignedUsersProps {
     assignments: TaskAssignment[];
     loading?: boolean;
     className?: string;
+    size?: "sm" | "md";
 }
 
-export default function TaskAssignedUsers({ assignments, loading = false, className = "" }: TaskAssignedUsersProps) {
+export default function TaskAssignedUsers({
+    assignments,
+    loading = false,
+    className = "",
+    size = "md",
+}: TaskAssignedUsersProps) {
     const [showTooltip, setShowTooltip] = useState(false);
     const [pos, setPos] = useState({ bottom: 0, left: 0 });
     const triggerRef = useRef<HTMLDivElement>(null);
 
+    const sizeClasses = {
+        sm: {
+            skeleton: "w-6 h-6 rounded-md",
+            stack: "-space-x-1.5",
+            avatar: "w-6 h-6 rounded-md initials-sm border-2",
+            more: "w-6 h-6 rounded-md initials-sm border-2",
+            tooltipAvatar: "w-5 h-5 rounded-md initials-sm",
+        },
+        md: {
+            skeleton: "w-8 h-8 rounded-lg",
+            stack: "-space-x-1.75",
+            avatar: "w-8 h-8 rounded-lg initials-md border-2",
+            more: "w-8 h-8 rounded-lg initials-lg border-2",
+            tooltipAvatar: "w-6 h-6 rounded-lg initials-md",
+        },
+    } as const;
+
+    const currentSize = sizeClasses[size];
+
     if (loading) {
         return (
             <div className={`flex items-center ${className}`}>
-                <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+                <div className={`${currentSize.skeleton} bg-gray-200 animate-pulse`} />
             </div>
         );
     }
@@ -47,18 +72,18 @@ export default function TaskAssignedUsers({ assignments, loading = false, classN
             onMouseEnter={handleMouseEnter}
             onMouseLeave={() => setShowTooltip(false)}
         >
-            <div className="flex -space-x-1.75">
+            <div className={`flex ${currentSize.stack}`}>
                 {visible.map((a, i) => (
                     <div
                         key={a.assignment_id}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center initials-md border-2 border-white relative ${getAvatarColor(a.user.name)}`}
+                        className={`${currentSize.avatar} flex items-center justify-center border-white relative ${getAvatarColor(a.user.name)}`}
                         style={{ zIndex: visible.length - i }}
                     >
                         {getInitials(a.user.name)}
                     </div>
                 ))}
                 {remaining > 0 && (
-                    <div className="w-8 h-8 rounded-lg bg-[#A8AABB] flex items-center justify-center initials-lg border-2 border-white" style={{ zIndex: 0 }}>
+                    <div className={`${currentSize.more} bg-[#A8AABB] flex items-center justify-center border-white`} style={{ zIndex: 0 }}>
                         +{remaining}
                     </div>
                 )}
@@ -72,7 +97,7 @@ export default function TaskAssignedUsers({ assignments, loading = false, classN
                     <div className="space-y-1">
                         {assignments.map((a) => (
                             <div key={a.assignment_id} className="flex items-center gap-2">
-                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center initials-md ${getAvatarColor(a.user.name)}`}>
+                                <div className={`${currentSize.tooltipAvatar} flex items-center justify-center ${getAvatarColor(a.user.name)}`}>
                                     {getInitials(a.user.name)}
                                 </div>
                                 <div>

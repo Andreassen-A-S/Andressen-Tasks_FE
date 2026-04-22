@@ -1,5 +1,6 @@
 import { User } from "@/types/users";
 import SingleAvatar from "../common/label/singleAvatar";
+import { colors } from "@/constants/colors";
 
 interface EmployeeRowProps {
     employee: User;
@@ -31,7 +32,12 @@ export default function EmployeeRow({ employee, onEdit, onDelete }: EmployeeRowP
                 <div className="label-md text-gray-900">{employee.email}</div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <span className="badge bg-green-100 text-green-800 rounded-full px-3 py-1">Aktiv</span>
+                <span
+                    className="badge badge-md inline-flex items-center rounded-full px-3"
+                    style={{ backgroundColor: colors.greenLight, color: colors.greenMid }}
+                >
+                    Aktiv
+                </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap label-md font-medium">
                 <div className="flex gap-2">
