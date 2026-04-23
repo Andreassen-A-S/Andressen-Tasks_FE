@@ -231,6 +231,17 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         }
     }
 
+    async function handleDescriptionSave(description: string) {
+        if (!task) return;
+        try {
+            const updated = await updateTask(task.task_id, { description });
+            setTask(updated);
+        } catch {
+            toast.error("Kunne ikke opdatere beskrivelse");
+            throw new Error("description-update-failed");
+        }
+    }
+
     function handleOpenParentTask() {
         if (!task?.parent_task_id) return;
         // TODO: Replace this stub once a dedicated single-task route exists.
@@ -330,6 +341,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                             showSubtaskButton={task.parent_task_id == null}
                             onAddSubtask={() => setShowSubtaskModal(true)}
                             isArchived={isArchived}
+                            onSaveDescription={handleDescriptionSave}
                         />
                         <TaskTimeline taskId={task.task_id} creatorId={task.created_by} isArchived={isArchived} />
                         <div className="h-12" />
