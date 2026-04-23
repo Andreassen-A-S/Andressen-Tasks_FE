@@ -38,9 +38,9 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInpu
       type="button"
       aria-label={showSensitiveValue ? "Skjul indhold" : "Vis indhold"}
       onClick={() => setShowSensitiveValue((value) => !value)}
-      className="flex items-center focus:outline-none transition-colors -mr-2"
+      className="flex items-center rounded-sm transition-colors -mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
       style={{ color: colors.textMuted }}
-      tabIndex={-1}
+      onMouseDown={(event) => event.preventDefault()}
     >
       <FontAwesomeIcon icon={showSensitiveValue ? faEyeSlash : faEye} />
     </button>

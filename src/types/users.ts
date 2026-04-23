@@ -11,6 +11,8 @@ export function getUserRoleLabel(role: UserRole): string {
       return "Administrator";
     case UserRole.USER:
       return "Bruger";
+    default:
+      return "Ukendt rolle";
   }
 }
 

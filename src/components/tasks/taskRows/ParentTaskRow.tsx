@@ -50,6 +50,7 @@ export default function ParentTaskRow({
         ? `${task.current_quantity ?? 0}/${task.target_quantity}${progressUnit ? ` ${progressUnit}` : ""}`
         : null;
     const updatedLabel = formatCommentDate(task.updated_at);
+    const hasDetailSegment = hasSubtasks || hasQuantityProgress;
 
     return (
         <Fragment>
@@ -96,7 +97,7 @@ export default function ParentTaskRow({
                                 </span>
                             )}
 
-                            {isRecurring && (hasSubtasks || hasQuantityProgress || true) && <Dot />}
+                            {isRecurring && hasDetailSegment && <Dot />}
 
                             {hasSubtasks && progress && (
                                 <span className="flex items-center gap-1">
@@ -114,7 +115,7 @@ export default function ParentTaskRow({
                                 </span>
                             )}
 
-                            {(hasSubtasks || hasQuantityProgress) && <Dot />}
+                            {hasDetailSegment && <Dot />}
 
                             <span>Opdateret {updatedLabel}</span>
                         </div>
