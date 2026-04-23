@@ -8,7 +8,7 @@ import {
     faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { RecurringTemplate } from "@/types/recuringTemplate";
-import Badge from "@/components/common/label/badge";
+import Badge from "@/components/common/label/Badge";
 import { formatDate } from "@/helpers/helpers";
 import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";

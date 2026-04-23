@@ -1,48 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { faCalendar, faClock, faFlag } from "@fortawesome/free-regular-svg-icons";
-import {
-    faArrowDownWideShort,
-    faArrowUpShortWide,
-    faCaretDown,
-    faClockRotateLeft,
-    faFont,
-    faPlus,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { getAllAssignments, getProjects, getTasks, getUsers } from "@/lib/api";
 import { TaskPriority, TaskStatus, type Task } from "@/types/task";
 import type { Project } from "@/types/project";
 import type { TaskAssignment } from "@/types/assignment";
 import type { User } from "@/types/users";
-import TaskList from "./taskList/TaskList";
-import CreateTaskForm from "./createTask/CreateTaskForm";
-import Modal from "../modal/Modal";
-import Drawer from "../drawer/drawer";
-import TaskDetails from "./taskDetailsView/TaskDetails";
+import TaskTable from "./TaskTable";
+import TaskFilterRow, { type SortDirection, type TaskSortField } from "./TaskFilterRow";
+import TaskCreateModal from "./TaskCreateModal";
 import Button from "../common/buttons/Button";
-import DropdownMenu from "../common/DropdownMenu";
-import FilterBar from "../common/table/FilterBar";
-
-type SortField = "created_at" | "deadline" | "start_date" | "priority" | "title";
-type SortDirection = "asc" | "desc";
-
-const statusLabelMap: Record<TaskStatus, string> = {
-    [TaskStatus.PENDING]: "Mangler",
-    [TaskStatus.IN_PROGRESS]: "I gang",
-    [TaskStatus.DONE]: "Udført",
-    [TaskStatus.REJECTED]: "Annulleret",
-    [TaskStatus.ARCHIVED]: "Arkiveret",
-};
-
-const sortFieldLabelMap: Record<SortField, string> = {
-    created_at: "Seneste",
-    deadline: "Deadline",
-    start_date: "Startdato",
-    priority: "Prioritet",
-    title: "Titel",
-};
+import PageHeader from "@/components/common/PageHeader";
 
 export default function TaskPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -53,28 +22,14 @@ export default function TaskPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
     const [createSubmitLabel, setCreateSubmitLabel] = useState("Opret opgave");
-    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
     const [projectFilter, setProjectFilter] = useState<string>("all");
     const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
     const [creatorFilter, setCreatorFilter] = useState<string>("all");
-    const [sortField, setSortField] = useState<SortField>("created_at");
+    const [sortField, setSortField] = useState<TaskSortField>("created_at");
     const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
     const createFormId = "create-task-form";
-
-    const selectedProjectLabel = projectFilter === "all"
-        ? "Alle projekter"
-        : projects.find((project) => project.project_id === projectFilter)?.name ?? "Alle projekter";
-    const selectedAssigneeLabel = assigneeFilter === "all"
-        ? "Alle"
-        : users.find((user) => user.user_id === assigneeFilter)?.name ?? "Alle";
-    const selectedCreatorLabel = creatorFilter === "all"
-        ? "Alle"
-        : users.find((user) => user.user_id === creatorFilter)?.name ?? "Alle";
-    const selectedStatusLabel = statusFilter === "all"
-        ? "Alle"
-        : statusLabelMap[statusFilter];
 
     const loadTasks = useCallback(async () => {
         try {
@@ -155,12 +110,6 @@ export default function TaskPage() {
         });
     }, [assigneeFilter, creatorFilter, projectFilter, sortDirection, sortField, statusFilter, taskAssignments, tasks]);
 
-    const anyFiltersActive =
-        statusFilter !== "all" ||
-        projectFilter !== "all" ||
-        assigneeFilter !== "all" ||
-        creatorFilter !== "all";
-
     const handleTaskCreated = useCallback(() => {
         loadTasks();
         setShowCreateModal(false);
@@ -170,8 +119,11 @@ export default function TaskPage() {
         setTasks((prev) => prev.filter((t) => t.task_id !== taskId));
     }, []);
 
-    const handleDrawerClose = useCallback(() => {
-        setSelectedTaskId(null);
+    const clearFilters = useCallback(() => {
+        setStatusFilter("all");
+        setProjectFilter("all");
+        setAssigneeFilter("all");
+        setCreatorFilter("all");
     }, []);
 
     if (loading) {
@@ -180,16 +132,10 @@ export default function TaskPage() {
 
     return (
         <div className="min-h-screen">
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="space-y-2">
-                        <h1 className="h1 flex items-center gap-3">
-                            Opgaver
-                        </h1>
-                        <p className="body-sm">
-                            {tasks.length} opgaver
-                        </p>
-                    </div>
+            <PageHeader
+                title="Opgaver"
+                subtitle={`${tasks.length} opgaver`}
+                action={
                     <Button
                         variant="primary"
                         size="lg"
@@ -198,148 +144,42 @@ export default function TaskPage() {
                     >
                         Ny opgave
                     </Button>
-                </div>
-            </div>
+                }
+            />
 
             <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
-                <FilterBar
-                    left={
-                        <>
-                            <DropdownMenu
-                                trigger={
-                                    <Button variant="ghost" size="md" className="-ml-1">
-                                        Status: {selectedStatusLabel}
-                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                    </Button>
-                                }
-                                items={[
-                                    { label: "Alle", checked: statusFilter === "all", onClick: () => setStatusFilter("all") },
-                                    { label: "Mangler", checked: statusFilter === TaskStatus.PENDING, onClick: () => setStatusFilter(TaskStatus.PENDING) },
-                                    { label: "I gang", checked: statusFilter === TaskStatus.IN_PROGRESS, onClick: () => setStatusFilter(TaskStatus.IN_PROGRESS) },
-                                    { label: "Udført", checked: statusFilter === TaskStatus.DONE, onClick: () => setStatusFilter(TaskStatus.DONE) },
-                                    { label: "Annulleret", checked: statusFilter === TaskStatus.REJECTED, onClick: () => setStatusFilter(TaskStatus.REJECTED) },
-                                    { label: "Arkiveret", checked: statusFilter === TaskStatus.ARCHIVED, onClick: () => setStatusFilter(TaskStatus.ARCHIVED) },
-                                ]}
-                            />
-                            {projects.length > 0 && (
-                                <DropdownMenu
-                                    trigger={
-                                        <Button variant="ghost" size="md">
-                                            Projekt: {selectedProjectLabel}
-                                            <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                        </Button>
-                                    }
-                                    items={[
-                                        { label: "Alle projekter", checked: projectFilter === "all", onClick: () => setProjectFilter("all") },
-                                        ...projects.map((project) => ({
-                                            label: project.name,
-                                            checked: projectFilter === project.project_id,
-                                            onClick: () => setProjectFilter(project.project_id),
-                                        })),
-                                    ]}
-                                />
-                            )}
-                            <DropdownMenu
-                                trigger={
-                                    <Button variant="ghost" size="md">
-                                        Tildelte: {selectedAssigneeLabel}
-                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                    </Button>
-                                }
-                                items={[
-                                    { label: "Alle", checked: assigneeFilter === "all", onClick: () => setAssigneeFilter("all") },
-                                    ...users.map((user) => ({ label: user.name, checked: assigneeFilter === user.user_id, onClick: () => setAssigneeFilter(user.user_id) })),
-                                ]}
-                            />
-                            <DropdownMenu
-                                trigger={
-                                    <Button variant="ghost" size="md">
-                                        Oprettet af: {selectedCreatorLabel}
-                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                    </Button>
-                                }
-                                items={[
-                                    { label: "Alle", checked: creatorFilter === "all", onClick: () => setCreatorFilter("all") },
-                                    ...users.map((user) => ({ label: user.name, checked: creatorFilter === user.user_id, onClick: () => setCreatorFilter(user.user_id) })),
-                                ]}
-                            />
-                        </>
-                    }
-                    right={
-                        <>
-                            {anyFiltersActive && (
-                                <Button variant="ghost" size="md" onClick={() => { setStatusFilter("all"); setProjectFilter("all"); setAssigneeFilter("all"); setCreatorFilter("all"); }}>
-                                    Ryd filtre
-                                </Button>
-                            )}
-                            <DropdownMenu
-                                trigger={
-                                    <Button variant="ghost" size="md" className="-mr-1">
-                                        <FontAwesomeIcon icon={sortDirection === "asc" ? faArrowUpShortWide : faArrowDownWideShort} className="w-4 h-4" />
-                                        {sortFieldLabelMap[sortField]}
-                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                    </Button>
-                                }
-                                items={[
-                                    { label: "Seneste", icon: faClockRotateLeft, checked: sortField === "created_at", onClick: () => setSortField("created_at") },
-                                    { label: "Deadline", icon: faClock, checked: sortField === "deadline", onClick: () => setSortField("deadline") },
-                                    { label: "Startdato", icon: faCalendar, checked: sortField === "start_date", onClick: () => setSortField("start_date") },
-                                    { label: "Prioritet", icon: faFlag, checked: sortField === "priority", onClick: () => setSortField("priority") },
-                                    { label: "Titel", icon: faFont, checked: sortField === "title", onClick: () => setSortField("title") },
-                                    { label: "Stigende", icon: faArrowUpShortWide, checked: sortDirection === "asc", dividerBefore: true, onClick: () => setSortDirection("asc") },
-                                    { label: "Faldende", icon: faArrowDownWideShort, checked: sortDirection === "desc", onClick: () => setSortDirection("desc") },
-                                ]}
-                            />
-                        </>
-                    }
+                <TaskFilterRow
+                    projects={projects}
+                    users={users}
+                    statusFilter={statusFilter}
+                    projectFilter={projectFilter}
+                    assigneeFilter={assigneeFilter}
+                    creatorFilter={creatorFilter}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onStatusFilterChange={setStatusFilter}
+                    onProjectFilterChange={setProjectFilter}
+                    onAssigneeFilterChange={setAssigneeFilter}
+                    onCreatorFilterChange={setCreatorFilter}
+                    onSortFieldChange={setSortField}
+                    onSortDirectionChange={setSortDirection}
+                    onClearFilters={clearFilters}
                 />
-                <TaskList
+                <TaskTable
                     tasks={filteredTasks}
                     onTaskDelete={handleTaskDeleted}
                 />
 
-                <Drawer open={!!selectedTaskId} onClose={handleDrawerClose}>
-                    {selectedTaskId && (
-                        <TaskDetails taskId={selectedTaskId} onClose={handleDrawerClose} />
-                    )}
-                </Drawer>
-
-                <Modal
+                <TaskCreateModal
                     isOpen={showCreateModal}
+                    loading={createLoading}
+                    formId={createFormId}
+                    submitLabel={createSubmitLabel}
                     onClose={() => setShowCreateModal(false)}
-                    title="Opret Ny Opgave"
-                    maxWidth="3xl"
-                    footer={
-                        <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
-                            <Button
-                                type="submit"
-                                form={createFormId}
-                                loading={createLoading}
-                                variant="primary"
-                                size="md"
-                            >
-                                {createSubmitLabel}
-                            </Button>
-                            <Button
-                                type="button"
-                                onClick={() => setShowCreateModal(false)}
-                                disabled={createLoading}
-                                variant="secondary"
-                                size="md"
-                            >
-                                Annuller
-                            </Button>
-                        </div>
-                    }
-                >
-                    <CreateTaskForm
-                        formId={createFormId}
-                        onLoadingChange={setCreateLoading}
-                        onSubmitLabelChange={setCreateSubmitLabel}
-                        onSuccess={handleTaskCreated}
-                        onComplete={handleTaskCreated}
-                    />
-                </Modal>
+                    onLoadingChange={setCreateLoading}
+                    onSubmitLabelChange={setCreateSubmitLabel}
+                    onSuccess={handleTaskCreated}
+                />
             </div>
         </div>
     );

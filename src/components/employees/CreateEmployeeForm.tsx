@@ -8,21 +8,13 @@ import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
 import SelectField from "@/components/common/forms/SelectField";
+import { UserPositions } from "@/types/users";
 
 interface CreateEmployeeFormProps {
     formId: string;
     onSuccess: (user: User) => void;
     onLoadingChange?: (loading: boolean) => void;
 }
-
-// TODO: Move to database table in the future
-const PREDEFINED_POSITIONS = [
-    "Håndmand",
-    "HR",
-    "Revisor",
-    "Maskinfører",
-    "Lagerarbejder",
-];
 
 export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange }: CreateEmployeeFormProps) {
     const [formData, setFormData] = useState({
@@ -40,7 +32,7 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
     const [showCustomPositionInput, setShowCustomPositionInput] = useState(false);
     const [newPosition, setNewPosition] = useState("");
 
-    const allPositions = [...PREDEFINED_POSITIONS, ...customPositions];
+    const allPositions = [...UserPositions, ...customPositions];
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));

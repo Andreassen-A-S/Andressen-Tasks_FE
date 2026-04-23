@@ -6,7 +6,6 @@ import { useAuth } from "@/hooks/useAuth";
 import Sidebar from "@/components/sidebar/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import BottomNav from "../userView/bottomNavBar/BottomNav";
 
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -26,32 +25,8 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
         // Authenticated -> route by role
         if (isAuthenticated && pathname === "/login") {
-            if (userRole === "USER") {
-                router.push("/my-tasks");
-            } else if (userRole === "ADMIN") {
-                router.push("/");
-            }
-            return;
-        }
-
-        const userAllowedRoutes = [
-            "/my-tasks",
-            "/calendar",
-            "/profile",
-            // Add more allowed routes here
-        ];
-
-        // Prevent users from accessing admin routes
-        if (
-            userRole === "USER" &&
-            !userAllowedRoutes.some(route => pathname === route || pathname.startsWith(route + "/"))
-        ) {
-            router.push("/my-tasks");
-        }
-
-        // Prevent admins from accessing user-only routes
-        if (userRole === "ADMIN" && pathname.startsWith("/my-tasks")) {
             router.push("/");
+            return;
         }
     }, [isAuthenticated, isLoading, pathname, router, userRole]);
 
@@ -80,19 +55,6 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         );
     }
 
-    // USER role gets simple layout
-    if (userRole === "USER") {
-        return (
-            <div className="min-h-screen bg-background">
-                <main className="flex-1">
-                    <BottomNav />
-                    {children}
-                </main>
-            </div>
-        );
-    }
-
-    // ADMIN role gets sidebar layout
     return (
         <div className="flex min-h-screen bg-background">
             <Sidebar />

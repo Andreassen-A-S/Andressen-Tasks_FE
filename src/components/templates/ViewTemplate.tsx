@@ -11,8 +11,8 @@ import { Task } from "@/types/task";
 import { getTaskAssignments, getTemplateInstances } from "@/lib/api";
 import type { TaskAssignment } from "@/types/assignment";
 import { formatDate, formatRelativeDate } from "@/helpers/helpers";
-import Badge from "@/components/common/label/badge";
-import TaskAssignedUsers from "@/components/common/label/taskAssignedUsers";
+import Badge from "@/components/common/label/Badge";
+import TaskAssignedUsers from "@/components/common/label/TaskAssignedUsers";
 import Modal from "@/components/modal/Modal";
 import { colors } from "@/constants/colors";
 

@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { faChartColumn, faFolder, faGear, faTasks, faUsers, faSignOutAlt, faRepeat } from "@fortawesome/free-solid-svg-icons";
+import { faChartColumn, faFolder, faTasks, faUsers, faSignOutAlt, faRepeat } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAuth } from "@/hooks/useAuth";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
+import OutlineGearIcon from "@/components/common/icons/OutlineGearIcon";
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -23,7 +24,7 @@ export default function Sidebar() {
         { href: "/templates", label: "Gentagende opgaver", icon: faRepeat },
         { href: "/employees", label: "Medarbejdere", icon: faUsers },
         { href: "/statistics", label: "Statistik", icon: faChartColumn },
-        { href: "/settings", label: "Indstillinger", icon: faGear },
+        { href: "/settings", label: "Indstillinger", icon: null },
     ];
 
     return (
@@ -54,7 +55,11 @@ export default function Sidebar() {
                                         }`}
                                 >
                                     <span className="flex items-center justify-center w-5 h-5">
-                                        <FontAwesomeIcon icon={item.icon} className="w-3.5 h-3.5" />
+                                        {item.icon ? (
+                                            <FontAwesomeIcon icon={item.icon} className="w-3.5 h-3.5" />
+                                        ) : (
+                                            <OutlineGearIcon className="w-4 h-4" />
+                                        )}
                                     </span>
                                     <span className="truncate">{item.label}</span>
                                 </Link>

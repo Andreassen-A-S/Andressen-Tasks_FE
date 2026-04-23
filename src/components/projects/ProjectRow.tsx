@@ -1,6 +1,6 @@
 "use client";
 
-import { faListCheck, faRotate, faGear, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faListCheck, faRotate, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Project } from "@/types/project";
 import type { Task } from "@/types/task";
@@ -8,6 +8,7 @@ import DropdownMenu from "@/components/common/DropdownMenu";
 import { formatCommentDate } from "@/helpers/helpers";
 import ProjectActivityBar from "./ProjectActivityBar";
 import { colors } from "@/constants/colors";
+import OutlineGearIcon from "@/components/common/icons/OutlineGearIcon";
 
 interface ProjectRowProps {
     project: Project;
@@ -77,7 +78,7 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
                                 onMouseEnter={(e) => (e.currentTarget.style.color = colors.textSecondary)}
                                 onMouseLeave={(e) => (e.currentTarget.style.color = colors.textMuted)}
                             >
-                                <FontAwesomeIcon icon={faGear} className="w-3 h-3" />
+                                <OutlineGearIcon className="w-4 h-3.5" />
                             </button>
                         }
                         items={[

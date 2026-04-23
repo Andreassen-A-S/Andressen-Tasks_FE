@@ -22,10 +22,10 @@ import {
     faXmark,
     faBoxArchive,
 } from "@fortawesome/free-solid-svg-icons";
-import Badge from "../../common/label/badge";
+import Badge from "../../common/label/Badge";
 import ProjectBadge from "../../common/label/ProjectBadge";
 import SingleAvatar from "../../common/label/SingleAvatar";
-import RecurringBadge from "../../common/label/recurringBadge";
+import RecurringBadge from "../../common/label/RecurringBadge";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";
 import TaskDescriptionCard from "./TaskDescriptionCard";
 import Button from "@/components/common/buttons/Button";
@@ -336,7 +336,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                     </div>
 
                     {/* Sidebar */}
-                    <div className="w-64 py-6 self-start" style={{ position: "sticky", top: 0 }}>
+                    <div className="w-70 py-6 self-start" style={{ position: "sticky", top: 0 }}>
                         <div>
                             <div>
 

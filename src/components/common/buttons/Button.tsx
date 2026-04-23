@@ -142,7 +142,7 @@ export default function Button({
   const tooltipPortal = tooltipPos && typeof document !== "undefined" && createPortal(
     <div
       className="pointer-events-none fixed -translate-x-1/2 px-2 py-1 rounded-md whitespace-nowrap body-xs animate-in fade-in duration-150 z-[9999]"
-      style={{ top: tooltipPos.top, left: tooltipPos.left, backgroundColor: colors.eggWhite, color: colors.textPrimary }}
+      style={{ top: tooltipPos.top, left: tooltipPos.left, backgroundColor: colors.charcoal, color: colors.textWhite }}
     >
       {tooltip}
     </div>,

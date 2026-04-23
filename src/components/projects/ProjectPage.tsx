@@ -3,19 +3,17 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSpinner, faFolder, faArrowDownWideShort, faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { getProjects, createProject, updateProject, deleteProject, getTasks, getRecurringTemplates } from "@/lib/api";
 import type { Project, CreateProjectInput, UpdateProjectInput } from "@/types/project";
 import type { Task } from "@/types/task";
-import ProjectRow from "./ProjectRow";
-import DropdownMenu from "@/components/common/DropdownMenu";
-import Modal from "@/components/modal/Modal";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
-import TextInput from "@/components/common/forms/TextInput";
-import TextArea from "@/components/common/forms/TextArea";
-import ColorInput from "@/components/common/forms/ColorInput";
+import ProjectTable, { type ProjectSortKey } from "./ProjectTable";
+import ProjectCreateModal from "./ProjectCreateModal";
+import ProjectEditModal from "./ProjectEditModal";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function ProjectPage() {
     const createProjectFormId = "create-project-form";
@@ -32,10 +30,7 @@ export default function ProjectPage() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
-    type SortKey = "name" | "tasks" | "created";
-    const [sortBy, setSortBy] = useState<SortKey>("name");
-
-    const sortLabels: Record<SortKey, string> = { name: "Navn", tasks: "Opgaver", created: "Oprettet" };
+    const [sortBy, setSortBy] = useState<ProjectSortKey>("name");
 
     const sortedProjects = [...projects].sort((a, b) => {
         if (sortBy === "name") return a.name.localeCompare(b.name);
@@ -125,13 +120,10 @@ export default function ProjectPage() {
 
     return (
         <div className="min-h-screen">
-            {/* Header */}
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="space-y-2">
-                        <h1 className="h1">Projekter</h1>
-                        <p className="body-sm">Administrer dine projekter</p>
-                    </div>
+            <PageHeader
+                title="Projekter"
+                subtitle="Administrer dine projekter"
+                action={
                     <Button
                         variant="primary"
                         size="lg"
@@ -140,146 +132,41 @@ export default function ProjectPage() {
                     >
                         Nyt projekt
                     </Button>
-                </div>
-            </div>
-
-            {/* Content */}
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
-                {projects.length === 0 ? (
-                    <div className="text-center py-12">
-                        <FontAwesomeIcon icon={faFolder} className="w-16 h-16 mb-4" style={{ color: colors.border }} />
-                        <h3 className="h3 mb-2" style={{ color: colors.textPrimary }}>Ingen projekter endnu</h3>
-                        <p className="body-sm mb-6" style={{ color: colors.textSecondary }}>Opret et projekt for at gruppere dine opgaver</p>
-                        <Button
-                            variant="primary"
-                            size="md"
-                            icon={faPlus}
-                            onClick={() => setShowCreateModal(true)}
-                        >
-                            Opret dit første projekt
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="rounded-lg border border-gray-200 bg-white overflow-x-auto">
-                        {/* Table header bar */}
-                        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-                            <span className="label-lg" style={{ color: colors.textPrimary }}>
-                                {projects.length} {projects.length === 1 ? "projekt" : "projekter"}
-                            </span>
-                            <DropdownMenu
-                                trigger={
-                                    <Button variant="ghost" size="md" className="-mr-2" >
-                                        <FontAwesomeIcon icon={faArrowDownWideShort} className="w-4 h-4" />
-                                        {sortLabels[sortBy]}
-                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                    </Button>
-                                }
-                                items={(["name", "tasks", "created"] as SortKey[]).map((key) => ({
-                                    label: sortLabels[key],
-                                    checked: sortBy === key,
-                                    onClick: () => setSortBy(key),
-                                }))}
-                            />
-                        </div>
-
-                        {/* Rows */}
-                        <table className="w-full">
-                            <tbody className="divide-y divide-gray-100">
-                                {sortedProjects.map((project) => (
-                                    <ProjectRow
-                                        key={project.project_id}
-                                        project={project}
-                                        taskCount={taskCounts[project.project_id] ?? 0}
-                                        templateCount={templateCounts[project.project_id] ?? 0}
-                                        tasks={tasksByProject[project.project_id] ?? []}
-                                        onEdit={() => setEditingProject(project)}
-                                        onDelete={() => handleDelete(project.project_id)}
-                                    />
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
-
-            {/* Create Modal */}
-            <Modal
-                isOpen={showCreateModal}
-                onClose={() => setShowCreateModal(false)}
-                title="Nyt projekt"
-                maxWidth="lg"
-                footer={
-                    <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
-                        <Button
-                            type="submit"
-                            form={createProjectFormId}
-                            loading={createLoading}
-                            variant="primary"
-                            size="md"
-                        >
-                            Opret projekt
-                        </Button>
-                        <Button
-                            type="button"
-                            onClick={() => setShowCreateModal(false)}
-                            disabled={createLoading}
-                            variant="secondary"
-                            size="md"
-                        >
-                            Annuller
-                        </Button>
-                    </div>
                 }
-            >
-                <ProjectForm
-                    formId={createProjectFormId}
-                    onLoadingChange={setCreateLoading}
-                    onSubmit={handleCreate}
+            />
+
+            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12">
+                <ProjectTable
+                    projects={sortedProjects}
+                    taskCounts={taskCounts}
+                    templateCounts={templateCounts}
+                    tasksByProject={tasksByProject}
+                    sortBy={sortBy}
+                    onSortChange={setSortBy}
+                    onCreateClick={() => setShowCreateModal(true)}
+                    onEditProject={setEditingProject}
+                    onDeleteProject={handleDelete}
                 />
-            </Modal>
+            </div>
 
-            {/* Edit Modal */}
-            {
-                editingProject && (
-                    <Modal
-                        isOpen
-                        onClose={() => setEditingProject(null)}
-                        title="Rediger projekt"
-                        maxWidth="lg"
-                        footer={
-                            <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
-                                <Button
-                                    type="submit"
-                                    form={editProjectFormId}
-                                    loading={editLoading}
-                                    variant="primary"
-                                    size="md"
-                                >
-                                    Gem ændringer
-                                </Button>
-                                <Button
-                                    type="button"
-                                    onClick={() => setEditingProject(null)}
-                                    disabled={editLoading}
-                                    variant="secondary"
-                                    size="md"
-                                >
-                                    Annuller
-                                </Button>
-                            </div>
-                        }
-                    >
-                        <ProjectForm
-                            formId={editProjectFormId}
-                            onLoadingChange={setEditLoading}
-                            initial={editingProject}
-                            onSubmit={(input) => handleUpdate(editingProject.project_id, input)}
-                        />
-                    </Modal>
-                )
-            }
+            <ProjectCreateModal
+                isOpen={showCreateModal}
+                loading={createLoading}
+                formId={createProjectFormId}
+                onClose={() => setShowCreateModal(false)}
+                onLoadingChange={setCreateLoading}
+                onSubmit={handleCreate}
+            />
 
-            {/* Delete Project Confirm Modal */}
+            <ProjectEditModal
+                project={editingProject}
+                loading={editLoading}
+                formId={editProjectFormId}
+                onClose={() => setEditingProject(null)}
+                onLoadingChange={setEditLoading}
+                onSubmit={handleUpdate}
+            />
+
             <ConfirmModal
                 isOpen={confirmOpen}
                 onClose={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
@@ -292,86 +179,5 @@ export default function ProjectPage() {
                 loading={deleteLoading}
             />
         </div >
-    );
-}
-
-// ---------------------------------------------------------------------------
-// Inline form — simple enough to not warrant its own file
-// ---------------------------------------------------------------------------
-
-interface ProjectFormProps {
-    formId: string;
-    onLoadingChange?: (loading: boolean) => void;
-    initial?: Project;
-    onSubmit: (input: CreateProjectInput) => Promise<void>;
-}
-
-function ProjectForm({ formId, onLoadingChange, initial, onSubmit }: ProjectFormProps) {
-    const [name, setName] = useState(initial?.name ?? "");
-    const [description, setDescription] = useState(initial?.description ?? "");
-    const [color, setColor] = useState(initial?.color ?? "#1B1D22");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        onLoadingChange?.(loading);
-    }, [loading, onLoadingChange]);
-
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        if (!name.trim()) { setError("Navn er påkrævet"); return; }
-        setLoading(true);
-        setError(null);
-        try {
-            await onSubmit({ name: name.trim(), description: description.trim() || undefined, color });
-        } catch {
-            setError("Kunne ikke gemme projekt. Prøv igen.");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    return (
-        <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-5">
-            {error && (
-                <div
-                    className="rounded-md border px-4 py-3"
-                    style={{
-                        borderColor: colors.red,
-                        backgroundColor: colors.redLight,
-                    }}
-                >
-                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
-                </div>
-            )}
-
-            <div>
-                <label className="label-lg mb-2 block">Navn *</label>
-                <TextInput
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    placeholder="Projektnavn"
-                />
-            </div>
-
-            <div>
-                <label className="label-lg mb-2 block">Beskrivelse</label>
-                <TextArea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={3}
-                    placeholder="Valgfri beskrivelse"
-                />
-            </div>
-
-            <div>
-                <label className="label-lg mb-2 block">Farve</label>
-                <ColorInput
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                />
-            </div>
-        </form>
     );
 }

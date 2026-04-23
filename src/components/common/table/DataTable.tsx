@@ -11,12 +11,16 @@ interface DataTableColumn {
 }
 
 interface DataTableProps {
-    columns: DataTableColumn[];
+    columns?: DataTableColumn[];
     children: ReactNode;
     toolbar?: ReactNode;
+    variant?: "columns" | "single";
 }
 
-export default function DataTable({ columns, children, toolbar }: DataTableProps) {
+export default function DataTable({ columns = [], children, toolbar, variant = "columns" }: DataTableProps) {
+    const showHeader = variant === "columns" && columns.length > 0;
+    const rowDividerStyle = { "--table-row-divider": colors.muted } as CSSProperties;
+
     return (
         <div className="rounded-md border overflow-hidden bg-white" style={{ borderColor: colors.border }}>
             {toolbar && (
@@ -29,20 +33,24 @@ export default function DataTable({ columns, children, toolbar }: DataTableProps
             )}
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                    <thead className="bg-white border-b" style={{ borderColor: colors.border }}>
-                        <tr>
-                            {columns.map((column) => (
-                                <th
-                                    key={column.key}
-                                    className={column.className}
-                                    style={{ color: colors.textMuted, ...column.style }}
-                                >
-                                    {column.header}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>{children}</tbody>
+                    {showHeader && (
+                        <thead className="border-b" style={{ backgroundColor: colors.whiteHover, borderColor: colors.border }}>
+                            <tr>
+                                {columns.map((column) => (
+                                    <th
+                                        key={column.key}
+                                        className={column.className}
+                                        style={{ color: colors.textMuted, ...column.style }}
+                                    >
+                                        {column.header}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                    )}
+                    <tbody className="[&>tr+tr]:border-t [&>tr+tr]:border-[var(--table-row-divider)]" style={rowDividerStyle}>
+                        {children}
+                    </tbody>
                 </table>
             </div>
         </div>

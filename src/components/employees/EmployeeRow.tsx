@@ -14,8 +14,8 @@ interface EmployeeRowProps {
 export default function EmployeeRow({ employee, onEdit, onDelete }: EmployeeRowProps) {
     return (
         <tr
-            className="border-b transition-colors"
-            style={{ borderColor: colors.border, backgroundColor: colors.white }}
+            className="transition-colors"
+            style={{ backgroundColor: colors.white }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.whiteHover)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.white)}
         >

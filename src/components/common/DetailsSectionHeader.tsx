@@ -1,8 +1,5 @@
-"use client";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGear } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
+import OutlineGearIcon from "./icons/OutlineGearIcon";
 
 interface Props {
   label: string;
@@ -51,12 +48,12 @@ export default function DetailsSectionHeader({ label, onGearClick, onClose, isOp
       >
         <h3
           className="label-md"
-        // style={{ color: colors.textSecondary, fontWeight: 600, fontSize: "0.75rem" }}
+          style={{ color: colors.textSecondary }}
         >
           {label}
         </h3>
         {!disabled && (
-          <FontAwesomeIcon icon={faGear} style={{ fontSize: "0.6875rem", color: colors.textMuted }} />
+          <OutlineGearIcon className="w-4 h-4" color={colors.textSecondary} />
         )}
       </button>
       {children ?? (emptyText && (

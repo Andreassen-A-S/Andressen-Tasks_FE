@@ -3,23 +3,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getUsers } from "@/lib/api";
 import { UserRole, getUserRoleLabel, type User } from "@/types/users";
-import EmployeeList from "./EmployeeList";
-import Modal from "../modal/Modal";
-import CreateEmployeeForm from "./CreateEmployeeForm";
-import { faArrowDownWideShort, faArrowUpShortWide, faCaretDown, faFont, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { faIdBadge, faUser } from "@fortawesome/free-regular-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import EmployeeTable from "./EmployeeTable";
+import EmployeeFilterRow, { type EmployeeSortField, type SortDirection } from "./EmployeeFilterRow";
+import EmployeeCreateModal from "./EmployeeCreateModal";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Button from "../common/buttons/Button";
-import DropdownMenu from "../common/DropdownMenu";
-import FilterBar from "../common/table/FilterBar";
-
-type EmployeeSortField = "name" | "position" | "role";
-
-const sortFieldLabelMap: Record<EmployeeSortField, string> = {
-    name: "Navn",
-    position: "Stilling",
-    role: "Rolle",
-};
+import PageHeader from "@/components/common/PageHeader";
 
 export default function EmployeePage() {
     const [employees, setEmployees] = useState<User[]>([]);
@@ -29,7 +18,7 @@ export default function EmployeePage() {
     const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
     const [positionFilter, setPositionFilter] = useState<string>("all");
     const [sortField, setSortField] = useState<EmployeeSortField>("name");
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
     const createFormId = "create-employee-form";
 
     const loadEmployees = useCallback(async () => {
@@ -84,11 +73,12 @@ export default function EmployeePage() {
             }
             return sortDirection === "asc" ? result : -result;
         });
-    }, [employees, positionFilter, roleFilter, sortField]);
+    }, [employees, positionFilter, roleFilter, sortDirection, sortField]);
 
-    const anyFiltersActive = roleFilter !== "all" || positionFilter !== "all";
-    const selectedRoleLabel = roleFilter === "all" ? "Alle" : getUserRoleLabel(roleFilter);
-    const selectedPositionLabel = positionFilter === "all" ? "Alle stillinger" : positionFilter;
+    const clearFilters = useCallback(() => {
+        setRoleFilter("all");
+        setPositionFilter("all");
+    }, []);
 
     if (loading) {
         return (
@@ -103,16 +93,10 @@ export default function EmployeePage() {
 
     return (
         <div className="min-h-screen">
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="space-y-2">
-                        <h1 className="h1 flex items-center gap-3">
-                            Medarbejdere
-                        </h1>
-                        <p className="body-sm">
-                            {employees.length} medarbejdere
-                        </p>
-                    </div>
+            <PageHeader
+                title="Medarbejdere"
+                subtitle={`${employees.length} medarbejdere`}
+                action={
                     <Button
                         variant="primary"
                         size="lg"
@@ -121,116 +105,36 @@ export default function EmployeePage() {
                     >
                         Ny medarbejder
                     </Button>
-                </div>
-            </div>
+                }
+            />
 
             <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
-                <FilterBar
-                    left={
-                        <>
-                            <DropdownMenu
-                                trigger={
-                                    <Button variant="ghost" size="md" className="-ml-1">
-                                        Rolle: {selectedRoleLabel}
-                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                    </Button>
-                                }
-                                items={[
-                                    { label: "Alle", checked: roleFilter === "all", onClick: () => setRoleFilter("all") },
-                                    { label: "Administrator", checked: roleFilter === UserRole.ADMIN, onClick: () => setRoleFilter(UserRole.ADMIN) },
-                                    { label: "Bruger", checked: roleFilter === UserRole.USER, onClick: () => setRoleFilter(UserRole.USER) },
-                                ]}
-                            />
-                            {positionOptions.length > 0 && (
-                                <DropdownMenu
-                                    trigger={
-                                        <Button variant="ghost" size="md">
-                                            Stilling: {selectedPositionLabel}
-                                            <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                        </Button>
-                                    }
-                                    items={[
-                                        { label: "Alle stillinger", checked: positionFilter === "all", onClick: () => setPositionFilter("all") },
-                                        ...positionOptions.map((position) => ({
-                                            label: position,
-                                            checked: positionFilter === position,
-                                            onClick: () => setPositionFilter(position),
-                                        })),
-                                    ]}
-                                />
-                            )}
-                        </>
-                    }
-                    right={
-                        <>
-                            {anyFiltersActive && (
-                                <Button
-                                    variant="ghost"
-                                    size="md"
-                                    onClick={() => { setRoleFilter("all"); setPositionFilter("all"); }}
-                                >
-                                    Ryd filtre
-                                </Button>
-                            )}
-                            <DropdownMenu
-                                trigger={
-                                    <Button variant="ghost" size="md" className="-mr-1">
-                                        <FontAwesomeIcon icon={sortDirection === "asc" ? faArrowUpShortWide : faArrowDownWideShort} className="w-4 h-4" />
-                                        {sortFieldLabelMap[sortField]}
-                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                    </Button>
-                                }
-                                items={[
-                                    { label: "Navn", icon: faFont, checked: sortField === "name", onClick: () => setSortField("name") },
-                                    { label: "Stilling", icon: faIdBadge, checked: sortField === "position", onClick: () => setSortField("position") },
-                                    { label: "Rolle", icon: faUser, checked: sortField === "role", onClick: () => setSortField("role") },
-                                    { label: "Stigende", icon: faArrowUpShortWide, checked: sortDirection === "asc", dividerBefore: true, onClick: () => setSortDirection("asc") },
-                                    { label: "Faldende", icon: faArrowDownWideShort, checked: sortDirection === "desc", onClick: () => setSortDirection("desc") },
-                                ]}
-                            />
-                        </>
-                    }
+                <EmployeeFilterRow
+                    roleFilter={roleFilter}
+                    positionFilter={positionFilter}
+                    positionOptions={positionOptions}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onRoleFilterChange={setRoleFilter}
+                    onPositionFilterChange={setPositionFilter}
+                    onSortFieldChange={setSortField}
+                    onSortDirectionChange={setSortDirection}
+                    onClearFilters={clearFilters}
                 />
-                <EmployeeList
+                <EmployeeTable
                     employees={filteredEmployees}
                     onEmployeeUpdate={loadEmployees}
                     onEmployeeDelete={handleEmployeeDeleted}
                 />
 
-                <Modal
+                <EmployeeCreateModal
                     isOpen={showCreateModal}
+                    loading={createLoading}
+                    formId={createFormId}
                     onClose={() => setShowCreateModal(false)}
-                    title="Opret Ny Medarbejder"
-                    maxWidth="sm"
-                    footer={
-                        <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
-                            <Button
-                                type="submit"
-                                form={createFormId}
-                                loading={createLoading}
-                                variant="primary"
-                                size="md"
-                            >
-                                Opret medarbejder
-                            </Button>
-                            <Button
-                                type="button"
-                                onClick={() => setShowCreateModal(false)}
-                                disabled={createLoading}
-                                variant="secondary"
-                                size="md"
-                            >
-                                Annuller
-                            </Button>
-                        </div>
-                    }
-                >
-                    <CreateEmployeeForm
-                        formId={createFormId}
-                        onLoadingChange={setCreateLoading}
-                        onSuccess={handleEmployeeCreated}
-                    />
-                </Modal>
+                    onLoadingChange={setCreateLoading}
+                    onSuccess={handleEmployeeCreated}
+                />
             </div>
         </div>
 
