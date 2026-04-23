@@ -1,4 +1,4 @@
-import SingleAvatar from "@/components/common/label/singleAvatar";
+import SingleAvatar from "@/components/common/label/SingleAvatar";
 import { User } from "@/types/users";
 
 interface ProfileHeaderProps {

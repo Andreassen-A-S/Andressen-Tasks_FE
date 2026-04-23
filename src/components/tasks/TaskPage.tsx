@@ -21,9 +21,9 @@ import CreateTaskForm from "./createTask/CreateTaskForm";
 import Modal from "../modal/Modal";
 import Drawer from "../drawer/drawer";
 import TaskDetails from "./taskDetailsView/TaskDetails";
-import { colors } from "@/constants/colors";
 import Button from "../common/buttons/Button";
 import DropdownMenu from "../common/DropdownMenu";
+import FilterBar from "../common/table/FilterBar";
 
 type SortField = "created_at" | "deadline" | "start_date" | "priority" | "title";
 type SortDirection = "asc" | "desc";
@@ -187,7 +187,7 @@ export default function TaskPage() {
                             Opgaver
                         </h1>
                         <p className="body-sm">
-                            {filteredTasks.length} opgaver
+                            {tasks.length} opgaver
                         </p>
                     </div>
                     <Button
@@ -201,157 +201,98 @@ export default function TaskPage() {
                 </div>
             </div>
 
-            <div className="mx-8 px-4 sm:px-6 lg:px-8 py-2">
-                <div
-                    className="flex flex-col gap-2 rounded-lg border px-3 py-2 md:flex-row md:items-center md:justify-between"
-                    style={{ borderColor: colors.border, backgroundColor: colors.white }}
-                >
-                    <div className="flex flex-wrap items-center gap-1">
-                        <DropdownMenu
-                            trigger={
-                                <Button variant="ghost" size="md" className="-ml-1">
-                                    Status: {selectedStatusLabel}
-                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                </Button>
-                            }
-                            items={[
-                                { label: "Alle", checked: statusFilter === "all", onClick: () => setStatusFilter("all") },
-                                { label: "Mangler", checked: statusFilter === TaskStatus.PENDING, onClick: () => setStatusFilter(TaskStatus.PENDING) },
-                                { label: "I gang", checked: statusFilter === TaskStatus.IN_PROGRESS, onClick: () => setStatusFilter(TaskStatus.IN_PROGRESS) },
-                                { label: "Udført", checked: statusFilter === TaskStatus.DONE, onClick: () => setStatusFilter(TaskStatus.DONE) },
-                                { label: "Annulleret", checked: statusFilter === TaskStatus.REJECTED, onClick: () => setStatusFilter(TaskStatus.REJECTED) },
-                                { label: "Arkiveret", checked: statusFilter === TaskStatus.ARCHIVED, onClick: () => setStatusFilter(TaskStatus.ARCHIVED) },
-                            ]}
-                        />
-                        {projects.length > 0 && (
+            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
+                <FilterBar
+                    left={
+                        <>
                             <DropdownMenu
                                 trigger={
-                                    <Button variant="ghost" size="md">
-                                        Projekt: {selectedProjectLabel}
+                                    <Button variant="ghost" size="md" className="-ml-1">
+                                        Status: {selectedStatusLabel}
                                         <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
                                     </Button>
                                 }
                                 items={[
-                                    {
-                                        label: "Alle projekter",
-                                        checked: projectFilter === "all",
-                                        onClick: () => setProjectFilter("all"),
-                                    },
-                                    ...projects.map((project) => ({
-                                        label: project.name,
-                                        checked: projectFilter === project.project_id,
-                                        onClick: () => setProjectFilter(project.project_id),
-                                    })),
+                                    { label: "Alle", checked: statusFilter === "all", onClick: () => setStatusFilter("all") },
+                                    { label: "Mangler", checked: statusFilter === TaskStatus.PENDING, onClick: () => setStatusFilter(TaskStatus.PENDING) },
+                                    { label: "I gang", checked: statusFilter === TaskStatus.IN_PROGRESS, onClick: () => setStatusFilter(TaskStatus.IN_PROGRESS) },
+                                    { label: "Udført", checked: statusFilter === TaskStatus.DONE, onClick: () => setStatusFilter(TaskStatus.DONE) },
+                                    { label: "Annulleret", checked: statusFilter === TaskStatus.REJECTED, onClick: () => setStatusFilter(TaskStatus.REJECTED) },
+                                    { label: "Arkiveret", checked: statusFilter === TaskStatus.ARCHIVED, onClick: () => setStatusFilter(TaskStatus.ARCHIVED) },
                                 ]}
                             />
-                        )}
-                        <DropdownMenu
-                            trigger={
-                                <Button variant="ghost" size="md">
-                                    Tildelte: {selectedAssigneeLabel}
-                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                            {projects.length > 0 && (
+                                <DropdownMenu
+                                    trigger={
+                                        <Button variant="ghost" size="md">
+                                            Projekt: {selectedProjectLabel}
+                                            <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                        </Button>
+                                    }
+                                    items={[
+                                        { label: "Alle projekter", checked: projectFilter === "all", onClick: () => setProjectFilter("all") },
+                                        ...projects.map((project) => ({
+                                            label: project.name,
+                                            checked: projectFilter === project.project_id,
+                                            onClick: () => setProjectFilter(project.project_id),
+                                        })),
+                                    ]}
+                                />
+                            )}
+                            <DropdownMenu
+                                trigger={
+                                    <Button variant="ghost" size="md">
+                                        Tildelte: {selectedAssigneeLabel}
+                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                    </Button>
+                                }
+                                items={[
+                                    { label: "Alle", checked: assigneeFilter === "all", onClick: () => setAssigneeFilter("all") },
+                                    ...users.map((user) => ({ label: user.name, checked: assigneeFilter === user.user_id, onClick: () => setAssigneeFilter(user.user_id) })),
+                                ]}
+                            />
+                            <DropdownMenu
+                                trigger={
+                                    <Button variant="ghost" size="md">
+                                        Oprettet af: {selectedCreatorLabel}
+                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                    </Button>
+                                }
+                                items={[
+                                    { label: "Alle", checked: creatorFilter === "all", onClick: () => setCreatorFilter("all") },
+                                    ...users.map((user) => ({ label: user.name, checked: creatorFilter === user.user_id, onClick: () => setCreatorFilter(user.user_id) })),
+                                ]}
+                            />
+                        </>
+                    }
+                    right={
+                        <>
+                            {anyFiltersActive && (
+                                <Button variant="ghost" size="md" onClick={() => { setStatusFilter("all"); setProjectFilter("all"); setAssigneeFilter("all"); setCreatorFilter("all"); }}>
+                                    Ryd filtre
                                 </Button>
-                            }
-                            items={[
-                                { label: "Alle", checked: assigneeFilter === "all", onClick: () => setAssigneeFilter("all") },
-                                ...users.map((user) => ({
-                                    label: user.name,
-                                    checked: assigneeFilter === user.user_id,
-                                    onClick: () => setAssigneeFilter(user.user_id),
-                                })),
-                            ]}
-                        />
-                        <DropdownMenu
-                            trigger={
-                                <Button variant="ghost" size="md">
-                                    Oprettet af: {selectedCreatorLabel}
-                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                </Button>
-                            }
-                            items={[
-                                { label: "Alle", checked: creatorFilter === "all", onClick: () => setCreatorFilter("all") },
-                                ...users.map((user) => ({
-                                    label: user.name,
-                                    checked: creatorFilter === user.user_id,
-                                    onClick: () => setCreatorFilter(user.user_id),
-                                })),
-                            ]}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                        {anyFiltersActive && (
-                            <Button
-                                variant="ghost"
-                                size="md"
-                                onClick={() => {
-                                    setStatusFilter("all");
-                                    setProjectFilter("all");
-                                    setAssigneeFilter("all");
-                                    setCreatorFilter("all");
-                                }}
-                            >
-                                Ryd filtre
-                            </Button>
-                        )}
-                        <DropdownMenu
-                            trigger={
-                                <Button variant="ghost" size="md" className="-mr-1">
-                                    Sortér: {sortFieldLabelMap[sortField]}
-                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                                </Button>
-                            }
-                            items={[
-                                {
-                                    label: "Seneste",
-                                    icon: faClockRotateLeft,
-                                    checked: sortField === "created_at",
-                                    onClick: () => setSortField("created_at"),
-                                },
-                                {
-                                    label: "Deadline",
-                                    icon: faClock,
-                                    checked: sortField === "deadline",
-                                    onClick: () => setSortField("deadline"),
-                                },
-                                {
-                                    label: "Startdato",
-                                    icon: faCalendar,
-                                    checked: sortField === "start_date",
-                                    onClick: () => setSortField("start_date"),
-                                },
-                                {
-                                    label: "Prioritet",
-                                    icon: faFlag,
-                                    checked: sortField === "priority",
-                                    onClick: () => setSortField("priority"),
-                                },
-                                {
-                                    label: "Titel",
-                                    icon: faFont,
-                                    checked: sortField === "title",
-                                    onClick: () => setSortField("title"),
-                                },
-                                {
-                                    label: "Stigende",
-                                    icon: faArrowUpShortWide,
-                                    checked: sortDirection === "asc",
-                                    dividerBefore: true,
-                                    onClick: () => setSortDirection("asc"),
-                                },
-                                {
-                                    label: "Faldende",
-                                    icon: faArrowDownWideShort,
-                                    checked: sortDirection === "desc",
-                                    onClick: () => setSortDirection("desc"),
-                                },
-                            ]}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
+                            )}
+                            <DropdownMenu
+                                trigger={
+                                    <Button variant="ghost" size="md" className="-mr-1">
+                                        <FontAwesomeIcon icon={sortDirection === "asc" ? faArrowUpShortWide : faArrowDownWideShort} className="w-4 h-4" />
+                                        {sortFieldLabelMap[sortField]}
+                                        <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                    </Button>
+                                }
+                                items={[
+                                    { label: "Seneste", icon: faClockRotateLeft, checked: sortField === "created_at", onClick: () => setSortField("created_at") },
+                                    { label: "Deadline", icon: faClock, checked: sortField === "deadline", onClick: () => setSortField("deadline") },
+                                    { label: "Startdato", icon: faCalendar, checked: sortField === "start_date", onClick: () => setSortField("start_date") },
+                                    { label: "Prioritet", icon: faFlag, checked: sortField === "priority", onClick: () => setSortField("priority") },
+                                    { label: "Titel", icon: faFont, checked: sortField === "title", onClick: () => setSortField("title") },
+                                    { label: "Stigende", icon: faArrowUpShortWide, checked: sortDirection === "asc", dividerBefore: true, onClick: () => setSortDirection("asc") },
+                                    { label: "Faldende", icon: faArrowDownWideShort, checked: sortDirection === "desc", onClick: () => setSortDirection("desc") },
+                                ]}
+                            />
+                        </>
+                    }
+                />
                 <TaskList
                     tasks={filteredTasks}
                     onTaskDelete={handleTaskDeleted}

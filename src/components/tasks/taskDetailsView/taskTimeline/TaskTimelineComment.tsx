@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
-import SingleAvatar from "../../../common/label/singleAvatar";
+import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
 import { faEllipsis, faTrash, faPencil, faCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

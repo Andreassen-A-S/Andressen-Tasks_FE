@@ -3,6 +3,13 @@ export enum UserRole {
   ADMIN = "ADMIN",
 }
 
+export function getUserRoleLabel(role: UserRole): string {
+  switch (role) {
+    case UserRole.ADMIN: return "Administrator";
+    case UserRole.USER: return "Bruger";
+  }
+}
+
 export interface User {
   user_id: string;
   name: string;

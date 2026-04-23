@@ -24,7 +24,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Badge from "../../common/label/badge";
 import ProjectBadge from "../../common/label/ProjectBadge";
-import SingleAvatar from "../../common/label/singleAvatar";
+import SingleAvatar from "../../common/label/SingleAvatar";
 import RecurringBadge from "../../common/label/recurringBadge";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";
 import TaskDescriptionCard from "./TaskDescriptionCard";

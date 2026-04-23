@@ -1,13 +1,14 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { TaskGoalType, TaskUnit, type Task } from "@/types/task";
+import { TaskGoalType, type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import { formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
+import { formatCommentDate, formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
+import { colors } from "@/constants/colors";
 import Badge from "../../common/label/badge";
 import TaskAssignedUsers from "../../common/label/taskAssignedUsers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faBullseye, faChevronRight, faListCheck, faRepeat } from "@fortawesome/free-solid-svg-icons";
 import SubTaskRow from "./SubTaskRow";
 
 interface ParentTaskRowProps {
@@ -17,6 +18,10 @@ interface ParentTaskRowProps {
     onTaskClick: (taskId: string) => void;
 }
 
+function Dot() {
+    return <span aria-hidden="true" style={{ color: colors.textMuted }}>•</span>;
+}
+
 export default function ParentTaskRow({
     task,
     subtasks,
@@ -24,6 +29,7 @@ export default function ParentTaskRow({
     onTaskClick,
 }: ParentTaskRowProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const isRecurring = !!task.recurring_template_id;
 
     const hasSubtasks = subtasks.length > 0;
 
@@ -40,12 +46,21 @@ export default function ParentTaskRow({
         task.goal_type === TaskGoalType.FIXED;
 
     const progressUnit = translateTaskUnit(task.unit);
+    const quantitySummary = task.target_quantity != null
+        ? `${task.current_quantity ?? 0}/${task.target_quantity}${progressUnit ? ` ${progressUnit}` : ""}`
+        : null;
+    const updatedLabel = formatCommentDate(task.updated_at);
 
     return (
         <Fragment>
-            {/* Parent Task Row */}
-            <tr className="bg-white border-b border-[#E8E6E1] hover:bg-[#FAFAF7] transition-colors">
-                <td className="w-10 relative ">
+            {/* Task Row */}
+            <tr
+                className="bg-white border-b transition-colors"
+                style={{ borderColor: colors.border }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.whiteHover)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.white)}
+            >
+                <td className="w-10 align-top relative">
                     {hasSubtasks && (
                         <button
                             type="button"
@@ -62,113 +77,71 @@ export default function ParentTaskRow({
                 </td>
 
                 {/* Title */}
-                <td className="py-2">
-                    <div className="flex flex-col items-start">
-                        <div className="flex items-center gap-3">
-                            <button
-                                type="button"
-                                onClick={() => onTaskClick(task.task_id)}
-                                className="text-left cursor-pointer min-w-0"
-                            >
-                                <div className="h5 wrap-break-word hover:underline">
-                                    {task.title}
-                                </div>
-                            </button>
-
-                            {/* Subtask progress bar */}
-                            {hasSubtasks && (
-                                <div className="flex items-center gap-2 min-w-30">
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#EBF0FD] text-[#2C5FE0] badge badge-md">
-                                        {progress?.completed}/{progress?.total}
-                                    </span>
-
-                                    <div className="relative w-24 h-2 bg-[#EBF0FD] rounded-lg overflow-hidden">
-                                        <div
-                                            className="absolute left-0 top-0 h-2 bg-[#2C5FE0] transition-all rounded-lg"
-                                            style={{
-                                                width: `${progress ? (progress.completed / progress.total) * 100 : 0}%`,
-                                            }}
-                                        />
-                                        {progress && progress.total > 1 &&
-                                            Array.from({ length: progress.total - 1 }).map((_, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="absolute top-0 bottom-0 w-0.5 bg-white"
-                                                    style={{
-                                                        left: `${((i + 1) / progress.total) * 100}%`,
-                                                    }}
-                                                />
-                                            ))}
-                                    </div>
-
-                                    <span className="body-xs ml-1">
-                                        {progress ? Math.round((progress.completed / progress.total) * 100) : 0}%
-                                    </span>
-                                </div>
-                            )}
-
-                            {/* Quantity progress bar (fixed goals) */}
-                            {hasQuantityProgress && task.target_quantity != null && task.target_quantity > 0 && (
-                                <div className="flex items-center gap-2 min-w-30">
-                                    {task.unit !== TaskUnit.NONE && (
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[8px] bg-[#E8F7F0] text-[#2D9F6F] badge badge-md">
-                                            {task.current_quantity ?? 0}/{task.target_quantity}
-                                            {progressUnit ? ` ${progressUnit}` : ""}
-                                        </span>
-                                    )}
-
-                                    <div className="relative w-24 h-2 bg-[#E8F7F0] rounded-[8px] overflow-hidden">
-                                        <div
-                                            className="absolute left-0 top-0 h-2 bg-[#2D9F6F] transition-all rounded-[8px]"
-                                            style={{
-                                                width: `${Math.min(
-                                                    100,
-                                                    ((task.current_quantity ?? 0) / task.target_quantity) * 100
-                                                )}%`,
-                                            }}
-                                        />
-                                    </div>
-
-                                    <span className="body-xs ml-1">
-                                        {Math.round(
-                                            Math.min(1, (task.current_quantity ?? 0) / task.target_quantity) * 100
-                                        )}
-                                        %
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-
-                        {task.description && (
-                            <div className="body-xs mt-1 break-words">
-                                {task.description.split(" ").length > 15
-                                    ? `${task.description.split(" ").slice(0, 15).join(" ")}...`
-                                    : task.description}
+                <td className="py-3 align-top">
+                    <div className="min-w-0">
+                        <button
+                            type="button"
+                            onClick={() => onTaskClick(task.task_id)}
+                            className="text-left cursor-pointer min-w-0"
+                        >
+                            <div className="h5 wrap-break-word hover:underline">
+                                {task.title}
                             </div>
-                        )}
+                        </button>
+
+                        <div className={`flex items-center gap-2 body-xs flex-wrap ${isRecurring ? "mt-1" : "mt-0.5"}`} style={{ color: colors.textMuted }}>
+                            {isRecurring && (
+                                <span className="flex items-center gap-1">
+                                    <FontAwesomeIcon icon={faRepeat} className="w-3 h-3" />
+                                    Gentages
+                                </span>
+                            )}
+
+                            {isRecurring && (hasSubtasks || hasQuantityProgress || true) && <Dot />}
+
+                            {hasSubtasks && progress && (
+                                <span className="flex items-center gap-1">
+                                    <FontAwesomeIcon icon={faListCheck} className="w-3 h-3" />
+                                    {progress.completed}/{progress.total}
+                                </span>
+                            )}
+
+                            {isRecurring && hasSubtasks && progress && <Dot />}
+
+                            {!hasSubtasks && hasQuantityProgress && quantitySummary && (
+                                <span className="flex items-center gap-1">
+                                    <FontAwesomeIcon icon={faBullseye} className="w-3 h-3" />
+                                    {quantitySummary}
+                                </span>
+                            )}
+
+                            {(hasSubtasks || hasQuantityProgress) && <Dot />}
+
+                            <span>Opdateret {updatedLabel}</span>
+                        </div>
                     </div>
                 </td>
 
-                <td className="px-6 py-4">
+                <td className="px-6 py-3 align-middle">
                     <Badge variant="priority" value={task.priority} />
                 </td>
 
-                <td className="px-6 py-4">
+                <td className="px-6 py-3 align-middle">
                     <Badge variant="status" value={task.status} />
                 </td>
 
-                <td className="px-6 py-4">
+                <td className="px-6 py-3 align-middle">
                     <TaskAssignedUsers
                         assignments={taskAssignments[task.task_id] || []}
                         loading={!taskAssignments[task.task_id]}
                     />
                 </td>
 
-                <td className="px-6 py-4 body-xs">
+                <td className="px-6 py-3 body-xs align-middle">
                     {formatRelativeDate(task.start_date)}
                 </td>
 
-                <td className="px-6 py-4 body-xs">
+                <td className="px-6 py-3 body-xs align-middle">
                     {formatRelativeDate(task.deadline)}
                 </td>
 

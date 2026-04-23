@@ -1,5 +1,6 @@
 import Badge from "@/components/common/label/badge";
 import TaskAssignedUsers from "@/components/common/label/taskAssignedUsers";
+import { colors } from "@/constants/colors";
 import { formatRelativeDate } from "@/helpers/helpers";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
@@ -27,9 +28,9 @@ export default function SubTaskRow({
     onTaskClick,
 }: SubTaskRowProps) {
     return (
-        <tr className="bg-[#FAFAF7] hover:bg-[#F6F5F1] transition-colors border-b border-[#E8E6E1]">
+        <tr className="bg-[#FAFAF7] hover:bg-[#F6F5F1] transition-colors border-b" style={{ borderColor: colors.border }}>
             {/* Tree lines column */}
-            <td className="pl-4 pr-2 py-3 relative">
+            <td className="pl-4 pr-2 py-3 align-top relative">
                 <div className="absolute left-0 top-0 bottom-0 z-10 pointer-events-none" style={{ width: "50px" }}>
                     <div
                         className="absolute bg-[#E8E6E1]"
@@ -74,45 +75,41 @@ export default function SubTaskRow({
                 </div>
             </td>
 
-            {/* Title & description */}
-            <td className="px-6 py-3 border-b border-[#E8E6E1]">
+            <td className="px-6 py-3 align-top border-b" style={{ borderColor: colors.border }}>
                 <div className="flex items-start gap-2">
                     <div className="min-w-0 flex-1">
                         <button
                             type="button"
-                            className={`h5 text-left ${subtask.status === "DONE" ? "line-through body-xs" : ""} hover:underline`}
+                            className={`h5 text-left hover:underline ${subtask.status === "DONE" ? "line-through" : ""}`}
                             onClick={() => onTaskClick(subtask.task_id)}
                             style={{ background: "none", border: "none", padding: 0 }}
                         >
                             {subtask.title}
                         </button>
-                        {subtask.description && (
-                            <div className="body-xs mt-1">{subtask.description}</div>
-                        )}
                     </div>
                 </div>
             </td>
 
-            <td className="px-6 py-3 border-b border-[#E8E6E1]">
+            <td className="px-6 py-3 align-middle border-b" style={{ borderColor: colors.border }}>
                 <Badge variant="priority" value={subtask.priority} />
             </td>
 
-            <td className="px-6 py-3 border-b border-[#E8E6E1]">
+            <td className="px-6 py-3 align-middle border-b" style={{ borderColor: colors.border }}>
                 <Badge variant="status" value={subtask.status} />
             </td>
 
-            <td className="px-6 py-3 border-b border-[#E8E6E1]">
+            <td className="px-6 py-3 align-middle border-b" style={{ borderColor: colors.border }}>
                 <TaskAssignedUsers
                     assignments={taskAssignments[subtask.task_id] || []}
                     loading={!taskAssignments[subtask.task_id]}
                 />
             </td>
 
-            <td className="px-6 py-3 body-xs border-b border-[#E8E6E1]">
+            <td className="px-6 py-3 body-xs align-middle border-b" style={{ borderColor: colors.border }}>
                 {formatRelativeDate(subtask.start_date)}
             </td>
 
-            <td className="px-6 py-3 body-xs border-b border-[#E8E6E1]">
+            <td className="px-6 py-3 body-xs align-middle border-b" style={{ borderColor: colors.border }}>
                 {formatRelativeDate(subtask.deadline)}
             </td>
         </tr>

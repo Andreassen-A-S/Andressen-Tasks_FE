@@ -9,6 +9,7 @@ import Modal from "../modal/Modal";
 import UpdateEmployeeForm from "./UpdateEmployeeForm";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import Button from "../common/buttons/Button";
+import DataTable from "@/components/common/table/DataTable";
 
 interface EmployeeListProps {
     employees: User[];
@@ -16,9 +17,10 @@ interface EmployeeListProps {
     onEmployeeDelete: (userId: string) => void;
 }
 
-
-
-export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmployeeDelete,
+export default function EmployeeList({
+    employees = [],
+    onEmployeeUpdate,
+    onEmployeeDelete,
 }: EmployeeListProps) {
     const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -81,42 +83,27 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
         );
     }
 
+    const columns = [
+        { key: "employee", header: "Medarbejder", className: "px-6 py-2.5 label-sm min-w-[260px]" },
+        { key: "position", header: "Stilling", className: "px-6 py-2.5 label-sm" },
+        { key: "email", header: "Email", className: "px-6 py-2.5 label-sm min-w-[240px]" },
+        { key: "role", header: "Rolle", className: "px-6 py-2.5 label-sm" },
+        { key: "actions", header: "", className: "py-2.5 w-px pr-4" },
+    ];
+
     return (
         <>
-            <div className="rounded-lg bg-white border border-gray-200 overflow-hidden">
-                <table className="w-full ">
-                    <thead className="w-full text-left border-b border-gray-200">
-                        <tr>
-                            <th className="px-6 py-3 table-header">
-                                Medarbejder
-                            </th>
-                            <th className="px-6 py-3 table-header">
-                                Stilling
-                            </th>
-                            <th className="px-6 py-3 table-header">
-                                Email
-                            </th>
-                            <th className="px-6 py-3 table-header">
-                                Status
-                            </th>
-                            <th className="px-6 py-3 table-header">
-                                Handlinger
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {employees.map((employee) => (
-                            <EmployeeRow
-                                key={employee.user_id}
-                                employee={employee}
-                                onEdit={handleEditClick}
-                                onDelete={handleDelete}
-                            />
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            {/* Edit Employee Modal */}
+            <DataTable columns={columns}>
+                {employees.map((employee) => (
+                    <EmployeeRow
+                        key={employee.user_id}
+                        employee={employee}
+                        onEdit={handleEditClick}
+                        onDelete={handleDelete}
+                    />
+                ))}
+            </DataTable>
+
             <Modal
                 isOpen={showEditModal}
                 onClose={handleEditCancel}
@@ -155,7 +142,6 @@ export default function EmployeeList({ employees = [], onEmployeeUpdate, onEmplo
                 )}
             </Modal>
 
-            {/* Delete Employee Confirm Modal */}
             <ConfirmModal
                 isOpen={confirmOpen}
                 onClose={() => { setConfirmOpen(false); setPendingDeleteId(null); }}

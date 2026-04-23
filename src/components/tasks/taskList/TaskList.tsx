@@ -3,31 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAllAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
-import { TaskPriority } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
 import Drawer from "../../drawer/drawer";
 import TaskDetails from "../taskDetailsView/TaskDetails";
 import ParentTaskRow from "./ParentTaskRow";
-import RecurringTaskRow from "./RecuringTaskRow";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSortDown } from "@fortawesome/free-solid-svg-icons";
-import { faSortUp } from "@fortawesome/free-solid-svg-icons";
-import { faSort } from "@fortawesome/free-solid-svg-icons";
-
-
-type SortKey = "title" | "priority" | "status" | "start_date" | "deadline";
-type SortDir = "asc" | "desc";
-
-const PRIORITY_ORDER: Record<TaskPriority, number> = {
-    [TaskPriority.LOW]: 1,
-    [TaskPriority.MEDIUM]: 2,
-    [TaskPriority.HIGH]: 3,
-};
-
-function SortIcon({ column, sortKey, sortDir }: { column: SortKey; sortKey: SortKey | null; sortDir: SortDir }) {
-    if (sortKey !== column) return <span className="ml-1 opacity-30"><FontAwesomeIcon icon={faSort} className="w-3.5 h-3.5" /></span>;
-    return <span className="ml-1">{sortDir === "asc" ? <FontAwesomeIcon icon={faSortUp} className="w-3.5 h-3.5" /> : <FontAwesomeIcon icon={faSortDown} className="w-3.5 h-3.5" />}</span>;
-}
+import DataTable from "@/components/common/table/DataTable";
 
 interface TaskListProps {
     tasks: Task[];
@@ -42,10 +22,8 @@ export default function TaskList({
     const [taskAssignments, setTaskAssignments] = useState<
         Record<string, TaskAssignment[]>
     >({});
-    const [sortKey, setSortKey] = useState<SortKey | null>(null);
-    const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-    // Group tasks into parents and subtasks, then sort parents
+    // Group tasks into parents and subtasks. Sorting is handled upstream in TaskPage.
     const { parents, subtasksMap } = useMemo(() => {
         const parentList: Task[] = [];
         const subtasksMap: Record<string, Task[]> = {};
@@ -61,22 +39,8 @@ export default function TaskList({
             }
         });
 
-        if (sortKey) {
-            parentList.sort((a, b) => {
-                let cmp = 0;
-                if (sortKey === "priority") {
-                    cmp = (PRIORITY_ORDER[a.priority] ?? 0) - (PRIORITY_ORDER[b.priority] ?? 0);
-                } else {
-                    const aVal = (a[sortKey] ?? "") as string;
-                    const bVal = (b[sortKey] ?? "") as string;
-                    cmp = aVal.localeCompare(bVal);
-                }
-                return sortDir === "asc" ? cmp : -cmp;
-            });
-        }
-
         return { parents: parentList, subtasksMap };
-    }, [tasks, sortKey, sortDir]);
+    }, [tasks]);
 
     useEffect(() => {
         let active = true;
@@ -115,20 +79,6 @@ export default function TaskList({
         };
     }, [tasks]);
 
-    function handleSort(key: SortKey) {
-        if (sortKey === key) {
-            if (sortDir === "asc") {
-                setSortDir("desc");
-            } else {
-                setSortKey(null);
-                setSortDir("asc");
-            }
-        } else {
-            setSortKey(key);
-            setSortDir("asc");
-        }
-    }
-
     function handleTaskClick(taskId: string) {
         setSelectedTaskId(taskId);
     }
@@ -145,69 +95,32 @@ export default function TaskList({
         );
     }
 
-    const sortableHeaderClass = "px-6 py-3 table-header cursor-pointer select-none hover:text-[#1a1a2e] transition-colors";
+    const staticHeaderClass = "px-6 py-2.5 label-sm";
+    const columns = [
+        { key: "expander", header: null, className: "w-10" },
+        { key: "task", header: "Opgave", className: "py-2.5 label-sm" },
+        { key: "priority", header: "Prioritet", className: staticHeaderClass },
+        { key: "status", header: "Status", className: staticHeaderClass },
+        { key: "assignees", header: "Tildelte", className: staticHeaderClass },
+        { key: "start", header: "Start", className: staticHeaderClass },
+        { key: "deadline", header: "Deadline", className: staticHeaderClass },
+    ];
 
     return (
         <>
-            <div className="rounded-lg border border-[#E8E6E1] overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-white border-b border-[#E8E6E1]">
-                            <tr>
-                                <th></th>
-                                <th
-                                    className={`py-3 table-header cursor-pointer select-none hover:text-[#1a1a2e] transition-colors`}
-                                    onClick={() => handleSort("title")}
-                                >
-                                    OPGAVE<SortIcon column="title" sortKey={sortKey} sortDir={sortDir} />
-                                </th>
-                                <th
-                                    className={sortableHeaderClass}
-                                    onClick={() => handleSort("priority")}
-                                >
-                                    PRIORITET<SortIcon column="priority" sortKey={sortKey} sortDir={sortDir} />
-                                </th>
-                                <th
-                                    className={sortableHeaderClass}
-                                    onClick={() => handleSort("status")}
-                                >
-                                    STATUS<SortIcon column="status" sortKey={sortKey} sortDir={sortDir} />
-                                </th>
-                                <th className="px-6 py-3 table-header">TILDELT TIL</th>
-                                <th
-                                    className={sortableHeaderClass}
-                                    onClick={() => handleSort("start_date")}
-                                >
-                                    START DATO<SortIcon column="start_date" sortKey={sortKey} sortDir={sortDir} />
-                                </th>
-                                <th
-                                    className={sortableHeaderClass}
-                                    onClick={() => handleSort("deadline")}
-                                >
-                                    DEADLINE<SortIcon column="deadline" sortKey={sortKey} sortDir={sortDir} />
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {parents.map((task) => {
-                                const TaskRowComponent = task.recurring_template_id
-                                    ? RecurringTaskRow
-                                    : ParentTaskRow;
-
-                                return (
-                                    <TaskRowComponent
-                                        key={task.task_id}
-                                        task={task}
-                                        subtasks={subtasksMap[task.task_id] || []}
-                                        taskAssignments={taskAssignments}
-                                        onTaskClick={handleTaskClick}
-                                    />
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <DataTable columns={columns}>
+                {parents.map((task) => {
+                    return (
+                        <ParentTaskRow
+                            key={task.task_id}
+                            task={task}
+                            subtasks={subtasksMap[task.task_id] || []}
+                            taskAssignments={taskAssignments}
+                            onTaskClick={handleTaskClick}
+                        />
+                    );
+                })}
+            </DataTable>
             {/* Task Details Drawer */}
             <Drawer open={!!selectedTaskId} onClose={handleCloseDrawer}>
                 {selectedTaskId && (

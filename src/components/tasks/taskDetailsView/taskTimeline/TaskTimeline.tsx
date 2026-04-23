@@ -6,7 +6,7 @@ import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
 import { UserRole } from "@/types/users";
 import { toast } from "sonner";
-import SingleAvatar from "../../../common/label/singleAvatar";
+import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate, translateStatusLowercase, translateTaskUnit } from "@/helpers/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";

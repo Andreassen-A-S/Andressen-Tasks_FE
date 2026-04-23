@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { faChartColumn, faFolder, faGear, faTasks, faUsers, faSignOutAlt, faRepeat } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAuth } from "@/hooks/useAuth";
-import SingleAvatar from "@/components/common/label/singleAvatar";
+import SingleAvatar from "@/components/common/label/SingleAvatar";
 
 export default function Sidebar() {
     const pathname = usePathname();

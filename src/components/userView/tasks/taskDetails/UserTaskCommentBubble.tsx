@@ -1,4 +1,4 @@
-import SingleAvatar from "../../../common/label/singleAvatar";
+import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
 import { TaskComment } from "@/types/comment";
 import { User } from "@/types/users";

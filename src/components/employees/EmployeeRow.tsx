@@ -1,6 +1,9 @@
-import { User } from "@/types/users";
-import SingleAvatar from "../common/label/singleAvatar";
+import { getUserRoleLabel, type User } from "@/types/users";
+import SingleAvatar from "../common/label/SingleAvatar";
 import { colors } from "@/constants/colors";
+import Button from "../common/buttons/Button";
+import DropdownMenu from "../common/DropdownMenu";
+import { faEllipsis, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 interface EmployeeRowProps {
     employee: User;
@@ -9,45 +12,41 @@ interface EmployeeRowProps {
 }
 
 export default function EmployeeRow({ employee, onEdit, onDelete }: EmployeeRowProps) {
-
     return (
-        <tr className="hover:bg-gray-50 transition-colors">
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                    <SingleAvatar
-                        name={employee.name}
-                        size="sm"
-                        className="mr-4"
-                    />
+        <tr
+            className="border-b transition-colors"
+            style={{ borderColor: colors.border, backgroundColor: colors.white }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.whiteHover)}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.white)}
+        >
+            <td className="px-6 py-3">
+                <div className="flex items-center gap-4">
+                    <SingleAvatar name={employee.name} size="sm" />
                     <div>
-                        <div className="label-lg text-gray-900">{employee.name}</div>
-                        <div className="mono-xs text-gray-500">ID: {employee.user_id.slice(0, 8)}...</div>
+                        <div className="label-lg" style={{ color: colors.textPrimary }}>{employee.name}</div>
+                        <div className="mono-xs" style={{ color: colors.textMuted }}>ID: {employee.user_id.slice(0, 8)}...</div>
                     </div>
                 </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="label-md text-gray-900">{employee.position}</div>
+            <td className="px-6 py-3 whitespace-nowrap">
+                <span className="label-md" style={{ color: colors.textPrimary }}>{employee.position || "Ikke angivet"}</span>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="label-md text-gray-900">{employee.email}</div>
+            <td className="px-6 py-3 whitespace-nowrap">
+                <span className="label-md" style={{ color: colors.textPrimary }}>{employee.email}</span>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <span
-                    className="badge badge-md inline-flex items-center rounded-full px-3"
-                    style={{ backgroundColor: colors.greenLight, color: colors.greenMid }}
-                >
-                    Aktiv
-                </span>
+            <td className="px-6 py-3 whitespace-nowrap">
+                <span className="label-md" style={{ color: colors.textSecondary }}>{getUserRoleLabel(employee.role)}</span>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap label-md font-medium">
-                <div className="flex gap-2">
-                    <button className="link" onClick={() => onEdit(employee)}>
-                        Rediger
-                    </button>
-                    <button className="link-danger" onClick={() => onDelete(employee.user_id)}>
-                        Slet
-                    </button>
-                </div>
+            <td className="py-3 pr-4 w-px whitespace-nowrap text-right">
+                <DropdownMenu
+                    trigger={
+                        <Button variant="ghost" size="sm" icon={faEllipsis} iconOnly />
+                    }
+                    items={[
+                        { label: "Rediger", icon: faPenToSquare, onClick: () => onEdit(employee) },
+                        { label: "Slet", icon: faTrash, onClick: () => onDelete(employee.user_id), danger: true, dividerBefore: true },
+                    ]}
+                />
             </td>
         </tr>
     );

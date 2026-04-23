@@ -1,4 +1,4 @@
-import SingleAvatar from "../../common/label/singleAvatar";
+import SingleAvatar from "../../common/label/SingleAvatar";
 import type { User } from "@/types/users";
 import { formatRelativeDate } from "@/helpers/helpers";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import type { TopPerformer } from "@/types/stats";
-import SingleAvatar from "../common/label/singleAvatar";
+import SingleAvatar from "../common/label/SingleAvatar";
 
 interface TopPerformersTableProps {
     data: TopPerformer[];
