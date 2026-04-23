@@ -4,14 +4,17 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Sidebar from "@/components/sidebar/Sidebar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import FullPageLoadingState from "@/components/common/loading/FullPageLoadingState";
+import useDelayedVisibility from "@/hooks/useDelayedVisibility";
+import { useTopProgress } from "@/components/common/loading/TopProgressProvider";
 
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading, userRole } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
+    const showDelayedLoader = useDelayedVisibility(isLoading || !isAuthenticated, 180);
+    const topProgress = useTopProgress();
 
     useEffect(() => {
         // Wait for auth to complete
@@ -19,16 +22,18 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
         // Not authenticated -> go to login
         if (!isAuthenticated && pathname !== "/login") {
+            topProgress.start();
             router.push("/login");
             return;
         }
 
         // Authenticated -> route by role
         if (isAuthenticated && pathname === "/login") {
+            topProgress.start();
             router.push("/");
             return;
         }
-    }, [isAuthenticated, isLoading, pathname, router, userRole]);
+    }, [isAuthenticated, isLoading, pathname, router, topProgress, userRole]);
 
     // Always show login page immediately
     if (pathname === "/login") {
@@ -37,22 +42,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
     // Show loading spinner while checking authentication
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-background">
-                <div>
-                    <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-[#0f6e56]" />
-                </div>
-            </div>
-        );
+        return showDelayedLoader ? <FullPageLoadingState /> : null;
     }
 
     // Not authenticated -> show loading while redirecting
     if (!isAuthenticated) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-background">
-                <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-[#0f6e56]" />
-            </div>
-        );
+        return showDelayedLoader ? <FullPageLoadingState /> : null;
     }
 
     return (

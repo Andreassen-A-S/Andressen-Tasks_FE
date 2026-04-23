@@ -1,188 +1,237 @@
 # Andreassen TMS — Design Language
 
-## Current UI Direction
+## Design Statement
 
-The app is currently being normalized toward a denser, flatter, more GitHub-like product UI. When this document conflicts with older sections below, follow this section.
+Andreassen TMS uses a GitHub-inspired product UI foundation with a warm-white Scandinavian theme and Outfit typography.
 
-### Layout And Spacing
+The product should feel operational, compact, calm, and professional. The interface is built for daily work, not for visual flourish. When in doubt, choose the more neutral, dense, border-based, and utility-oriented option.
 
-- Use Tailwind's default spacing scale only.
-- Preferred spacing values: `p-1`, `p-2`, `p-3`, `p-4`, `p-6`, `p-8`, `p-12`
-- Inside components such as cards, inputs, list rows, and picker surfaces, prefer `p-2` to `p-4`
+---
+
+## Core Direction
+
+### Product UI Foundation
+
+The UI should follow a GitHub-inspired product design approach:
+
+- Dense and efficient rather than spacious
+- Flat and border-based rather than shadow-driven
+- Practical and systematic rather than expressive
+- Left-aligned and workflow-oriented rather than centered or presentation-like
+- Built from reusable primitives rather than screen-specific patterns
+
+### Visual Character
+
+Andreassen TMS keeps a softer visual tone through:
+
+- A warm-white Scandinavian background palette
+- Clean, restrained use of color
+- Outfit as the core typeface
+
+These choices provide identity, but they must not reduce clarity, density, or consistency.
+
+### Decision Rule
+
+When there is uncertainty between two design options, prefer the one that is:
+
+- More compact
+- More neutral
+- More border-based
+- More reusable
+- More operational
+
+---
+
+## Layout And Spacing
+
+### Spacing Principles
+
+- Use Tailwind's default spacing scale only
+- Do not use arbitrary spacing values such as `p-[10px]` or `mt-[15px]`
+- Prefer tighter spacing inside product UI components
+- Keep spacing consistent across screens
+
+### Preferred Spacing Values
+
+- `p-1`
+- `p-2`
+- `p-3`
+- `p-4`
+- `p-6`
+- `p-8`
+- `p-12`
+
+### Usage Guidance
+
+- Inside cards, inputs, rows, menus, and picker surfaces, prefer `p-2` to `p-4`
 - Between major page sections, prefer `gap-6` to `gap-8` or `my-6` to `my-8`
 - Between inline items such as badges, icons, avatars, and compact controls, prefer `gap-1` to `gap-2`
-- Do not use arbitrary spacing values such as `p-[10px]` or `mt-[15px]`
+- Baseline row density should feel compact and scannable
 
-### Borders, Radius, Density
+---
 
-- Prefer `border` and `border-solid` to separate UI, not heavy shadow-driven cards
+## Borders, Radius, And Density
+
+### Borders And Surfaces
+
+- Prefer `border` and `border-solid` to separate UI
+- Use borders, dividers, and subtle background changes before considering elevation
+- Avoid heavy shadow-driven cards
+- Permanent tinted surfaces should be used sparingly
+
+### Radius
+
 - Use `rounded-md` for most interactive surfaces and containers
-- Use `rounded` or `rounded-sm` for smaller elements such as badges and tiny pills
-- Prefer dense rows: `py-2 px-4` is the baseline for list rows and table-like rows
-- Use hover backgrounds for row interactivity, not permanent tinted backgrounds
-- Secondary and muted information should sit inline where possible instead of creating extra stacked blocks
+- Use `rounded` or `rounded-sm` for smaller elements such as badges and pills
+- Do not default to large radii for standard product UI
 
-### Page Layout
+### Density
+
+- Prefer dense rows and compact component layouts
+- `py-2 px-4` is the baseline for list rows and table-like rows
+- Secondary and muted information should stay inline where possible instead of creating extra stacked blocks
+- Use hover backgrounds for row interactivity, not permanent highlighted row styles
+
+---
+
+## Page Layout
+
+### Content Width And Alignment
 
 - Use `max-w-screen-xl` as the default maximum content width
-- Keep primary content left-aligned, not centered like a marketing page
+- Keep primary content left-aligned
+- Avoid layouts that feel like marketing pages
+
+### Sidebar
+
 - Fixed sidebars should generally be `w-60` or `w-64`
-- Avoid nested card stacks and decorative spacing
+- Sidebar structure should be simple, predictable, and consistent across sections
 
-### Shared Control Rules
+### Layout Rules
 
-- Use the shared `Button` component for actions
-- Do not force `Button` onto segmented controls, filter chips, picker rows, or toolbar selectors unless the component is explicitly designed for that pattern
-- Use shared field primitives for form controls:
-  - `TextInput`
-  - `SelectField`
-  - `TextArea`
-  - `ColorInput`
-- Modal footers should be owned by `Modal`, not by child forms
-
-### Typography Direction
-
-- The app is moving toward a smaller approved set of text styles
-- Prefer shared semantic tokens such as `h1` to `h5`, `body-md`, `body-sm`, `label-md`, `label-sm`, and `caption`
-- Do not create new color-specific typography classes
-- Apply typography and color separately where possible
-
-### Icon Language
-
-These pairings should stay consistent across filters, sort menus, and related lightweight controls:
-
-| Meaning | Icon |
-| --- | --- |
-| Deadline | outline clock |
-| Start date | outline calendar |
-| Priority | outline flag |
-| Goal | dartboard |
-| Sort ascending | arrow up wide-short |
-| Sort descending | arrow down wide-short |
-
-If a new filter or sort option is added, prefer extending this icon language instead of choosing icons ad hoc per screen.
-
-## Concept A: "Nordic Precision"
-
-> A warm-white Scandinavian interface with a dark sidebar, Outfit typography, restrained blue accents, and a focus on clean hierarchy and quiet professionalism — like Linear meets a Danish design studio.
+- Avoid nested card stacks
+- Avoid decorative spacing used only for visual effect
+- Prefer clear page structure over container-heavy composition
 
 ---
 
-## Overall Aesthetic
+## Color System
 
-Clean Scandinavian minimalism. Professional and understated, never flashy. Think of it as the design equivalent of a well-organized Danish architecture firm — everything has purpose, nothing is decorative for its own sake.
+The color system should support a GitHub-inspired product UI while keeping a warm-white Scandinavian tone.
 
----
+### Backgrounds And Surfaces
 
-## Color Palette
-
-### Backgrounds & Surfaces
-
-| Token          | Value     | Usage                                            |
-| -------------- | --------- | ------------------------------------------------ |
-| Background     | `#F6F5F1` | Page background — warm off-white, not sterile    |
-| Card / Surface | `#FFFFFF` | Cards, modals, dropdowns — pure white on warm bg |
-| Sidebar        | `#1B1D22` | Navigation sidebar — dark charcoal               |
-| Row Hover      | `#FAFAF7` | Table row hover — barely-warm tint               |
+| Token      | Value     | Usage                        |
+| ---------- | --------- | ---------------------------- |
+| Background | `#F6F5F1` | Default page background      |
+| Surface    | `#FFFFFF` | Cards, modals, menus, panels |
+| Sidebar    | `#1B1D22` | Navigation sidebar           |
+| Row Hover  | `#FAFAF7` | Table and list row hover     |
 
 ### Text
 
-| Token               | Value     | Usage                                        |
-| ------------------- | --------- | -------------------------------------------- |
-| Primary Text        | `#1B1D22` | Headings, body text — softer than pure black |
-| Secondary Text      | `#6B7084` | Descriptions, supporting info                |
-| Muted Text          | `#9DA1B4` | Captions, table headers, overlines           |
-| Sidebar Text        | `#A8AABB` | Inactive nav items                           |
-| Sidebar Active Text | `#FFFFFF` | Active nav item                              |
+| Token               | Value     | Usage                           |
+| ------------------- | --------- | ------------------------------- |
+| Primary Text        | `#1B1D22` | Headings and body text          |
+| Secondary Text      | `#6B7084` | Supporting information          |
+| Muted Text          | `#9DA1B4` | Captions, helper text, metadata |
+| Sidebar Text        | `#A8AABB` | Inactive navigation items       |
+| Sidebar Active Text | `#FFFFFF` | Active navigation items         |
 
-### Accent & Brand
+### Accent
+
+Use one restrained accent color consistently.
 
 | Token        | Value     | Usage                                 |
 | ------------ | --------- | ------------------------------------- |
 | Accent Blue  | `#2C5FE0` | Links, active states, primary actions |
-| Accent Light | `#EBF0FD` | Icon containers, tag backgrounds      |
+| Accent Light | `#EBF0FD` | Selected backgrounds, subtle accents  |
 
 ### Borders
 
-| Token          | Value                    | Usage                                    |
-| -------------- | ------------------------ | ---------------------------------------- |
-| Border         | `#E8E6E1`                | Card borders, dividers — warm-toned gray |
-| Sidebar Border | `rgba(255,255,255,0.06)` | Subtle dividers within sidebar           |
+| Token          | Value                    | Usage                                 |
+| -------------- | ------------------------ | ------------------------------------- |
+| Border         | `#E8E6E1`                | Dividers, card borders, field borders |
+| Sidebar Border | `rgba(255,255,255,0.06)` | Sidebar section dividers              |
 
 ### Semantic Colors
 
-| Token            | Value     | Background | Usage                          |
-| ---------------- | --------- | ---------- | ------------------------------ |
-| Success / Active | `#2D9F6F` | `#E8F7F0`  | Active badges, success states  |
-| Warning / Pause  | `#D4860A` | `#FEF5E7`  | Pause buttons, medium priority |
-| Danger / Delete  | `#D64545` | `#FDECEC`  | Delete buttons, high priority  |
+| Token   | Value     | Background | Usage                                      |
+| ------- | --------- | ---------- | ------------------------------------------ |
+| Success | `#2D9F6F` | `#E8F7F0`  | Success and active states                  |
+| Warning | `#D4860A` | `#FEF5E7`  | Warnings and medium priority               |
+| Danger  | `#D64545` | `#FDECEC`  | Errors, destructive actions, high priority |
 
----
-
-### Focus Colors
+### Focus
 
 | Token         | Value     | Usage                                |
 | ------------- | --------- | ------------------------------------ |
 | Focus Outline | `#2D9F6F` | Focus rings for interactive elements |
 
-## Typography
+### Color Principles
 
-### Fonts
-
-- **Display & Body:** [Outfit](https://fonts.google.com/specimen/Outfit) — geometric sans-serif with clean, slightly rounded letterforms
-- **Monospace:** [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono) — for data-oriented content (emails, IDs, percentages)
-
-### Type Scale
-
-| Class           | Size | Weight | Letter Spacing | Usage                            |
-| --------------- | ---- | ------ | -------------- | -------------------------------- |
-| `.h1`           | 36px | 700    | -0.03em        | Page titles                      |
-| `.h2`           | 28px | 700    | -0.025em       | Section titles                   |
-| `.h3`           | 22px | 600    | -0.02em        | Card/panel titles                |
-| `.h4`           | 18px | 600    | -0.015em       | Sub-section titles               |
-| `.h5`           | 16px | 600    | -0.01em        | Card headers, list item titles   |
-| `.h6`           | 14px | 600    | 0              | Small headers                    |
-| `.body-lg`      | 18px | 400    | —              | Large body text                  |
-| `.body-md`      | 16px | 400    | —              | Default body text                |
-| `.body-sm`      | 14px | 400    | —              | Subtitles under headings         |
-| `.body-xs`      | 13px | 400    | —              | Descriptions inside cards        |
-| `.label-lg`     | 14px | 500    | —              | Form labels, prominent UI text   |
-| `.label-md`     | 13px | 500    | —              | Secondary labels                 |
-| `.label-sm`     | 12px | 500    | —              | Small labels, filter pills       |
-| `.overline`     | 10px | 600    | 0.08em         | Section overlines (uppercase)    |
-| `.caption`      | 11px | 400    | —              | Captions, helper text            |
-| `.table-header` | 10px | 600    | 0.06em         | Table column headers (uppercase) |
-
-### Typography Principles
-
-- Headings use tight negative letter-spacing for a compact, modern feel
-- Overlines and table headers are uppercase with wide letter-spacing — a classic Scandinavian detail
-- Font weights are restrained: 700 for h1/h2, 600 for h3–h6, 500 for labels, 400 for body
-- Monospace is reserved strictly for data: emails, IDs, percentages, timestamps
+- Most of the interface should remain grayscale or near-neutral
+- Accent color should be used sparingly and deliberately
+- Warmth should come from background and border tone, not from decorative color usage
+- Maintain clear contrast and readable hierarchy at all times
 
 ---
 
-## Layout Principles
+## Typography
 
-### Structure
+### Font Families
 
-- **Dark sidebar** (w-75 wide) with light content area — high contrast navigation
-- **Generous padding** (24–32px) around content areas
-- **Card-based containers** with `border-radius: lg` and 1px warm-gray borders
-- **Tables inside cards** with subtle row hover states
+- **Display and Body:** Outfit
+- **Monospace:** IBM Plex Mono
 
-### Spacing Scale
+Outfit gives the product a modern and slightly softer tone, but typography should still feel restrained and operational.
 
-```
-4px — 8px — 12px — 16px — 20px — 24px — 28px — 32px
-```
+### Approved Semantic Tokens
 
-### Grid Patterns
+Prefer shared semantic tokens rather than screen-specific or color-specific typography classes.
 
-- Template cards: 2-column grid, `gap: 16px`
-- Team member cards: 2-column grid (or table for list view)
-- Stats/summary cards: 3–4 column grid, `gap: 14px`
-- Task list: Single column, stacked rows
+- `h1`
+- `h2`
+- `h3`
+- `h4`
+- `h5`
+- `body-md`
+- `body-sm`
+- `label-md`
+- `label-sm`
+- `caption`
+
+### Typography Principles
+
+- Keep the type system smaller and more disciplined than a marketing site
+- Use weight and size for hierarchy before using color
+- Apply typography and color separately where possible
+- Do not create new color-specific typography classes
+- Monospace is reserved for data-oriented content such as emails, IDs, percentages, and timestamps
+- Avoid expressive heading treatments that make the UI feel editorial
+
+---
+
+## Shared Control Rules
+
+### Shared Actions
+
+- Use the shared `Button` component for actions
+- Do not force `Button` onto segmented controls, filter chips, picker rows, or toolbar selectors unless that component is explicitly designed for the pattern
+
+### Shared Fields
+
+Use shared field primitives for form controls:
+
+- `TextInput`
+- `SelectField`
+- `TextArea`
+- `ColorInput`
+
+### Modals
+
+- Modal footers should be owned by `Modal`, not by child forms
+- Modal actions should remain predictable across the app
 
 ---
 
@@ -190,96 +239,127 @@ Clean Scandinavian minimalism. Professional and understated, never flashy. Think
 
 ### Buttons
 
-| Type      | Style                                                            |
-| --------- | ---------------------------------------------------------------- |
-| Primary   | Solid accent green (`#0f6e56`), white text, `border-radius: 8px` |
-| Secondary | White background, `#E8E6E1` border, dark text                    |
-| Danger    | Red-tinted background (`#FDECEC`), red text, red border          |
-| Warning   | Amber-tinted background (`#FEF5E7`), amber text, amber border    |
+Buttons should feel practical and compact.
 
-### Badges & Pills
+| Type      | Style                                                  |
+| --------- | ------------------------------------------------------ |
+| Primary   | Accent blue background, white text, `rounded-md`       |
+| Secondary | White or neutral surface, border, primary text         |
+| Danger    | Danger-tinted background or bordered destructive style |
+| Warning   | Warning-tinted background or bordered caution style    |
 
-- Small (10px font), rounded corners
-- Colored background with matching text color
-- Example: green background + green text for "Aktiv"
-- Priority badges: red for HØJ, amber for MELLEM, green for LAV
+Rules:
 
-### Icon Containers
+- Keep padding compact
+- Avoid oversized button treatments
+- Prefer clear state changes over decorative hover effects
 
-- 32×32px boxes with `border-radius: lg`
-- Accent green background (`#0f6e56`) for primary icons
-- Neutral gray background (`#F3F3F0`) for informational icons
-- Icons are 14px (`w-3.5 h-3.5`)
+### Badges And Pills
 
-### Avatar Initials
+- Use small labels with compact padding
+- Use `rounded` or `rounded-sm`
+- Use semantic colors with restrained contrast
+- Badges should support scanning, not dominate the UI
 
-- **Rounded rectangles** (not circles) with `border-radius: lg`
-- Colored backgrounds per user
-- White text, Outfit font, weight 600
-- Sizes: 34px (table), 26px (inline/stacked)
+### Filters And Segmented Controls
 
-### Filter Pills
+- Active states should be clear and compact
+- Inactive states should remain neutral and unobtrusive
+- Use borders and background shifts, not exaggerated styling
 
-- Active: `bg-gray-900 text-white` (dark pill)
-- Inactive: transparent with `border border-gray-200`, gray text
-- `border-radius: 6–8px`, `padding: 6px 16px`
+### Cards And Panels
 
-### Cards
+- Cards are allowed, but should behave as practical containers rather than decorative objects
+- Use white surfaces with warm-gray borders
+- Prefer subtle or no shadow
+- Internal padding should usually stay within `p-2` to `p-4`, with larger values reserved for larger panels or modals
 
-- White background on warm off-white page
-- `border: 1px solid #E8E6E1`
-- `border-radius: lg`
-- Hover: subtle shadow `0 4px 20px rgba(0,0,0,0.06)`
-- Internal padding: 20–24px
+### Tables And Rows
 
-### Tables
-
-- Inside card containers (no standalone tables)
-- Column headers: `.table-header` class (10px, uppercase, muted)
-- Row padding: 14px horizontal, 20px vertical
-- Row hover: `#FAFAF7` background
-- Row dividers: `1px solid #E8E6E1`
+- Tables should feel dense, readable, and operational
+- Use borders and row dividers clearly
+- Keep column headers compact and muted
+- Row hover should use the defined hover background
+- Avoid excessive vertical padding
 
 ---
 
-## Interaction & Motion
+## Icon Language
 
-| Interaction     | Effect                                     |
-| --------------- | ------------------------------------------ |
-| Card hover      | Soft shadow: `0 4px 20px rgba(0,0,0,0.06)` |
-| Button hover    | Background color shift only                |
-| Table row hover | Background: `#FAFAF7`                      |
-| Border hover    | Slightly darker border color               |
-| Transitions     | `150–200ms` duration, `ease` timing        |
+These pairings should stay consistent across filters, sort menus, and related lightweight controls.
 
-### Motion Principles
+| Meaning         | Icon                  |
+| --------------- | --------------------- |
+| Deadline        | outline clock         |
+| Start date      | outline calendar      |
+| Priority        | outline flag          |
+| Goal            | dartboard             |
+| Sort ascending  | arrow up wide-short   |
+| Sort descending | arrow down wide-short |
 
-- Minimal animation — transitions are functional, not decorative
-- No bounce, no scale, no dramatic effects
-- Everything is calm and controlled
-- Animations serve clarity (fade-in for modals, slide for drawers)
+If a new filter or sort option is added, prefer extending this icon language instead of choosing icons ad hoc per screen.
 
 ---
 
 ## Sidebar Design
 
-- Background: `#1B1D22` (dark charcoal)
-- Width: w-75, fixed
-- Brand: Outfit 15px/700, white
-- Brand subtitle: 10px uppercase, wide letter-spacing, `#A8AABB`
-- Nav items: 13px/400, `#A8AABB`
-- Active nav item: 13px/500, `#FFFFFF`, with `rgba(255,255,255,0.08)` background and `border-radius: 8px`
-- Nav icons: 14px, centered in 20px width
-- User profile at bottom: avatar + name + role, separated by border-top
-- Section dividers: `1px solid rgba(255,255,255,0.06)`
+The sidebar may retain a stronger visual identity than the rest of the application, but should still follow the product UI system.
+
+- Background: `#1B1D22`
+- Width: `w-60` or `w-64`
+- Brand text should remain clean and restrained
+- Inactive nav items use muted sidebar text
+- Active nav items use white text with a subtle background highlight
+- Section dividers should be subtle and structural
+- Avoid decorative treatments that make the sidebar feel disconnected from the rest of the product
+
+---
+
+## Interaction And Motion
+
+### Interaction Principles
+
+- Interaction feedback should be functional, not decorative
+- Motion should support clarity and state change
+- The UI should feel calm and controlled
+
+### Motion Rules
+
+- Prefer subtle transitions only
+- Use `150ms` to `200ms` duration with `ease`
+- Avoid bounce, scale-heavy, or dramatic motion
+- Prefer fades and simple slides for overlays and drawers
+
+### Hover And Focus
+
+- Button hover should primarily use color or border change
+- Row hover should use background change
+- Borders may darken slightly on hover
+- Focus states must be clear and accessible
+
+---
+
+## What To Avoid
+
+To keep the system aligned with its direction, avoid the following by default:
+
+- Arbitrary spacing values
+- Oversized padding inside standard product components
+- Heavy card shadows
+- Large-radius surfaces as the default
+- Expressive or editorial typography treatments
+- Screen-specific one-off controls when shared primitives exist
+- Decorative tinted backgrounds replacing clear structure
+- Nested card stacks and overly segmented layouts
 
 ---
 
 ## Design Principles Summary
 
-1. **Warmth over sterility** — off-white backgrounds, warm-gray borders, no harsh blue-grays
-2. **Hierarchy through type** — size, weight, and color do the work, not decoration
-3. **Restraint** — accent blue is used sparingly; most of the UI is grayscale
-4. **Consistency** — every component follows the same spacing, radius, and color rules
-5. **Professionalism** — calm, controlled, trustworthy; suitable for a work tool used daily
-6. **Scandinavian detail** — uppercase overlines, tight letter-spacing, geometric type, rounded rectangles over circles
+1. **Operational first** — the UI is built for daily work and efficient scanning
+2. **Warmth through theme** — use warm-white surfaces and subtle neutrals, not decorative styling
+3. **Hierarchy through structure** — spacing, type, borders, and alignment should do most of the work
+4. **Consistency over invention** — shared primitives and repeated patterns are preferred over custom screen logic
+5. **Restraint over flair** — the interface should feel calm, professional, and trustworthy
+6. **GitHub-inspired foundation** — compact, neutral, border-based, and utility-oriented
+7. **Scandinavian tone** — warm-white palette and Outfit typography provide identity without compromising usability

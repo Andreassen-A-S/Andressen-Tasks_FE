@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getDashboardStats } from "@/lib/api";
-import type { DashboardStats } from "@/types/stats";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import TrendChart from "@/components/stats/TrendChart";
 import PriorityChart from "@/components/stats/PriorityChart";
 import TopPerformersTable from "@/components/stats/TopPerformersTable";
@@ -14,45 +12,31 @@ import CompletionMetrics from "./CompletionMetrics";
 import RecurringStatsCards from "./RecurringStatsCards";
 import StatusDistribution from "./StatusDistribution";
 import AverageCompletionTime from "./AverageCompletionTime";
+import { adminQueryKeys } from "@/lib/queries/admin";
+import { getDashboardStats } from "@/lib/api";
 
 export default function StatsPage() {
-    const [stats, setStats] = useState<DashboardStats | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
+    const { data: stats, isPending, error } = useQuery({
+        queryKey: adminQueryKeys.statsPage,
+        queryFn: getDashboardStats,
+    });
 
-    useEffect(() => {
-        async function loadStats() {
-            try {
-                setLoading(true);
-                const data = await getDashboardStats();
-                setStats(data);
-                setError(null);
-            } catch (err) {
-                console.error("Failed to load stats:", err);
-                setError(err instanceof Error ? err.message : "Failed to load statistics");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        loadStats();
-    }, []);
-
-    if (loading) {
+    if (isPending) {
         return <StatsLoadingState />;
     }
 
     if (error) {
-        return <StatsErrorState error={error} onRetry={() => window.location.reload()} />;
+        return <StatsErrorState error={error instanceof Error ? error.message : undefined} onRetry={() => queryClient.invalidateQueries({ queryKey: adminQueryKeys.statsPage })} />;
     }
 
     if (!stats) {
-        return <StatsErrorState onRetry={() => window.location.reload()} />;
+        return <StatsErrorState onRetry={() => queryClient.invalidateQueries({ queryKey: adminQueryKeys.statsPage })} />;
     }
 
     return (
         <div className="min-h-screen">
-            <StatsHeader onRefresh={() => window.location.reload()} />
+            <StatsHeader onRefresh={() => queryClient.invalidateQueries({ queryKey: adminQueryKeys.statsPage })} />
 
             <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12">
                 <StatsOverviewCards stats={stats} />

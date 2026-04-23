@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faSpinner,
     faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { RecurringTemplate } from "@/types/recuringTemplate";
@@ -15,6 +14,7 @@ import Badge from "@/components/common/label/Badge";
 import TaskAssignedUsers from "@/components/common/label/TaskAssignedUsers";
 import Modal from "@/components/modal/Modal";
 import { colors } from "@/constants/colors";
+import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
 
 interface ViewTemplateProps {
     template: RecurringTemplate;
@@ -75,12 +75,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
         >
             <div>
                 {loading ? (
-                    <div className="flex items-center justify-center py-12">
-                        <div className="flex flex-col items-center gap-3">
-                            <FontAwesomeIcon icon={faSpinner} spin size="2x" style={{ color: colors.greenMid }} />
-                            <div className="body-sm" style={{ color: colors.textMuted }}>Indlæser instanser...</div>
-                        </div>
-                    </div>
+                    <InlineLoadingState label="Indlæser instanser..." centered className="py-12" />
                 ) : error ? (
                     <div
                         className="rounded-md border px-4 py-3"

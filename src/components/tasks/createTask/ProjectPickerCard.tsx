@@ -5,6 +5,7 @@ import { getProjects } from "@/lib/api";
 import type { Project } from "@/types/project";
 import SelectField from "@/components/common/forms/SelectField";
 import { colors } from "@/constants/colors";
+import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
 
 interface ProjectPickerCardProps {
   projectId: string;
@@ -32,16 +33,18 @@ export default function ProjectPickerCard({ projectId, onProjectChange }: Projec
         </label>
         {error ? (
           <p className="body-sm" style={{ color: colors.red }}>Kunne ikke hente projekter. Prøv at genindlæse siden.</p>
+        ) : loading ? (
+          <InlineLoadingState label="Indlæser projekter..." />
         ) : (
           <SelectField
             id="project_id"
             value={projectId}
             onChange={(e) => onProjectChange(e.target.value)}
             required
-            disabled={loading || projects.length === 0}
+            disabled={projects.length === 0}
           >
             <option value="" disabled>
-              {loading ? "Henter projekter..." : projects.length === 0 ? "Ingen projekter — opret et projekt først" : "Vælg projekt..."}
+              {projects.length === 0 ? "Ingen projekter — opret et projekt først" : "Vælg projekt..."}
             </option>
             {projects.map((p) => (
               <option key={p.project_id} value={p.project_id}>

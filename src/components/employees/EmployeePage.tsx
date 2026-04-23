@@ -1,50 +1,47 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { getUsers } from "@/lib/api";
-import { UserRole, getUserRoleLabel, type User } from "@/types/users";
+import { useState, useCallback, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { UserRole, getUserRoleLabel } from "@/types/users";
 import EmployeeTable from "./EmployeeTable";
 import EmployeeFilterRow, { type EmployeeSortField, type SortDirection } from "./EmployeeFilterRow";
 import EmployeeCreateModal from "./EmployeeCreateModal";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Button from "../common/buttons/Button";
 import PageHeader from "@/components/common/PageHeader";
+import TableSkeleton from "@/components/common/loading/TableSkeleton";
+import { adminQueryKeys, fetchEmployeesPageData, type EmployeesPageData } from "@/lib/queries/admin";
 
 export default function EmployeePage() {
-    const [employees, setEmployees] = useState<User[]>([]);
+    const queryClient = useQueryClient();
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
     const [positionFilter, setPositionFilter] = useState<string>("all");
     const [sortField, setSortField] = useState<EmployeeSortField>("name");
     const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
     const createFormId = "create-employee-form";
+    const { data, isPending } = useQuery({
+        queryKey: adminQueryKeys.employeesPage,
+        queryFn: fetchEmployeesPageData,
+    });
 
-    const loadEmployees = useCallback(async () => {
-        setLoading(true);
-        try {
-            const users = await getUsers();
-            setEmployees(users);
-        } catch (error) {
-            console.error("Failed to load employees:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        loadEmployees();
-    }, [loadEmployees]);
+    const employees = useMemo(() => data?.employees ?? [], [data?.employees]);
 
     const handleEmployeeCreated = useCallback(() => {
-        loadEmployees();
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.employeesPage });
         setShowCreateModal(false);
-    }, [loadEmployees]);
+    }, [queryClient]);
 
     const handleEmployeeDeleted = useCallback((userId: string) => {
-        setEmployees((prev) => prev.filter((e) => e.user_id !== userId));
-    }, []);
+        queryClient.setQueryData<EmployeesPageData>(adminQueryKeys.employeesPage, (current) => {
+            if (!current) return current;
+            return {
+                ...current,
+                employees: current.employees.filter((employee) => employee.user_id !== userId),
+            };
+        });
+    }, [queryClient]);
 
     const positionOptions = useMemo(
         () =>
@@ -80,17 +77,6 @@ export default function EmployeePage() {
         setPositionFilter("all");
     }, []);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Indlæser medarbejdere...</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen">
             <PageHeader
@@ -121,11 +107,15 @@ export default function EmployeePage() {
                     onSortDirectionChange={setSortDirection}
                     onClearFilters={clearFilters}
                 />
-                <EmployeeTable
-                    employees={filteredEmployees}
-                    onEmployeeUpdate={loadEmployees}
-                    onEmployeeDelete={handleEmployeeDeleted}
-                />
+                {isPending ? (
+                    <TableSkeleton columns={5} rows={8} />
+                ) : (
+                    <EmployeeTable
+                        employees={filteredEmployees}
+                        onEmployeeUpdate={() => queryClient.invalidateQueries({ queryKey: adminQueryKeys.employeesPage })}
+                        onEmployeeDelete={handleEmployeeDeleted}
+                    />
+                )}
 
                 <EmployeeCreateModal
                     isOpen={showCreateModal}

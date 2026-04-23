@@ -1,28 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { getProjects, createProject, updateProject, deleteProject, getTasks, getRecurringTemplates } from "@/lib/api";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createProject, updateProject, deleteProject } from "@/lib/api";
 import type { Project, CreateProjectInput, UpdateProjectInput } from "@/types/project";
-import type { Task } from "@/types/task";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import Button from "@/components/common/buttons/Button";
-import { colors } from "@/constants/colors";
 import ProjectTable, { type ProjectSortKey } from "./ProjectTable";
 import ProjectCreateModal from "./ProjectCreateModal";
 import ProjectEditModal from "./ProjectEditModal";
 import PageHeader from "@/components/common/PageHeader";
+import TableSkeleton from "@/components/common/loading/TableSkeleton";
+import { adminQueryKeys, fetchProjectsPageData, type ProjectsPageData } from "@/lib/queries/admin";
 
 export default function ProjectPage() {
     const createProjectFormId = "create-project-form";
     const editProjectFormId = "edit-project-form";
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [taskCounts, setTaskCounts] = useState<Record<string, number>>({});
-    const [tasksByProject, setTasksByProject] = useState<Record<string, Task[]>>({});
-    const [templateCounts, setTemplateCounts] = useState<Record<string, number>>({});
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -31,6 +27,15 @@ export default function ProjectPage() {
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [sortBy, setSortBy] = useState<ProjectSortKey>("name");
+    const { data, isPending } = useQuery({
+        queryKey: adminQueryKeys.projectsPage,
+        queryFn: fetchProjectsPageData,
+    });
+
+    const projects = data?.projects ?? [];
+    const taskCounts = data?.taskCounts ?? {};
+    const tasksByProject = data?.tasksByProject ?? {};
+    const templateCounts = data?.templateCounts ?? {};
 
     const sortedProjects = [...projects].sort((a, b) => {
         if (sortBy === "name") return a.name.localeCompare(b.name);
@@ -38,50 +43,31 @@ export default function ProjectPage() {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
-    useEffect(() => {
-        load();
-    }, []);
-
-    async function load() {
-        try {
-            setLoading(true);
-            const [projectsResult, tasksResult, templatesResult] = await Promise.allSettled([getProjects(), getTasks(), getRecurringTemplates()]);
-            if (projectsResult.status === "fulfilled") setProjects(projectsResult.value);
-            if (tasksResult.status === "fulfilled") {
-                const counts: Record<string, number> = {};
-                const byProject: Record<string, Task[]> = {};
-                for (const task of tasksResult.value) {
-                    counts[task.project_id] = (counts[task.project_id] ?? 0) + 1;
-                    if (!byProject[task.project_id]) byProject[task.project_id] = [];
-                    byProject[task.project_id].push(task);
-                }
-                setTaskCounts(counts);
-                setTasksByProject(byProject);
-            }
-            if (templatesResult.status === "fulfilled") {
-                const counts: Record<string, number> = {};
-                for (const tpl of templatesResult.value) {
-                    counts[tpl.project_id] = (counts[tpl.project_id] ?? 0) + 1;
-                }
-                setTemplateCounts(counts);
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     async function handleCreate(input: CreateProjectInput) {
         const created = await createProject(input);
-        setProjects((prev) => [...prev, created]);
+        queryClient.setQueryData<ProjectsPageData>(adminQueryKeys.projectsPage, (current) => {
+            if (!current) return current;
+            return {
+                ...current,
+                projects: [...current.projects, created],
+                taskCounts: { ...current.taskCounts, [created.project_id]: 0 },
+                tasksByProject: { ...current.tasksByProject, [created.project_id]: [] },
+                templateCounts: { ...current.templateCounts, [created.project_id]: 0 },
+            };
+        });
         toast.success("Projekt oprettet");
         setShowCreateModal(false);
     }
 
     async function handleUpdate(id: string, input: UpdateProjectInput) {
         const updated = await updateProject(id, input);
-        setProjects((prev) => prev.map((p) => (p.project_id === id ? updated : p)));
+        queryClient.setQueryData<ProjectsPageData>(adminQueryKeys.projectsPage, (current) => {
+            if (!current) return current;
+            return {
+                ...current,
+                projects: current.projects.map((project) => (project.project_id === id ? updated : project)),
+            };
+        });
         toast.success("Projekt opdateret");
         setEditingProject(null);
     }
@@ -96,7 +82,25 @@ export default function ProjectPage() {
         setDeleteLoading(true);
         try {
             await deleteProject(pendingDeleteId);
-            setProjects((prev) => prev.filter((p) => p.project_id !== pendingDeleteId));
+            queryClient.setQueryData<ProjectsPageData>(adminQueryKeys.projectsPage, (current) => {
+                if (!current) return current;
+
+                const nextTaskCounts = { ...current.taskCounts };
+                const nextTasksByProject = { ...current.tasksByProject };
+                const nextTemplateCounts = { ...current.templateCounts };
+
+                delete nextTaskCounts[pendingDeleteId];
+                delete nextTasksByProject[pendingDeleteId];
+                delete nextTemplateCounts[pendingDeleteId];
+
+                return {
+                    ...current,
+                    projects: current.projects.filter((project) => project.project_id !== pendingDeleteId),
+                    taskCounts: nextTaskCounts,
+                    tasksByProject: nextTasksByProject,
+                    templateCounts: nextTemplateCounts,
+                };
+            });
             toast.success("Projekt slettet");
             setConfirmOpen(false);
             setPendingDeleteId(null);
@@ -105,17 +109,6 @@ export default function ProjectPage() {
         } finally {
             setDeleteLoading(false);
         }
-    }
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="flex flex-col items-center gap-3">
-                    <FontAwesomeIcon icon={faSpinner} spin size="2x" style={{ color: colors.greenMid }} />
-                    <div className="body-sm" style={{ color: colors.textSecondary }}>Indlæser projekter...</div>
-                </div>
-            </div>
-        );
     }
 
     return (
@@ -136,17 +129,21 @@ export default function ProjectPage() {
             />
 
             <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12">
-                <ProjectTable
-                    projects={sortedProjects}
-                    taskCounts={taskCounts}
-                    templateCounts={templateCounts}
-                    tasksByProject={tasksByProject}
-                    sortBy={sortBy}
-                    onSortChange={setSortBy}
-                    onCreateClick={() => setShowCreateModal(true)}
-                    onEditProject={setEditingProject}
-                    onDeleteProject={handleDelete}
-                />
+                {isPending ? (
+                    <TableSkeleton columns={2} rows={6} showToolbar />
+                ) : (
+                    <ProjectTable
+                        projects={sortedProjects}
+                        taskCounts={taskCounts}
+                        templateCounts={templateCounts}
+                        tasksByProject={tasksByProject}
+                        sortBy={sortBy}
+                        onSortChange={setSortBy}
+                        onCreateClick={() => setShowCreateModal(true)}
+                        onEditProject={setEditingProject}
+                        onDeleteProject={handleDelete}
+                    />
+                )}
             </div>
 
             <ProjectCreateModal

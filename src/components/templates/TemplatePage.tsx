@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-    faPlus,
-    faSpinner
+    faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import { RecurringTemplate } from "@/types/recuringTemplate";
-import { getRecurringTemplates, deleteRecurringTemplate, deactivateTemplate, reactivateTemplate } from "@/lib/api";
+import { deleteRecurringTemplate, deactivateTemplate, reactivateTemplate } from "@/lib/api";
 import ViewTemplate from "@/components/templates/ViewTemplate";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import Button from "@/components/common/buttons/Button";
@@ -17,14 +16,14 @@ import TemplateGrid from "./TemplateGrid";
 import TemplateCreateModal from "./TemplateCreateModal";
 import TemplateEditModal from "./TemplateEditModal";
 import PageHeader from "@/components/common/PageHeader";
+import CardGridSkeleton from "@/components/common/loading/CardGridSkeleton";
+import { adminQueryKeys, fetchTemplatesPageData, type TemplatesPageData } from "@/lib/queries/admin";
 
 
 export default function RecurringTemplatesPage() {
     const createTemplateFormId = "create-template-form";
     const editTemplateFormId = "edit-template-form";
-    const [templates, setTemplates] = useState<RecurringTemplate[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
     const [showCreateTemplate, setShowCreateTemplate] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
     const [showEditTemplate, setShowEditTemplate] = useState(false);
@@ -35,29 +34,18 @@ export default function RecurringTemplatesPage() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const { data, isPending } = useQuery({
+        queryKey: adminQueryKeys.templatesPage,
+        queryFn: fetchTemplatesPageData,
+    });
+
+    const templates = data?.templates ?? [];
 
     const filterOptions = [
         { key: "active" as const, label: "Aktive", count: templates.filter(t => t.is_active).length },
         { key: "inactive" as const, label: "Inaktive", count: templates.filter(t => !t.is_active).length },
         { key: "all" as const, label: "Alle", count: templates.length },
     ];
-
-    useEffect(() => {
-        loadTemplates();
-    }, []);
-
-    async function loadTemplates() {
-        try {
-            setLoading(true);
-            const data = await getRecurringTemplates();
-            setTemplates(data);
-        } catch (err) {
-            setError("Kunne ikke indlæse gentagende opgaveskabeloner");
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }
 
     function handleDelete(templateId: string) {
         setPendingDeleteId(templateId);
@@ -69,7 +57,13 @@ export default function RecurringTemplatesPage() {
         setDeleteLoading(true);
         try {
             await deleteRecurringTemplate(pendingDeleteId);
-            setTemplates(templates.filter(t => t.id !== pendingDeleteId));
+            queryClient.setQueryData<TemplatesPageData>(adminQueryKeys.templatesPage, (current) => {
+                if (!current) return current;
+                return {
+                    ...current,
+                    templates: current.templates.filter((template) => template.id !== pendingDeleteId),
+                };
+            });
             toast.success("Skabelon slettet");
             setConfirmOpen(false);
             setPendingDeleteId(null);
@@ -85,15 +79,27 @@ export default function RecurringTemplatesPage() {
         try {
             if (template.is_active) {
                 await deactivateTemplate(template.id);
-                setTemplates(templates.map(t =>
-                    t.id === template.id ? { ...t, is_active: false } : t
-                ));
+                queryClient.setQueryData<TemplatesPageData>(adminQueryKeys.templatesPage, (current) => {
+                    if (!current) return current;
+                    return {
+                        ...current,
+                        templates: current.templates.map((item) =>
+                            item.id === template.id ? { ...item, is_active: false } : item
+                        ),
+                    };
+                });
                 toast.success("Skabelon deaktiveret");
             } else {
                 await reactivateTemplate(template.id);
-                setTemplates(templates.map(t =>
-                    t.id === template.id ? { ...t, is_active: true } : t
-                ));
+                queryClient.setQueryData<TemplatesPageData>(adminQueryKeys.templatesPage, (current) => {
+                    if (!current) return current;
+                    return {
+                        ...current,
+                        templates: current.templates.map((item) =>
+                            item.id === template.id ? { ...item, is_active: true } : item
+                        ),
+                    };
+                });
                 toast.success("Skabelon aktiveret");
             }
         } catch (err) {
@@ -123,14 +129,26 @@ export default function RecurringTemplatesPage() {
     }
 
     function handleTemplateCreated(template: RecurringTemplate) {
-        setTemplates([...templates, template]);
+        queryClient.setQueryData<TemplatesPageData>(adminQueryKeys.templatesPage, (current) => {
+            if (!current) return current;
+            return {
+                ...current,
+                templates: [...current.templates, template],
+            };
+        });
         setShowCreateTemplate(false);
     }
 
     function handleTemplateUpdated(updated: RecurringTemplate) {
-        setTemplates(templates.map(t =>
-            t.id === updated.id ? updated : t
-        ));
+        queryClient.setQueryData<TemplatesPageData>(adminQueryKeys.templatesPage, (current) => {
+            if (!current) return current;
+            return {
+                ...current,
+                templates: current.templates.map((template) =>
+                    template.id === updated.id ? updated : template
+                ),
+            };
+        });
         handleCloseEditTemplate();
     }
 
@@ -139,17 +157,6 @@ export default function RecurringTemplatesPage() {
         if (filter === "active") return template.is_active;
         return !template.is_active;
     });
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="flex flex-col items-center gap-3">
-                    <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#0f6e56]" />
-                    <div className="text-sm text-gray-500">Indlæser skabeloner...</div>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen">
@@ -177,21 +184,19 @@ export default function RecurringTemplatesPage() {
             </div>
 
             <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
-                        <p className="text-sm text-red-700">{error}</p>
-                    </div>
+                {isPending ? (
+                    <CardGridSkeleton />
+                ) : (
+                    <TemplateGrid
+                        templates={filteredTemplates}
+                        filter={filter}
+                        onCreateClick={() => setShowCreateTemplate(true)}
+                        onViewTemplate={handleViewTemplate}
+                        onToggleActive={handleToggleActive}
+                        onDeleteTemplate={handleDelete}
+                        onEditTemplate={handleEditTemplate}
+                    />
                 )}
-
-                <TemplateGrid
-                    templates={filteredTemplates}
-                    filter={filter}
-                    onCreateClick={() => setShowCreateTemplate(true)}
-                    onViewTemplate={handleViewTemplate}
-                    onToggleActive={handleToggleActive}
-                    onDeleteTemplate={handleDelete}
-                    onEditTemplate={handleEditTemplate}
-                />
             </div>
 
             <TemplateCreateModal

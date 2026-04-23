@@ -1,24 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { getAllAssignments, getProjects, getTasks, getUsers } from "@/lib/api";
-import { TaskPriority, TaskStatus, type Task } from "@/types/task";
-import type { Project } from "@/types/project";
-import type { TaskAssignment } from "@/types/assignment";
-import type { User } from "@/types/users";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { TaskPriority, TaskStatus } from "@/types/task";
 import TaskTable from "./TaskTable";
 import TaskFilterRow, { type SortDirection, type TaskSortField } from "./TaskFilterRow";
 import TaskCreateModal from "./TaskCreateModal";
 import Button from "../common/buttons/Button";
 import PageHeader from "@/components/common/PageHeader";
+import TableSkeleton from "@/components/common/loading/TableSkeleton";
+import { adminQueryKeys, fetchTasksPageData, type TasksPageData } from "@/lib/queries/admin";
 
 export default function TaskPage() {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [users, setUsers] = useState<User[]>([]);
-    const [taskAssignments, setTaskAssignments] = useState<Record<string, TaskAssignment[]>>({});
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
     const [createSubmitLabel, setCreateSubmitLabel] = useState("Opret opgave");
@@ -30,41 +25,15 @@ export default function TaskPage() {
     const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
     const createFormId = "create-task-form";
+    const { data, isPending } = useQuery({
+        queryKey: adminQueryKeys.tasksPage,
+        queryFn: fetchTasksPageData,
+    });
 
-    const loadTasks = useCallback(async () => {
-        try {
-            setLoading(true);
-            const [tasksResult, projectsResult, usersResult, assignmentsResult] = await Promise.allSettled([
-                getTasks(),
-                getProjects(),
-                getUsers(),
-                getAllAssignments(),
-            ]);
-            if (tasksResult.status === "fulfilled") setTasks(tasksResult.value);
-            if (projectsResult.status === "fulfilled") setProjects(projectsResult.value);
-            if (usersResult.status === "fulfilled") setUsers(usersResult.value);
-            if (tasksResult.status === "fulfilled" && assignmentsResult.status === "fulfilled") {
-                const assignmentMap: Record<string, TaskAssignment[]> = {};
-                for (const task of tasksResult.value) {
-                    assignmentMap[task.task_id] = [];
-                }
-                for (const assignment of assignmentsResult.value) {
-                    if (assignmentMap[assignment.task_id]) {
-                        assignmentMap[assignment.task_id].push(assignment);
-                    }
-                }
-                setTaskAssignments(assignmentMap);
-            }
-        } catch (error) {
-            console.error("Failed to load tasks:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        loadTasks();
-    }, [loadTasks]);
+    const tasks = useMemo(() => data?.tasks ?? [], [data?.tasks]);
+    const projects = useMemo(() => data?.projects ?? [], [data?.projects]);
+    const users = useMemo(() => data?.users ?? [], [data?.users]);
+    const taskAssignments = useMemo(() => data?.taskAssignments ?? {}, [data?.taskAssignments]);
 
     const filteredTasks = useMemo(() => {
         const filtered = tasks.filter((task) => {
@@ -111,13 +80,24 @@ export default function TaskPage() {
     }, [assigneeFilter, creatorFilter, projectFilter, sortDirection, sortField, statusFilter, taskAssignments, tasks]);
 
     const handleTaskCreated = useCallback(() => {
-        loadTasks();
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         setShowCreateModal(false);
-    }, [loadTasks]);
+    }, [queryClient]);
 
     const handleTaskDeleted = useCallback((taskId: string) => {
-        setTasks((prev) => prev.filter((t) => t.task_id !== taskId));
-    }, []);
+        queryClient.setQueryData<TasksPageData>(adminQueryKeys.tasksPage, (current) => {
+            if (!current) return current;
+
+            const nextAssignments = { ...current.taskAssignments };
+            delete nextAssignments[taskId];
+
+            return {
+                ...current,
+                tasks: current.tasks.filter((task) => task.task_id !== taskId),
+                taskAssignments: nextAssignments,
+            };
+        });
+    }, [queryClient]);
 
     const clearFilters = useCallback(() => {
         setStatusFilter("all");
@@ -125,10 +105,6 @@ export default function TaskPage() {
         setAssigneeFilter("all");
         setCreatorFilter("all");
     }, []);
-
-    if (loading) {
-        return <div className="p-8">Indlæser opgaver...</div>;
-    }
 
     return (
         <div className="min-h-screen">
@@ -165,10 +141,14 @@ export default function TaskPage() {
                     onSortDirectionChange={setSortDirection}
                     onClearFilters={clearFilters}
                 />
-                <TaskTable
-                    tasks={filteredTasks}
-                    onTaskDelete={handleTaskDeleted}
-                />
+                {isPending ? (
+                    <TableSkeleton columns={7} rows={8} />
+                ) : (
+                    <TaskTable
+                        tasks={filteredTasks}
+                        onTaskDelete={handleTaskDeleted}
+                    />
+                )}
 
                 <TaskCreateModal
                     isOpen={showCreateModal}

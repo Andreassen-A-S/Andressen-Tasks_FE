@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getAllAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
@@ -8,6 +9,8 @@ import Drawer from "@/components/common/Drawer";
 import TaskDetails from "./taskDetailsView/TaskDetails";
 import ParentTaskRow from "./taskRows/ParentTaskRow";
 import DataTable from "@/components/common/table/DataTable";
+import { fetchTaskDetailsData, taskQueryKeys } from "@/lib/queries/tasks";
+import { toast } from "sonner";
 
 interface TaskTableProps {
     tasks: Task[];
@@ -29,6 +32,7 @@ export default function TaskTable({
     tasks = [],
     onTaskDelete,
 }: TaskTableProps) {
+    const queryClient = useQueryClient();
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
     const [taskAssignments, setTaskAssignments] = useState<Record<string, TaskAssignment[]>>({});
 
@@ -87,8 +91,16 @@ export default function TaskTable({
         };
     }, [tasks]);
 
-    function handleTaskClick(taskId: string) {
-        setSelectedTaskId(taskId);
+    async function handleTaskClick(taskId: string) {
+        try {
+            await queryClient.ensureQueryData({
+                queryKey: taskQueryKeys.details(taskId),
+                queryFn: () => fetchTaskDetailsData(taskId),
+            });
+            setSelectedTaskId(taskId);
+        } catch {
+            toast.error("Kunne ikke hente opgave detaljer");
+        }
     }
 
     function handleCloseDrawer() {
@@ -112,7 +124,7 @@ export default function TaskTable({
                         task={task}
                         subtasks={subtasksMap[task.task_id] || []}
                         taskAssignments={taskAssignments}
-                        onTaskClick={handleTaskClick}
+                        onTaskClick={(taskId) => { void handleTaskClick(taskId); }}
                     />
                 ))}
             </DataTable>
