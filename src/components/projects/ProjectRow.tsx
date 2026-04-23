@@ -91,7 +91,7 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
 
             {/* Activity bar */}
             <td className="py-3.5 px-4 hidden sm:table-cell">
-                <ProjectActivityBar tasks={tasks} color={colors.greenMid} />
+                <ProjectActivityBar tasks={tasks} color={colors.greenMid} projectName={project.name} />
             </td>
         </tr>
     );

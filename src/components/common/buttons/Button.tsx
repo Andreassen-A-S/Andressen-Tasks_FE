@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useRef, useContext } from "react";
-import { createPortal } from "react-dom";
+import { useContext } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
 import { DropdownOpenContext } from "@/components/common/DropdownMenu";
 import type { CSSProperties } from "react";
+import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 
 export type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -70,21 +70,6 @@ export default function Button({
 }: ButtonProps) {
   const isDisabled = disabled || loading;
   const dropdownOpen = useContext(DropdownOpenContext);
-  const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number } | null>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  function showTooltip() {
-    if (!tooltip || dropdownOpen) return;
-    const el = buttonRef.current ?? wrapperRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    setTooltipPos({ top: rect.bottom + 4, left: rect.left + rect.width / 2 });
-  }
-
-  function hideTooltip() {
-    setTooltipPos(null);
-  }
 
   const resolvedVariantStyle: CSSProperties =
     variant === "ghost" && dropdownOpen
@@ -95,7 +80,6 @@ export default function Button({
 
   const button = (
     <button
-      ref={buttonRef}
       {...props}
       disabled={isDisabled}
       style={{ ...resolvedVariantStyle, ...style }}
@@ -111,18 +95,12 @@ export default function Button({
         .join(" ")}
       onMouseEnter={(e) => {
         if (!isDisabled) e.currentTarget.style.backgroundColor = resolvedHoverBg;
-        if (!isDisabled) showTooltip();
         onMouseEnter?.(e);
       }}
       onMouseLeave={(e) => {
         if (!isDisabled) e.currentTarget.style.backgroundColor = resolvedVariantStyle.backgroundColor as string;
         if (!isDisabled) e.currentTarget.style.color = resolvedVariantStyle.color as string;
-        hideTooltip();
         onMouseLeave?.(e);
-      }}
-      onClick={(e) => {
-        hideTooltip();
-        props.onClick?.(e);
       }}
     >
       {loading ? (
@@ -139,29 +117,19 @@ export default function Button({
     </button>
   );
 
-  const tooltipPortal = tooltipPos && typeof document !== "undefined" && createPortal(
-    <div
-      className="pointer-events-none fixed -translate-x-1/2 px-2 py-1 rounded-md whitespace-nowrap body-xs animate-in fade-in duration-150 z-[9999]"
-      style={{ top: tooltipPos.top, left: tooltipPos.left, backgroundColor: colors.charcoal, color: colors.textWhite }}
-    >
-      {tooltip}
-    </div>,
-    document.body
-  );
-
   if (!tooltip) return button;
 
   return (
-    <>
-      <div
-        ref={wrapperRef}
-        className={["relative inline-flex", !iconOnly && fullWidth ? "w-full" : ""].filter(Boolean).join(" ")}
-        onMouseEnter={() => { if (isDisabled) showTooltip(); }}
-        onMouseLeave={() => { if (isDisabled) hideTooltip(); }}
-      >
+    <FloatingTooltip
+      content={tooltip}
+      placement="bottom"
+      variant="bare"
+      disabled={dropdownOpen}
+      triggerClassName={!iconOnly && fullWidth ? "w-full" : ""}
+    >
+      <span className={["inline-flex", !iconOnly && fullWidth ? "w-full" : ""].filter(Boolean).join(" ")}>
         {button}
-      </div>
-      {tooltipPortal}
-    </>
+      </span>
+    </FloatingTooltip>
   );
 }

@@ -1,10 +1,13 @@
 "use client";
 
+import { useId } from "react";
+import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 import type { Task } from "@/types/task";
 
 interface Props {
     tasks: Task[];
     color: string;
+    projectName: string;
 }
 
 const WEEKS = 26;
@@ -13,8 +16,10 @@ const H = 28;
 const TOP_PAD = 3;
 const BOT_PAD = 2;
 
-export default function ProjectActivityBar({ tasks, color }: Props) {
+export default function ProjectActivityBar({ tasks, color, projectName }: Props) {
+    const gradientId = useId();
     const now = new Date();
+    const tooltipLabel = `${projectName} seneste 26 ugers aktivitet`;
     const buckets = Array<number>(WEEKS).fill(0);
 
     for (const task of tasks) {
@@ -41,16 +46,24 @@ export default function ProjectActivityBar({ tasks, color }: Props) {
 
     const fillPath = `${linePath} L${W},${H} L0,${H} Z`;
 
+    const sparkline = (
+        <div className="shrink-0" tabIndex={0} aria-label={tooltipLabel}>
+            <svg width={W} height={H}>
+                <defs>
+                    <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity={0.2} />
+                        <stop offset="100%" stopColor={color} stopOpacity={0} />
+                    </linearGradient>
+                </defs>
+                <path d={fillPath} fill={`url(#${gradientId})`} />
+                <path d={linePath} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+            </svg>
+        </div>
+    );
+
     return (
-        <svg width={W} height={H} className="shrink-0">
-            <defs>
-                <linearGradient id={`fill-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity={0.2} />
-                    <stop offset="100%" stopColor={color} stopOpacity={0} />
-                </linearGradient>
-            </defs>
-            <path d={fillPath} fill={`url(#fill-${color.replace("#", "")})`} />
-            <path d={linePath} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
-        </svg>
+        <FloatingTooltip content={tooltipLabel} placement="bottom" variant="bare">
+            {sparkline}
+        </FloatingTooltip>
     );
 }

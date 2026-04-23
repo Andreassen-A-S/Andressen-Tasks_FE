@@ -1,6 +1,5 @@
 "use client";
-import { useState } from "react";
-import Tooltip from "../common/tooltip/Tooltip";
+import FloatingTooltip from "../common/tooltip/FloatingTooltip";
 
 interface StatCardProps {
     title: string;
@@ -23,8 +22,6 @@ export default function StatCard({
     subtitle,
     tooltip,
 }: StatCardProps) {
-    const [showTooltip, setShowTooltip] = useState(false);
-
     const variantStyles = {
         default: "bg-white border-gray-200",
         success: "bg-green-50 border-green-200",
@@ -77,11 +74,9 @@ export default function StatCard({
                     <div className="flex items-center gap-2">
                         <p className={`h4 ${subtitleColors[variant]}`}>{title}</p>
                         {tooltip && (
-                            <div className="relative">
+                            <FloatingTooltip content={tooltip} placement="bottom-start" variant="default">
                                 <button
                                     type="button"
-                                    onMouseEnter={() => setShowTooltip(true)}
-                                    onMouseLeave={() => setShowTooltip(false)}
                                     className="text-gray-400 hover:text-gray-600 transition-colors"
                                     aria-label="More information"
                                 >
@@ -94,12 +89,7 @@ export default function StatCard({
                                         />
                                     </svg>
                                 </button>
-                                {showTooltip && (
-                                    <Tooltip>
-                                        {tooltip}
-                                    </Tooltip>
-                                )}
-                            </div>
+                            </FloatingTooltip>
                         )}
                     </div>
                     <p className={`mt-2 h1 ${textColors[variant]}`}>{value}</p>

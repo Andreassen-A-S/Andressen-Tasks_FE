@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { createPortal } from "react-dom";
 import type { TaskAssignment } from "@/types/assignment";
 import { getInitials, getAvatarColor } from "@/helpers/helpers";
+import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 
 interface TaskAssignedUsersProps {
     assignments: TaskAssignment[];
@@ -18,10 +17,6 @@ export default function TaskAssignedUsers({
     className = "",
     size = "md",
 }: TaskAssignedUsersProps) {
-    const [showTooltip, setShowTooltip] = useState(false);
-    const [pos, setPos] = useState({ bottom: 0, left: 0 });
-    const triggerRef = useRef<HTMLDivElement>(null);
-
     const sizeClasses = {
         sm: {
             skeleton: "w-6 h-6 rounded-md",
@@ -57,21 +52,8 @@ export default function TaskAssignedUsers({
     const visible = assignments.slice(0, maxVisible);
     const remaining = assignments.length - maxVisible;
 
-    function handleMouseEnter() {
-        if (triggerRef.current) {
-            const rect = triggerRef.current.getBoundingClientRect();
-            setPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left });
-        }
-        setShowTooltip(true);
-    }
-
-    return (
-        <div
-            ref={triggerRef}
-            className={`flex items-center relative cursor-pointer ${className}`}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={() => setShowTooltip(false)}
-        >
+    const trigger = (
+        <div className={`flex items-center cursor-pointer ${className}`}>
             <div className={`flex ${currentSize.stack}`}>
                 {visible.map((a, i) => (
                     <div
@@ -88,28 +70,32 @@ export default function TaskAssignedUsers({
                     </div>
                 )}
             </div>
-
-            {showTooltip && typeof document !== "undefined" && createPortal(
-                <div
-                    className="fixed z-[9999] bg-white text-[#1B1D22] rounded-lg p-3 min-w-max border border-[#E8E6E1] animate-in fade-in duration-100"
-                    style={pos}
-                >
-                    <div className="space-y-1">
-                        {assignments.map((a) => (
-                            <div key={a.assignment_id} className="flex items-center gap-2">
-                                <div className={`${currentSize.tooltipAvatar} flex items-center justify-center ${getAvatarColor(a.user.name)}`}>
-                                    {getInitials(a.user.name)}
-                                </div>
-                                <div>
-                                    <div className="h5">{a.user.name}</div>
-                                    <div className="body-xs text-[#6B7084]">{a.user.position}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>,
-                document.body
-            )}
         </div>
+    );
+
+    return (
+        <FloatingTooltip
+            content={
+                <div className="space-y-1">
+                    {assignments.map((a) => (
+                        <div key={a.assignment_id} className="flex items-center gap-2">
+                            <div className={`${currentSize.tooltipAvatar} flex items-center justify-center ${getAvatarColor(a.user.name)}`}>
+                                {getInitials(a.user.name)}
+                            </div>
+                            <div>
+                                <div className="h5">{a.user.name}</div>
+                                <div className="body-xs text-[#6B7084]">{a.user.position}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            }
+            placement="bottom-start"
+            offsetPx={8}
+            variant="card"
+            className="min-w-max"
+        >
+            {trigger}
+        </FloatingTooltip>
     );
 }
