@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getAllAssignments } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
 import Drawer from "@/components/common/Drawer";
@@ -14,6 +13,7 @@ import { toast } from "sonner";
 
 interface TaskTableProps {
     tasks: Task[];
+    taskAssignments: Record<string, TaskAssignment[]>;
     onTaskDelete: (taskId: string) => void;
 }
 
@@ -30,11 +30,11 @@ const columns = [
 
 export default function TaskTable({
     tasks = [],
+    taskAssignments,
     onTaskDelete,
 }: TaskTableProps) {
     const queryClient = useQueryClient();
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-    const [taskAssignments, setTaskAssignments] = useState<Record<string, TaskAssignment[]>>({});
 
     const { parents, subtasksMap } = useMemo(() => {
         const parentList: Task[] = [];
@@ -52,43 +52,6 @@ export default function TaskTable({
         });
 
         return { parents: parentList, subtasksMap: nextSubtasksMap };
-    }, [tasks]);
-
-    useEffect(() => {
-        let active = true;
-
-        async function loadAllAssignments() {
-            try {
-                const assignments = await getAllAssignments();
-                if (!active) return;
-                const map: Record<string, TaskAssignment[]> = {};
-                for (const task of tasks) {
-                    map[task.task_id] = [];
-                }
-                for (const assignment of assignments) {
-                    if (map[assignment.task_id]) {
-                        map[assignment.task_id].push(assignment);
-                    }
-                }
-                setTaskAssignments(map);
-            } catch (err) {
-                console.error("Failed to load assignments:", err);
-                if (!active) return;
-                const emptyMap: Record<string, TaskAssignment[]> = {};
-                for (const task of tasks) {
-                    emptyMap[task.task_id] = [];
-                }
-                setTaskAssignments(emptyMap);
-            }
-        }
-
-        if (tasks.length > 0) {
-            loadAllAssignments();
-        }
-
-        return () => {
-            active = false;
-        };
     }, [tasks]);
 
     async function handleTaskClick(taskId: string) {

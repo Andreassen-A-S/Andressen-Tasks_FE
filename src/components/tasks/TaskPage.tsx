@@ -146,6 +146,7 @@ export default function TaskPage() {
                 ) : (
                     <TaskTable
                         tasks={filteredTasks}
+                        taskAssignments={taskAssignments}
                         onTaskDelete={handleTaskDeleted}
                     />
                 )}
