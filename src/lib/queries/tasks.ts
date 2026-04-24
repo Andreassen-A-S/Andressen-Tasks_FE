@@ -24,7 +24,9 @@ export async function fetchTaskDetailsData(taskId: string): Promise<TaskDetailsD
         getProjects(),
     ]);
 
-    const creator = task.created_by ? await getUser(task.created_by) : null;
+    const creator = task.created_by
+        ? (allUsers.find((u) => u.user_id === task.created_by) ?? await getUser(task.created_by))
+        : null;
 
     return {
         task,

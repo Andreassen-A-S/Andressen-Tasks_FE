@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { UserRole } from "@/types/users";
 import Sidebar from "@/components/sidebar/Sidebar";
 import FullPageLoadingState from "@/components/common/loading/FullPageLoadingState";
 import useDelayedVisibility from "@/hooks/useDelayedVisibility";
@@ -17,17 +18,20 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     const topProgress = useTopProgress();
 
     useEffect(() => {
-        // Wait for auth to complete
         if (isLoading) return;
 
-        // Not authenticated -> go to login
         if (!isAuthenticated && pathname !== "/login") {
             topProgress.start();
             router.push("/login");
             return;
         }
 
-        // Authenticated -> route by role
+        if (isAuthenticated && userRole !== UserRole.ADMIN && pathname !== "/login") {
+            topProgress.start();
+            router.push("/login");
+            return;
+        }
+
         if (isAuthenticated && pathname === "/login") {
             topProgress.start();
             router.push("/");

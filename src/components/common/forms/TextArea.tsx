@@ -65,6 +65,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function TextAre
           color: colors.textPrimary,
           ...style,
         }}
+        {...props}
         onFocus={(e) => {
           setFocused(true);
           props.onFocus?.(e);
@@ -73,7 +74,6 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function TextAre
           setFocused(false);
           props.onBlur?.(e);
         }}
-        {...props}
       />
       {hasTrailing && (
         <div className="flex shrink-0 items-start pr-3 pt-3" style={{ color: colors.textMuted }}>

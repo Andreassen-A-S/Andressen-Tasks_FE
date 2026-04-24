@@ -73,6 +73,7 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
                         trigger={
                             <button
                                 type="button"
+                                aria-label="Projekt handlinger"
                                 className="flex items-center transition-colors cursor-pointer"
                                 style={{ color: colors.textMuted }}
                                 onMouseEnter={(e) => (e.currentTarget.style.color = colors.textSecondary)}

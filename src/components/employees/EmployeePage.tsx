@@ -7,6 +7,7 @@ import EmployeeTable from "./EmployeeTable";
 import EmployeeFilterRow, { type EmployeeSortField, type SortDirection } from "./EmployeeFilterRow";
 import EmployeeCreateModal from "./EmployeeCreateModal";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { colors } from "@/constants/colors";
 import Button from "../common/buttons/Button";
 import PageHeader from "@/components/common/PageHeader";
 import TableSkeleton from "@/components/common/loading/TableSkeleton";
@@ -21,7 +22,7 @@ export default function EmployeePage() {
     const [sortField, setSortField] = useState<EmployeeSortField>("name");
     const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
     const createFormId = "create-employee-form";
-    const { data, isPending } = useQuery({
+    const { data, isPending, isError } = useQuery({
         queryKey: adminQueryKeys.employeesPage,
         queryFn: fetchEmployeesPageData,
     });
@@ -109,6 +110,10 @@ export default function EmployeePage() {
                 />
                 {isPending ? (
                     <TableSkeleton columns={5} rows={8} />
+                ) : isError ? (
+                    <div className="rounded-md border px-6 py-12 text-center" style={{ borderColor: colors.border }}>
+                        <p className="body-md" style={{ color: colors.textMuted }}>Kunne ikke hente medarbejdere. Prøv igen senere.</p>
+                    </div>
                 ) : (
                     <EmployeeTable
                         employees={filteredEmployees}

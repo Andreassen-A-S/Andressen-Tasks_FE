@@ -105,6 +105,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInpu
           color: colors.textPrimary,
           ...style,
         }}
+        {...props}
         onFocus={(e) => {
           setFocused(true);
           props.onFocus?.(e);
@@ -113,7 +114,6 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInpu
           setFocused(false);
           props.onBlur?.(e);
         }}
-        {...props}
       />
       {hasTrailing && (
         <div className={`flex shrink-0 items-center ${currentSize.trailing}`} style={{ color: colors.textMuted }}>
