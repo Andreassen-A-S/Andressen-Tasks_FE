@@ -9,6 +9,7 @@ import FullPageLoadingState from "@/components/common/loading/FullPageLoadingSta
 import useDelayedVisibility from "@/hooks/useDelayedVisibility";
 import { useTopProgress } from "@/components/common/loading/TopProgressProvider";
 
+const PUBLIC_ROUTES = ["/login", "/unauthorized"];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading, userRole } = useAuth();
@@ -17,39 +18,38 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     const showDelayedLoader = useDelayedVisibility(isLoading || !isAuthenticated, 180);
     const topProgress = useTopProgress();
 
+    const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+
     useEffect(() => {
         if (isLoading) return;
 
-        if (!isAuthenticated && pathname !== "/login") {
+        if (!isAuthenticated && !isPublicRoute) {
             topProgress.start();
             router.push("/login");
             return;
         }
 
-        if (isAuthenticated && userRole !== UserRole.ADMIN && pathname !== "/login") {
+        if (isAuthenticated && userRole !== UserRole.ADMIN && pathname !== "/unauthorized") {
             topProgress.start();
-            router.push("/login");
+            router.push("/unauthorized");
             return;
         }
 
-        if (isAuthenticated && pathname === "/login") {
+        if (isAuthenticated && userRole === UserRole.ADMIN && pathname === "/login") {
             topProgress.start();
             router.push("/");
             return;
         }
-    }, [isAuthenticated, isLoading, pathname, router, topProgress, userRole]);
+    }, [isAuthenticated, isLoading, isPublicRoute, pathname, router, topProgress, userRole]);
 
-    // Always show login page immediately
-    if (pathname === "/login") {
+    if (isPublicRoute) {
         return <>{children}</>;
     }
 
-    // Show loading spinner while checking authentication
     if (isLoading) {
         return showDelayedLoader ? <FullPageLoadingState /> : null;
     }
 
-    // Not authenticated -> show loading while redirecting
     if (!isAuthenticated) {
         return showDelayedLoader ? <FullPageLoadingState /> : null;
     }
