@@ -84,8 +84,8 @@ export default function DropdownMenu({ trigger, items }: DropdownMenuProps) {
           >
             {(() => {
               const hasChecked = items.some((i) => i.checked !== undefined);
-              return items.map((item, i) => (
-                <div key={i}>
+              return items.map((item) => (
+                <div key={item.label}>
                   {item.dividerBefore && (
                     <div className="my-1.5" style={{ borderTop: `1px solid ${colors.border}` }} />
                   )}

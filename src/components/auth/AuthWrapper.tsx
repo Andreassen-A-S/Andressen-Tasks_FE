@@ -35,7 +35,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             return;
         }
 
-        if (isAuthenticated && userRole === UserRole.ADMIN && pathname === "/login") {
+        if (isAuthenticated && userRole === UserRole.ADMIN && (pathname === "/login" || pathname === "/unauthorized")) {
             topProgress.start();
             router.push("/");
             return;
