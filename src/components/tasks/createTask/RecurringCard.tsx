@@ -1,4 +1,6 @@
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
+import SelectField from "@/components/common/forms/SelectField";
+import TextInput from "@/components/common/forms/TextInput";
 
 interface RecurringCardProps {
     isRecurring: boolean;
@@ -64,7 +66,7 @@ export default function RecurringCard({
                             <label htmlFor="frequency" className="label-lg mb-2 block">
                                 Gentag hver<span className="text-[#D64545]">*</span>
                             </label>
-                            <select
+                            <SelectField
                                 id="frequency"
                                 value={recurringData.frequency}
                                 onChange={(e) =>
@@ -73,13 +75,12 @@ export default function RecurringCard({
                                         frequency: e.target.value as RecurrenceFrequency,
                                     })
                                 }
-                                className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                             >
                                 <option value={RecurrenceFrequency.DAILY}>Dag</option>
                                 <option value={RecurrenceFrequency.WEEKLY}>Uge</option>
                                 <option value={RecurrenceFrequency.MONTHLY}>Måned</option>
                                 <option value={RecurrenceFrequency.YEARLY}>År</option>
-                            </select>
+                            </SelectField>
                         </div>
 
                         {/* Interval */}
@@ -88,19 +89,20 @@ export default function RecurringCard({
                                 Interval
                             </label>
                             <div className="flex items-center gap-2">
-                                <input
-                                    type="number"
-                                    id="interval"
-                                    min={1}
-                                    value={recurringData.interval}
-                                    onChange={(e) =>
-                                        setRecurringData({
-                                            ...recurringData,
-                                            interval: parseInt(e.target.value) || 1,
-                                        })
-                                    }
-                                    className="block w-20 rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
-                                />
+                                <div className="w-20">
+                                    <TextInput
+                                        type="number"
+                                        id="interval"
+                                        min={1}
+                                        value={recurringData.interval}
+                                        onChange={(e) =>
+                                            setRecurringData({
+                                                ...recurringData,
+                                                interval: parseInt(e.target.value) || 1,
+                                            })
+                                        }
+                                    />
+                                </div>
                                 <span className="body-sm text-[#6B7084]">
                                     {recurringData.frequency === RecurrenceFrequency.DAILY && "dag(e)"}
                                     {recurringData.frequency === RecurrenceFrequency.WEEKLY && "uge(r)"}
@@ -155,7 +157,7 @@ export default function RecurringCard({
                             <label htmlFor="day_of_month" className="label-lg mb-2 block">
                                 Dag i måneden
                             </label>
-                            <input
+                            <TextInput
                                 type="number"
                                 id="day_of_month"
                                 min={1}
@@ -168,7 +170,6 @@ export default function RecurringCard({
                                         day_of_month: e.target.value ? parseInt(e.target.value) : undefined,
                                     })
                                 }
-                                className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white placeholder:text-[#9DA1B4] focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                             />
                             <p className="caption mt-1">
                                 Valgfrit: Lad tom for samme dag hver måned
@@ -181,7 +182,7 @@ export default function RecurringCard({
                         <label htmlFor="start_date" className="label-lg mb-2 block">
                             Start dato<span className="text-[#D64545]">*</span>
                         </label>
-                        <input
+                        <TextInput
                             type="date"
                             id="start_date"
                             required
@@ -189,7 +190,6 @@ export default function RecurringCard({
                             onChange={(e) =>
                                 setRecurringData({ ...recurringData, start_date: e.target.value })
                             }
-                            className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                         />
                     </div>
 
@@ -198,7 +198,7 @@ export default function RecurringCard({
                         <label htmlFor="end_date" className="label-lg mb-2 block">
                             Slut dato (valgfrit)
                         </label>
-                        <input
+                        <TextInput
                             type="date"
                             id="end_date"
                             value={recurringData.end_date ?? ""}
@@ -208,7 +208,6 @@ export default function RecurringCard({
                                     end_date: e.target.value || undefined,
                                 })
                             }
-                            className="block w-full rounded-lg border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                         />
                         <p className="caption mt-1">
                             Lad tom for at fortsætte på ubestemt tid

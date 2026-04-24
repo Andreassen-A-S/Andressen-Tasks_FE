@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
-import SingleAvatar from "../../../common/label/singleAvatar";
+import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
 import { faEllipsis, faTrash, faPencil, faCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -99,7 +99,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
             <div className="flex items-start gap-3">
                 <SingleAvatar name={actorName} size="sm" />
                 <div className="flex-1 rounded-lg overflow-hidden" style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}>
-                    <div className="pl-4 pr-1 py-1 flex items-center gap-1" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.eggWhite }}>
+                    <div className="pl-4 pr-1 py-1 flex items-center gap-1" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.whiteHover }}>
                         <span className="label-lg flex-shrink-0">{actorName}</span>
                         {editedBy ? (
                             <span className="body-xs flex-shrink-0 inline-flex items-center gap-1.5">
@@ -114,7 +114,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                             </>
                         )}
 
-                        <div className="ml-auto flex items-center gap-1 flex-shrink-0">
+                        <div className="ml-auto flex min-h-7 min-w-7 items-center justify-end gap-1 flex-shrink-0">
                             {isTaskOwner && (
                                 <OutlineBadge label="Ejer" tooltip={currentUserId === event.actor_id ? "Du er opgavens ejer" : "Opgavens ejer"} />
                             )}

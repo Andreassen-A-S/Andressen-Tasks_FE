@@ -3,6 +3,19 @@ export enum UserRole {
   ADMIN = "ADMIN",
 }
 
+export const UserPositions = ["Håndmand", "CEO", "Maskinfører", "Revisor"];
+
+export function getUserRoleLabel(role: UserRole): string {
+  switch (role) {
+    case UserRole.ADMIN:
+      return "Administrator";
+    case UserRole.USER:
+      return "Bruger";
+    default:
+      return "Ukendt rolle";
+  }
+}
+
 export interface User {
   user_id: string;
   name: string;

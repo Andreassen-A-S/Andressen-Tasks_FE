@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createSubtask, createTask } from "@/lib/api";
 import type { Task, CreateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
@@ -19,13 +19,24 @@ import ProjectPickerCard from "./ProjectPickerCard";
 import { toast } from "sonner";
 
 interface CreateTaskFormProps {
+    formId: string;
+    onLoadingChange?: (loading: boolean) => void;
+    onSubmitLabelChange?: (label: string) => void;
     onSuccess: (task: Task) => void;
-    onCancel: () => void;
+    onComplete?: () => void;
     parentTaskId?: string;
     parentProjectId?: string;
 }
 
-export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, parentProjectId }: CreateTaskFormProps) {
+export default function CreateTaskForm({
+    formId,
+    onLoadingChange,
+    onSubmitLabelChange,
+    onSuccess,
+    onComplete,
+    parentTaskId,
+    parentProjectId,
+}: CreateTaskFormProps) {
     const { user } = useAuth();
     const [projectId, setProjectId] = useState(parentProjectId ?? "");
     const [formData, setFormData] = useState<Omit<CreateTaskInput, "project_id">>({
@@ -58,6 +69,22 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
     const [error, setError] = useState<string | null>(null);
 
     const isSubtask = !!parentTaskId;
+    const submitLabel = useMemo(() => {
+        if (creationMode === "individual" && formData.assigned_users.length >= 2) {
+            return `Opret ${formData.assigned_users.length} Opgaver`;
+        }
+        if (isRecurring) return "Opret gentagende opgave";
+        if (isSubtask) return "Opret delopgave";
+        return "Opret opgave";
+    }, [creationMode, formData.assigned_users.length, isRecurring, isSubtask]);
+
+    useEffect(() => {
+        onLoadingChange?.(loading);
+    }, [loading, onLoadingChange]);
+
+    useEffect(() => {
+        onSubmitLabelChange?.(submitLabel);
+    }, [onSubmitLabelChange, submitLabel]);
 
     const handleGoalTypeChange = (checked: boolean) => {
         setFormData(prev => ({
@@ -118,7 +145,8 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                 };
 
                 await createRecurringTemplate(templateData);
-                onCancel();
+                toast.success("Gentagende opgave oprettet");
+                onComplete?.();
                 return;
             }
 
@@ -175,7 +203,7 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+        <form id={formId} onSubmit={handleSubmit} className="flex flex-col h-full">
             {/* Info Banner for Subtasks */}
             {isSubtask && (
                 <div className="mb-6 p-4 bg-[#EBF0FD] border-l-4 border-[#2C5FE0] rounded-r-lg">
@@ -267,43 +295,6 @@ export default function CreateTaskForm({ onSuccess, onCancel, parentTaskId, pare
                 </div>
             </div>
 
-            {/* Fixed Footer with Actions */}
-            <div className="mt-6 pt-6 border-t border-[#E8E6E1] bg-white">
-                <div className="flex flex-col-reverse sm:flex-row-reverse gap-3">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="inline-flex w-full justify-center items-center gap-2 rounded-lg bg-[#0f6e56] px-5 py-3 btn-lg text-white
-                        hover:bg-[#0a5551] transition-colors
-                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D9F6F]/30 focus-visible:ring-offset-2
-                        disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
-                    >
-                        {loading ? (
-                            <>
-                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>Opretter...</span>
-                            </>
-                        ) : (
-                            <span>
-                                {creationMode === "individual" && formData.assigned_users.length >= 2
-                                    ? `Opret ${formData.assigned_users.length} Opgaver`
-                                    : `Opret ${isRecurring ? 'Gentagende Opgave' : isSubtask ? 'Delopgave' : 'Opgave'}`}
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        disabled={loading}
-                        className="inline-flex w-full justify-center rounded-lg bg-white px-5 py-3 btn-lg text-[#1B1D22] border-2 border-[#E8E6E1] hover:bg-[#FAFAF7] hover:border-[#E8E6E1] disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
-                    >
-                        Annuller
-                    </button>
-                </div>
-            </div>
         </form>
     );
 }

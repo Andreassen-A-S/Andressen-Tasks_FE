@@ -69,12 +69,12 @@ export default function Modal({
     }
 
     const maxWidthClasses = {
-        sm: "sm:max-w-xs",
-        md: "sm:max-w-md",
-        lg: "sm:max-w-lg",
-        xl: "sm:max-w-xl",
-        "2xl": "sm:max-w-2xl",
-        "3xl": "sm:max-w-3xl",
+        sm: "sm:max-w-md",
+        md: "sm:max-w-lg",
+        lg: "sm:max-w-xl",
+        xl: "sm:max-w-2xl",
+        "2xl": "sm:max-w-3xl",
+        "3xl": "sm:max-w-4xl",
     };
 
     const modalContent = (
@@ -85,43 +85,34 @@ export default function Modal({
             aria-modal="true"
         >
             <div
-                className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+                className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-6"
             >
-                {/* Backdrop */}
                 <div
-                    className="fixed inset-0 bg-black/40 transition-opacity"
+                    className="fixed inset-0 bg-black/30"
                     onClick={handleBackdropClick}
                     aria-hidden="true"
                 ></div>
 
-                {/* Modal panel */}
-                <div className={`relative transform overflow-hidden rounded-lg text-left transition-all sm:my-8 sm:w-full border ${maxWidthClasses[maxWidth]}`} style={{ borderColor: colors.border, backgroundColor: colors.white }}>
-                    {maxWidth === "sm" ? (
-                        <>
-                            <div className="flex items-center justify-between border-b p-3" style={{ borderColor: colors.border }}>
-                                <h3 className="h5" id="modal-title">{title}</h3>
-                                <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} aria-label="Luk" />
-                            </div>
-                            <div className="p-3">{children}</div>
-                            {footer && (
-                                <div className="bg-[#FAFAF7] border-t p-3" style={{ borderColor: colors.border }}>{footer}</div>
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            <div className="px-6 pb-4 pt-6 sm:p-8">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="h3" id="modal-title">{title}</h3>
-                                    <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} aria-label="Luk" />
-                                </div>
-                                <div>{children}</div>
-                            </div>
-                            {footer && (
-                                <div className=" px-6 py-4 sm:px-8 border-t" style={{ borderColor: colors.border, backgroundColor: colors.eggWhite }}>
-                                    {footer}
-                                </div>
-                            )}
-                        </>
+                <div
+                    className={`relative w-full overflow-hidden rounded-xl border text-left ${maxWidthClasses[maxWidth]}`}
+                    style={{ borderColor: colors.border, backgroundColor: colors.white }}
+                >
+                    <div className="flex items-center justify-between gap-4 border-b px-4 py-3" style={{ borderColor: colors.border }}>
+                        <span className={"h5"} id="modal-title">
+                            {title}
+                        </span>
+                        <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} tooltip="Luk panel" className="-mr-1" aria-label="Luk" />
+                    </div>
+                    <div className={"p-4"}>
+                        {children}
+                    </div>
+                    {footer && (
+                        <div
+                            className={"border-t px-4 py-4"}
+                            style={{ borderColor: colors.border }}
+                        >
+                            {footer}
+                        </div>
                     )}
                 </div>
             </div>

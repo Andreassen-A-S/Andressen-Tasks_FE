@@ -1,7 +1,7 @@
 "use client";
 
 import type { PriorityStats } from "@/types/stats";
-import Badge from "@/components/common/label/badge";
+import Badge from "@/components/common/label/Badge";
 import { TaskPriority } from "@/types/task";
 
 interface PriorityChartProps {

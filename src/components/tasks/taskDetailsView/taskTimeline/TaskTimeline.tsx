@@ -6,13 +6,12 @@ import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
 import { UserRole } from "@/types/users";
 import { toast } from "sonner";
-import SingleAvatar from "../../../common/label/singleAvatar";
+import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate, translateStatusLowercase, translateTaskUnit } from "@/helpers/helpers";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { getSubtaskInfo } from "@/helpers/helpers";
 import TaskComment from "../TaskComment";
 import TaskTimelineComment from "./TaskTimelineComment";
+import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
 
 function isCommentEvent(type: string) {
     return type === "COMMENT_CREATED" || type === "COMMENT_DELETED";
@@ -217,9 +216,7 @@ export default function TaskTimeline({ taskId, creatorId, isArchived = false }: 
 
     if (loading) {
         return (
-            <div className="flex justify-center py-6">
-                <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#9DA1B4]" />
-            </div>
+            <InlineLoadingState centered className="py-6" />
         );
     }
 

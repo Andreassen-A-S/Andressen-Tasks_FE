@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate, RecurrenceFrequency } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
@@ -11,13 +11,15 @@ import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
 import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
 import { toast } from "sonner";
+import { colors } from "@/constants/colors";
 
 interface CreateTemplateFormProps {
-    onCancel: () => void;
+    formId: string;
+    onLoadingChange?: (loading: boolean) => void;
     onSuccess: (template: RecurringTemplate) => void;
 }
 
-export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTemplateFormProps) {
+export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess }: CreateTemplateFormProps) {
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -41,6 +43,10 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
     const [projectId, setProjectId] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        onLoadingChange?.(loading);
+    }, [loading, onLoadingChange]);
 
     const handleGoalTypeChange = (checked: boolean) => {
         setFormData(prev => ({
@@ -106,11 +112,17 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
             {/* Error Message */}
             {error && (
-                <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
-                    <p className="text-sm text-red-700">{error}</p>
+                <div
+                    className="rounded-md border px-4 py-3"
+                    style={{
+                        borderColor: colors.red,
+                        backgroundColor: colors.redLight,
+                    }}
+                >
+                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
                 </div>
             )}
 
@@ -159,41 +171,6 @@ export default function CreateTemplateForm({ onCancel, onSuccess }: CreateTempla
                         isSubtask={false}
                         hideToggle={true}
                     />
-                </div>
-            </div>
-            {/* Fixed Footer with Actions */}
-            <div className="mt-6 pt-6 border-t border-gray-200 bg-white">
-                <div className="flex flex-col-reverse sm:flex-row-reverse gap-3">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="inline-flex w-full justify-center items-center gap-2 rounded-lg bg-[#0f6e56] px-5 py-3 btn-lg text-white
-                        hover:bg-[#0a5551] transition-colors
-                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D9F6F]/30 focus-visible:ring-offset-2
-                        disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
-                    >
-                        {loading ? (
-                            <>
-                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>Opretter...</span>
-                            </>
-                        ) : (
-                            <span>
-                                Opret Gentagende Opgave
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        disabled={loading}
-                        className="inline-flex w-full justify-center rounded-lg bg-white px-5 py-3 text-sm font-semibold text-gray-900 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
-                    >
-                        Annuller
-                    </button>
                 </div>
             </div>
         </form>

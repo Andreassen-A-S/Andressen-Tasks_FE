@@ -1,0 +1,52 @@
+"use client";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRepeat } from "@fortawesome/free-solid-svg-icons";
+
+interface RecurringBadgeProps {
+    size?: "sm" | "md" | "lg";
+    iconOnly?: boolean;
+}
+
+const sizeClasses = {
+    sm: "inline-flex items-center h-5 px-2 gap-1.5 badge-sm",
+    md: "inline-flex items-center h-6 px-2.5 gap-1.5 badge-md",
+    lg: "inline-flex items-center h-7 px-3 gap-1.5 badge-lg",
+};
+
+export default function RecurringBadge({ size = "md", iconOnly = false }: RecurringBadgeProps) {
+    const iconOnlyClasses = {
+        sm: "inline-flex items-center justify-center h-5 w-5 badge-sm",
+        md: "inline-flex items-center justify-center h-6 w-6 badge-md",
+        lg: "inline-flex items-center justify-center h-7 w-7 badge-lg",
+    };
+
+    if (size === "sm") {
+        return (
+            <span className={`${iconOnly ? iconOnlyClasses.sm : sizeClasses.sm} badge bg-[#EBF0FD] text-[#2C5FE0] rounded-lg`}>
+                <FontAwesomeIcon icon={faRepeat} className="w-3 h-3" />
+                {!iconOnly && "Gentages"}
+            </span>
+        );
+    }
+
+    if (size === "md") {
+        return (
+            <span className={`${iconOnly ? iconOnlyClasses.md : sizeClasses.md} badge bg-[#EBF0FD] text-[#2C5FE0] rounded-lg`}>
+                <FontAwesomeIcon icon={faRepeat} className="w-3 h-3" />
+                {!iconOnly && "Gentages"}
+            </span>
+        );
+    }
+
+    if (size === "lg") {
+        return (
+            <span className={`${iconOnly ? iconOnlyClasses.lg : sizeClasses.lg} badge bg-[#EBF0FD] text-[#2C5FE0] rounded-lg`}>
+                <FontAwesomeIcon icon={faRepeat} className="w-3 h-3" />
+                {!iconOnly && "Gentages"}
+            </span>
+        );
+    }
+
+    return null;
+}

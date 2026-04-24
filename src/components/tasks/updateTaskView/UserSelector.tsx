@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getUsers } from "@/lib/api";
 import type { User } from "@/types/users";
+import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
 
 interface UserSelectorProps {
     selectedUserIds: string[];
@@ -47,7 +48,7 @@ export default function UserSelector({
         <div>
             <label className="label-lg mb-2 block">{label}</label>
             {loading ? (
-                <div className="body-sm text-[#9DA1B4]">Indlæser medarbejdere...</div>
+                <InlineLoadingState label="Indlæser medarbejdere..." />
             ) : (
                 <div className={`space-y-2 ${maxHeight} overflow-y-auto border border-[#E8E6E1] rounded-lg bg-white p-3`}>
                     {users.length === 0 ? (

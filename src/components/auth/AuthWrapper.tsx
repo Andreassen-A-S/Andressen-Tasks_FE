@@ -3,96 +3,57 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { UserRole } from "@/types/users";
 import Sidebar from "@/components/sidebar/Sidebar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import BottomNav from "../userView/bottomNavBar/BottomNav";
+import FullPageLoadingState from "@/components/common/loading/FullPageLoadingState";
+import useDelayedVisibility from "@/hooks/useDelayedVisibility";
+import { useTopProgress } from "@/components/common/loading/TopProgressProvider";
 
+const PUBLIC_ROUTES = ["/login", "/unauthorized"];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading, userRole } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
+    const showDelayedLoader = useDelayedVisibility(isLoading || !isAuthenticated, 180);
+    const topProgress = useTopProgress();
+
+    const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
     useEffect(() => {
-        // Wait for auth to complete
         if (isLoading) return;
 
-        // Not authenticated -> go to login
-        if (!isAuthenticated && pathname !== "/login") {
+        if (!isAuthenticated && !isPublicRoute) {
+            topProgress.start();
             router.push("/login");
             return;
         }
 
-        // Authenticated -> route by role
-        if (isAuthenticated && pathname === "/login") {
-            if (userRole === "USER") {
-                router.push("/my-tasks");
-            } else if (userRole === "ADMIN") {
-                router.push("/");
-            }
+        if (isAuthenticated && userRole !== UserRole.ADMIN && pathname !== "/unauthorized") {
+            topProgress.start();
+            router.push("/unauthorized");
             return;
         }
 
-        const userAllowedRoutes = [
-            "/my-tasks",
-            "/calendar",
-            "/profile",
-            // Add more allowed routes here
-        ];
-
-        // Prevent users from accessing admin routes
-        if (
-            userRole === "USER" &&
-            !userAllowedRoutes.some(route => pathname === route || pathname.startsWith(route + "/"))
-        ) {
-            router.push("/my-tasks");
-        }
-
-        // Prevent admins from accessing user-only routes
-        if (userRole === "ADMIN" && pathname.startsWith("/my-tasks")) {
+        if (isAuthenticated && userRole === UserRole.ADMIN && (pathname === "/login" || pathname === "/unauthorized")) {
+            topProgress.start();
             router.push("/");
+            return;
         }
-    }, [isAuthenticated, isLoading, pathname, router, userRole]);
+    }, [isAuthenticated, isLoading, isPublicRoute, pathname, router, topProgress, userRole]);
 
-    // Always show login page immediately
-    if (pathname === "/login") {
+    if (isPublicRoute) {
         return <>{children}</>;
     }
 
-    // Show loading spinner while checking authentication
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-background">
-                <div>
-                    <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-[#0f6e56]" />
-                </div>
-            </div>
-        );
+        return showDelayedLoader ? <FullPageLoadingState /> : null;
     }
 
-    // Not authenticated -> show loading while redirecting
     if (!isAuthenticated) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-background">
-                <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-[#0f6e56]" />
-            </div>
-        );
+        return showDelayedLoader ? <FullPageLoadingState /> : null;
     }
 
-    // USER role gets simple layout
-    if (userRole === "USER") {
-        return (
-            <div className="min-h-screen bg-background">
-                <main className="flex-1">
-                    <BottomNav />
-                    {children}
-                </main>
-            </div>
-        );
-    }
-
-    // ADMIN role gets sidebar layout
     return (
         <div className="flex min-h-screen bg-background">
             <Sidebar />

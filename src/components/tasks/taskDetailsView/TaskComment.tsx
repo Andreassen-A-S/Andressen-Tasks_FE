@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import SingleAvatar from "@/components/common/label/singleAvatar";
+import SingleAvatar from "@/components/common/label/SingleAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import Button from "@/components/common/buttons/Button";

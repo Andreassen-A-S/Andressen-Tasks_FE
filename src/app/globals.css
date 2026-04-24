@@ -35,6 +35,23 @@ body[data-scroll-locked="true"] {
 }
 
 
+/* ─── TYPOGRAPHY SYSTEM ───────────────────────────────────────
+Core set for new UI:
+- h1, h2, h3, h4, h5
+- body-md, body-sm, body-xs
+- label-lg, label-md, label-sm
+- caption, overline, table-header
+
+Legacy aliases remain for now so existing UI keeps rendering while usage
+is migrated over time.
+*/
+
+/* Legacy userview-only aliases:
+- h2-color, h2-white, h3-white
+- body-sm-white
+- label-lg-gray, label-lg-white
+*/
+
 /* ─── HEADINGS ──────────────────────────────────────────────── */
 
 .h1 {
@@ -46,47 +63,42 @@ body[data-scroll-locked="true"] {
   color: #1b1d22;
 }
 
-.h2 {
-  font-family: "Outfit", sans-serif;
-  font-weight: 700;
-  font-size: 1.75rem; /* 28px */
-  line-height: 2.125rem; /* 34px */
-  letter-spacing: -0.025em;
-  color: #1b1d22;
-}
-
-.h2-color {
-  font-family: "Outfit", sans-serif;
-  font-weight: 700;
-  font-size: 1.75rem; /* 28px */
-  line-height: 2.125rem; /* 34px */
-  letter-spacing: -0.025em;
-}
-
+.h2,
+.h2-color,
 .h2-white {
   font-family: "Outfit", sans-serif;
   font-weight: 700;
   font-size: 1.75rem; /* 28px */
   line-height: 2.125rem; /* 34px */
   letter-spacing: -0.025em;
-  color: #ffffff;
 }
 
-.h3 {
-  font-family: "Outfit", sans-serif;
-  font-weight: 600;
-  font-size: 1.375rem; /* 22px */
-  line-height: 1.75rem; /* 28px */
-  letter-spacing: -0.02em;
+.h2 {
   color: #1b1d22;
 }
 
+.h2-color {
+  color: inherit;
+}
+
+.h2-white {
+  color: #ffffff;
+}
+
+.h3,
 .h3-white {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
   font-size: 1.375rem; /* 22px */
   line-height: 1.75rem; /* 28px */
   letter-spacing: -0.02em;
+}
+
+.h3 {
+  color: #1b1d22;
+}
+
+.h3-white {
   color: #ffffff;
 }
 
@@ -108,24 +120,7 @@ body[data-scroll-locked="true"] {
   color: #1b1d22;
 }
 
-.h6 {
-  font-family: "Outfit", sans-serif;
-  font-weight: 600;
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
-  letter-spacing: 0;
-  color: #1b1d22;
-}
-
 /* ─── BODY TEXT ─────────────────────────────────────────────── */
-
-.body-lg {
-  font-family: "Outfit", sans-serif;
-  font-weight: 400;
-  font-size: 1.125rem; /* 18px */
-  line-height: 1.75rem; /* 28px */
-  color: #1b1d22;
-}
 
 .body-md {
   font-family: "Outfit", sans-serif;
@@ -135,19 +130,19 @@ body[data-scroll-locked="true"] {
   color: #1b1d22;
 }
 
-.body-sm {
-  font-family: "Outfit", sans-serif;
-  font-weight: 400;
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
-  color: #6b7084;
-}
-
+.body-sm,
 .body-sm-white {
   font-family: "Outfit", sans-serif;
   font-weight: 400;
   font-size: 0.875rem; /* 14px */
   line-height: 1.25rem; /* 20px */
+}
+
+.body-sm {
+  color: #6b7084;
+}
+
+.body-sm-white {
   color: #ffffff;
 }
 
@@ -159,37 +154,26 @@ body[data-scroll-locked="true"] {
   color: #6b7084;
 }
 
-.body-xs-black {
-  font-family: "Outfit", sans-serif;
-  font-weight: 400;
-  font-size: 0.8125rem; /* 13px */
-  line-height: 1.125rem; /* 18px */
-  color: #0a0a0a;
-}
-
 /* ─── LABELS & UI TEXT ──────────────────────────────────────── */
 
-.label-lg {
-  font-family: "Outfit", sans-serif;
-  font-weight: 500;
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
-  color: #1b1d22;
-}
-
-.label-lg-gray {
-  font-family: "Outfit", sans-serif;
-  font-weight: 500;
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
-  color: #6b7084;
-}
-
+.label-lg,
+.label-lg-gray,
 .label-lg-white {
   font-family: "Outfit", sans-serif;
   font-weight: 500;
   font-size: 0.875rem; /* 14px */
   line-height: 1.25rem; /* 20px */
+}
+
+.label-lg {
+  color: #1b1d22;
+}
+
+.label-lg-gray {
+  color: #6b7084;
+}
+
+.label-lg-white {
   color: #ffffff;
 }
 

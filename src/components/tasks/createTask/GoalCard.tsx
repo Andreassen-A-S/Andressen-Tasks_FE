@@ -1,4 +1,6 @@
 import { TaskUnit, TaskGoalType } from "@/types/task";
+import SelectField from "@/components/common/forms/SelectField";
+import TextInput from "@/components/common/forms/TextInput";
 
 interface GoalSectionProps {
     goalType: TaskGoalType | undefined;
@@ -57,7 +59,7 @@ export default function GoalSection({
                             <label htmlFor="target_quantity" className="label-lg mb-2 block">
                                 Mål<span className="text-[#D64545]">*</span>
                             </label>
-                            <input
+                            <TextInput
                                 type="number"
                                 id="target_quantity"
                                 min={0}
@@ -68,7 +70,6 @@ export default function GoalSection({
                                 onChange={(e) =>
                                     onFieldChange('target_quantity', e.target.value === "" ? undefined : Number(e.target.value))
                                 }
-                                className="block w-full rounded-[12px] border border-[#E8E6E1] px-4 py-3 body-md placeholder:text-[#9DA1B4] bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                         </div>
 
@@ -76,7 +77,7 @@ export default function GoalSection({
                             <label htmlFor="unit" className="label-lg mb-2 block">
                                 Enhed
                             </label>
-                            <select
+                            <SelectField
                                 id="unit"
                                 value={unit || TaskUnit.NONE}
                                 onChange={(e) => {
@@ -86,7 +87,6 @@ export default function GoalSection({
                                         onFieldChange('target_quantity', 100);
                                     }
                                 }}
-                                className="block w-full rounded-[12px] border border-[#E8E6E1] px-4 py-3 body-md bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                             >
                                 <option value={TaskUnit.NONE}>Ingen (vis %)</option>
                                 <option value={TaskUnit.METERS}>Meter (m)</option>
@@ -95,7 +95,7 @@ export default function GoalSection({
                                 <option value={TaskUnit.TONS}>Ton (t)</option>
                                 <option value={TaskUnit.LOADS}>Læs</option>
                                 <option value={TaskUnit.PLUGS}>Stik</option>
-                            </select>
+                            </SelectField>
                             <p className="caption mt-1">Valgfrit: Måleenhed for målværdi</p>
                         </div>
                     </div>
@@ -105,7 +105,7 @@ export default function GoalSection({
                         <label htmlFor="current_quantity" className="label-lg mb-2 block">
                             Start fremskridt
                         </label>
-                        <input
+                        <TextInput
                             type="number"
                             id="current_quantity"
                             min={0}
@@ -115,7 +115,6 @@ export default function GoalSection({
                             onChange={(e) =>
                                 onFieldChange('current_quantity', e.target.value === "" ? undefined : Number(e.target.value))
                             }
-                            className="block w-full rounded-[12px] border border-[#E8E6E1] px-4 py-3 body-md placeholder:text-[#9DA1B4] bg-white focus:border-[#2D9F6F] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:outline-none transition-colors"
                         />
                         <p className="caption mt-1">Valgfrit: Sæt allerede udført mængde</p>
                     </div>

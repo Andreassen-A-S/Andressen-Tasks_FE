@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { updateRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
@@ -12,14 +12,16 @@ import RecurringCard from "@/components/tasks/createTask/RecurringCard";
 import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
 import { UpdateRecurringTemplateInput } from "@/types/recuringTemplate";
 import { toast } from "sonner";
+import { colors } from "@/constants/colors";
 
 interface UpdateTemplateFormProps {
+    formId: string;
+    onLoadingChange?: (loading: boolean) => void;
     template: RecurringTemplate;
-    onCancel: () => void;
     onSuccess: (template: RecurringTemplate) => void;
 }
 
-export default function UpdateTemplateForm({ template, onCancel, onSuccess }: UpdateTemplateFormProps) {
+export default function UpdateTemplateForm({ formId, onLoadingChange, template, onSuccess }: UpdateTemplateFormProps) {
 
     const [formData, setFormData] = useState({
         title: template.title,
@@ -44,6 +46,10 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
     const [projectId, setProjectId] = useState(template.project_id);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        onLoadingChange?.(loading);
+    }, [loading, onLoadingChange]);
 
     const handleGoalTypeChange = (checked: boolean) => {
         setFormData(prev => ({
@@ -114,11 +120,17 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
 
 
     return (
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
             {/* Error Message */}
             {error && (
-                <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg mb-4">
-                    <p className="text-sm text-red-700">{error}</p>
+                <div
+                    className="mb-4 rounded-md border px-4 py-3"
+                    style={{
+                        borderColor: colors.red,
+                        backgroundColor: colors.redLight,
+                    }}
+                >
+                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
                 </div>
             )}
 
@@ -167,39 +179,6 @@ export default function UpdateTemplateForm({ template, onCancel, onSuccess }: Up
                         isSubtask={false}
                         hideToggle={true}
                     />
-                </div>
-            </div>
-
-            {/* Fixed Footer with Actions */}
-            <div className="mt-6 pt-6 border-t border-gray-200 bg-white">
-                <div className="flex flex-col-reverse sm:flex-row-reverse gap-3">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="inline-flex w-full justify-center items-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
-                    >
-                        {loading ? (
-                            <>
-                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>Opdaterer...</span>
-                            </>
-                        ) : (
-                            <span>
-                                Gem Ændringer
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        disabled={loading}
-                        className="inline-flex w-full justify-center rounded-lg bg-white px-5 py-3 text-sm font-semibold text-gray-900 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all sm:w-auto"
-                    >
-                        Annuller
-                    </button>
                 </div>
             </div>
         </form>

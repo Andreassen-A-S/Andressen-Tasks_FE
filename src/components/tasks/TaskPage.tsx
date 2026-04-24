@@ -1,176 +1,166 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { getTasks, getProjects } from "@/lib/api";
-import { TaskGoalType, TaskPriority, type Task } from "@/types/task";
-import type { Project } from "@/types/project";
-import TaskList from "./taskList/TaskList";
-import CreateTaskForm from "./createTask/CreateTaskForm";
-import Modal from "../modal/Modal";
-import Drawer from "../drawer/drawer";
-import TaskDetails from "./taskDetailsView/TaskDetails";
+import { useCallback, useMemo, useState } from "react";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { TaskPriority, TaskStatus } from "@/types/task";
+import TaskTable from "./TaskTable";
+import TaskFilterRow, { type SortDirection, type TaskSortField } from "./TaskFilterRow";
+import TaskCreateModal from "./TaskCreateModal";
+import Button from "../common/buttons/Button";
+import PageHeader from "@/components/common/PageHeader";
+import TableSkeleton from "@/components/common/loading/TableSkeleton";
+import { adminQueryKeys, fetchTasksPageData, type TasksPageData } from "@/lib/queries/admin";
 
 export default function TaskPage() {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-    const [filter, setFilter] = useState<'all' | 'recurring' | 'highPriority' | 'fixedGoal' | 'hasSubtasks'>('all');
-    const [projectFilter, setProjectFilter] = useState<string>('all');
+    const [createLoading, setCreateLoading] = useState(false);
+    const [createSubmitLabel, setCreateSubmitLabel] = useState("Opret opgave");
+    const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
+    const [projectFilter, setProjectFilter] = useState<string>("all");
+    const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
+    const [creatorFilter, setCreatorFilter] = useState<string>("all");
+    const [sortField, setSortField] = useState<TaskSortField>("created_at");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-    type FilterKey = "all" | "recurring" | "highPriority" | "fixedGoal" | "hasSubtasks";
+    const createFormId = "create-task-form";
+    const { data, isPending } = useQuery({
+        queryKey: adminQueryKeys.tasksPage,
+        queryFn: fetchTasksPageData,
+    });
 
-    const filterOptions: { key: FilterKey; label: string; count: number }[] = [
-        { key: 'all', label: 'Alle', count: tasks.length },
-        { key: 'recurring', label: 'Gentages', count: tasks.filter(t => t.recurring_template_id !== null).length },
-        { key: 'highPriority', label: 'Høj prioritet', count: tasks.filter(t => t.priority === TaskPriority.HIGH).length },
-        { key: 'fixedGoal', label: 'Mål-opgaver', count: tasks.filter(t => t.goal_type === TaskGoalType.FIXED).length },
-        {
-            key: 'hasSubtasks',
-            label: 'Har delopgaver',
-            count: tasks.filter(parent =>
-                tasks.some(t => t.parent_task_id === parent.task_id)
-            ).length
-        },
-    ];
+    const tasks = useMemo(() => data?.tasks ?? [], [data?.tasks]);
+    const projects = useMemo(() => data?.projects ?? [], [data?.projects]);
+    const users = useMemo(() => data?.users ?? [], [data?.users]);
+    const taskAssignments = useMemo(() => data?.taskAssignments ?? {}, [data?.taskAssignments]);
 
-    const loadTasks = useCallback(async () => {
-        try {
-            setLoading(true);
-            const [tasksResult, projectsResult] = await Promise.allSettled([getTasks(), getProjects()]);
-            if (tasksResult.status === "fulfilled") setTasks(tasksResult.value);
-            if (projectsResult.status === "fulfilled") setProjects(projectsResult.value);
-        } catch (error) {
-            console.error("Failed to load tasks:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const filteredTasks = useMemo(() => {
+        const filtered = tasks.filter((task) => {
+            if (statusFilter !== "all" && task.status !== statusFilter) return false;
+            if (projectFilter !== "all" && task.project_id !== projectFilter) return false;
+            if (creatorFilter !== "all" && task.created_by !== creatorFilter) return false;
+            if (assigneeFilter !== "all") {
+                const assignments = taskAssignments[task.task_id] ?? [];
+                if (!assignments.some((assignment) => assignment.user_id === assigneeFilter)) return false;
+            }
+            return true;
+        });
 
-    useEffect(() => {
-        loadTasks();
-    }, [loadTasks]);
+        return [...filtered].sort((a, b) => {
+            let result = 0;
+
+            switch (sortField) {
+                case "deadline":
+                    result = a.deadline.localeCompare(b.deadline);
+                    break;
+                case "start_date":
+                    result = a.start_date.localeCompare(b.start_date);
+                    break;
+                case "priority": {
+                    const order = {
+                        [TaskPriority.HIGH]: 3,
+                        [TaskPriority.MEDIUM]: 2,
+                        [TaskPriority.LOW]: 1,
+                    };
+                    result = order[a.priority] - order[b.priority];
+                    break;
+                }
+                case "title":
+                    result = a.title.localeCompare(b.title, "da");
+                    break;
+                case "created_at":
+                default:
+                    result = a.created_at.localeCompare(b.created_at);
+                    break;
+            }
+
+            return sortDirection === "asc" ? result : -result;
+        });
+    }, [assigneeFilter, creatorFilter, projectFilter, sortDirection, sortField, statusFilter, taskAssignments, tasks]);
 
     const handleTaskCreated = useCallback(() => {
-        loadTasks();
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         setShowCreateModal(false);
-    }, [loadTasks]);
+    }, [queryClient]);
 
     const handleTaskDeleted = useCallback((taskId: string) => {
-        setTasks((prev) => prev.filter((t) => t.task_id !== taskId));
-    }, []);
+        queryClient.setQueryData<TasksPageData>(adminQueryKeys.tasksPage, (current) => {
+            if (!current) return current;
 
-    const handleDrawerClose = useCallback(() => {
-        setSelectedTaskId(null);
-    }, []);
+            const nextAssignments = { ...current.taskAssignments };
+            delete nextAssignments[taskId];
 
-    if (loading) {
-        return <div className="p-8">Indlæser opgaver...</div>;
-    }
+            return {
+                ...current,
+                tasks: current.tasks.filter((task) => task.task_id !== taskId),
+                taskAssignments: nextAssignments,
+            };
+        });
+    }, [queryClient]);
+
+    const clearFilters = useCallback(() => {
+        setStatusFilter("all");
+        setProjectFilter("all");
+        setAssigneeFilter("all");
+        setCreatorFilter("all");
+    }, []);
 
     return (
         <div className="min-h-screen">
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="space-y-2">
-                        <h1 className="h1 flex items-center gap-3">
-                            Opgaver
-                        </h1>
-                        <p className="body-sm">
-                            {/* num of taks and num of task with status high */}
-                            {tasks.length} opgaver - {tasks.filter(t => t.priority === TaskPriority.HIGH).length}  med høj prioritet
-                        </p>
-                    </div>
-                    <button
+            <PageHeader
+                title="Opgaver"
+                subtitle={`${tasks.length} opgaver`}
+                action={
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        icon={faPlus}
                         onClick={() => setShowCreateModal(true)}
-                        className="inline-flex btn-lg items-center gap-2 px-5 py-3 bg-[#0f6e56] text-white font-semibold rounded-lg hover:bg-[#0a5551] transition-colors"
                     >
-                        <FontAwesomeIcon icon={faPlus} size="sm" />
                         Ny opgave
-                    </button>
-                </div>
-            </div>
+                    </Button>
+                }
+            />
 
-            {/* Filter Tabs */}
-            <div className="mx-8 px-4 sm:px-6 lg:px-8 py-2">
-                <div className="flex flex-wrap items-center gap-2">
-                    {filterOptions.map(({ key, label }) => (
-                        <button
-                            key={key}
-                            onClick={() => setFilter(key)}
-                            className={`label-lg-gray px-4 py-2 rounded-lg transition-colors cursor-pointer ${filter === key
-                                ? 'bg-gray-900 label-lg-white'
-                                : 'bg-transparent border border-gray-200 hover:border-gray-300'
-                                }`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                    {projects.length > 0 && (
-                        <div className="relative inline-flex">
-                            <select
-                                value={projectFilter}
-                                onChange={(e) => setProjectFilter(e.target.value)}
-                                className={`appearance-none label-lg-gray pl-4 pr-8 py-2 rounded-lg border transition-colors cursor-pointer ${projectFilter !== 'all'
-                                    ? 'bg-gray-900 label-lg-white border-gray-900'
-                                    : 'bg-transparent border-gray-200 hover:border-gray-300'
-                                    }`}
-                            >
-                                <option value="all">Alle projekter</option>
-                                {projects.map((p) => (
-                                    <option key={p.project_id} value={p.project_id}>{p.name}</option>
-                                ))}
-                            </select>
-                            <FontAwesomeIcon
-                                icon={faChevronDown}
-
-                                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 text-gray-500"
-                                size="xs"
-                            />
-                        </div>
-                    )}
-                </div>
-            </div>
-
-
-            {/* content */}
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
-                <TaskList
-                    tasks={tasks.filter(t => {
-                        if (projectFilter !== 'all' && t.project_id !== projectFilter) return false;
-                        if (filter === 'recurring') return t.recurring_template_id !== null;
-                        if (filter === 'highPriority') return t.priority === TaskPriority.HIGH;
-                        if (filter === 'fixedGoal') return t.goal_type === TaskGoalType.FIXED;
-                        if (filter === 'hasSubtasks') {
-                            const isParentWithSubtasks = tasks.some(st => st.parent_task_id === t.task_id);
-                            const isSubtask = t.parent_task_id !== null;
-                            return isParentWithSubtasks || isSubtask;
-                        }
-                        return true;
-                    })}
-                    onTaskDelete={handleTaskDeleted}
+            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
+                <TaskFilterRow
+                    projects={projects}
+                    users={users}
+                    statusFilter={statusFilter}
+                    projectFilter={projectFilter}
+                    assigneeFilter={assigneeFilter}
+                    creatorFilter={creatorFilter}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onStatusFilterChange={setStatusFilter}
+                    onProjectFilterChange={setProjectFilter}
+                    onAssigneeFilterChange={setAssigneeFilter}
+                    onCreatorFilterChange={setCreatorFilter}
+                    onSortFieldChange={setSortField}
+                    onSortDirectionChange={setSortDirection}
+                    onClearFilters={clearFilters}
                 />
-
-                <Drawer open={!!selectedTaskId} onClose={handleDrawerClose}>
-                    {selectedTaskId && (
-                        <TaskDetails taskId={selectedTaskId} onClose={handleDrawerClose} />
-                    )}
-                </Drawer>
-
-                <Modal
-                    isOpen={showCreateModal}
-                    onClose={() => setShowCreateModal(false)}
-                    title="Opret Ny Opgave"
-                    maxWidth="3xl"
-                >
-                    <CreateTaskForm
-                        onSuccess={handleTaskCreated}
-                        onCancel={() => setShowCreateModal(false)}
+                {isPending ? (
+                    <TableSkeleton columns={7} rows={8} />
+                ) : (
+                    <TaskTable
+                        tasks={filteredTasks}
+                        taskAssignments={taskAssignments}
+                        onTaskDelete={handleTaskDeleted}
                     />
-                </Modal>
+                )}
+
+                <TaskCreateModal
+                    isOpen={showCreateModal}
+                    loading={createLoading}
+                    formId={createFormId}
+                    submitLabel={createSubmitLabel}
+                    onClose={() => setShowCreateModal(false)}
+                    onLoadingChange={setCreateLoading}
+                    onSubmitLabelChange={setCreateSubmitLabel}
+                    onSuccess={handleTaskCreated}
+                />
             </div>
         </div>
     );

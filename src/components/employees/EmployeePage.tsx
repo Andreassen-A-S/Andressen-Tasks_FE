@@ -1,95 +1,135 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { getUsers } from "@/lib/api";
-import type { User } from "@/types/users";
-import EmployeeList from "./EmployeeList";
-import Modal from "../modal/Modal";
-import CreateEmployeeForm from "./CreateEmployeeForm";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState, useCallback, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { UserRole, getUserRoleLabel } from "@/types/users";
+import EmployeeTable from "./EmployeeTable";
+import EmployeeFilterRow, { type EmployeeSortField, type SortDirection } from "./EmployeeFilterRow";
+import EmployeeCreateModal from "./EmployeeCreateModal";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { colors } from "@/constants/colors";
+import Button from "../common/buttons/Button";
+import PageHeader from "@/components/common/PageHeader";
+import TableSkeleton from "@/components/common/loading/TableSkeleton";
+import { adminQueryKeys, fetchEmployeesPageData, type EmployeesPageData } from "@/lib/queries/admin";
 
 export default function EmployeePage() {
-    const [employees, setEmployees] = useState<User[]>([]);
+    const queryClient = useQueryClient();
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [createLoading, setCreateLoading] = useState(false);
+    const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
+    const [positionFilter, setPositionFilter] = useState<string>("all");
+    const [sortField, setSortField] = useState<EmployeeSortField>("name");
+    const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+    const createFormId = "create-employee-form";
+    const { data, isPending, isError } = useQuery({
+        queryKey: adminQueryKeys.employeesPage,
+        queryFn: fetchEmployeesPageData,
+    });
 
-    const loadEmployees = useCallback(async () => {
-        setLoading(true);
-        try {
-            const users = await getUsers();
-            setEmployees(users);
-        } catch (error) {
-            console.error("Failed to load employees:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        loadEmployees();
-    }, [loadEmployees]);
+    const employees = useMemo(() => data?.employees ?? [], [data?.employees]);
 
     const handleEmployeeCreated = useCallback(() => {
-        loadEmployees();
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.employeesPage });
         setShowCreateModal(false);
-    }, [loadEmployees]);
+    }, [queryClient]);
 
     const handleEmployeeDeleted = useCallback((userId: string) => {
-        setEmployees((prev) => prev.filter((e) => e.user_id !== userId));
-    }, []);
+        queryClient.setQueryData<EmployeesPageData>(adminQueryKeys.employeesPage, (current) => {
+            if (!current) return current;
+            return {
+                ...current,
+                employees: current.employees.filter((employee) => employee.user_id !== userId),
+            };
+        });
+    }, [queryClient]);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Indlæser medarbejdere...</p>
-                </div>
-            </div>
-        );
-    }
+    const positionOptions = useMemo(
+        () =>
+            [...new Set(employees.map((employee) => employee.position).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, "da")),
+        [employees]
+    );
+
+    const filteredEmployees = useMemo(() => {
+        const filtered = employees.filter((employee) => {
+            if (roleFilter !== "all" && employee.role !== roleFilter) return false;
+            if (positionFilter !== "all" && employee.position !== positionFilter) return false;
+            return true;
+        });
+
+        return [...filtered].sort((a, b) => {
+            let result = 0;
+            switch (sortField) {
+                case "position":
+                    result = (a.position || "").localeCompare(b.position || "", "da"); break;
+                case "role":
+                    result = getUserRoleLabel(a.role).localeCompare(getUserRoleLabel(b.role), "da"); break;
+                case "name":
+                default:
+                    result = a.name.localeCompare(b.name, "da"); break;
+            }
+            return sortDirection === "asc" ? result : -result;
+        });
+    }, [employees, positionFilter, roleFilter, sortDirection, sortField]);
+
+    const clearFilters = useCallback(() => {
+        setRoleFilter("all");
+        setPositionFilter("all");
+    }, []);
 
     return (
         <div className="min-h-screen">
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="space-y-2">
-                        <h1 className="h1 flex items-center gap-3">
-                            Medarbejdere
-                        </h1>
-                        <p className="body-sm">
-                            {/* num of taks and num of task with status high */}
-                            {employees.length} medarbejdere
-                        </p>
-                    </div>
-                    <button
+            <PageHeader
+                title="Medarbejdere"
+                subtitle={`${employees.length} medarbejdere`}
+                action={
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        icon={faPlus}
                         onClick={() => setShowCreateModal(true)}
-                        className="inline-flex btn-lg items-center gap-2 px-5 py-3 bg-[#0f6e56] text-white font-semibold rounded-lg hover:bg-[#0a5551] transition-colors"
                     >
-                        <FontAwesomeIcon icon={faPlus} size="sm" />
                         Ny medarbejder
-                    </button>
-                </div>
-            </div>
+                    </Button>
+                }
+            />
 
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
-                <EmployeeList
-                    employees={employees}
-                    onEmployeeUpdate={loadEmployees}
-                    onEmployeeDelete={handleEmployeeDeleted} />
-
-                <Modal
-                    isOpen={showCreateModal}
-                    onClose={() => setShowCreateModal(false)}
-                    title="Opret Ny Medarbejder"
-                    maxWidth="xl"
-                >
-                    <CreateEmployeeForm
-                        onSuccess={handleEmployeeCreated}
-                        onCancel={() => setShowCreateModal(false)}
+            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
+                <EmployeeFilterRow
+                    roleFilter={roleFilter}
+                    positionFilter={positionFilter}
+                    positionOptions={positionOptions}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onRoleFilterChange={setRoleFilter}
+                    onPositionFilterChange={setPositionFilter}
+                    onSortFieldChange={setSortField}
+                    onSortDirectionChange={setSortDirection}
+                    onClearFilters={clearFilters}
+                />
+                {isPending ? (
+                    <TableSkeleton columns={5} rows={8} />
+                ) : isError ? (
+                    <div className="rounded-md border px-6 py-12 text-center" style={{ borderColor: colors.border }}>
+                        <p className="body-md" style={{ color: colors.textMuted }}>Kunne ikke hente medarbejdere. Prøv igen senere.</p>
+                    </div>
+                ) : (
+                    <EmployeeTable
+                        employees={filteredEmployees}
+                        onEmployeeUpdate={() => queryClient.invalidateQueries({ queryKey: adminQueryKeys.employeesPage })}
+                        onEmployeeDelete={handleEmployeeDeleted}
                     />
-                </Modal>
+                )}
+
+                <EmployeeCreateModal
+                    isOpen={showCreateModal}
+                    loading={createLoading}
+                    formId={createFormId}
+                    onClose={() => setShowCreateModal(false)}
+                    onLoadingChange={setCreateLoading}
+                    onSuccess={handleEmployeeCreated}
+                />
             </div>
         </div>
 

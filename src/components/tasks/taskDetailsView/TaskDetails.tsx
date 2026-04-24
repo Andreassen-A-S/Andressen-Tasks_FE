@@ -1,14 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getTask, getUser, getUsers, updateTask, getTaskAssignments, getProjects } from "@/lib/api";
-import type { Task } from "@/types/task";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { updateTask, getTaskAssignments } from "@/lib/api";
 import { TaskStatus, TaskPriority, TaskGoalType, TaskUnit } from "@/types/task";
-import type { User } from "@/types/users";
 import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit } from "@/helpers/helpers";
-import type { Project } from "@/types/project";
-
-import type { TaskAssignment } from "@/types/assignment";
 
 import Modal from "@/components/modal/Modal";
 import CreateTaskForm from "@/components/tasks/createTask/CreateTaskForm";
@@ -22,10 +18,10 @@ import {
     faXmark,
     faBoxArchive,
 } from "@fortawesome/free-solid-svg-icons";
-import Badge from "../../common/label/badge";
+import Badge from "../../common/label/Badge";
 import ProjectBadge from "../../common/label/ProjectBadge";
-import SingleAvatar from "../../common/label/singleAvatar";
-import RecurringBadge from "../../common/label/recurringBadge";
+import SingleAvatar from "../../common/label/SingleAvatar";
+import RecurringBadge from "../../common/label/RecurringBadge";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";
 import TaskDescriptionCard from "./TaskDescriptionCard";
 import Button from "@/components/common/buttons/Button";
@@ -39,6 +35,10 @@ import { getTaskAttachments } from "@/lib/api";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import TaskDetailsLoadingState from "./TaskDetailsLoadingState";
+import useDelayedVisibility from "@/hooks/useDelayedVisibility";
+import { adminQueryKeys } from "@/lib/queries/admin";
+import { fetchTaskDetailsData, taskQueryKeys, type TaskDetailsData } from "@/lib/queries/tasks";
 
 
 interface TaskDetailsProps {
@@ -64,19 +64,26 @@ const STATUS_OPTIONS = [
 ].map((s) => ({ value: s, label: sc(translateStatus(s)), color: getStatusAccentColors(s) }));
 
 export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsProps) {
-    const [task, setTask] = useState<Task | null>(null);
-    const [creator, setCreator] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
+    const subtaskFormId = "create-subtask-form";
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
-    const [assignments, setAssignments] = useState<TaskAssignment[]>([]);
-    const [allUsers, setAllUsers] = useState<User[]>([]);
-    const [projects, setProjects] = useState<Project[]>([]);
+    const [subtaskCreateLoading, setSubtaskCreateLoading] = useState(false);
+    const [subtaskSubmitLabel, setSubtaskSubmitLabel] = useState("Opret delopgave");
     const [isDownloading, setIsDownloading] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const { data, isLoading, error } = useQuery({
+        queryKey: taskQueryKeys.details(taskId),
+        queryFn: () => fetchTaskDetailsData(taskId),
+    });
+    const showDelayedLoader = useDelayedVisibility(isLoading, 180);
 
     const [openPicker, setOpenPicker] = useState<{ key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal"; triggerEl: HTMLButtonElement } | null>(null);
+    const task = data?.task ?? null;
+    const creator = data?.creator ?? null;
+    const assignments = data?.assignments ?? [];
+    const allUsers = data?.allUsers ?? [];
+    const projects = data?.projects ?? [];
 
     function togglePicker(key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal", triggerEl: HTMLButtonElement) {
         if (isArchived) return;
@@ -86,34 +93,6 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     function closePicker() {
         setOpenPicker(null);
     }
-
-    useEffect(() => {
-        const fetchTask = async () => {
-            try {
-                setIsLoading(true);
-                const [taskData, assignmentData, userData, projectData] = await Promise.all([
-                    getTask(taskId),
-                    getTaskAssignments(taskId),
-                    getUsers(),
-                    getProjects(),
-                ]);
-                setTask(taskData);
-                setAssignments(assignmentData);
-                setAllUsers(userData);
-                setProjects(projectData);
-                if (taskData.created_by) {
-                    const creatorData = await getUser(taskData.created_by);
-                    setCreator(creatorData);
-                }
-            } catch {
-                setError("Kunne ikke hente opgave detaljer");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        if (taskId) fetchTask();
-    }, [taskId]);
 
     async function handleDownloadAllImages() {
         if (!task || isDownloading) return;
@@ -147,7 +126,8 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         if (!task) return;
         try {
             const updated = await updateTask(task.task_id, { priority: value as TaskPriority });
-            setTask(updated);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere prioritet");
         }
@@ -158,12 +138,20 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         try {
             const updated = await updateTask(task.task_id, { project_id: value });
             const selectedProject = projects.find((project) => project.project_id === value);
-            setTask({
-                ...updated,
-                project: selectedProject
-                    ? { name: selectedProject.name, color: selectedProject.color ?? null }
-                    : updated.project,
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => {
+                if (!current) return current;
+                return {
+                    ...current,
+                    task: {
+                        ...updated,
+                        project: selectedProject
+                            ? { name: selectedProject.name, color: selectedProject.color ?? null }
+                            : updated.project,
+                    },
+                };
             });
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.projectsPage });
         } catch {
             toast.error("Kunne ikke opdatere projekt");
         }
@@ -173,7 +161,9 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         if (!task) return;
         try {
             const updated = await updateTask(task.task_id, { status: value as TaskStatus });
-            setTask(updated);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.statsPage });
         } catch {
             toast.error("Kunne ikke opdatere status");
         }
@@ -184,7 +174,8 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         try {
             if (!isoDate) return;
             const updated = await updateTask(task.task_id, { start_date: isoDate + "T00:00:00.000Z" });
-            setTask(updated);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere startdato");
         }
@@ -195,7 +186,8 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         try {
             if (!isoDate) return;
             const updated = await updateTask(task.task_id, { deadline: isoDate + "T00:00:00.000Z" });
-            setTask(updated);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere deadline");
         }
@@ -206,7 +198,8 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         try {
             await updateTask(task.task_id, { assigned_users: userIds });
             const updated = await getTaskAssignments(task.task_id);
-            setAssignments(updated);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, assignments: updated } : current);
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere tildelte brugere");
         }
@@ -221,10 +214,23 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         if (!task) return;
         try {
             const updated = await updateTask(task.task_id, input);
-            setTask(updated);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere mål");
             throw new Error("goal-update-failed");
+        }
+    }
+
+    async function handleDescriptionSave(description: string) {
+        if (!task) return;
+        try {
+            const updated = await updateTask(task.task_id, { description });
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+        } catch {
+            toast.error("Kunne ikke opdatere beskrivelse");
+            throw new Error("description-update-failed");
         }
     }
 
@@ -240,6 +246,10 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         try {
             const { deleteTask } = await import("@/lib/api");
             await deleteTask(task.task_id);
+            queryClient.removeQueries({ queryKey: taskQueryKeys.details(task.task_id) });
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.projectsPage });
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.statsPage });
             onDelete?.(task.task_id);
             setConfirmDeleteOpen(false);
             onClose();
@@ -251,18 +261,14 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     }
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <span className="body-sm">Indlæser...</span>
-            </div>
-        );
+        return showDelayedLoader ? <TaskDetailsLoadingState /> : null;
     }
 
     if (error || !task) {
         return (
             <div className="h-full flex flex-col">
                 <div className="p-6 bg-red-50 border-b border-red-200">
-                    <span className="label-lg text-red-800">{error || "Opgave ikke fundet"}</span>
+                    <span className="label-lg text-red-800">{error instanceof Error ? error.message : error || "Opgave ikke fundet"}</span>
                 </div>
             </div>
         );
@@ -327,13 +333,14 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                             showSubtaskButton={task.parent_task_id == null}
                             onAddSubtask={() => setShowSubtaskModal(true)}
                             isArchived={isArchived}
+                            onSaveDescription={handleDescriptionSave}
                         />
                         <TaskTimeline taskId={task.task_id} creatorId={task.created_by} isArchived={isArchived} />
                         <div className="h-12" />
                     </div>
 
                     {/* Sidebar */}
-                    <div className="w-64 py-6 self-start" style={{ position: "sticky", top: 0 }}>
+                    <div className="w-70 py-6 self-start" style={{ position: "sticky", top: 0 }}>
                         <div>
                             <div>
 
@@ -601,10 +608,35 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                 onClose={() => setShowSubtaskModal(false)}
                 title="Tilføj underopgave"
                 maxWidth="3xl"
+                footer={
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row-reverse">
+                        <Button
+                            type="submit"
+                            form={subtaskFormId}
+                            loading={subtaskCreateLoading}
+                            variant="primary"
+                            size="md"
+                        >
+                            {subtaskSubmitLabel}
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => setShowSubtaskModal(false)}
+                            disabled={subtaskCreateLoading}
+                            variant="secondary"
+                            size="md"
+                        >
+                            Annuller
+                        </Button>
+                    </div>
+                }
             >
                 <CreateTaskForm
+                    formId={subtaskFormId}
+                    onLoadingChange={setSubtaskCreateLoading}
+                    onSubmitLabelChange={setSubtaskSubmitLabel}
                     onSuccess={() => setShowSubtaskModal(false)}
-                    onCancel={() => setShowSubtaskModal(false)}
+                    onComplete={() => setShowSubtaskModal(false)}
                     parentTaskId={task.task_id}
                     parentProjectId={task.project_id}
                 />

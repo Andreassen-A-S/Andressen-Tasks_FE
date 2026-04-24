@@ -5,6 +5,7 @@ import Image from "next/image";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAuth } from "@/hooks/useAuth";
+import { colors } from "@/constants/colors";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#f6f5f1] flex flex-col items-center justify-center px-4">
+        <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ backgroundColor: colors.eggWhite }}>
             <div className="w-full max-w-sm">
                 {/* Logo & branding */}
                 <div className="flex flex-col items-center mb-8">
@@ -42,7 +43,7 @@ export default function LoginPage() {
                         height={56}
                         className="rounded-lg mb-4"
                     />
-                    <h1 className="h2" style={{ color: "#1b1d22" }}>Andreassen TMS</h1>
+                    <h1 className="h2" style={{ color: colors.textPrimary }}>Andreassen TMS</h1>
                     <p className="body-sm mt-1">Log ind for at fortsætte</p>
                 </div>
 
@@ -61,7 +62,8 @@ export default function LoginPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="navn@andreassen.dk"
-                                className=" label-lg-gray w-full px-3.5 py-2.5 rounded-lg border border-gray-200 body-md bg-white focus:outline-none focus:ring-2 focus:ring-[#0f6e56] focus:border-transparent transition placeholder-gray-300"
+                                className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 body-md bg-white focus:outline-none focus:ring-2 focus:ring-[#0f6e56] focus:border-transparent transition placeholder-gray-300"
+                                style={{ color: colors.textSecondary }}
 
                             />
                         </div>
@@ -79,7 +81,8 @@ export default function LoginPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="label-lg-gray w-full px-3.5 py-2.5 pr-10 rounded-lg border border-gray-200 body-md bg-white focus:outline-none focus:ring-2 focus:ring-[#0f6e56] focus:border-transparent transition placeholder-gray-300"
+                                    className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-gray-200 body-md bg-white focus:outline-none focus:ring-2 focus:ring-[#0f6e56] focus:border-transparent transition placeholder-gray-300"
+                                    style={{ color: colors.textSecondary }}
 
                                 />
                                 <button
@@ -96,7 +99,7 @@ export default function LoginPage() {
                         {/* Error */}
                         {error && (
                             <div className="rounded-lg bg-red-50 border border-red-100 px-4 py-3">
-                                <p className="body-sm" style={{ color: "#d64545" }}>{error}</p>
+                                <p className="body-sm" style={{ color: colors.red }}>{error}</p>
                             </div>
                         )}
 
@@ -105,7 +108,7 @@ export default function LoginPage() {
                             type="submit"
                             disabled={!email || !password || isLoading}
                             className="w-full py-2.5 rounded-lg text-white btn-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0f6e56] disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{ backgroundColor: "#0f6e56" }}
+                            style={{ backgroundColor: colors.green }}
                         >
                             {isLoading ? (
                                 <span className="flex items-center justify-center gap-2">
