@@ -1,28 +1,23 @@
 "use client";
 
-import { faRefresh, faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
-import PageHeader from "@/components/common/PageHeader";
-import Button from "@/components/common/buttons/Button";
+import { colors } from "@/constants/colors";
 
 interface StatsHeaderProps {
-    onRefresh: () => void;
+    title: string;
+    subtitle: string;
+    periodAction?: React.ReactNode;
 }
 
-export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
+export default function StatsHeader({ title, subtitle, periodAction }: StatsHeaderProps) {
     return (
-        <PageHeader
-            title="Statistik"
-            subtitle="Oversigt over opgaver og aktiviteter"
-            action={
-                <div className="flex items-center gap-2">
-                    <Button variant="secondary" size="lg" icon={faUpRightFromSquare} onClick={() => window.open("/dashboard", "_blank")}>
-                        Åbn dashboard
-                    </Button>
-                    <Button variant="ghost" size="lg" icon={faRefresh} onClick={onRefresh}>
-                        Opdater
-                    </Button>
+        <div className="mx-8 px-4 pt-10 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-4 border-b pb-4 lg:flex-row lg:items-end lg:justify-between" style={{ borderColor: colors.border }}>
+                <div>
+                    <h1 className="h1">{title}</h1>
+                    <p className="mt-1 body-md" style={{ color: colors.textSecondary }}>{subtitle}</p>
                 </div>
-            }
-        />
+                {periodAction && <div className="flex items-center gap-2">{periodAction}</div>}
+            </div>
+        </div>
     );
 }

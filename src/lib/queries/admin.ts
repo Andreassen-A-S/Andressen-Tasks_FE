@@ -124,8 +124,8 @@ export async function prefetchAdminRoute(queryClient: QueryClient, href: string)
             return;
         case "/statistics":
             await queryClient.ensureQueryData({
-                queryKey: adminQueryKeys.statsPage,
-                queryFn: getDashboardStats,
+                queryKey: [...adminQueryKeys.statsPage, 30],
+                queryFn: () => getDashboardStats(30),
             });
             return;
         default:

@@ -1,97 +1,88 @@
-"use client";
-
 import { formatLocalDate } from "@/helpers/helpers";
 import type { TrendDataPoint } from "@/types/stats";
+import { colors } from "@/constants/colors";
+import DataBarChart from "@/components/common/chart/DataBarChart";
 
 interface TrendChartProps {
     data: TrendDataPoint[];
+    periodDays: number;
 }
 
-export default function TrendChart({ data }: TrendChartProps) {
-    if (!data || data.length === 0) {
-        return (
-            <div className="rounded-lg border p-6 bg-white border-gray-200">
-                <h3 className="h3 mb-4">Opgavetrends</h3>
-                <p className="body-md text-center py-8">Ingen trenddata tilgængelig</p>
-            </div>
-        );
-    }
+interface TrendTooltipProps {
+    active?: boolean;
+    label?: string | number;
+    payload?: Array<{
+        color?: string;
+        dataKey?: string | number;
+        name?: string;
+        value?: number;
+    }>;
+}
 
-    // Calculate max value for scaling
-    const maxValue = Math.max(
-        ...data.map(d => Math.max(d.created, d.completed))
+function TrendTooltip({ active, payload, label }: TrendTooltipProps) {
+    if (!active || !payload?.length) return null;
+
+    return (
+        <div
+            className="rounded-lg border px-3 py-2 shadow-sm"
+            style={{ borderColor: colors.border, backgroundColor: colors.white }}
+        >
+            <p className="label-md mb-1" style={{ color: colors.textPrimary }}>
+                {formatLocalDate(String(label), "da-DK", { day: "numeric", month: "short" })}
+            </p>
+            {payload.map(item => (
+                <div key={item.dataKey} className="flex items-center justify-between gap-6 body-sm">
+                    <span style={{ color: item.color }}>{item.name}</span>
+                    <span className="label-md" style={{ color: colors.textPrimary }}>{item.value}</span>
+                </div>
+            ))}
+        </div>
     );
-    const scale = maxValue > 0 ? 100 / maxValue : 1;
+}
 
-    // Format date for display
+export default function TrendChart({ data, periodDays }: TrendChartProps) {
     const formatDate = (dateStr: string) => {
         return formatLocalDate(dateStr, "da-DK", { month: "short", day: "numeric" });
     };
+    const xTickInterval = data && data.length > 24 ? 4 : data && data.length > 12 ? 2 : 0;
 
     return (
-        <div className="rounded-lg border p-6 bg-white border-gray-200">
-            <div className="flex items-center justify-between mb-6">
-                <h3 className="h3">Opgavetrends</h3>
-                <div className="flex items-center gap-4 label-md">
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                        <span className="label-md text-gray-600">Oprettet</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                        <span className="label-md text-gray-600">Fuldført</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Simple bar chart */}
-            <div className="space-y-3">
-                {data.map((point) => (
-                    <div key={point.date} className="space-y-1">
-                        <div className="flex items-center justify-between label-sm text-gray-600">
-                            <span className="font-medium">{formatDate(point.date)}</span>
-                            <div className="flex gap-3">
-                                <span className="text-blue-600 label-md">{point.created} oprettet</span>
-                                <span className="text-green-600 label-md">{point.completed} fuldført</span>
-                            </div>
-                        </div>
-                        <div className="flex gap-2 h-8">
-                            {/* Created bar */}
-                            <div className="flex-1 bg-gray-100 rounded overflow-hidden">
-                                <div
-                                    className="h-full bg-blue-500 transition-all duration-500 ease-out rounded"
-                                    style={{ width: `${point.created * scale}%` }}
-                                />
-                            </div>
-                            {/* Completed bar */}
-                            <div className="flex-1 bg-gray-100 rounded overflow-hidden">
-                                <div
-                                    className="h-full bg-green-500 transition-all duration-500 ease-out rounded"
-                                    style={{ width: `${point.completed * scale}%` }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Summary */}
-            <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="grid grid-cols-2 gap-4 text-center">
+        <DataBarChart
+            data={data ?? []}
+            xDataKey="date"
+            series={[
+                { key: "created", name: "Oprettet", color: colors.blue },
+                { key: "completed", name: "Fuldført", color: colors.green },
+            ]}
+            xTickFormatter={formatDate}
+            xTickInterval={xTickInterval}
+            cursor
+            tooltipContent={<TrendTooltip />}
+            toolbar={
+                <>
                     <div>
-                        <p className="h2 text-blue-600">
-                            {data.reduce((sum, d) => sum + d.created, 0)}
+                        <h3 className="h4">Aktivitet over tid</h3>
+                        <p className="body-sm" style={{ color: colors.textMuted }}>
+                            Daglig aktivitet for de sidste {periodDays} dage
                         </p>
-                        <p className="label-md text-gray-600">Total oprettet</p>
                     </div>
-                    <div>
-                        <p className="h2 text-green-600">
-                            {data.reduce((sum, d) => sum + d.completed, 0)}
-                        </p>
-                        <p className="label-md text-gray-600">Total fuldført</p>
+                    <div className="flex items-center gap-4 label-md" aria-label="Forklaring">
+                        <span className="inline-flex items-center gap-1.5" style={{ color: colors.textSecondary }}>
+                            <span className="h-3 w-3 rounded-sm" style={{ backgroundColor: colors.green }} />
+                            Fuldført
+                        </span>
+                        <span className="inline-flex items-center gap-1.5" style={{ color: colors.textSecondary }}>
+                            <span className="h-3 w-3 rounded-sm" style={{ backgroundColor: colors.blue }} />
+                            Oprettet
+                        </span>
                     </div>
-                </div>
-            </div>
-        </div>
+                </>
+            }
+            emptyState={
+                <p className="body-md text-center py-8" style={{ color: colors.textMuted }}>
+                    Ingen trenddata tilgængelig
+                </p>
+            }
+        />
     );
 }
