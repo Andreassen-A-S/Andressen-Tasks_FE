@@ -62,7 +62,7 @@ export default function DashboardPage() {
     const taskIds = tasks.map(t => t.task_id);
 
     const { data: todayComments = [], refetch: refetchComments } = useQuery({
-        queryKey: [...adminQueryKeys.dashboard, "comments", taskIds.join(",")],
+        queryKey: [...adminQueryKeys.dashboard, "comments", [...taskIds].sort().join(",")],
         queryFn: async () => {
             const today = toDateKey(new Date());
             const results = await Promise.all(

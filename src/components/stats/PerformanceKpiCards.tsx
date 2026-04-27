@@ -16,12 +16,12 @@ export default function PerformanceKpiCards({ stats, periodLabel }: PerformanceK
         {
             label: "Til tiden",
             value: `${stats.completion.on_time_rate}%`,
-            detail: `${stats.completion.on_time_completed} af ${stats.completion.completed_this_month} afsluttet ${periodLabel.toLowerCase()}`,
+            detail: `${stats.completion.on_time_completed} af ${stats.completion.completed_in_period} afsluttet ${periodLabel.toLowerCase()}`,
             accent: colors.green,
         },
         {
             label: "Afslutninger",
-            value: stats.completion.completed_this_month,
+            value: stats.completion.completed_in_period,
             detail: `Opgaver afsluttet ${periodLabel.toLowerCase()}`,
             accent: colors.blue,
         },

@@ -98,7 +98,7 @@ export default function StatsPage() {
                             size="lg"
                             icon={faArrowUpRightFromSquare}
                             iconPosition="right"
-                            onClick={() => window.open("/dashboard", "_blank")}
+                            onClick={() => window.open("/dashboard", "_blank", "noopener,noreferrer")}
                         >
                             Dashboard
                         </Button>

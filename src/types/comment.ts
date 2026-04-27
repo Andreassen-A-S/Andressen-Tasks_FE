@@ -7,10 +7,7 @@ export interface TaskComment {
   message: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
-}
-
-export interface TaskCommentWithAuthor extends TaskComment {
-  author: User;
+  author: { user_id: string; name: string; email: string };
 }
 
 export interface CreateCommentRequest {
