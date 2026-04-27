@@ -9,7 +9,6 @@ import { formatCommentDate } from "@/helpers/helpers";
 
 interface CommentWithTask extends TaskComment {
     task: Task;
-    author: { user_id: string; name: string; email: string };
 }
 
 interface DashboardCommentsPanelProps {
