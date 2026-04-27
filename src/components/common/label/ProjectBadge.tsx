@@ -1,6 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
+import ProjectIcon from "@/components/common/icons/ProjectIcon";
 
 interface ProjectBadgeProps {
   name: string;
@@ -16,7 +15,7 @@ const sizeClasses = {
 export default function ProjectBadge({ name, size = "md" }: ProjectBadgeProps) {
   return (
     <span className={`inline-flex items-center ${sizeClasses[size]}`} style={{ color: colors.textMuted }}>
-      <FontAwesomeIcon icon={faLocationDot} className="w-3 h-3 flex-shrink-0" style={{ color: colors.textMuted }} />
+      <ProjectIcon className="w-[1em] h-[1em] flex-shrink-0" />
       <span>{name}</span>
     </span>
   );

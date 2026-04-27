@@ -12,6 +12,7 @@ export const adminQueryKeys = {
     employeesPage: ["admin", "employees-page"] as const,
     templatesPage: ["admin", "templates-page"] as const,
     statsPage: ["admin", "stats-page"] as const,
+    dashboard: ["admin", "dashboard"] as const,
 };
 
 export interface TasksPageData {
@@ -123,8 +124,8 @@ export async function prefetchAdminRoute(queryClient: QueryClient, href: string)
             return;
         case "/statistics":
             await queryClient.ensureQueryData({
-                queryKey: adminQueryKeys.statsPage,
-                queryFn: getDashboardStats,
+                queryKey: [...adminQueryKeys.statsPage, 30],
+                queryFn: () => getDashboardStats(30),
             });
             return;
         default:

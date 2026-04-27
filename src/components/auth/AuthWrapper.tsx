@@ -10,6 +10,7 @@ import useDelayedVisibility from "@/hooks/useDelayedVisibility";
 import { useTopProgress } from "@/components/common/loading/TopProgressProvider";
 
 const PUBLIC_ROUTES = ["/login", "/unauthorized"];
+const NO_SIDEBAR_ROUTES = ["/dashboard"];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading, userRole } = useAuth();
@@ -52,6 +53,10 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
     if (!isAuthenticated) {
         return showDelayedLoader ? <FullPageLoadingState /> : null;
+    }
+
+    if (NO_SIDEBAR_ROUTES.includes(pathname)) {
+        return <>{children}</>;
     }
 
     return (

@@ -12,8 +12,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
  * Get all dashboard statistics in a single optimized call
  * This is the recommended method for loading the dashboard
  */
-export async function getDashboardStats(): Promise<DashboardStats> {
-  const res = await fetch(`${API_URL}/stats/dashboard`, {
+export async function getDashboardStats(days = 30): Promise<DashboardStats> {
+  const res = await fetch(`${API_URL}/stats/dashboard?days=${days}`, {
     headers: getAuthHeaders(),
   });
 

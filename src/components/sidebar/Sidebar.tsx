@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { faChartColumn, faFolder, faTasks, faUsers, faSignOutAlt, faRepeat } from "@fortawesome/free-solid-svg-icons";
+import { faChartColumn, faTasks, faUsers, faSignOutAlt, faRepeat } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
 import OutlineGearIcon from "@/components/common/icons/OutlineGearIcon";
+import ProjectIcon from "@/components/common/icons/ProjectIcon";
 import { useTopProgress } from "@/components/common/loading/TopProgressProvider";
 import { prefetchAdminRoute } from "@/lib/queries/admin";
 
@@ -48,7 +49,7 @@ export default function Sidebar() {
 
     const navItems = [
         { href: "/tasks", label: "Opgaver", icon: faTasks },
-        { href: "/projects", label: "Projekter", icon: faFolder },
+        { href: "/projects", label: "Projekter", icon: "project" as const },
         { href: "/templates", label: "Gentagende opgaver", icon: faRepeat },
         { href: "/employees", label: "Medarbejdere", icon: faUsers },
         { href: "/statistics", label: "Statistik", icon: faChartColumn },
@@ -78,13 +79,15 @@ export default function Sidebar() {
                                 <Link
                                     href={item.href}
                                     onClick={(event) => handleNavClick(item.href, event)}
-                                    className={`flex items-center gap-3 px-4 py-2 rounded-[8px] transition-colors ${isActive
+                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${isActive
                                         ? "bg-[rgba(255,255,255,0.08)] nav-item-active"
                                         : "nav-item hover:bg-gray-700 hover:text-white"
                                         }`}
                                 >
                                     <span className="flex items-center justify-center w-5 h-5">
-                                        {item.icon ? (
+                                        {item.icon === "project" ? (
+                                            <ProjectIcon className="w-3.5 h-3.5" />
+                                        ) : item.icon ? (
                                             <FontAwesomeIcon icon={item.icon} className="w-3.5 h-3.5" />
                                         ) : (
                                             <OutlineGearIcon className="w-4 h-4" />

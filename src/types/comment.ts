@@ -1,5 +1,3 @@
-import { User } from "./users";
-
 export interface TaskComment {
   comment_id: string;
   task_id: string;
@@ -7,10 +5,7 @@ export interface TaskComment {
   message: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
-}
-
-export interface TaskCommentWithAuthor extends TaskComment {
-  author: User;
+  author: { user_id: string; name: string; email: string };
 }
 
 export interface CreateCommentRequest {

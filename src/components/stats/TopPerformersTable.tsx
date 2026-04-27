@@ -2,97 +2,75 @@
 
 import type { TopPerformer } from "@/types/stats";
 import SingleAvatar from "../common/label/SingleAvatar";
+import { colors } from "@/constants/colors";
+import DataTable from "@/components/common/table/DataTable";
 
 interface TopPerformersTableProps {
     data: TopPerformer[];
+    periodLabel: string;
 }
 
-export default function TopPerformersTable({ data }: TopPerformersTableProps) {
+const columns = [
+    { key: "rank", header: "Rang", className: "w-20 px-5 py-2.5 label-sm" },
+    { key: "user", header: "Bruger", className: "px-5 py-2.5 label-sm min-w-[260px]" },
+    { key: "completed", header: "Fuldført", className: "px-5 py-2.5 label-sm text-right" },
+];
+
+export default function TopPerformersTable({ data, periodLabel }: TopPerformersTableProps) {
     if (!data || data.length === 0) {
         return (
-            <div className="rounded-lg border p-6 bg-white border-gray-200">
-                <h3 className="h3 mb-4">Toppræstationer</h3>
-                <p className="body-md text-center py-8">Ingen præstationsdata tilgængelig</p>
+            <div className="rounded-lg border p-5" style={{ borderColor: colors.border, backgroundColor: colors.white }}>
+                <h3 className="h4 mb-4">Leaderboard</h3>
+                <p className="body-md text-center py-8" style={{ color: colors.textMuted }}>Ingen præstationsdata tilgængelig</p>
             </div>
         );
     }
 
-    const getMedalIcon = (index: number) => {
-        if (index === 0) {
-            return (
-                <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                    <span className="text-yellow-600 font-bold">🥇</span>
-                </div>
-            );
-        }
-        if (index === 1) {
-            return (
-                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                    <span className="text-gray-600 font-bold">🥈</span>
-                </div>
-            );
-        }
-        if (index === 2) {
-            return (
-                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                    <span className="text-orange-600 font-bold">🥉</span>
-                </div>
-            );
-        }
-        return (
-            <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                <span className="text-blue-600 font-semibold text-sm">{index + 1}</span>
-            </div>
-        );
-    };
+    const totalCompleted = data.reduce((sum, performer) => sum + performer.completed_count, 0);
 
     return (
-        <div className="rounded-lg border p-6 bg-white border-gray-200">
-            <h3 className="h3 mb-4">Toppræstationer (Denne måned)</h3>
-
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b border-gray-200">
-                            <th className="table-header text-left py-3 px-2">
-                                Placering
-                            </th>
-                            <th className="table-header text-left py-3 px-4">
-                                Bruger
-                            </th>
-                            <th className="table-header text-right py-3 px-4">
-                                Fuldført
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {data.map((performer, index) => (
-                            <tr
-                                key={performer.user_id}
-                                className="hover:bg-gray-50 transition-colors"
-                            >
-                                <td className="py-4 px-2">
-                                    {getMedalIcon(index)}
-                                </td>
-                                <td className="py-4 px-4">
-                                    <div className="flex items-center gap-3">
-                                        <SingleAvatar name={performer.name} size="md" />
-                                        <div>
-                                            <p className="label-lg">{performer.name}</p>
-                                            <p className="label-sm">{performer.email}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="py-4 px-4 text-right">
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full label-md bg-green-100 text-green-800">
-                                        {performer.completed_count}
-                                    </span>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <DataTable
+            columns={columns}
+            toolbar={
+                <>
+                    <div>
+                        <h3 className="h4">Leaderboard</h3>
+                        <p className="body-sm" style={{ color: colors.textMuted }}>Flest afsluttede opgaver {periodLabel.toLowerCase()}</p>
+                    </div>
+                    <div className="label-md" style={{ color: colors.textSecondary }}>
+                        {totalCompleted} fuldførte opgaver
+                    </div>
+                </>
+            }
+        >
+            {data.map((performer, index) => (
+                <tr key={performer.user_id}>
+                    <td className="px-5 py-4">
+                        <span
+                            className="inline-flex h-7 min-w-9 items-center justify-center rounded-full border px-2 label-md"
+                            style={{
+                                backgroundColor: index === 0 ? colors.greenLight : colors.white,
+                                borderColor: index === 0 ? colors.green : colors.border,
+                                color: index === 0 ? colors.green : colors.textSecondary,
+                            }}
+                        >
+                            #{index + 1}
+                        </span>
+                    </td>
+                    <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                            <SingleAvatar name={performer.name} size="md" />
+                            <div className="min-w-0">
+                                <p className="label-lg truncate" style={{ color: colors.textPrimary }}>{performer.name}</p>
+                                <p className="label-sm truncate" style={{ color: colors.textMuted }}>{performer.email}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td className="px-5 py-4 text-right">
+                        <span className="label-lg" style={{ color: colors.textPrimary }}>{performer.completed_count}</span>
+                    </td>
+                </tr>
+            ))}
+        </DataTable>
     );
 }
