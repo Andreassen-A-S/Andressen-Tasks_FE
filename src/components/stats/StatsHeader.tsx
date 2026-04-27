@@ -1,8 +1,8 @@
 "use client";
 
-import { faRefresh } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRefresh, faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import PageHeader from "@/components/common/PageHeader";
+import Button from "@/components/common/buttons/Button";
 
 interface StatsHeaderProps {
     onRefresh: () => void;
@@ -14,13 +14,14 @@ export default function StatsHeader({ onRefresh }: StatsHeaderProps) {
             title="Statistik"
             subtitle="Oversigt over opgaver og aktiviteter"
             action={
-                <button
-                    onClick={onRefresh}
-                    className="inline-flex btn-lg bg-transparent text-gray-500 border border-gray-200 hover:border-gray-300 items-center gap-2 px-5 py-3 font-semibold rounded-lg transition-colors"
-                >
-                    <FontAwesomeIcon icon={faRefresh} size="sm" />
-                    Opdater
-                </button>
+                <div className="flex items-center gap-2">
+                    <Button variant="secondary" size="lg" icon={faUpRightFromSquare} onClick={() => window.open("/dashboard", "_blank")}>
+                        Åbn dashboard
+                    </Button>
+                    <Button variant="ghost" size="lg" icon={faRefresh} onClick={onRefresh}>
+                        Opdater
+                    </Button>
+                </div>
             }
         />
     );

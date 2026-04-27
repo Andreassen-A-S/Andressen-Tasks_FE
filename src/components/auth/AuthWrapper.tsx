@@ -9,7 +9,7 @@ import FullPageLoadingState from "@/components/common/loading/FullPageLoadingSta
 import useDelayedVisibility from "@/hooks/useDelayedVisibility";
 import { useTopProgress } from "@/components/common/loading/TopProgressProvider";
 
-const PUBLIC_ROUTES = ["/login", "/unauthorized"];
+const PUBLIC_ROUTES = ["/login", "/unauthorized", "/dashboard"];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading, userRole } = useAuth();

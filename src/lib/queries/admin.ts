@@ -12,6 +12,7 @@ export const adminQueryKeys = {
     employeesPage: ["admin", "employees-page"] as const,
     templatesPage: ["admin", "templates-page"] as const,
     statsPage: ["admin", "stats-page"] as const,
+    dashboard: ["admin", "dashboard"] as const,
 };
 
 export interface TasksPageData {
