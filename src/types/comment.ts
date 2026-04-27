@@ -1,5 +1,3 @@
-import { User } from "./users";
-
 export interface TaskComment {
   comment_id: string;
   task_id: string;

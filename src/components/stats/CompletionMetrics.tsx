@@ -22,7 +22,7 @@ export default function CompletionMetrics({ completion }: CompletionMetricsProps
             />
             <StatCard
                 title="Denne måned"
-                value={`${completion.month_rate}%`}
+                value={`${completion.period_rate}%`}
                 subtitle="Fuldførelsesrate"
                 tooltip="Færdiggørelsesrate for den nuværende måned. Beregnes som: (Færdige denne måned / Oprettet denne måned) × 100"
             />
