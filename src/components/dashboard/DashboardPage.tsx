@@ -31,7 +31,8 @@ export default function DashboardPage() {
 
     const [windowDays, setWindowDays] = useState<WindowDays>(() => {
         if (typeof window === "undefined") return 7;
-        return (Number(localStorage.getItem("dashboard_window")) as WindowDays) || 7;
+        const stored = Number(localStorage.getItem("dashboard_window")) as WindowDays;
+        return WINDOW_OPTIONS.includes(stored) ? stored : 7;
     });
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [clock, setClock] = useState(new Date());
@@ -120,11 +121,15 @@ export default function DashboardPage() {
         localStorage.setItem("dashboard_window", String(days));
     }
 
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            document.exitFullscreen();
+    async function toggleFullscreen() {
+        try {
+            if (!document.fullscreenElement) {
+                await document.documentElement.requestFullscreen();
+            } else {
+                await document.exitFullscreen();
+            }
+        } catch {
+            // browser denied fullscreen (permissions, missing user gesture, etc.)
         }
     }
 

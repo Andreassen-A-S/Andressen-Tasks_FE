@@ -92,6 +92,9 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                         {Array.from({ length: pageCount }, (_, i) => (
                             <button
                                 key={i}
+                                type="button"
+                                aria-label={`Vis kommentarer side ${i + 1}`}
+                                aria-current={i === activeIndex ? true : undefined}
                                 onClick={() => setIndex(i)}
                                 className="w-1.5 h-1.5 rounded-full transition-colors"
                                 style={{ backgroundColor: i === activeIndex ? colors.textSecondary : colors.border }}

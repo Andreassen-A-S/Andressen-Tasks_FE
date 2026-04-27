@@ -17,7 +17,7 @@ interface StatsOverviewPanelProps {
 
 function getPercent(value: number, total: number) {
     if (total <= 0) return 0;
-    return Math.max(0, Math.round((value / total) * 100));
+    return Math.max(0, (value / total) * 100);
 }
 
 export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverviewPanelProps) {
