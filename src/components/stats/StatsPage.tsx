@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import StatsLoadingState from "./StatsLoadingState";
 import StatsErrorState from "./StatsErrorState";
 import StatsHeader from "./StatsHeader";
@@ -92,19 +92,30 @@ export default function StatsPage() {
                 title={header.title}
                 subtitle={`${header.subtitle} · ${dateRangeLabel}`}
                 periodAction={
-                    <DropdownMenu
-                        trigger={
-                            <Button variant="secondary" size="lg">
-                                Periode: {selectedPeriod.label}
-                                <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
-                            </Button>
-                        }
-                        items={PERIOD_OPTIONS.map(option => ({
-                            label: option.label,
-                            checked: periodDays === option.days,
-                            onClick: () => setPeriodDays(option.days),
-                        }))}
-                    />
+                    <>
+                        <Button
+                            variant="secondary"
+                            size="lg"
+                            icon={faArrowUpRightFromSquare}
+                            iconPosition="right"
+                            onClick={() => window.open("/dashboard", "_blank")}
+                        >
+                            Dashboard
+                        </Button>
+                        <DropdownMenu
+                            trigger={
+                                <Button variant="secondary" size="lg">
+                                    Periode: {selectedPeriod.label}
+                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                </Button>
+                            }
+                            items={PERIOD_OPTIONS.map(option => ({
+                                label: option.label,
+                                checked: periodDays === option.days,
+                                onClick: () => setPeriodDays(option.days),
+                            }))}
+                        />
+                    </>
                 }
             />
 

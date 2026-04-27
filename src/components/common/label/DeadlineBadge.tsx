@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { colors } from "@/constants/colors";
-import { formatRelativeDate } from "@/helpers/helpers";
+import { formatRelativeDate, toDateKey } from "@/helpers/helpers";
 
 interface DeadlineBadgeProps {
     deadline: string;
@@ -15,12 +15,10 @@ const sizeClasses = {
 };
 
 function getDeadlineColor(deadline: string): string {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const d = new Date(deadline);
-    d.setHours(0, 0, 0, 0);
+    const today = toDateKey(new Date());
+    const d = toDateKey(deadline);
     if (d < today) return colors.red;
-    if (d.getTime() === today.getTime()) return colors.yellow;
+    if (d === today) return colors.yellow;
     return colors.textMuted;
 }
 

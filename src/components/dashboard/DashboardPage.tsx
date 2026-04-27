@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { TaskStatus } from "@/types/task";
 import { adminQueryKeys, fetchTasksPageData } from "@/lib/queries/admin";
@@ -28,8 +27,7 @@ function addDays(date: Date, days: number): Date {
 }
 
 export default function DashboardPage() {
-    const { isAuthenticated, isLoading: authLoading } = useAuth();
-    const router = useRouter();
+    const { isAuthenticated } = useAuth();
 
     const [windowDays, setWindowDays] = useState<WindowDays>(() => {
         if (typeof window === "undefined") return 7;
@@ -37,10 +35,6 @@ export default function DashboardPage() {
     });
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [clock, setClock] = useState(new Date());
-
-    useEffect(() => {
-        if (!authLoading && !isAuthenticated) router.push("/login");
-    }, [isAuthenticated, authLoading, router]);
 
     useEffect(() => {
         const id = setInterval(() => setClock(new Date()), 1000);
@@ -133,8 +127,6 @@ export default function DashboardPage() {
             document.exitFullscreen();
         }
     }
-
-    if (authLoading || !isAuthenticated) return null;
 
     const lastUpdated = dataUpdatedAt
         ? new Date(dataUpdatedAt).toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" })
