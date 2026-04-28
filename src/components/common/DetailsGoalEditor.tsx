@@ -35,6 +35,7 @@ interface Props {
 }
 
 const SHEET_WIDTH = 328;
+const MIN_TARGET_QUANTITY = 0;
 const UNIT_OPTIONS: Array<{ value: TaskUnit; label: string }> = [
   { value: TaskUnit.NONE, label: "Procent (%)" },
   { value: TaskUnit.METERS, label: "Meter (m)" },
@@ -61,12 +62,13 @@ export default function DetailsGoalEditor({
   onSave,
 }: Props) {
   const initialUnit = unit ?? TaskUnit.NONE;
+  const initialCurrentQuantity = getInitialCurrentQuantity(goalType, currentQuantity);
   const [draftUnit, setDraftUnit] = useState<TaskUnit>(initialUnit);
   const [draftTarget, setDraftTarget] = useState<string>(
     targetQuantity != null ? formatNumber(targetQuantity) : (initialUnit === TaskUnit.NONE ? "100" : ""),
   );
   const [draftCurrent, setDraftCurrent] = useState<string>(
-    getInitialCurrentQuantity(goalType, currentQuantity) != null ? formatNumber(getInitialCurrentQuantity(goalType, currentQuantity)!) : "",
+    initialCurrentQuantity != null ? formatNumber(initialCurrentQuantity) : "",
   );
   const [isSaving, setIsSaving] = useState(false);
   const [inputError, setInputError] = useState<string | null>(null);
@@ -102,9 +104,10 @@ export default function DetailsGoalEditor({
   useEffect(() => {
     if (!open) return;
     const nextUnit = unit ?? TaskUnit.NONE;
+    const nextCurrentQuantity = getInitialCurrentQuantity(goalType, currentQuantity);
     setDraftUnit(nextUnit);
     setDraftTarget(targetQuantity != null ? formatNumber(targetQuantity) : (nextUnit === TaskUnit.NONE ? "100" : ""));
-    setDraftCurrent(getInitialCurrentQuantity(goalType, currentQuantity) != null ? formatNumber(getInitialCurrentQuantity(goalType, currentQuantity)!) : "");
+    setDraftCurrent(nextCurrentQuantity != null ? formatNumber(nextCurrentQuantity) : "");
     setInputError(null);
     setTimeout(() => currentInputRef.current?.focus(), 50);
   }, [open, goalType, unit, targetQuantity, currentQuantity]);
@@ -118,7 +121,7 @@ export default function DetailsGoalEditor({
     const currentWasEntered = draftCurrent.trim().length > 0;
     const parsedCurrent = currentWasEntered ? parseLocalizedNumber(draftCurrent) : 0;
 
-    if (!isPercent && (!Number.isFinite(parsedTarget) || parsedTarget <= 0)) {
+    if (!isPercent && (!Number.isFinite(parsedTarget) || parsedTarget <= MIN_TARGET_QUANTITY)) {
       setInputError("Mål skal være et tal større end 0.");
       targetInputRef.current?.focus();
       return;
