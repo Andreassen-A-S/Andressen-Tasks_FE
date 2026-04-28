@@ -85,13 +85,13 @@ function eventLabel(e: TaskEvent) {
         case "PROGRESS_LOGGED": {
             const prog = e.progress as { quantity_done?: number | string; unit?: string } | null | undefined;
             const progress = prog?.quantity_done ?? "ukendt fremskridt";
-            const unit = prog?.unit ?? "";
+            const unitLabel = prog?.unit ? translateTaskUnit(prog.unit) : "";
+            const progressLabel = `${formatNumber(progress)}${unitLabel ? ` ${unitLabel}` : ""}`;
             return (
                 <>
                     loggede fremskridt {" "}
                     <span className="font-semibold text-[#1B1D22]">
-                        {formatNumber(progress)}
-                        {unit ? `${translateTaskUnit(unit)}` : ""}
+                        {progressLabel}
                     </span>
                     {" "}
                 </>

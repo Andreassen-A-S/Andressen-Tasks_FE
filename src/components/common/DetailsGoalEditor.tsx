@@ -69,6 +69,7 @@ export default function DetailsGoalEditor({
     getInitialCurrentQuantity(goalType, currentQuantity) != null ? formatNumber(getInitialCurrentQuantity(goalType, currentQuantity)!) : "",
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [inputError, setInputError] = useState<string | null>(null);
   const [currentFocused, setCurrentFocused] = useState(false);
   const [targetFocused, setTargetFocused] = useState(false);
   const [unitFocused, setUnitFocused] = useState(false);
@@ -104,6 +105,7 @@ export default function DetailsGoalEditor({
     setDraftUnit(nextUnit);
     setDraftTarget(targetQuantity != null ? formatNumber(targetQuantity) : (nextUnit === TaskUnit.NONE ? "100" : ""));
     setDraftCurrent(getInitialCurrentQuantity(goalType, currentQuantity) != null ? formatNumber(getInitialCurrentQuantity(goalType, currentQuantity)!) : "");
+    setInputError(null);
     setTimeout(() => currentInputRef.current?.focus(), 50);
   }, [open, goalType, unit, targetQuantity, currentQuantity]);
 
@@ -113,10 +115,22 @@ export default function DetailsGoalEditor({
 
   async function handleSave() {
     const parsedTarget = parseLocalizedNumber(draftTarget);
-    const parsedCurrent = parseLocalizedNumber(draftCurrent);
+    const currentWasEntered = draftCurrent.trim().length > 0;
+    const parsedCurrent = currentWasEntered ? parseLocalizedNumber(draftCurrent) : 0;
 
-    if (!isPercent && (!Number.isFinite(parsedTarget) || parsedTarget < 0)) return;
-    if (Number.isFinite(parsedCurrent) && parsedCurrent < 0) return;
+    if (!isPercent && (!Number.isFinite(parsedTarget) || parsedTarget <= 0)) {
+      setInputError("Mål skal være et tal større end 0.");
+      targetInputRef.current?.focus();
+      return;
+    }
+
+    if (currentWasEntered && (!Number.isFinite(parsedCurrent) || parsedCurrent < 0)) {
+      setInputError("Start skal være et gyldigt tal på 0 eller derover.");
+      currentInputRef.current?.focus();
+      return;
+    }
+
+    setInputError(null);
 
     setIsSaving(true);
     try {
@@ -124,7 +138,7 @@ export default function DetailsGoalEditor({
         goal_type: TaskGoalType.FIXED,
         unit: draftUnit,
         target_quantity: isPercent ? 100 : parsedTarget,
-        current_quantity: Number.isFinite(parsedCurrent) ? parsedCurrent : 0,
+        current_quantity: parsedCurrent,
       });
       onClose();
     } finally {
@@ -178,7 +192,10 @@ export default function DetailsGoalEditor({
                 type="text"
                 inputMode="decimal"
                 value={draftCurrent}
-                onChange={(e) => setDraftCurrent(e.target.value)}
+                onChange={(e) => {
+                  setDraftCurrent(e.target.value);
+                  if (inputError) setInputError(null);
+                }}
                 onFocus={() => setCurrentFocused(true)}
                 onBlur={() => setCurrentFocused(false)}
                 placeholder="0"
@@ -203,7 +220,10 @@ export default function DetailsGoalEditor({
                 type="text"
                 inputMode="decimal"
                 value={isPercent ? "100" : draftTarget}
-                onChange={(e) => setDraftTarget(e.target.value)}
+                onChange={(e) => {
+                  setDraftTarget(e.target.value);
+                  if (inputError) setInputError(null);
+                }}
                 onFocus={() => setTargetFocused(true)}
                 onBlur={() => setTargetFocused(false)}
                 placeholder={isPercent ? "100" : "Angiv mål"}
@@ -244,6 +264,11 @@ export default function DetailsGoalEditor({
             {isPercent && (
               <p className="mt-1 caption" style={{ color: colors.textMuted }}>
                 Procentmål går altid til 100%.
+              </p>
+            )}
+            {inputError && (
+              <p className="mt-2 caption" style={{ color: colors.red }}>
+                {inputError}
               </p>
             )}
           </div>

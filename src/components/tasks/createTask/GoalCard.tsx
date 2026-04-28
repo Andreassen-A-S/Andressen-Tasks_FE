@@ -62,14 +62,15 @@ export default function GoalSection({
                             <TextInput
                                 type="number"
                                 id="target_quantity"
-                                min={0}
+                                min={0.000001}
                                 step="any"
                                 placeholder="F.eks. 100"
                                 value={isPercent ? 100 : (targetQuantity ?? "")}
                                 disabled={isPercent}
-                                onChange={(e) =>
-                                    onFieldChange('target_quantity', e.target.value === "" ? undefined : Number(e.target.value))
-                                }
+                                onChange={(e) => {
+                                    const nextValue = e.target.value === "" ? undefined : Number(e.target.value);
+                                    onFieldChange('target_quantity', nextValue != null && nextValue > 0 ? nextValue : undefined);
+                                }}
                             />
                         </div>
 

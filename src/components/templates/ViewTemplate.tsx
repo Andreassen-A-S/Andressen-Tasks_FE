@@ -98,9 +98,10 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                         {instances.map((instance, index) => (
                             (() => {
                                 const assignments = instanceAssignments[instance.task_id] ?? [];
-                                const hasGoal = instance.goal_type === "FIXED" && instance.target_quantity != null;
-                                const percent = hasGoal && instance.target_quantity! > 0
-                                    ? Math.max(0, Math.min(100, Math.round(((instance.current_quantity ?? 0) / instance.target_quantity!) * 100)))
+                                const targetQuantity = instance.target_quantity;
+                                const hasGoal = instance.goal_type === "FIXED" && targetQuantity != null && targetQuantity > 0;
+                                const percent = hasGoal
+                                    ? Math.max(0, Math.min(100, Math.round(((instance.current_quantity ?? 0) / targetQuantity) * 100)))
                                     : null;
 
                                 return (
@@ -130,10 +131,10 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                             {hasGoal ? (
                                                 <>
                                                     <div className="label-md" style={{ color: colors.textPrimary }}>
-                                                        {formatNumber(instance.current_quantity ?? 0)}/{formatNumber(instance.target_quantity!)}
+                                                        {formatNumber(instance.current_quantity ?? 0)}/{formatNumber(targetQuantity)}
                                                     </div>
                                                     <div className="mt-1 body-sm" style={{ color: colors.textSecondary }}>
-                                                        {percent}%
+                                                        {percent ?? 0}%
                                                     </div>
                                                     <div
                                                         className="mt-1.5 ml-auto h-1.5 w-full overflow-hidden rounded-full"
@@ -142,7 +143,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                                         <div
                                                             className="h-full rounded-full"
                                                             style={{
-                                                                width: `${percent}%`,
+                                                                width: `${percent ?? 0}%`,
                                                                 backgroundColor: colors.green,
                                                             }}
                                                         />
