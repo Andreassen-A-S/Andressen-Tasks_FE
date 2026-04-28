@@ -32,12 +32,14 @@ export default function TaskPage() {
     });
 
     const tasks = useMemo(() => data?.tasks ?? [], [data?.tasks]);
+    const activeTaskCount = useMemo(() => tasks.filter((t) => t.status !== TaskStatus.ARCHIVED).length, [tasks]);
     const projects = useMemo(() => data?.projects ?? [], [data?.projects]);
     const users = useMemo(() => data?.users ?? [], [data?.users]);
     const taskAssignments = useMemo(() => data?.taskAssignments ?? {}, [data?.taskAssignments]);
 
     const filteredTasks = useMemo(() => {
         const filtered = tasks.filter((task) => {
+            if (task.status === TaskStatus.ARCHIVED && statusFilter !== TaskStatus.ARCHIVED) return false;
             if (statusFilter !== "all" && task.status !== statusFilter) return false;
             if (projectFilter !== "all" && task.project_id !== projectFilter) return false;
             if (creatorFilter !== "all" && task.created_by !== creatorFilter) return false;
@@ -111,7 +113,7 @@ export default function TaskPage() {
         <div className="min-h-screen">
             <PageHeader
                 title="Opgaver"
-                subtitle={`${formatNumber(tasks.length)} opgaver`}
+                subtitle={`${formatNumber(activeTaskCount)} opgaver`}
                 action={
                     <Button
                         variant="primary"
