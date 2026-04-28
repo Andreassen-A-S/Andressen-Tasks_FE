@@ -1,5 +1,6 @@
 import type { RecurringStats } from "@/types/stats";
 import StatCard from "./StatCard";
+import { formatNumber } from "@/helpers/helpers";
 
 interface RecurringStatsCardsProps {
     recurring: RecurringStats;
@@ -24,7 +25,7 @@ export default function RecurringStatsCards({ recurring }: RecurringStatsCardsPr
             />
             <StatCard
                 title="Fuldførelsesrate"
-                value={`${recurring.completion_rate}%`}
+                value={`${formatNumber(recurring.completion_rate)}%`}
                 subtitle="Gentagende opgaver"
                 variant="success"
                 tooltip="Hvor mange procent af alle gentagende opgaveinstanser er blevet færdiggjort. Beregnes som: (Færdige instanser / Totale instanser) × 100"

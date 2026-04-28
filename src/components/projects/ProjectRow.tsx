@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Project } from "@/types/project";
 import type { Task } from "@/types/task";
 import DropdownMenu from "@/components/common/DropdownMenu";
-import { formatCommentDate } from "@/helpers/helpers";
+import { formatCommentDate, formatNumber } from "@/helpers/helpers";
 import ProjectActivityBar from "./ProjectActivityBar";
 import { colors } from "@/constants/colors";
 import OutlineGearIcon from "@/components/common/icons/OutlineGearIcon";
@@ -53,14 +53,14 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
 
                     <span className="flex items-center gap-1">
                         <FontAwesomeIcon icon={faListCheck} className="w-3 h-3" />
-                        {taskCount}
+                        {formatNumber(taskCount)}
                     </span>
 
                     <Dot />
 
                     <span className="flex items-center gap-1">
                         <FontAwesomeIcon icon={faRotate} className="w-3 h-3" />
-                        {templateCount}
+                        {formatNumber(templateCount)}
                     </span>
 
                     <Dot />

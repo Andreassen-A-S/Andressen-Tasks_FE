@@ -5,7 +5,7 @@ import { Task } from "@/types/task";
 import { TaskComment } from "@/types/comment";
 import { colors } from "@/constants/colors";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
-import { formatCommentDate } from "@/helpers/helpers";
+import { formatCommentDate, formatNumber } from "@/helpers/helpers";
 
 interface CommentWithTask extends TaskComment {
     task: Task;
@@ -83,7 +83,7 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                 <div className="flex items-center gap-2">
                     <span className="label-md" style={{ color: colors.textPrimary }}>Kommentarer i dag</span>
                     <span className="mono-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: colors.muted, color: colors.textSecondary }}>
-                        {comments.length}
+                        {formatNumber(comments.length)}
                     </span>
                 </div>
                 {pageCount > 1 && (

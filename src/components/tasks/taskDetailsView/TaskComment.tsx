@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import Button from "@/components/common/buttons/Button";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
-import { getFileExtension } from "@/helpers/helpers";
+import { getFileExtension, formatNumber } from "@/helpers/helpers";
 import { AllowedMimeType, ALLOWED_MIME_TYPE_VALUES, MAX_ATTACHMENTS, MAX_FILE_SIZE, type PendingAttachment } from "@/types/attachment";
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
@@ -53,7 +53,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       toast.error(
         oversized.length === 1
           ? `${oversized[0].name} overskrider den maksimale filstørrelse.`
-          : `${oversized.length} filer overskrider den maksimale filstørrelse og blev ikke tilføjet.`
+          : `${formatNumber(oversized.length)} filer overskrider den maksimale filstørrelse og blev ikke tilføjet.`
       );
     }
 
@@ -66,7 +66,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
     }
     const toAdd = sized.slice(0, available);
     if (toAdd.length < sized.length) {
-      toast.error(`${sized.length - toAdd.length} filer blev ikke tilføjet. Maks ${MAX_ATTACHMENTS} filer per kommentar.`);
+      toast.error(`${formatNumber(sized.length - toAdd.length)} filer blev ikke tilføjet. Maks ${formatNumber(MAX_ATTACHMENTS)} filer per kommentar.`);
     }
     setAttachments((prev) => {
       const remaining = MAX_ATTACHMENTS - prev.length;

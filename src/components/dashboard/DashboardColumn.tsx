@@ -3,6 +3,7 @@ import type { Project } from "@/types/project";
 import type { TaskAssignment } from "@/types/assignment";
 import { colors } from "@/constants/colors";
 import DashboardTaskCard from "./DashboardTaskCard";
+import { formatNumber } from "@/helpers/helpers";
 
 export type ColumnVariant = "upcoming" | "active" | "overdue" | "done";
 
@@ -41,7 +42,7 @@ export default function DashboardColumn({ title, tasks, projectMap, assignmentMa
                     className="ml-auto mono-xs px-2 py-0.5 rounded-full"
                     style={{ backgroundColor: colors.muted, color: colors.textSecondary }}
                 >
-                    {tasks.length}
+                    {formatNumber(tasks.length)}
                 </span>
             </div>
 

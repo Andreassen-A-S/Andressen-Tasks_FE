@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import Badge from "@/components/common/label/Badge";
-import { formatDate } from "@/helpers/helpers";
+import { formatDate, formatNumber } from "@/helpers/helpers";
 import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
@@ -119,7 +119,7 @@ export default function TemplateCard({
                     <div className="flex items-center justify-between py-3" style={{ borderTop: `1px solid ${colors.muted}` }}>
                         <span className="body-sm" style={{ color: colors.textSecondary }}>Mål</span>
                         <span className="label-md" style={{ color: colors.textPrimary }}>
-                            {template.target_quantity} {template.unit !== 'NONE' && template.unit?.toLowerCase()}
+                            {formatNumber(template.target_quantity)} {template.unit !== 'NONE' && template.unit?.toLowerCase()}
                         </span>
                     </div>
                 )}

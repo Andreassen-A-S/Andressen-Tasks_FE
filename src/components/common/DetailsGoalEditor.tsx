@@ -16,6 +16,7 @@ import {
   useInteractions,
   FloatingPortal,
 } from "@floating-ui/react";
+import { formatNumber, parseLocalizedNumber } from "@/helpers/helpers";
 
 interface Props {
   open: boolean;
@@ -61,11 +62,11 @@ export default function DetailsGoalEditor({
 }: Props) {
   const initialUnit = unit ?? TaskUnit.NONE;
   const [draftUnit, setDraftUnit] = useState<TaskUnit>(initialUnit);
-  const [draftTarget, setDraftTarget] = useState<number | null>(
-    targetQuantity ?? (initialUnit === TaskUnit.NONE ? 100 : null),
+  const [draftTarget, setDraftTarget] = useState<string>(
+    targetQuantity != null ? formatNumber(targetQuantity) : (initialUnit === TaskUnit.NONE ? "100" : ""),
   );
-  const [draftCurrent, setDraftCurrent] = useState<number | null>(
-    getInitialCurrentQuantity(goalType, currentQuantity),
+  const [draftCurrent, setDraftCurrent] = useState<string>(
+    getInitialCurrentQuantity(goalType, currentQuantity) != null ? formatNumber(getInitialCurrentQuantity(goalType, currentQuantity)!) : "",
   );
   const [isSaving, setIsSaving] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(false);
@@ -101,8 +102,8 @@ export default function DetailsGoalEditor({
     if (!open) return;
     const nextUnit = unit ?? TaskUnit.NONE;
     setDraftUnit(nextUnit);
-    setDraftTarget(targetQuantity ?? (nextUnit === TaskUnit.NONE ? 100 : null));
-    setDraftCurrent(getInitialCurrentQuantity(goalType, currentQuantity));
+    setDraftTarget(targetQuantity != null ? formatNumber(targetQuantity) : (nextUnit === TaskUnit.NONE ? "100" : ""));
+    setDraftCurrent(getInitialCurrentQuantity(goalType, currentQuantity) != null ? formatNumber(getInitialCurrentQuantity(goalType, currentQuantity)!) : "");
     setTimeout(() => currentInputRef.current?.focus(), 50);
   }, [open, goalType, unit, targetQuantity, currentQuantity]);
 
@@ -116,8 +117,8 @@ export default function DetailsGoalEditor({
       await onSave({
         goal_type: TaskGoalType.FIXED,
         unit: draftUnit,
-        target_quantity: isPercent ? 100 : draftTarget,
-        current_quantity: draftCurrent ?? 0,
+        target_quantity: isPercent ? 100 : (parseLocalizedNumber(draftTarget) || null),
+        current_quantity: parseLocalizedNumber(draftCurrent) || 0,
       });
       onClose();
     } finally {
@@ -168,15 +169,14 @@ export default function DetailsGoalEditor({
               <input
                 ref={currentInputRef}
                 id="goal-current"
-                type="number"
-                min={0}
-                step="any"
-                value={draftCurrent ?? ""}
-                onChange={(e) => setDraftCurrent(e.target.value === "" ? null : Number(e.target.value))}
+                type="text"
+                inputMode="decimal"
+                value={draftCurrent}
+                onChange={(e) => setDraftCurrent(e.target.value)}
                 onFocus={() => setCurrentFocused(true)}
                 onBlur={() => setCurrentFocused(false)}
                 placeholder="0"
-                className="w-full rounded-lg border px-3 py-2 body-sm bg-white text-center transition-all [appearance:textfield] focus:outline-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full rounded-lg border px-3 py-2 body-sm bg-white text-center transition-all focus:outline-none"
                 style={{
                   borderColor: currentFocused ? colors.blue : colors.border,
                   boxShadow: currentFocused ? `0 0 0 3px ${colors.blueLight}` : "none",
@@ -194,11 +194,10 @@ export default function DetailsGoalEditor({
               <input
                 ref={targetInputRef}
                 id="goal-target"
-                type="number"
-                min={0}
-                step="any"
-                value={isPercent ? 100 : (draftTarget ?? "")}
-                onChange={(e) => setDraftTarget(e.target.value === "" ? null : Number(e.target.value))}
+                type="text"
+                inputMode="decimal"
+                value={isPercent ? "100" : draftTarget}
+                onChange={(e) => setDraftTarget(e.target.value)}
                 onFocus={() => setTargetFocused(true)}
                 onBlur={() => setTargetFocused(false)}
                 placeholder={isPercent ? "100" : "Angiv mål"}

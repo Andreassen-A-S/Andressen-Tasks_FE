@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { colors } from "@/constants/colors";
 import type { DashboardStats } from "@/types/stats";
 import StatsPanel from "./StatsPanel";
+import { formatNumber } from "@/helpers/helpers";
 
 interface StatsOverviewPanelProps {
     stats: DashboardStats;
@@ -72,7 +73,7 @@ export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverview
             action={
                 <div className="inline-flex items-center gap-2 label-md" style={{ color: colors.textSecondary }}>
                     <FontAwesomeIcon icon={faClock} className="h-3.5 w-3.5" />
-                    {stats.completion.on_time_rate}% til tiden
+                    {formatNumber(stats.completion.on_time_rate)}% til tiden
                 </div>
             }
             contentClassName="grid gap-5 p-5 lg:grid-cols-[1fr_1fr] lg:items-center"
@@ -99,10 +100,10 @@ export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverview
 
                     <p className="mt-4 body-md" style={{ color: colors.textSecondary }}>
                         <span className="label-lg" style={{ color: colors.textPrimary }}>
-                            {completed} opgaver fuldført
+                            {formatNumber(completed)} opgaver fuldført
                         </span>{" "}
-                        og <span className="label-lg" style={{ color: colors.textPrimary }}>{created} opgaver oprettet</span>{" "}
-                        i perioden. Der er {active} aktive opgaver, hvoraf {overdue} er overskredne.
+                        og <span className="label-lg" style={{ color: colors.textPrimary }}>{formatNumber(created)} opgaver oprettet</span>{" "}
+                        i perioden. Der er {formatNumber(active)} aktive opgaver, hvoraf {formatNumber(overdue)} er overskredne.
                     </p>
                 </div>
 
@@ -119,7 +120,7 @@ export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverview
                             <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full" style={{ backgroundColor: item.background }}>
                                 <FontAwesomeIcon icon={item.icon} className="h-3.5 w-3.5" style={{ color: item.color }} />
                             </div>
-                            <p className="h3" style={{ color: colors.textPrimary }}>{item.value}</p>
+                            <p className="h3" style={{ color: colors.textPrimary }}>{formatNumber(item.value)}</p>
                             <p className="label-md" style={{ color: colors.textSecondary }}>{item.label}</p>
                         </div>
                     ))}

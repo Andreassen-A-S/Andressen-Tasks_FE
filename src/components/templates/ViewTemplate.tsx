@@ -9,7 +9,7 @@ import { RecurringTemplate } from "@/types/recuringTemplate";
 import { Task } from "@/types/task";
 import { getTaskAssignments, getTemplateInstances } from "@/lib/api";
 import type { TaskAssignment } from "@/types/assignment";
-import { formatDate, formatRelativeDate } from "@/helpers/helpers";
+import { formatDate, formatNumber, formatRelativeDate } from "@/helpers/helpers";
 import Badge from "@/components/common/label/Badge";
 import TaskAssignedUsers from "@/components/common/label/TaskAssignedUsers";
 import Modal from "@/components/modal/Modal";
@@ -130,7 +130,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                             {hasGoal ? (
                                                 <>
                                                     <div className="label-md" style={{ color: colors.textPrimary }}>
-                                                        {instance.current_quantity ?? 0}/{instance.target_quantity}
+                                                        {formatNumber(instance.current_quantity ?? 0)}/{formatNumber(instance.target_quantity!)}
                                                     </div>
                                                     <div className="mt-1 body-sm" style={{ color: colors.textSecondary }}>
                                                         {percent}%

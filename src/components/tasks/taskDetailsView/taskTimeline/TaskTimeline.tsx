@@ -7,7 +7,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 import { UserRole } from "@/types/users";
 import { toast } from "sonner";
 import SingleAvatar from "../../../common/label/SingleAvatar";
-import { formatCommentDate, translateStatusLowercase, translateTaskUnit } from "@/helpers/helpers";
+import { formatCommentDate, formatNumber, translateStatusLowercase, translateTaskUnit } from "@/helpers/helpers";
 import { getSubtaskInfo } from "@/helpers/helpers";
 import TaskComment from "../TaskComment";
 import TaskTimelineComment from "./TaskTimelineComment";
@@ -90,7 +90,7 @@ function eventLabel(e: TaskEvent) {
                 <>
                     loggede fremskridt {" "}
                     <span className="font-semibold text-[#1B1D22]">
-                        {progress}
+                        {formatNumber(progress)}
                         {unit ? `${translateTaskUnit(unit)}` : ""}
                     </span>
                     {" "}

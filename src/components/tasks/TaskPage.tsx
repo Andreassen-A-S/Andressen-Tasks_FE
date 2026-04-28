@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { formatNumber } from "@/helpers/helpers";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TaskPriority, TaskStatus } from "@/types/task";
@@ -110,7 +111,7 @@ export default function TaskPage() {
         <div className="min-h-screen">
             <PageHeader
                 title="Opgaver"
-                subtitle={`${tasks.length} opgaver`}
+                subtitle={`${formatNumber(tasks.length)} opgaver`}
                 action={
                     <Button
                         variant="primary"

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { updateUser } from "@/lib/api/users";
-import { UpdateUserInput, User } from "@/types/users";
+import { UpdateUserInput, User, UserPositions } from "@/types/users";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
@@ -126,13 +126,20 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 </div>
                 <div>
                     <label htmlFor="position" className="label-md block mb-2">Stilling</label>
-                    <TextInput
+                    <SelectField
                         id="position"
                         name="position"
-                        type="text"
                         value={formData.position}
                         onChange={handleChange}
-                    />
+                    >
+                        <option value="">Vælg stilling...</option>
+                        {UserPositions.map(pos => (
+                            <option key={pos} value={pos}>{pos}</option>
+                        ))}
+                        {formData.position && !UserPositions.includes(formData.position) && (
+                            <option value={formData.position}>{formData.position}</option>
+                        )}
+                    </SelectField>
                 </div>
             </div>
         </form>

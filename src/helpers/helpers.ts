@@ -339,3 +339,11 @@ export function getFileIcon(mimeType?: string | null) {
     return faFileImage;
   return faFile;
 }
+
+export function parseLocalizedNumber(value: string): number {
+  return parseFloat(value.replace(",", "."));
+}
+
+export function formatNumber(value: number | string): string {
+  return typeof value === "number" ? value.toLocaleString("da-DK") : value;
+}

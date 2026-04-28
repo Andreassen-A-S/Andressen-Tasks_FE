@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { formatNumber } from "@/helpers/helpers";
 import { getUsers } from "@/lib/api";
 import type { User } from "@/types/users";
 import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
@@ -73,7 +74,7 @@ export default function UserSelector({
             )}
             {selectedUserIds.length > 0 && (
                 <div className="caption mt-2 text-[#6B7084]">
-                    {selectedUserIds.length} medarbejder(e) valgt
+                    {formatNumber(selectedUserIds.length)} medarbejder(e) valgt
                 </div>
             )}
         </div>

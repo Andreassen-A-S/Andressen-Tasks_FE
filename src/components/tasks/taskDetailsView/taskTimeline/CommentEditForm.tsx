@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { formatNumber } from "@/helpers/helpers";
 import { faPaperclip, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { updateComment, prepareAttachments, uploadToGcs } from "@/lib/api";
@@ -50,7 +51,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
             toast.error(
                 oversized.length === 1
                     ? `${oversized[0].name} overskrider den maksimale filstørrelse.`
-                    : `${oversized.length} filer overskrider den maksimale filstørrelse og blev ikke tilføjet.`
+                    : `${formatNumber(oversized.length)} filer overskrider den maksimale filstørrelse og blev ikke tilføjet.`
             );
         }
 

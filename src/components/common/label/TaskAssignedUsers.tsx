@@ -1,7 +1,7 @@
 "use client";
 
 import type { TaskAssignment } from "@/types/assignment";
-import { getInitials, getAvatarColor } from "@/helpers/helpers";
+import { getInitials, getAvatarColor, formatNumber } from "@/helpers/helpers";
 import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 
 interface TaskAssignedUsersProps {
@@ -66,7 +66,7 @@ export default function TaskAssignedUsers({
                 ))}
                 {remaining > 0 && (
                     <div className={`${currentSize.more} bg-[#A8AABB] flex items-center justify-center border-white`} style={{ zIndex: 0 }}>
-                        +{remaining}
+                        +{formatNumber(remaining)}
                     </div>
                 )}
             </div>
