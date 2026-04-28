@@ -71,7 +71,7 @@ export default function GoalSection({
                                 disabled={isPercent}
                                 onChange={(e) => {
                                     const nextValue = e.target.value === "" ? undefined : Number(e.target.value);
-                                    onFieldChange('target_quantity', nextValue != null && nextValue > MIN_TARGET_QUANTITY ? nextValue : undefined);
+                                    onFieldChange('target_quantity', nextValue != null && nextValue >= MIN_TARGET_QUANTITY ? nextValue : undefined);
                                 }}
                             />
                         </div>

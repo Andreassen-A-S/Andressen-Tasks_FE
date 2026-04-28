@@ -120,6 +120,15 @@ export default function CreateTaskForm({
             return;
         }
 
+        if (
+            formData.goal_type === TaskGoalType.FIXED &&
+            (formData.unit ?? TaskUnit.NONE) !== TaskUnit.NONE &&
+            (formData.target_quantity == null || formData.target_quantity <= 0)
+        ) {
+            setError("Mål skal være et tal større end 0.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
