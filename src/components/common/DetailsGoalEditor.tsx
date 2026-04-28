@@ -112,13 +112,19 @@ export default function DetailsGoalEditor({
   const isPercent = draftUnit === TaskUnit.NONE;
 
   async function handleSave() {
+    const parsedTarget = parseLocalizedNumber(draftTarget);
+    const parsedCurrent = parseLocalizedNumber(draftCurrent);
+
+    if (!isPercent && (!Number.isFinite(parsedTarget) || parsedTarget < 0)) return;
+    if (Number.isFinite(parsedCurrent) && parsedCurrent < 0) return;
+
     setIsSaving(true);
     try {
       await onSave({
         goal_type: TaskGoalType.FIXED,
         unit: draftUnit,
-        target_quantity: isPercent ? 100 : (parseLocalizedNumber(draftTarget) || null),
-        current_quantity: parseLocalizedNumber(draftCurrent) || 0,
+        target_quantity: isPercent ? 100 : parsedTarget,
+        current_quantity: Number.isFinite(parsedCurrent) ? parsedCurrent : 0,
       });
       onClose();
     } finally {
