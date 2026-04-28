@@ -1,3 +1,4 @@
+import parseDecimalNumber from "parse-decimal-number";
 import { TaskEvent } from "@/types/taskEvent";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import { TaskAssignment } from "@/types/assignment";
@@ -338,4 +339,14 @@ export function getFileIcon(mimeType?: string | null) {
   )
     return faFileImage;
   return faFile;
+}
+
+export function parseLocalizedNumber(value: string): number {
+  const s = value.trim().replace(/[\s ]/g, "");
+  if (!s || s.endsWith(",") || s.endsWith(".")) return NaN;
+  return parseDecimalNumber(s, { thousands: ".", decimal: "," });
+}
+
+export function formatNumber(value: number | string): string {
+  return typeof value === "number" ? value.toLocaleString("da-DK") : value;
 }

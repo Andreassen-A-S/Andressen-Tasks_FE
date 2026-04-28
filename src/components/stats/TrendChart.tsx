@@ -1,4 +1,4 @@
-import { formatLocalDate } from "@/helpers/helpers";
+import { formatLocalDate, formatNumber } from "@/helpers/helpers";
 import type { TrendDataPoint } from "@/types/stats";
 import { colors } from "@/constants/colors";
 import DataBarChart from "@/components/common/chart/DataBarChart";
@@ -63,7 +63,7 @@ export default function TrendChart({ data, periodDays }: TrendChartProps) {
                     <div>
                         <h3 className="h4">Aktivitet over tid</h3>
                         <p className="body-sm" style={{ color: colors.textMuted }}>
-                            Daglig aktivitet for de sidste {periodDays} dage
+                            Daglig aktivitet for de sidste {formatNumber(periodDays)} dage
                         </p>
                     </div>
                     <div className="flex items-center gap-4 label-md" aria-label="Forklaring">

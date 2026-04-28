@@ -7,7 +7,7 @@ import { TaskStatus } from "@/types/task";
 import { adminQueryKeys, fetchTasksPageData } from "@/lib/queries/admin";
 import { getTaskComments } from "@/lib/api";
 import { colors } from "@/constants/colors";
-import { toDateKey } from "@/helpers/helpers";
+import { toDateKey, formatNumber } from "@/helpers/helpers";
 import type { CommentWithTask } from "./DashboardCommentsPanel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExpand, faCompress, faRotateRight, faCaretDown } from "@fortawesome/free-solid-svg-icons";
@@ -188,7 +188,7 @@ export default function DashboardPage() {
                         <DropdownMenu
                             trigger={
                                 <Button variant="ghost" size="sm">
-                                    {windowDays}d
+                                    {formatNumber(windowDays)}d
                                     <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
                                 </Button>
                             }

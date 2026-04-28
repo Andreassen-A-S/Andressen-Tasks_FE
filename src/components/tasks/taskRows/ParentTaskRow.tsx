@@ -3,7 +3,7 @@
 import { Fragment, useState } from "react";
 import { TaskGoalType, type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
-import { formatCommentDate, formatRelativeDate, translateTaskUnit } from "@/helpers/helpers";
+import { formatCommentDate, formatRelativeDate, translateTaskUnit, formatNumber } from "@/helpers/helpers";
 import { colors } from "@/constants/colors";
 import Badge from "../../common/label/Badge";
 import TaskAssignedUsers from "../../common/label/TaskAssignedUsers";
@@ -47,7 +47,7 @@ export default function ParentTaskRow({
 
     const progressUnit = translateTaskUnit(task.unit);
     const quantitySummary = task.target_quantity != null
-        ? `${task.current_quantity ?? 0}/${task.target_quantity}${progressUnit ? ` ${progressUnit}` : ""}`
+        ? `${formatNumber(task.current_quantity ?? 0)}/${formatNumber(task.target_quantity)}${progressUnit ? ` ${progressUnit}` : ""}`
         : null;
     const updatedLabel = formatCommentDate(task.updated_at);
     const hasDetailSegment = hasSubtasks || hasQuantityProgress;

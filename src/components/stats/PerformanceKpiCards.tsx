@@ -1,5 +1,6 @@
 import { colors } from "@/constants/colors";
 import type { DashboardStats } from "@/types/stats";
+import { formatNumber } from "@/helpers/helpers";
 
 interface PerformanceKpiCardsProps {
     stats: DashboardStats;
@@ -15,25 +16,25 @@ export default function PerformanceKpiCards({ stats, periodLabel }: PerformanceK
     const cards = [
         {
             label: "Til tiden",
-            value: `${stats.completion.on_time_rate}%`,
-            detail: `${stats.completion.on_time_completed} af ${stats.completion.completed_in_period} afsluttet ${periodLabel.toLowerCase()}`,
+            value: `${formatNumber(stats.completion.on_time_rate)}%`,
+            detail: `${formatNumber(stats.completion.on_time_completed)} af ${formatNumber(stats.completion.completed_in_period)} afsluttet ${periodLabel.toLowerCase()}`,
             accent: colors.green,
         },
         {
             label: "Afslutninger",
-            value: stats.completion.completed_in_period,
+            value: formatNumber(stats.completion.completed_in_period),
             detail: `Opgaver afsluttet ${periodLabel.toLowerCase()}`,
             accent: colors.blue,
         },
         {
             label: "Gns. færdiggørelse",
-            value: `${stats.completion.avg_completion_days}d`,
+            value: `${formatNumber(stats.completion.avg_completion_days)}d`,
             detail: "Fra oprettelse til afslutning",
             accent: colors.charcoal,
         },
         {
             label: "Gns. forsinkelse",
-            value: `${stats.completion.avg_delay_days}d`,
+            value: `${formatNumber(stats.completion.avg_delay_days)}d`,
             detail: "Kun for opgaver afsluttet efter deadline",
             accent: stats.completion.avg_delay_days > 0 ? colors.red : colors.green,
         },

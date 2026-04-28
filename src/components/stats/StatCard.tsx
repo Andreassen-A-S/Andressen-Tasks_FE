@@ -1,5 +1,6 @@
 "use client";
 import FloatingTooltip from "../common/tooltip/FloatingTooltip";
+import { formatNumber } from "@/helpers/helpers";
 
 interface StatCardProps {
     title: string;
@@ -92,7 +93,7 @@ export default function StatCard({
                             </FloatingTooltip>
                         )}
                     </div>
-                    <p className={`mt-2 h1 ${textColors[variant]}`}>{value}</p>
+                    <p className={`mt-2 h1 ${textColors[variant]}`}>{formatNumber(value)}</p>
                     {subtitle && (
                         <p className={`mt-1 label-lg ${subtitleColors[variant]}`}>{subtitle}</p>
                     )}

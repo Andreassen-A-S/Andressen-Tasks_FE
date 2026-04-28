@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateTask, getTaskAssignments } from "@/lib/api";
 import { TaskStatus, TaskPriority, TaskGoalType, TaskUnit } from "@/types/task";
-import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit } from "@/helpers/helpers";
+import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit, formatNumber } from "@/helpers/helpers";
 
 import Modal from "@/components/modal/Modal";
 import CreateTaskForm from "@/components/tasks/createTask/CreateTaskForm";
@@ -457,29 +457,39 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                                     onClose={closePicker}
                                     emptyText="Intet mål"
                                 >
-                                    {task.goal_type === "FIXED" && task.target_quantity != null ? (
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between">
-                                                <span className="body-xs">Fremskridt</span>
-                                                <span className="label-md">
-                                                    {task.current_quantity ?? 0} / {task.target_quantity}
-                                                    {task.unit ? ` ${translateTaskUnit(task.unit)}` : ""}
+                                    {(() => {
+                                        const targetQuantity = task.target_quantity;
+                                        if (task.goal_type !== "FIXED" || targetQuantity == null || targetQuantity <= 0) {
+                                            return undefined;
+                                        }
+
+                                        const currentQuantity = task.current_quantity ?? 0;
+                                        const progressPercent = Math.max(0, Math.min(100, (currentQuantity / targetQuantity) * 100));
+
+                                        return (
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between">
+                                                    <span className="body-xs">Fremskridt</span>
+                                                    <span className="label-md">
+                                                        {formatNumber(currentQuantity)} / {formatNumber(targetQuantity)}
+                                                        {task.unit ? ` ${translateTaskUnit(task.unit)}` : ""}
+                                                    </span>
+                                                </div>
+                                                <div className="w-full rounded-full h-1.5" style={{ backgroundColor: colors.border }}>
+                                                    <div
+                                                        className="h-1.5 rounded-full transition-all"
+                                                        style={{
+                                                            width: `${progressPercent}%`,
+                                                            backgroundColor: colors.green,
+                                                        }}
+                                                    />
+                                                </div>
+                                                <span className="caption" style={{ display: "block", textAlign: "right" }}>
+                                                    {Math.round(progressPercent)}% fuldført
                                                 </span>
                                             </div>
-                                            <div className="w-full rounded-full h-1.5" style={{ backgroundColor: colors.border }}>
-                                                <div
-                                                    className="h-1.5 rounded-full transition-all"
-                                                    style={{
-                                                        width: `${Math.min(100, ((task.current_quantity ?? 0) / task.target_quantity) * 100)}%`,
-                                                        backgroundColor: colors.green,
-                                                    }}
-                                                />
-                                            </div>
-                                            <span className="caption" style={{ display: "block", textAlign: "right" }}>
-                                                {Math.round(Math.min(100, ((task.current_quantity ?? 0) / task.target_quantity) * 100))}% fuldført
-                                            </span>
-                                        </div>
-                                    ) : undefined}
+                                        );
+                                    })()}
                                 </DetailsSectionHeader>
 
                                 <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />

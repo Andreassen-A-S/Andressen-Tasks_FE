@@ -1,6 +1,7 @@
 import { colors } from "@/constants/colors";
 import type { ProjectStats } from "@/types/stats";
 import DataTable from "@/components/common/table/DataTable";
+import { formatNumber } from "@/helpers/helpers";
 
 interface ProjectProblemTableProps {
     data?: ProjectStats[];
@@ -44,9 +45,9 @@ export default function ProjectProblemTable({ data, periodLabel }: ProjectProble
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-4 label-md" style={{ color: colors.textSecondary }}>
-                        <span><strong style={{ color: colors.textPrimary }}>{projects.length}</strong> projekter</span>
-                        <span><strong style={{ color: totalOverdue ? colors.red : colors.textPrimary }}>{totalOverdue}</strong> overskredne</span>
-                        <span><strong style={{ color: totalLate ? colors.yellow : colors.textPrimary }}>{totalLate}</strong> for sent</span>
+                        <span><strong style={{ color: colors.textPrimary }}>{formatNumber(projects.length)}</strong> projekter</span>
+                        <span><strong style={{ color: totalOverdue ? colors.red : colors.textPrimary }}>{formatNumber(totalOverdue)}</strong> overskredne</span>
+                        <span><strong style={{ color: totalLate ? colors.yellow : colors.textPrimary }}>{formatNumber(totalLate)}</strong> for sent</span>
                     </div>
                 </>
             }
@@ -68,19 +69,19 @@ export default function ProjectProblemTable({ data, periodLabel }: ProjectProble
                             </div>
                         </td>
                         <td className="px-4 py-4 text-right label-md" style={{ color: project.on_time_rate >= 80 ? colors.green : project.on_time_rate > 0 ? colors.yellow : colors.red }}>
-                            {project.on_time_rate}%
+                            {formatNumber(project.on_time_rate)}%
                         </td>
                         <td className="px-4 py-4 text-right label-md" style={{ color: colors.textPrimary }}>
-                            {project.completed_count}
+                            {formatNumber(project.completed_count)}
                         </td>
                         <td className="px-4 py-4 text-right label-md" style={{ color: colors.textPrimary }}>
-                            {project.active_tasks}
+                            {formatNumber(project.active_tasks)}
                         </td>
                         <td className="px-4 py-4 text-right label-md" style={{ color: hasLate ? colors.yellow : colors.textSecondary }}>
-                            {project.late_completed_count}
+                            {formatNumber(project.late_completed_count)}
                         </td>
                         <td className="px-5 py-4 text-right label-md" style={{ color: hasOverdue ? colors.red : colors.textSecondary }}>
-                            {project.overdue_active_tasks}
+                            {formatNumber(project.overdue_active_tasks)}
                         </td>
                     </tr>
                 );

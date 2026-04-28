@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { formatNumber } from "@/helpers/helpers";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserRole, getUserRoleLabel } from "@/types/users";
 import EmployeeTable from "./EmployeeTable";
@@ -82,7 +83,7 @@ export default function EmployeePage() {
         <div className="min-h-screen">
             <PageHeader
                 title="Medarbejdere"
-                subtitle={`${employees.length} medarbejdere`}
+                subtitle={`${formatNumber(employees.length)} medarbejdere`}
                 action={
                     <Button
                         variant="primary"

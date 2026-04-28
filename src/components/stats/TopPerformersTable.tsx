@@ -4,6 +4,7 @@ import type { TopPerformer } from "@/types/stats";
 import SingleAvatar from "../common/label/SingleAvatar";
 import { colors } from "@/constants/colors";
 import DataTable from "@/components/common/table/DataTable";
+import { formatNumber } from "@/helpers/helpers";
 
 interface TopPerformersTableProps {
     data: TopPerformer[];
@@ -38,7 +39,7 @@ export default function TopPerformersTable({ data, periodLabel }: TopPerformersT
                         <p className="body-sm" style={{ color: colors.textMuted }}>Flest afsluttede opgaver {periodLabel.toLowerCase()}</p>
                     </div>
                     <div className="label-md" style={{ color: colors.textSecondary }}>
-                        {totalCompleted} fuldførte opgaver
+                        {formatNumber(totalCompleted)} fuldførte opgaver
                     </div>
                 </>
             }
@@ -67,7 +68,7 @@ export default function TopPerformersTable({ data, periodLabel }: TopPerformersT
                         </div>
                     </td>
                     <td className="px-5 py-4 text-right">
-                        <span className="label-lg" style={{ color: colors.textPrimary }}>{performer.completed_count}</span>
+                        <span className="label-lg" style={{ color: colors.textPrimary }}>{formatNumber(performer.completed_count)}</span>
                     </td>
                 </tr>
             ))}

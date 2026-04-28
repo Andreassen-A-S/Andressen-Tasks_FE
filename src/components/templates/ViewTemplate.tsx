@@ -9,7 +9,7 @@ import { RecurringTemplate } from "@/types/recuringTemplate";
 import { Task } from "@/types/task";
 import { getTaskAssignments, getTemplateInstances } from "@/lib/api";
 import type { TaskAssignment } from "@/types/assignment";
-import { formatDate, formatRelativeDate } from "@/helpers/helpers";
+import { formatDate, formatNumber, formatRelativeDate } from "@/helpers/helpers";
 import Badge from "@/components/common/label/Badge";
 import TaskAssignedUsers from "@/components/common/label/TaskAssignedUsers";
 import Modal from "@/components/modal/Modal";
@@ -98,9 +98,13 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                         {instances.map((instance, index) => (
                             (() => {
                                 const assignments = instanceAssignments[instance.task_id] ?? [];
-                                const hasGoal = instance.goal_type === "FIXED" && instance.target_quantity != null;
-                                const percent = hasGoal && instance.target_quantity! > 0
-                                    ? Math.max(0, Math.min(100, Math.round(((instance.current_quantity ?? 0) / instance.target_quantity!) * 100)))
+                                const targetQuantity = instance.target_quantity;
+                                const currentQuantity = instance.current_quantity ?? 0;
+                                const goalProgress = instance.goal_type === "FIXED" && typeof targetQuantity === "number" && targetQuantity > 0
+                                    ? {
+                                        targetQuantity,
+                                        percent: Math.max(0, Math.min(100, Math.round((currentQuantity / targetQuantity) * 100))),
+                                    }
                                     : null;
 
                                 return (
@@ -127,13 +131,13 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                             </div>
                                         </div>
                                         <div className="w-28 shrink-0 text-right">
-                                            {hasGoal ? (
+                                            {goalProgress ? (
                                                 <>
                                                     <div className="label-md" style={{ color: colors.textPrimary }}>
-                                                        {instance.current_quantity ?? 0}/{instance.target_quantity}
+                                                        {formatNumber(currentQuantity)}/{formatNumber(goalProgress.targetQuantity)}
                                                     </div>
                                                     <div className="mt-1 body-sm" style={{ color: colors.textSecondary }}>
-                                                        {percent}%
+                                                        {goalProgress.percent}%
                                                     </div>
                                                     <div
                                                         className="mt-1.5 ml-auto h-1.5 w-full overflow-hidden rounded-full"
@@ -142,7 +146,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                                         <div
                                                             className="h-full rounded-full"
                                                             style={{
-                                                                width: `${percent}%`,
+                                                                width: `${goalProgress.percent}%`,
                                                                 backgroundColor: colors.green,
                                                             }}
                                                         />

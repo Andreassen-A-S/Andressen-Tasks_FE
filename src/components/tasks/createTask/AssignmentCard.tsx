@@ -1,4 +1,5 @@
 import UserSelector from "../updateTaskView/UserSelector";
+import { formatNumber } from "@/helpers/helpers";
 
 export type CreationMode = "combined" | "individual";
 
@@ -44,7 +45,7 @@ export default function AssignmentCard({
                         </span>
                         <p className="caption mt-0.5">
                             {creationMode === "individual"
-                                ? `Opretter ${selectedCount} separate opgaver — én per medarbejder`
+                                ? `Opretter ${formatNumber(selectedCount)} separate opgaver — én per medarbejder`
                                 : "Opretter én fælles opgave delt af alle valgte medarbejdere"}
                         </p>
                     </div>

@@ -11,6 +11,8 @@ interface GoalSectionProps {
     onFieldChange: (field: string, value: number | TaskUnit | undefined) => void;
 }
 
+const MIN_TARGET_QUANTITY = 0;
+
 export default function GoalSection({
     goalType,
     targetQuantity,
@@ -62,14 +64,15 @@ export default function GoalSection({
                             <TextInput
                                 type="number"
                                 id="target_quantity"
-                                min={0}
+                                min={MIN_TARGET_QUANTITY}
                                 step="any"
                                 placeholder="F.eks. 100"
                                 value={isPercent ? 100 : (targetQuantity ?? "")}
                                 disabled={isPercent}
-                                onChange={(e) =>
-                                    onFieldChange('target_quantity', e.target.value === "" ? undefined : Number(e.target.value))
-                                }
+                                onChange={(e) => {
+                                    const nextValue = e.target.value === "" ? undefined : Number(e.target.value);
+                                    onFieldChange('target_quantity', nextValue != null && nextValue >= MIN_TARGET_QUANTITY ? nextValue : undefined);
+                                }}
                             />
                         </div>
 

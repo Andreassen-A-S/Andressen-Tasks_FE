@@ -16,6 +16,7 @@ import {
   useInteractions,
   FloatingPortal,
 } from "@floating-ui/react";
+import { formatNumber, parseLocalizedNumber } from "@/helpers/helpers";
 
 interface Props {
   open: boolean;
@@ -44,11 +45,6 @@ const UNIT_OPTIONS: Array<{ value: TaskUnit; label: string }> = [
   { value: TaskUnit.PLUGS, label: "Stik" },
 ];
 
-function getInitialCurrentQuantity(goalType?: TaskGoalType | null, currentQuantity?: number | null) {
-  if (goalType !== TaskGoalType.FIXED) return null;
-  return currentQuantity ?? null;
-}
-
 export default function DetailsGoalEditor({
   open,
   triggerEl,
@@ -59,15 +55,13 @@ export default function DetailsGoalEditor({
   currentQuantity,
   onSave,
 }: Props) {
-  const initialUnit = unit ?? TaskUnit.NONE;
-  const [draftUnit, setDraftUnit] = useState<TaskUnit>(initialUnit);
-  const [draftTarget, setDraftTarget] = useState<number | null>(
-    targetQuantity ?? (initialUnit === TaskUnit.NONE ? 100 : null),
-  );
-  const [draftCurrent, setDraftCurrent] = useState<number | null>(
-    getInitialCurrentQuantity(goalType, currentQuantity),
-  );
+  const [draftUnit, setDraftUnit] = useState<TaskUnit>(unit ?? TaskUnit.NONE);
+  const [targetRaw, setTargetRaw] = useState<string>("");
+  const [targetValue, setTargetValue] = useState<number | null>(null);
+  const [currentRaw, setCurrentRaw] = useState<string>("");
+  const [currentValue, setCurrentValue] = useState<number | null>(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [inputError, setInputError] = useState<string | null>(null);
   const [currentFocused, setCurrentFocused] = useState(false);
   const [targetFocused, setTargetFocused] = useState(false);
   const [unitFocused, setUnitFocused] = useState(false);
@@ -100,9 +94,15 @@ export default function DetailsGoalEditor({
   useEffect(() => {
     if (!open) return;
     const nextUnit = unit ?? TaskUnit.NONE;
+    const initTarget = targetQuantity ?? (nextUnit === TaskUnit.NONE ? 100 : null);
+    const initCurrent = goalType === TaskGoalType.FIXED ? (currentQuantity ?? null) : null;
+
     setDraftUnit(nextUnit);
-    setDraftTarget(targetQuantity ?? (nextUnit === TaskUnit.NONE ? 100 : null));
-    setDraftCurrent(getInitialCurrentQuantity(goalType, currentQuantity));
+    setTargetRaw(initTarget != null ? formatNumber(initTarget) : "");
+    setTargetValue(initTarget);
+    setCurrentRaw(initCurrent != null ? formatNumber(initCurrent) : "");
+    setCurrentValue(initCurrent ?? 0);
+    setInputError(null);
     setTimeout(() => currentInputRef.current?.focus(), 50);
   }, [open, goalType, unit, targetQuantity, currentQuantity]);
 
@@ -110,14 +110,44 @@ export default function DetailsGoalEditor({
 
   const isPercent = draftUnit === TaskUnit.NONE;
 
+  function handleTargetChange(text: string) {
+    setTargetRaw(text);
+    if (inputError) setInputError(null);
+    const parsed = parseLocalizedNumber(text);
+    setTargetValue(Number.isFinite(parsed) && parsed > 0 ? parsed : null);
+  }
+
+  function handleCurrentChange(text: string) {
+    setCurrentRaw(text);
+    if (inputError) setInputError(null);
+    if (!text.trim()) {
+      setCurrentValue(0);
+      return;
+    }
+    const parsed = parseLocalizedNumber(text);
+    setCurrentValue(Number.isFinite(parsed) && parsed >= 0 ? parsed : null);
+  }
+
   async function handleSave() {
+    if (!isPercent && targetValue === null) {
+      setInputError("Mål skal være et tal større end 0.");
+      targetInputRef.current?.focus();
+      return;
+    }
+    if (currentRaw.trim() && currentValue === null) {
+      setInputError("Start skal være et gyldigt tal på 0 eller derover.");
+      currentInputRef.current?.focus();
+      return;
+    }
+
+    setInputError(null);
     setIsSaving(true);
     try {
       await onSave({
         goal_type: TaskGoalType.FIXED,
         unit: draftUnit,
-        target_quantity: isPercent ? 100 : draftTarget,
-        current_quantity: draftCurrent ?? 0,
+        target_quantity: isPercent ? 100 : targetValue!,
+        current_quantity: currentValue ?? 0,
       });
       onClose();
     } finally {
@@ -168,15 +198,14 @@ export default function DetailsGoalEditor({
               <input
                 ref={currentInputRef}
                 id="goal-current"
-                type="number"
-                min={0}
-                step="any"
-                value={draftCurrent ?? ""}
-                onChange={(e) => setDraftCurrent(e.target.value === "" ? null : Number(e.target.value))}
+                type="text"
+                inputMode="decimal"
+                value={currentRaw}
+                onChange={(e) => handleCurrentChange(e.target.value)}
                 onFocus={() => setCurrentFocused(true)}
                 onBlur={() => setCurrentFocused(false)}
                 placeholder="0"
-                className="w-full rounded-lg border px-3 py-2 body-sm bg-white text-center transition-all [appearance:textfield] focus:outline-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full rounded-lg border px-3 py-2 body-sm bg-white text-center transition-all focus:outline-none"
                 style={{
                   borderColor: currentFocused ? colors.blue : colors.border,
                   boxShadow: currentFocused ? `0 0 0 3px ${colors.blueLight}` : "none",
@@ -194,16 +223,15 @@ export default function DetailsGoalEditor({
               <input
                 ref={targetInputRef}
                 id="goal-target"
-                type="number"
-                min={0}
-                step="any"
-                value={isPercent ? 100 : (draftTarget ?? "")}
-                onChange={(e) => setDraftTarget(e.target.value === "" ? null : Number(e.target.value))}
+                type="text"
+                inputMode="decimal"
+                value={isPercent ? "100" : targetRaw}
+                onChange={(e) => handleTargetChange(e.target.value)}
                 onFocus={() => setTargetFocused(true)}
                 onBlur={() => setTargetFocused(false)}
                 placeholder={isPercent ? "100" : "Angiv mål"}
                 disabled={isPercent}
-                className="w-full rounded-lg border px-3 py-2 body-sm bg-white text-center transition-all [appearance:textfield] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full rounded-lg border px-3 py-2 body-sm bg-white text-center transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
                   borderColor: targetFocused ? colors.blue : colors.border,
                   boxShadow: targetFocused ? `0 0 0 3px ${colors.blueLight}` : "none",
@@ -221,7 +249,10 @@ export default function DetailsGoalEditor({
               onChange={(e) => {
                 const nextUnit = e.target.value as TaskUnit;
                 setDraftUnit(nextUnit);
-                if (nextUnit === TaskUnit.NONE) setDraftTarget(100);
+                if (nextUnit === TaskUnit.NONE) {
+                  setTargetRaw("100");
+                  setTargetValue(100);
+                }
               }}
               onFocus={() => setUnitFocused(true)}
               onBlur={() => setUnitFocused(false)}
@@ -242,6 +273,12 @@ export default function DetailsGoalEditor({
               </p>
             )}
           </div>
+
+          {inputError && (
+            <p className="mt-2 caption" style={{ color: colors.red }}>
+              {inputError}
+            </p>
+          )}
         </div>
 
         <div className="flex justify-end gap-2 px-3 pb-3">
