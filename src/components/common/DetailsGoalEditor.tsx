@@ -220,7 +220,7 @@ export default function DetailsGoalEditor({
               onChange={(e) => {
                 const nextUnit = e.target.value as TaskUnit;
                 setDraftUnit(nextUnit);
-                if (nextUnit === TaskUnit.NONE) setDraftTarget(100);
+                if (nextUnit === TaskUnit.NONE) setDraftTarget("100");
               }}
               onFocus={() => setUnitFocused(true)}
               onBlur={() => setUnitFocused(false)}
