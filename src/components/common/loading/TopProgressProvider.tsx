@@ -1,7 +1,7 @@
 "use client";
 
 import { colors } from "@/constants/colors";
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, Suspense, ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 interface TopProgressContextValue {
@@ -44,9 +44,17 @@ function TopProgressBar({ visible, scale }: { visible: boolean; scale: number })
     );
 }
 
-export function TopProgressProvider({ children }: { children: ReactNode }) {
+function RouteWatcher({ finish }: { finish: () => void }) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    useEffect(() => {
+        const id = window.setTimeout(() => finish(), 0);
+        return () => window.clearTimeout(id);
+    }, [pathname, searchParams, finish]);
+    return null;
+}
+
+export function TopProgressProvider({ children }: { children: ReactNode }) {
     const [visible, setVisible] = useState(false);
     const [scale, setScale] = useState(0);
     const pendingCountRef = useRef(0);
@@ -235,21 +243,15 @@ export function TopProgressProvider({ children }: { children: ReactNode }) {
         finish();
     }, [finish]);
 
-    useEffect(() => {
-        const finishId = window.setTimeout(() => {
-            pendingCountRef.current = 0;
-            finish();
-        }, 0);
-
-        return () => window.clearTimeout(finishId);
-    }, [pathname, searchParams, finish]);
-
     useEffect(() => () => clearTimers(), [clearTimers]);
 
     const value = useMemo(() => ({ start, done }), [start, done]);
 
     return (
         <TopProgressContext.Provider value={value}>
+            <Suspense>
+                <RouteWatcher finish={finish} />
+            </Suspense>
             <TopProgressBar visible={visible} scale={scale} />
             {children}
         </TopProgressContext.Provider>
