@@ -58,7 +58,7 @@ export function useTaskParams() {
     }, [router, searchParams]);
 
     const setTaskId = useCallback(
-        (id: string | null) => setParams({ taskId: id }, "push"),
+        (id: string | null) => setParams({ taskId: id }, id !== null ? "push" : "replace"),
         [setParams],
     );
 

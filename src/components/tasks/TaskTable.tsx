@@ -71,27 +71,25 @@ export default function TaskTable({
         setTaskId(null);
     }
 
-    if (tasks.length === 0) {
-        return (
-            <div className="text-center body-sm text-[#6B7084] mt-8">
-                Ingen opgaver endnu. Opret din første opgave!
-            </div>
-        );
-    }
-
     return (
         <>
-            <DataTable columns={columns}>
-                {parents.map((task) => (
-                    <ParentTaskRow
-                        key={task.task_id}
-                        task={task}
-                        subtasks={subtasksMap[task.task_id] || []}
-                        taskAssignments={taskAssignments}
-                        onTaskClick={(taskId) => { void handleTaskClick(taskId); }}
-                    />
-                ))}
-            </DataTable>
+            {tasks.length === 0 ? (
+                <div className="text-center body-sm text-[#6B7084] mt-8">
+                    Ingen opgaver endnu. Opret din første opgave!
+                </div>
+            ) : (
+                <DataTable columns={columns}>
+                    {parents.map((task) => (
+                        <ParentTaskRow
+                            key={task.task_id}
+                            task={task}
+                            subtasks={subtasksMap[task.task_id] || []}
+                            taskAssignments={taskAssignments}
+                            onTaskClick={(taskId) => { void handleTaskClick(taskId); }}
+                        />
+                    ))}
+                </DataTable>
+            )}
 
             <Drawer open={!!selectedTaskId} onClose={handleCloseDrawer}>
                 {selectedTaskId && (
