@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateTask, getTaskAssignments } from "@/lib/api";
 import { TaskStatus, TaskPriority, TaskGoalType, TaskUnit } from "@/types/task";
@@ -67,12 +67,16 @@ const STATUS_OPTIONS = [
 
 export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsProps) {
     const [linkCopied, setLinkCopied] = useState(false);
+    const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
 
     function handleCopyLink() {
         const url = `${window.location.origin}/tasks?taskId=${taskId}`;
         void navigator.clipboard.writeText(url).then(() => {
+            if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
             setLinkCopied(true);
-            setTimeout(() => setLinkCopied(false), 2000);
+            copyTimerRef.current = setTimeout(() => setLinkCopied(false), 2000);
         });
     }
     const queryClient = useQueryClient();

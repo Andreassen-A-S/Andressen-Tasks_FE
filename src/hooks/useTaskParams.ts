@@ -26,7 +26,7 @@ export function useTaskParams() {
     const sortField = (searchParams.get("sort") as TaskSortField) ?? DEFAULTS.sort;
     const sortDirection = (searchParams.get("dir") as SortDirection) ?? DEFAULTS.dir;
 
-    const setParams = useCallback((updates: Record<string, string | null>) => {
+    const setParams = useCallback((updates: Record<string, string | null>, mode: "push" | "replace" = "replace") => {
         const params = new URLSearchParams(searchParams.toString());
         for (const [key, value] of Object.entries(updates)) {
             if (value === null) {
@@ -36,11 +36,16 @@ export function useTaskParams() {
             }
         }
         const qs = params.toString();
-        router.push(qs ? `/tasks?${qs}` : "/tasks", { scroll: false });
+        const url = qs ? `/tasks?${qs}` : "/tasks";
+        if (mode === "push") {
+            router.push(url, { scroll: false });
+        } else {
+            router.replace(url, { scroll: false });
+        }
     }, [router, searchParams]);
 
     const setTaskId = useCallback(
-        (id: string | null) => setParams({ taskId: id }),
+        (id: string | null) => setParams({ taskId: id }, "push"),
         [setParams],
     );
 
