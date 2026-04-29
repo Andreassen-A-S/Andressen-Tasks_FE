@@ -76,16 +76,6 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         };
     }, []);
 
-    function handleCopyLink() {
-        const url = `${window.location.origin}/tasks?taskId=${taskId}`;
-        void navigator.clipboard.writeText(url)
-            .then(() => {
-                if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-                setLinkCopied(true);
-                copyTimerRef.current = setTimeout(() => setLinkCopied(false), 2000);
-            })
-            .catch(() => toast.error("Kunne ikke kopiere link"));
-    }
     const subtaskFormId = "create-subtask-form";
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
     const [subtaskCreateLoading, setSubtaskCreateLoading] = useState(false);
@@ -100,6 +90,17 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     const showDelayedLoader = useDelayedVisibility(isLoading, 180);
 
     const [openPicker, setOpenPicker] = useState<{ key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal"; triggerEl: HTMLButtonElement } | null>(null);
+
+    function handleCopyLink() {
+        const url = `${window.location.origin}/tasks?taskId=${taskId}`;
+        void navigator.clipboard.writeText(url)
+            .then(() => {
+                if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+                setLinkCopied(true);
+                copyTimerRef.current = setTimeout(() => setLinkCopied(false), 2000);
+            })
+            .catch(() => toast.error("Kunne ikke kopiere link"));
+    }
     const task = data?.task ?? null;
     const creator = data?.creator ?? null;
     const assignments = data?.assignments ?? [];
