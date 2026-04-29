@@ -19,12 +19,25 @@ export function useTaskParams() {
     const searchParams = useSearchParams();
 
     const taskId = searchParams.get("taskId");
-    const statusFilter = (searchParams.get("status") as TaskStatus | "all") ?? DEFAULTS.status;
+
+    const rawStatus = searchParams.get("status");
+    const statusFilter: TaskStatus | "all" =
+        rawStatus === "all" || (rawStatus && (Object.values(TaskStatus) as string[]).includes(rawStatus))
+            ? (rawStatus as TaskStatus | "all")
+            : DEFAULTS.status;
+
     const projectFilter = searchParams.get("project") ?? DEFAULTS.project;
     const assigneeFilter = searchParams.get("assignee") ?? DEFAULTS.assignee;
     const creatorFilter = searchParams.get("creator") ?? DEFAULTS.creator;
-    const sortField = (searchParams.get("sort") as TaskSortField) ?? DEFAULTS.sort;
-    const sortDirection = (searchParams.get("dir") as SortDirection) ?? DEFAULTS.dir;
+
+    const rawSort = searchParams.get("sort");
+    const VALID_SORT_FIELDS: TaskSortField[] = ["created_at", "deadline", "start_date", "priority", "title"];
+    const sortField: TaskSortField = rawSort && (VALID_SORT_FIELDS as string[]).includes(rawSort)
+        ? (rawSort as TaskSortField)
+        : DEFAULTS.sort;
+
+    const rawDir = searchParams.get("dir");
+    const sortDirection: SortDirection = rawDir === "asc" || rawDir === "desc" ? rawDir : DEFAULTS.dir;
 
     const setParams = useCallback((updates: Record<string, string | null>, mode: "push" | "replace" = "replace") => {
         const params = new URLSearchParams(searchParams.toString());
@@ -80,7 +93,7 @@ export function useTaskParams() {
     );
 
     const clearFilters = useCallback(
-        () => setParams({ status: null, project: null, assignee: null, creator: null }),
+        () => setParams({ status: null, project: null, assignee: null, creator: null, sort: null, dir: null }),
         [setParams],
     );
 

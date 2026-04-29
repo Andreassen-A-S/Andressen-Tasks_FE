@@ -68,18 +68,24 @@ const STATUS_OPTIONS = [
 export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsProps) {
     const [linkCopied, setLinkCopied] = useState(false);
     const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const queryClient = useQueryClient();
 
-    useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
+    useEffect(() => {
+        return () => {
+            if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+        };
+    }, []);
 
     function handleCopyLink() {
         const url = `${window.location.origin}/tasks?taskId=${taskId}`;
-        void navigator.clipboard.writeText(url).then(() => {
-            if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-            setLinkCopied(true);
-            copyTimerRef.current = setTimeout(() => setLinkCopied(false), 2000);
-        });
+        void navigator.clipboard.writeText(url)
+            .then(() => {
+                if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+                setLinkCopied(true);
+                copyTimerRef.current = setTimeout(() => setLinkCopied(false), 2000);
+            })
+            .catch(() => toast.error("Kunne ikke kopiere link"));
     }
-    const queryClient = useQueryClient();
     const subtaskFormId = "create-subtask-form";
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
     const [subtaskCreateLoading, setSubtaskCreateLoading] = useState(false);

@@ -88,7 +88,13 @@ npm run dev
 | `/(tabs)/tasks/[taskId]/edit` | Edit modal | — |
 | `/(tabs)/tasks/[taskId]/photos` | Photos modal | — |
 | `/(tabs)/tasks/[taskId]/files` | Files modal | — |
+| `/(tabs)/tasks/[taskId]/add-attachment` | Add attachment modal | — |
 | `/(tabs)/calendar` | Calendar | — |
 | `/(tabs)/calendar/[taskId]` | Calendar task detail | — |
+| `/(tabs)/calendar/[taskId]/comments` | Comments modal | — |
+| `/(tabs)/calendar/[taskId]/edit` | Edit modal | — |
+| `/(tabs)/calendar/[taskId]/photos` | Photos modal | — |
+| `/(tabs)/calendar/[taskId]/files` | Files modal | — |
+| `/(tabs)/calendar/[taskId]/add-attachment` | Add attachment modal | — |
 | `/(tabs)/profile` | Profile | — |
 | `/login` | Login | — |
