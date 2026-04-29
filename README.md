@@ -53,3 +53,49 @@ rm -rf .next node_modules
 npm install
 npm run dev
 ```
+
+## Routing map
+
+### Web (`next/navigation`)
+
+| URL | Params | Notes |
+|-----|--------|-------|
+| `/` | — | Redirects to `/dashboard` |
+| `/login` | — | |
+| `/dashboard` | — | |
+| `/tasks` | — | Default view |
+| `/tasks` | `taskId={id}` | Opens task detail drawer |
+| `/tasks` | `status={status}` | Filter by status |
+| `/tasks` | `project={id}` | Filter by project |
+| `/tasks` | `assignee={id}` | Filter by assignee |
+| `/tasks` | `creator={id}` | Filter by creator |
+| `/tasks` | `sort={field}&dir={asc\|desc}` | Sort field and direction |
+| `/tasks` | any combination of the above | Filters and drawer compose freely |
+| `/tasks` | `taskId={id}` (copied from web) | Web-only shareable link; mobile app uses `andreassentask://` scheme |
+| `/projects` | — | |
+| `/employees` | — | |
+| `/templates` | — | |
+| `/statistics` | — | |
+| `/settings` | — | |
+| `/unauthorized` | — | |
+
+### Mobile (Expo Router)
+
+| Route | Screen | Deep link |
+|-------|--------|-----------|
+| `/(tabs)/tasks` | Task list | — |
+| `/(tabs)/tasks/[taskId]` | Task detail | `andreassentask://tasks?taskId={id}` |
+| `/(tabs)/tasks/[taskId]/comments` | Comments modal | — |
+| `/(tabs)/tasks/[taskId]/edit` | Edit modal | — |
+| `/(tabs)/tasks/[taskId]/photos` | Photos modal | — |
+| `/(tabs)/tasks/[taskId]/files` | Files modal | — |
+| `/(tabs)/tasks/[taskId]/add-attachment` | Add attachment modal | — |
+| `/(tabs)/calendar` | Calendar | — |
+| `/(tabs)/calendar/[taskId]` | Calendar task detail | — |
+| `/(tabs)/calendar/[taskId]/comments` | Comments modal | — |
+| `/(tabs)/calendar/[taskId]/edit` | Edit modal | — |
+| `/(tabs)/calendar/[taskId]/photos` | Photos modal | — |
+| `/(tabs)/calendar/[taskId]/files` | Files modal | — |
+| `/(tabs)/calendar/[taskId]/add-attachment` | Add attachment modal | — |
+| `/(tabs)/profile` | Profile | — |
+| `/login` | Login | — |

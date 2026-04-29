@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
@@ -9,6 +9,7 @@ import TaskDetails from "./taskDetailsView/TaskDetails";
 import ParentTaskRow from "./taskRows/ParentTaskRow";
 import DataTable from "@/components/common/table/DataTable";
 import { fetchTaskDetailsData, taskQueryKeys } from "@/lib/queries/tasks";
+import { useTaskParams } from "@/hooks/useTaskParams";
 import { toast } from "sonner";
 
 interface TaskTableProps {
@@ -34,7 +35,7 @@ export default function TaskTable({
     onTaskDelete,
 }: TaskTableProps) {
     const queryClient = useQueryClient();
-    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+    const { taskId: selectedTaskId, setTaskId } = useTaskParams();
 
     const { parents, subtasksMap } = useMemo(() => {
         const parentList: Task[] = [];
@@ -54,43 +55,41 @@ export default function TaskTable({
         return { parents: parentList, subtasksMap: nextSubtasksMap };
     }, [tasks]);
 
-    async function handleTaskClick(taskId: string) {
+    async function handleTaskClick(id: string) {
         try {
             await queryClient.ensureQueryData({
-                queryKey: taskQueryKeys.details(taskId),
-                queryFn: () => fetchTaskDetailsData(taskId),
+                queryKey: taskQueryKeys.details(id),
+                queryFn: () => fetchTaskDetailsData(id),
             });
-            setSelectedTaskId(taskId);
+            setTaskId(id);
         } catch {
             toast.error("Kunne ikke hente opgave detaljer");
         }
     }
 
     function handleCloseDrawer() {
-        setSelectedTaskId(null);
-    }
-
-    if (tasks.length === 0) {
-        return (
-            <div className="text-center body-sm text-[#6B7084] mt-8">
-                Ingen opgaver endnu. Opret din første opgave!
-            </div>
-        );
+        setTaskId(null);
     }
 
     return (
         <>
-            <DataTable columns={columns}>
-                {parents.map((task) => (
-                    <ParentTaskRow
-                        key={task.task_id}
-                        task={task}
-                        subtasks={subtasksMap[task.task_id] || []}
-                        taskAssignments={taskAssignments}
-                        onTaskClick={(taskId) => { void handleTaskClick(taskId); }}
-                    />
-                ))}
-            </DataTable>
+            {tasks.length === 0 ? (
+                <div className="text-center body-sm text-[#6B7084] mt-8">
+                    Ingen opgaver endnu. Opret din første opgave!
+                </div>
+            ) : (
+                <DataTable columns={columns}>
+                    {parents.map((task) => (
+                        <ParentTaskRow
+                            key={task.task_id}
+                            task={task}
+                            subtasks={subtasksMap[task.task_id] || []}
+                            taskAssignments={taskAssignments}
+                            onTaskClick={(taskId) => { void handleTaskClick(taskId); }}
+                        />
+                    ))}
+                </DataTable>
+            )}
 
             <Drawer open={!!selectedTaskId} onClose={handleCloseDrawer}>
                 {selectedTaskId && (

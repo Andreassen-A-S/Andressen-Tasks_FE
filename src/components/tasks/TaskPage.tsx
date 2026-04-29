@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useTaskParams } from "@/hooks/useTaskParams";
 import { formatNumber } from "@/helpers/helpers";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import TaskTable from "./TaskTable";
-import TaskFilterRow, { type SortDirection, type TaskSortField } from "./TaskFilterRow";
+import TaskFilterRow from "./TaskFilterRow";
 import TaskCreateModal from "./TaskCreateModal";
 import Button from "../common/buttons/Button";
 import PageHeader from "@/components/common/PageHeader";
@@ -18,12 +19,21 @@ export default function TaskPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
     const [createSubmitLabel, setCreateSubmitLabel] = useState("Opret opgave");
-    const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
-    const [projectFilter, setProjectFilter] = useState<string>("all");
-    const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
-    const [creatorFilter, setCreatorFilter] = useState<string>("all");
-    const [sortField, setSortField] = useState<TaskSortField>("created_at");
-    const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+    const {
+        statusFilter,
+        projectFilter,
+        assigneeFilter,
+        creatorFilter,
+        sortField,
+        sortDirection,
+        setStatusFilter,
+        setProjectFilter,
+        setAssigneeFilter,
+        setCreatorFilter,
+        setSortField,
+        setSortDirection,
+        clearFilters,
+    } = useTaskParams();
 
     const createFormId = "create-task-form";
     const { data, isPending } = useQuery({
@@ -101,13 +111,6 @@ export default function TaskPage() {
             };
         });
     }, [queryClient]);
-
-    const clearFilters = useCallback(() => {
-        setStatusFilter("all");
-        setProjectFilter("all");
-        setAssigneeFilter("all");
-        setCreatorFilter("all");
-    }, []);
 
     return (
         <div className="min-h-screen">

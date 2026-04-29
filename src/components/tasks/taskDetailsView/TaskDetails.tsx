@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateTask, getTaskAssignments } from "@/lib/api";
 import { TaskStatus, TaskPriority, TaskGoalType, TaskUnit } from "@/types/task";
@@ -14,10 +14,12 @@ import {
     faCalendar,
     faEllipsis,
     faImages,
+    faCheck,
     faTrash,
     faXmark,
     faBoxArchive,
 } from "@fortawesome/free-solid-svg-icons";
+import { faClone } from "@fortawesome/free-regular-svg-icons";
 import Badge from "../../common/label/Badge";
 import ProjectBadge from "../../common/label/ProjectBadge";
 import SingleAvatar from "../../common/label/SingleAvatar";
@@ -64,7 +66,16 @@ const STATUS_OPTIONS = [
 ].map((s) => ({ value: s, label: sc(translateStatus(s)), color: getStatusAccentColors(s) }));
 
 export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsProps) {
+    const [linkCopied, setLinkCopied] = useState(false);
+    const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const queryClient = useQueryClient();
+
+    useEffect(() => {
+        return () => {
+            if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+        };
+    }, []);
+
     const subtaskFormId = "create-subtask-form";
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
     const [subtaskCreateLoading, setSubtaskCreateLoading] = useState(false);
@@ -79,6 +90,17 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     const showDelayedLoader = useDelayedVisibility(isLoading, 180);
 
     const [openPicker, setOpenPicker] = useState<{ key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal"; triggerEl: HTMLButtonElement } | null>(null);
+
+    function handleCopyLink() {
+        const url = `${window.location.origin}/tasks?taskId=${taskId}`;
+        void navigator.clipboard.writeText(url)
+            .then(() => {
+                if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+                setLinkCopied(true);
+                copyTimerRef.current = setTimeout(() => setLinkCopied(false), 2000);
+            })
+            .catch(() => toast.error("Kunne ikke kopiere link"));
+    }
     const task = data?.task ?? null;
     const creator = data?.creator ?? null;
     const assignments = data?.assignments ?? [];
@@ -294,6 +316,14 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                 <div className="flex items-start justify-between mb-3">
                     <h1 className="h1 wrap-break-word">{task.title}</h1>
                     <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            icon={linkCopied ? faCheck : faClone}
+                            iconOnly
+                            onClick={handleCopyLink}
+                            tooltip={linkCopied ? "Kopieret!" : "Kopier link"}
+                        />
                         <DropdownMenu
                             trigger={<Button variant="ghost" size="md" icon={faEllipsis} iconOnly tooltip="Mere" />}
                             items={[

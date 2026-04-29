@@ -60,13 +60,13 @@ export default function Sidebar() {
         <aside className="w-75 bg-[#1B1D22] border-r border-[rgba(255,255,255,0.06)] h-screen flex flex-col fixed left-0 top-0">
             {/* Header - Brand */}
             <div className="p-6 border-b border-[rgba(255,255,255,0.06)] flex-shrink-0">
-                <div className="flex items-center gap-3">
+                <Link href="/" className="flex items-center gap-3">
                     <img src="/logo.png" alt="Andreassen A/S" width={80} />
                     <div>
                         <h1 className="sidebar-brand">Andreassen A/S</h1>
                         <span className="sidebar-brand-sub">task management</span>
                     </div>
-                </div>
+                </Link>
             </div>
 
             {/* Navigation */}
