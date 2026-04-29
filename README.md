@@ -71,6 +71,7 @@ npm run dev
 | `/tasks` | `creator={id}` | Filter by creator |
 | `/tasks` | `sort={field}&dir={asc\|desc}` | Sort field and direction |
 | `/tasks` | any combination of the above | Filters and drawer compose freely |
+| `/tasks` | `taskId={id}` (copied from web) | Web-only shareable link; mobile app uses `andreassentask://` scheme |
 | `/projects` | — | |
 | `/employees` | — | |
 | `/templates` | — | |
