@@ -14,10 +14,12 @@ import {
     faCalendar,
     faEllipsis,
     faImages,
+    faCheck,
     faTrash,
     faXmark,
     faBoxArchive,
 } from "@fortawesome/free-solid-svg-icons";
+import { faClone } from "@fortawesome/free-regular-svg-icons";
 import Badge from "../../common/label/Badge";
 import ProjectBadge from "../../common/label/ProjectBadge";
 import SingleAvatar from "../../common/label/SingleAvatar";
@@ -64,6 +66,15 @@ const STATUS_OPTIONS = [
 ].map((s) => ({ value: s, label: sc(translateStatus(s)), color: getStatusAccentColors(s) }));
 
 export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsProps) {
+    const [linkCopied, setLinkCopied] = useState(false);
+
+    function handleCopyLink() {
+        const url = `${window.location.origin}/tasks?taskId=${taskId}`;
+        void navigator.clipboard.writeText(url).then(() => {
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 2000);
+        });
+    }
     const queryClient = useQueryClient();
     const subtaskFormId = "create-subtask-form";
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
@@ -294,6 +305,14 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                 <div className="flex items-start justify-between mb-3">
                     <h1 className="h1 wrap-break-word">{task.title}</h1>
                     <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            icon={linkCopied ? faCheck : faClone}
+                            iconOnly
+                            onClick={handleCopyLink}
+                            tooltip={linkCopied ? "Kopieret!" : "Kopier link"}
+                        />
                         <DropdownMenu
                             trigger={<Button variant="ghost" size="md" icon={faEllipsis} iconOnly tooltip="Mere" />}
                             items={[

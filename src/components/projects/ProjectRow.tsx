@@ -2,6 +2,7 @@
 
 import { faListCheck, faRotate, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import type { Project } from "@/types/project";
 import type { Task } from "@/types/task";
 import DropdownMenu from "@/components/common/DropdownMenu";
@@ -51,17 +52,29 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
 
                     <Dot />
 
-                    <span className="flex items-center gap-1">
+                    <Link
+                        href={`/tasks?project=${project.project_id}`}
+                        className="flex items-center gap-1 transition-colors"
+                        style={{ color: colors.textMuted }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = colors.textSecondary)}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = colors.textMuted)}
+                    >
                         <FontAwesomeIcon icon={faListCheck} className="w-3 h-3" />
                         {formatNumber(taskCount)}
-                    </span>
+                    </Link>
 
                     <Dot />
 
-                    <span className="flex items-center gap-1">
+                    <Link
+                        href="/templates"
+                        className="flex items-center gap-1 transition-colors"
+                        style={{ color: colors.textMuted }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = colors.textSecondary)}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = colors.textMuted)}
+                    >
                         <FontAwesomeIcon icon={faRotate} className="w-3 h-3" />
                         {formatNumber(templateCount)}
-                    </span>
+                    </Link>
 
                     <Dot />
 
