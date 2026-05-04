@@ -6,6 +6,7 @@ import { TaskComment } from "@/types/comment";
 import { colors } from "@/constants/colors";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
 import { formatCommentDate, formatNumber } from "@/helpers/helpers";
+import LinkedText from "@/components/common/LinkedText";
 
 interface CommentWithTask extends TaskComment {
     task: Task;
@@ -140,9 +141,12 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                                     </span>
                                 </div>
                                 <span className="h5 truncate">{comment.task.title}</span>
-                                <p className="body-sm line-clamp-5" style={{ color: colors.textSecondary }}>
-                                    {comment.message}
-                                </p>
+                                <LinkedText
+                                    as="p"
+                                    text={comment.message}
+                                    className="body-sm line-clamp-5"
+                                    style={{ color: colors.textSecondary }}
+                                />
                             </div>
                         ))}
                     </div>
