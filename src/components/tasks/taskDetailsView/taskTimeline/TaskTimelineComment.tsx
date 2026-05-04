@@ -14,6 +14,7 @@ import OutlineBadge from "@/components/common/label/OutlineBadge";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import FileAttachmentCard from "../FileAttachmentCard";
 import CommentEditForm from "./CommentEditForm";
+import LinkedText from "@/components/common/LinkedText";
 
 type Props = {
     event: TaskEvent;
@@ -157,12 +158,12 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                         ) : (
                             <>
                                 {message && (
-                                    <p
+                                    <LinkedText
+                                        as="p"
+                                        text={message}
                                         className="body-sm leading-relaxed whitespace-pre-wrap"
                                         style={isDeleted ? { color: colors.textMuted, fontStyle: "italic" } : undefined}
-                                    >
-                                        {message}
-                                    </p>
+                                    />
                                 )}
                                 {attachments.length > 0 && (
                                     <>
