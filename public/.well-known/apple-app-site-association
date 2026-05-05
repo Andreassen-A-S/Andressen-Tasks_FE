@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "7AZ49WFQVJ.com.andreassen.tms",
+        "paths": ["/tasks*"]
+      }
+    ]
+  }
+}
