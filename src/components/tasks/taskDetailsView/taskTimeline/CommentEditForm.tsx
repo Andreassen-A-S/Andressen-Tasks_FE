@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { formatNumber } from "@/helpers/helpers";
-import { faPaperclip, faXmark } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Paperclip, X } from "lucide-react";
 import { updateComment, prepareAttachments, uploadToGcs } from "@/lib/api";
 import { AllowedMimeType, ALLOWED_MIME_TYPE_VALUES, MAX_ATTACHMENTS, MAX_FILE_SIZE, PendingAttachment, type TaskAttachment } from "@/types/attachment";
 import { colors } from "@/constants/colors";
@@ -154,7 +153,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                                     className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                     style={{ backgroundColor: colors.charcoal }}
                                 >
-                                    <FontAwesomeIcon icon={faXmark} className="text-[9px]" style={{ color: colors.textWhite }} />
+                                    <X className="w-2.5 h-2.5" style={{ color: colors.textWhite }} />
                                 </button>
                             </div>
                         ))}
@@ -180,14 +179,14 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                                     className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                     style={{ backgroundColor: colors.charcoal }}
                                 >
-                                    <FontAwesomeIcon icon={faXmark} className="text-[9px]" style={{ color: colors.textWhite }} />
+                                    <X className="w-2.5 h-2.5" style={{ color: colors.textWhite }} />
                                 </button>
                             </div>
                         ))}
                     </div>
                 )}
                 <div className="flex items-center justify-between">
-                    <Button variant="ghost" size="md" icon={faPaperclip} onClick={() => fileInputRef.current?.click()}>
+                    <Button variant="ghost" size="md" icon={<Paperclip className="w-4 h-4" />} onClick={() => fileInputRef.current?.click()}>
                         Træk filer hertil eller klik for at tilføje
                     </Button>
                     <div className="flex items-center gap-2">

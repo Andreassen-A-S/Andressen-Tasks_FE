@@ -1,11 +1,4 @@
-import {
-    faCircleCheck,
-    faClock,
-    faExclamationTriangle,
-    faListCheck,
-    faPlusCircle,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CircleCheck, Clock, TriangleAlert, ListChecks, CirclePlus } from "lucide-react";
 import { colors } from "@/constants/colors";
 import type { DashboardStats } from "@/types/stats";
 import StatsPanel from "./StatsPanel";
@@ -32,28 +25,28 @@ export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverview
         {
             label: "Aktive opgaver",
             value: active,
-            icon: faListCheck,
+            icon: <ListChecks className="h-3.5 w-3.5" />,
             color: colors.blue,
             background: colors.blueLight,
         },
         {
             label: "Fuldført",
             value: completed,
-            icon: faCircleCheck,
+            icon: <CircleCheck className="h-3.5 w-3.5" />,
             color: colors.green,
             background: colors.greenLight,
         },
         {
             label: "Oprettet",
             value: created,
-            icon: faPlusCircle,
+            icon: <CirclePlus className="h-3.5 w-3.5" />,
             color: colors.charcoal,
             background: colors.muted,
         },
         {
             label: "Overskredne",
             value: overdue,
-            icon: faExclamationTriangle,
+            icon: <TriangleAlert className="h-3.5 w-3.5" />,
             color: colors.red,
             background: colors.redLight,
         },
@@ -72,7 +65,7 @@ export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverview
             subtitle={`Opgaveaktivitet for ${periodLabel.toLowerCase()}`}
             action={
                 <div className="inline-flex items-center gap-2 label-md" style={{ color: colors.textSecondary }}>
-                    <FontAwesomeIcon icon={faClock} className="h-3.5 w-3.5" />
+                    <Clock className="h-3.5 w-3.5" />
                     {formatNumber(stats.completion.on_time_rate)}% til tiden
                 </div>
             }
@@ -117,8 +110,8 @@ export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverview
                             ].join(" ")}
                             style={{ borderColor: colors.border }}
                         >
-                            <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full" style={{ backgroundColor: item.background }}>
-                                <FontAwesomeIcon icon={item.icon} className="h-3.5 w-3.5" style={{ color: item.color }} />
+                            <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full" style={{ backgroundColor: item.background, color: item.color }}>
+                                {item.icon}
                             </div>
                             <p className="h3" style={{ color: colors.textPrimary }}>{formatNumber(item.value)}</p>
                             <p className="label-md" style={{ color: colors.textSecondary }}>{item.label}</p>

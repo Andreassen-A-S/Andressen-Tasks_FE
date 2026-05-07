@@ -1,14 +1,15 @@
 "use client";
 
-import { faCalendar, faClock, faFlag } from "@fortawesome/free-regular-svg-icons";
 import {
-    faArrowDownWideShort,
-    faArrowUpShortWide,
-    faCaretDown,
-    faClockRotateLeft,
-    faFont,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+    ArrowDownWideNarrow,
+    ArrowUpNarrowWide,
+    Calendar,
+    ChevronDown,
+    Clock,
+    Flag,
+    History,
+    Type,
+} from "lucide-react";
 import type { Project } from "@/types/project";
 import { TaskStatus } from "@/types/task";
 import type { User } from "@/types/users";
@@ -94,7 +95,7 @@ export default function TaskFilterRow({
                         trigger={
                             <Button variant="ghost" size="md" className="-ml-1">
                                 Status: {selectedStatusLabel}
-                                <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                <ChevronDown className="w-3 h-3" />
                             </Button>
                         }
                         items={[
@@ -111,7 +112,7 @@ export default function TaskFilterRow({
                             trigger={
                                 <Button variant="ghost" size="md">
                                     Projekt: {selectedProjectLabel}
-                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                    <ChevronDown className="w-3 h-3" />
                                 </Button>
                             }
                             items={[
@@ -128,7 +129,7 @@ export default function TaskFilterRow({
                         trigger={
                             <Button variant="ghost" size="md">
                                 Tildelte: {selectedAssigneeLabel}
-                                <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                <ChevronDown className="w-3 h-3" />
                             </Button>
                         }
                         items={[
@@ -144,7 +145,7 @@ export default function TaskFilterRow({
                         trigger={
                             <Button variant="ghost" size="md">
                                 Oprettet af: {selectedCreatorLabel}
-                                <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                <ChevronDown className="w-3 h-3" />
                             </Button>
                         }
                         items={[
@@ -168,30 +169,31 @@ export default function TaskFilterRow({
                     <DropdownMenu
                         trigger={
                             <Button variant="ghost" size="md" className="-mr-1">
-                                <FontAwesomeIcon
-                                    icon={sortDirection === "asc" ? faArrowUpShortWide : faArrowDownWideShort}
-                                    className="w-4 h-4"
-                                />
+                                {sortDirection === "asc" ? (
+                                    <ArrowUpNarrowWide className="w-4 h-4" />
+                                ) : (
+                                    <ArrowDownWideNarrow className="w-4 h-4" />
+                                )}
                                 {sortFieldLabelMap[sortField]}
-                                <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                <ChevronDown className="w-3 h-3" />
                             </Button>
                         }
                         items={[
-                            { label: "Seneste", icon: faClockRotateLeft, checked: sortField === "created_at", onClick: () => onSortFieldChange("created_at") },
-                            { label: "Deadline", icon: faClock, checked: sortField === "deadline", onClick: () => onSortFieldChange("deadline") },
-                            { label: "Startdato", icon: faCalendar, checked: sortField === "start_date", onClick: () => onSortFieldChange("start_date") },
-                            { label: "Prioritet", icon: faFlag, checked: sortField === "priority", onClick: () => onSortFieldChange("priority") },
-                            { label: "Titel", icon: faFont, checked: sortField === "title", onClick: () => onSortFieldChange("title") },
+                            { label: "Seneste", icon: <History className="w-4 h-4" />, checked: sortField === "created_at", onClick: () => onSortFieldChange("created_at") },
+                            { label: "Deadline", icon: <Clock className="w-4 h-4" />, checked: sortField === "deadline", onClick: () => onSortFieldChange("deadline") },
+                            { label: "Startdato", icon: <Calendar className="w-4 h-4" />, checked: sortField === "start_date", onClick: () => onSortFieldChange("start_date") },
+                            { label: "Prioritet", icon: <Flag className="w-4 h-4" />, checked: sortField === "priority", onClick: () => onSortFieldChange("priority") },
+                            { label: "Titel", icon: <Type className="w-4 h-4" />, checked: sortField === "title", onClick: () => onSortFieldChange("title") },
                             {
                                 label: "Stigende",
-                                icon: faArrowUpShortWide,
+                                icon: <ArrowUpNarrowWide className="w-4 h-4" />,
                                 checked: sortDirection === "asc",
                                 dividerBefore: true,
                                 onClick: () => onSortDirectionChange("asc"),
                             },
                             {
                                 label: "Faldende",
-                                icon: faArrowDownWideShort,
+                                icon: <ArrowDownWideNarrow className="w-4 h-4" />,
                                 checked: sortDirection === "desc",
                                 onClick: () => onSortDirectionChange("desc"),
                             },

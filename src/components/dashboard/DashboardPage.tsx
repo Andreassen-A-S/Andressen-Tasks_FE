@@ -9,8 +9,7 @@ import { getTaskComments } from "@/lib/api";
 import { colors } from "@/constants/colors";
 import { toDateKey, formatNumber } from "@/helpers/helpers";
 import type { CommentWithTask } from "./DashboardCommentsPanel";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExpand, faCompress, faRotateRight, faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { Maximize2, Minimize2, RotateCw, ChevronDown } from "lucide-react";
 import Button from "@/components/common/buttons/Button";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import DashboardColumn from "./DashboardColumn";
@@ -144,7 +143,7 @@ export default function DashboardPage() {
                 style={{ backgroundColor: colors.white, borderColor: colors.border }}
             >
                 <div className="flex items-center gap-3">
-                    <span className="h3" style={{ color: colors.textPrimary }}>Andreassen TMS</span>
+                    <span className="h3" style={{ color: colors.textPrimary }}>MesterPlan</span>
                     <span className="mono-xs" style={{ color: colors.textMuted }}>Dashboard</span>
                 </div>
 
@@ -158,7 +157,7 @@ export default function DashboardPage() {
                         variant="ghost"
                         size="sm"
                         iconOnly
-                        icon={faRotateRight}
+                        icon={<RotateCw className="w-4 h-4" />}
                         onClick={() => { refetch(); refetchComments(); }}
                         className={isFetching ? "animate-spin" : ""}
                     />
@@ -171,7 +170,7 @@ export default function DashboardPage() {
                         variant="ghost"
                         size="sm"
                         iconOnly
-                        icon={isFullscreen ? faCompress : faExpand}
+                        icon={isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                         onClick={toggleFullscreen}
                     />
                 </div>
@@ -189,7 +188,7 @@ export default function DashboardPage() {
                             trigger={
                                 <Button variant="ghost" size="sm">
                                     {formatNumber(windowDays)}d
-                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                    <ChevronDown className="w-3 h-3" />
                                 </Button>
                             }
                             items={WINDOW_OPTIONS.map(d => ({

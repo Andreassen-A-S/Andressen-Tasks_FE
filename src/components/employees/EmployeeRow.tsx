@@ -3,7 +3,7 @@ import SingleAvatar from "../common/label/SingleAvatar";
 import { colors } from "@/constants/colors";
 import Button from "../common/buttons/Button";
 import DropdownMenu from "../common/DropdownMenu";
-import { faEllipsis, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { Ellipsis, SquarePen, Trash2 } from "lucide-react";
 
 interface EmployeeRowProps {
     employee: User;
@@ -40,11 +40,11 @@ export default function EmployeeRow({ employee, onEdit, onDelete }: EmployeeRowP
             <td className="py-3 pr-4 w-px whitespace-nowrap text-right">
                 <DropdownMenu
                     trigger={
-                        <Button variant="ghost" size="sm" icon={faEllipsis} iconOnly />
+                        <Button variant="ghost" size="sm" icon={<Ellipsis className="w-4 h-4" />} iconOnly />
                     }
                     items={[
-                        { label: "Rediger", icon: faPenToSquare, onClick: () => onEdit(employee) },
-                        { label: "Slet", icon: faTrash, onClick: () => onDelete(employee.user_id), danger: true, dividerBefore: true },
+                        { label: "Rediger", icon: <SquarePen className="w-4 h-4" />, onClick: () => onEdit(employee) },
+                        { label: "Slet", icon: <Trash2 className="w-4 h-4" />, onClick: () => onDelete(employee.user_id), danger: true, dividerBefore: true },
                     ]}
                 />
             </td>

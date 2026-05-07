@@ -7,7 +7,7 @@ import { UserRole, getUserRoleLabel } from "@/types/users";
 import EmployeeTable from "./EmployeeTable";
 import EmployeeFilterRow, { type EmployeeSortField, type SortDirection } from "./EmployeeFilterRow";
 import EmployeeCreateModal from "./EmployeeCreateModal";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { Plus } from "lucide-react";
 import { colors } from "@/constants/colors";
 import Button from "../common/buttons/Button";
 import PageHeader from "@/components/common/PageHeader";
@@ -88,7 +88,7 @@ export default function EmployeePage() {
                     <Button
                         variant="primary"
                         size="lg"
-                        icon={faPlus}
+                        icon={<Plus className="w-4 h-4" />}
                         onClick={() => setShowCreateModal(true)}
                     >
                         Ny medarbejder

@@ -46,7 +46,7 @@ export default function DashboardColumn({ title, tasks, projectMap, assignmentMa
                 </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-2.5" style={{ backgroundColor: colors.eggWhite }}>
+            <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-2.5" style={{ backgroundColor: variant === "overdue" ? colors.redLight : colors.eggWhite }}>
                 {tasks.length === 0 ? (
                     <div className="flex items-center justify-center py-16">
                         <p className="body-sm" style={{ color: colors.textMuted }}>Ingen opgaver</p>

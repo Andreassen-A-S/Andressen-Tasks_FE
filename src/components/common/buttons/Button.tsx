@@ -1,9 +1,7 @@
 "use client";
 
 import { useContext } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { Loader2 } from "lucide-react";
 import { colors } from "@/constants/colors";
 import { DropdownOpenContext } from "@/components/common/DropdownMenu";
 import type { CSSProperties } from "react";
@@ -16,7 +14,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
-  icon?: IconDefinition;
+  icon?: React.ReactNode;
   iconPosition?: "left" | "right";
   iconOnly?: boolean;
   iconClassName?: string;
@@ -104,16 +102,12 @@ export default function Button({
       }}
     >
       {loading ? (
-        <FontAwesomeIcon icon={faSpinner} spin className="text-current" />
+        <Loader2 className="w-4 h-4 animate-spin text-current" />
       ) : (
-        icon && iconPosition === "left" && (
-          <FontAwesomeIcon icon={icon} className={iconClassName ?? "text-current w-4 h-4"} />
-        )
+        icon && iconPosition === "left" && icon
       )}
       {children}
-      {!loading && icon && iconPosition === "right" && (
-        <FontAwesomeIcon icon={icon} className={iconClassName ?? "text-current w-4 h-4"} />
-      )}
+      {!loading && icon && iconPosition === "right" && icon}
     </button>
   );
 

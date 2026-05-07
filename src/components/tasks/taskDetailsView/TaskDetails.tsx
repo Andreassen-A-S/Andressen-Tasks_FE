@@ -9,18 +9,7 @@ import { formatDateTime, formatDate, translatePriority, translateStatus, getPrio
 
 import Modal from "@/components/modal/Modal";
 import CreateTaskForm from "@/components/tasks/createTask/CreateTaskForm";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faClock,
-    faCalendar,
-    faEllipsis,
-    faImages,
-    faCheck,
-    faTrash,
-    faXmark,
-    faBoxArchive,
-} from "@fortawesome/free-solid-svg-icons";
-import { faClone } from "@fortawesome/free-regular-svg-icons";
+import { Clock, Calendar, Ellipsis, Check, Trash2, X, Archive, Copy, ImageDown } from "lucide-react";
 import Badge from "../../common/label/Badge";
 import ProjectBadge from "../../common/label/ProjectBadge";
 import SingleAvatar from "../../common/label/SingleAvatar";
@@ -307,7 +296,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                     className="flex items-center gap-2 px-4 py-2"
                     style={{ backgroundColor: colors.muted, borderBottom: `1px solid ${colors.border}`, color: colors.textSecondary }}
                 >
-                    <FontAwesomeIcon icon={faBoxArchive} className="text-xs" />
+                    <Archive className="w-4 h-4" />
                     <span className="label-sm">Denne opgave er arkiveret og kan ikke redigeres</span>
                 </div>
             )}
@@ -320,29 +309,29 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                         <Button
                             variant="ghost"
                             size="md"
-                            icon={linkCopied ? faCheck : faClone}
+                            icon={linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                             iconOnly
                             onClick={handleCopyLink}
                             tooltip={linkCopied ? "Kopieret!" : "Kopier link"}
                         />
                         <DropdownMenu
-                            trigger={<Button variant="ghost" size="md" icon={faEllipsis} iconOnly tooltip="Mere" />}
+                            trigger={<Button variant="ghost" size="md" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />}
                             items={[
                                 {
-                                    label: isDownloading ? "Henter billeder..." : "Download alle billeder",
-                                    icon: faImages,
+                                    label: isDownloading ? "Henter billeder..." : "Download billeder",
+                                    icon: <ImageDown className="w-4 h-4" />,
                                     onClick: handleDownloadAllImages,
                                 },
                                 {
                                     label: "Slet",
-                                    icon: faTrash,
+                                    icon: <Trash2 className="w-4 h-4" />,
                                     onClick: () => setConfirmDeleteOpen(true),
                                     danger: true,
                                     dividerBefore: true,
                                 },
                             ]}
                         />
-                        <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />
+                        <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />
                     </div>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
@@ -453,7 +442,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                                 >
                                     {task.start_date ? (
                                         <div className="flex items-center gap-2">
-                                            <FontAwesomeIcon icon={faCalendar} className="text-xs" style={{ color: colors.textMuted }} />
+                                            <Calendar className="w-4 h-4" style={{ color: colors.textMuted }} />
                                             <span className="body-sm">{formatDate(task.start_date)}</span>
                                         </div>
                                     ) : undefined}
@@ -472,7 +461,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                                 >
                                     {task.deadline ? (
                                         <div className="flex items-center gap-2">
-                                            <FontAwesomeIcon icon={faClock} className="text-xs" style={{ color: colors.textMuted }} />
+                                            <Clock className="w-4 h-4" style={{ color: colors.textMuted }} />
                                             <span className="body-sm">{formatDate(task.deadline)}</span>
                                         </div>
                                     ) : undefined}

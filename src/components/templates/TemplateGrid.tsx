@@ -1,7 +1,6 @@
 "use client";
 
-import { faCalendarDays, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CalendarDays, Plus } from "lucide-react";
 import type { RecurringTemplate } from "@/types/recuringTemplate";
 import Button from "@/components/common/buttons/Button";
 import TemplateCard from "@/components/templates/TemplateCard";
@@ -29,7 +28,7 @@ export default function TemplateGrid({
     if (templates.length === 0) {
         return (
             <div className="text-center py-12">
-                <FontAwesomeIcon icon={faCalendarDays} className="w-16 h-16 text-gray-300 mb-4" />
+                <CalendarDays className="w-16 h-16 text-gray-300 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                     {filter === "active" ? "Ingen aktive skabeloner" :
                         filter === "inactive" ? "Ingen inaktive skabeloner" :
@@ -43,7 +42,7 @@ export default function TemplateGrid({
                         <Button
                             variant="primary"
                             size="md"
-                            icon={faPlus}
+                            icon={<Plus className="w-4 h-4" />}
                             onClick={onCreateClick}
                         >
                             Opret Din Første Skabelon

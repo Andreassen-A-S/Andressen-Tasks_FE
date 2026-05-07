@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { Loader2 } from "lucide-react";
 import { colors } from "@/constants/colors";
 
 interface InlineLoadingStateProps {
@@ -21,7 +20,7 @@ export default function InlineLoadingState({
                 className,
             ].filter(Boolean).join(" ")}
         >
-            <FontAwesomeIcon icon={faSpinner} spin style={{ color: colors.greenMid }} />
+            <Loader2 className="w-4 h-4 animate-spin" style={{ color: colors.greenMid }} />
             <span className="body-sm" style={{ color: colors.textMuted }}>{label}</span>
         </div>
     );

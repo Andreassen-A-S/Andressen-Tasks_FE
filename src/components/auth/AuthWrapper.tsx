@@ -10,6 +10,7 @@ import useDelayedVisibility from "@/hooks/useDelayedVisibility";
 import { useTopProgress } from "@/components/common/loading/TopProgressProvider";
 
 const PUBLIC_ROUTES = ["/login", "/unauthorized"];
+const PUBLIC_PREFIXES = ["/legal"];
 const NO_SIDEBAR_ROUTES = ["/dashboard"];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -19,7 +20,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     const showDelayedLoader = useDelayedVisibility(isLoading || !isAuthenticated, 180);
     const topProgress = useTopProgress();
 
-    const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+    const isPublicRoute = PUBLIC_ROUTES.includes(pathname) || PUBLIC_PREFIXES.some(p => pathname.startsWith(p));
 
     useEffect(() => {
         if (isLoading) return;
@@ -60,7 +61,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     }
 
     return (
-        <div className="flex min-h-screen bg-background">
+        <div className="flex min-h-screen bg-background max-w-[1920px] mx-auto">
             <Sidebar />
             <main className="flex-1 ml-80">
                 {children}

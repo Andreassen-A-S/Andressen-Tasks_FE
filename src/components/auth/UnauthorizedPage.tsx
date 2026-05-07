@@ -2,10 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { colors } from "@/constants/colors";
-import { faLock } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Button from "@/components/common/buttons/Button";
 import { useAuth } from "@/hooks/useAuth";
+import { ShieldAlert } from "lucide-react";
 
 export default function UnauthorizedPage() {
     const { logout } = useAuth();
@@ -20,7 +19,7 @@ export default function UnauthorizedPage() {
         <div className="min-h-screen flex items-center justify-center">
             <div className="text-center space-y-4 max-w-sm px-6">
                 <div className="flex justify-center">
-                    <FontAwesomeIcon icon={faLock} size="2xl" style={{ color: colors.textSecondary }} />
+                    <ShieldAlert className="w-16 h-16" style={{ color: colors.textSecondary }} />
                 </div>
                 <div className="space-y-1">
                     <p className="mono-xs" style={{ color: colors.textMuted }}>401</p>

@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AndreassenTMS",
-  description: "Andreassen A/S Task Management System",
+  title: "MesterPlan",
+  description: "MesterPlan – Opgavestyring til håndværkere",
 };
 
 export default function RootLayout({

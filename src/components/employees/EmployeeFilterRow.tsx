@@ -1,13 +1,13 @@
 "use client";
 
-import { faIdBadge, faUser } from "@fortawesome/free-regular-svg-icons";
 import {
-    faArrowDownWideShort,
-    faArrowUpShortWide,
-    faCaretDown,
-    faFont,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+    ArrowDownWideNarrow,
+    ArrowUpNarrowWide,
+    ChevronDown,
+    IdCard,
+    Type,
+    User,
+} from "lucide-react";
 import Button from "@/components/common/buttons/Button";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import FilterBar from "@/components/common/table/FilterBar";
@@ -59,7 +59,7 @@ export default function EmployeeFilterRow({
                         trigger={
                             <Button variant="ghost" size="md" className="-ml-1">
                                 Rolle: {selectedRoleLabel}
-                                <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                <ChevronDown className="w-3 h-3" />
                             </Button>
                         }
                         items={[
@@ -73,7 +73,7 @@ export default function EmployeeFilterRow({
                             trigger={
                                 <Button variant="ghost" size="md">
                                     Stilling: {selectedPositionLabel}
-                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                    <ChevronDown className="w-3 h-3" />
                                 </Button>
                             }
                             items={[
@@ -98,28 +98,29 @@ export default function EmployeeFilterRow({
                     <DropdownMenu
                         trigger={
                             <Button variant="ghost" size="md" className="-mr-1">
-                                <FontAwesomeIcon
-                                    icon={sortDirection === "asc" ? faArrowUpShortWide : faArrowDownWideShort}
-                                    className="w-4 h-4"
-                                />
+                                {sortDirection === "asc" ? (
+                                    <ArrowUpNarrowWide className="w-4 h-4" />
+                                ) : (
+                                    <ArrowDownWideNarrow className="w-4 h-4" />
+                                )}
                                 {sortFieldLabelMap[sortField]}
-                                <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                <ChevronDown className="w-3 h-3" />
                             </Button>
                         }
                         items={[
-                            { label: "Navn", icon: faFont, checked: sortField === "name", onClick: () => onSortFieldChange("name") },
-                            { label: "Stilling", icon: faIdBadge, checked: sortField === "position", onClick: () => onSortFieldChange("position") },
-                            { label: "Rolle", icon: faUser, checked: sortField === "role", onClick: () => onSortFieldChange("role") },
+                            { label: "Navn", icon: <Type className="w-4 h-4" />, checked: sortField === "name", onClick: () => onSortFieldChange("name") },
+                            { label: "Stilling", icon: <IdCard className="w-4 h-4" />, checked: sortField === "position", onClick: () => onSortFieldChange("position") },
+                            { label: "Rolle", icon: <User className="w-4 h-4" />, checked: sortField === "role", onClick: () => onSortFieldChange("role") },
                             {
                                 label: "Stigende",
-                                icon: faArrowUpShortWide,
+                                icon: <ArrowUpNarrowWide className="w-4 h-4" />,
                                 checked: sortDirection === "asc",
                                 dividerBefore: true,
                                 onClick: () => onSortDirectionChange("asc"),
                             },
                             {
                                 label: "Faldende",
-                                icon: faArrowDownWideShort,
+                                icon: <ArrowDownWideNarrow className="w-4 h-4" />,
                                 checked: sortDirection === "desc",
                                 onClick: () => onSortDirectionChange("desc"),
                             },

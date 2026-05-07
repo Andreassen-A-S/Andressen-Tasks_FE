@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowTrendUp, faTrophy } from "@fortawesome/free-solid-svg-icons";
+import { TrendingUp, Trophy } from "lucide-react";
 import ProjectIcon from "@/components/common/icons/ProjectIcon";
 import { colors } from "@/constants/colors";
 
@@ -11,8 +10,8 @@ interface StatsTabsProps {
 }
 
 const tabs: Array<{ id: StatsTab; label: string; icon: React.ReactNode }> = [
-    { id: "performance", label: "Aktivitet", icon: <FontAwesomeIcon icon={faArrowTrendUp} className="h-4 w-4" /> },
-    { id: "leaderboard", label: "Leaderboard", icon: <FontAwesomeIcon icon={faTrophy} className="h-4 w-4" /> },
+    { id: "performance", label: "Aktivitet", icon: <TrendingUp className="h-4 w-4" /> },
+    { id: "leaderboard", label: "Leaderboard", icon: <Trophy className="h-4 w-4" /> },
     { id: "projects", label: "Projekter", icon: <ProjectIcon className="h-4 w-4" /> },
 ];
 

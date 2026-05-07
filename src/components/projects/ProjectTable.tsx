@@ -1,7 +1,6 @@
 "use client";
 
-import { faArrowDownWideShort, faCaretDown, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ArrowUpNarrowWide, ChevronDown, Plus } from "lucide-react";
 import type { Project } from "@/types/project";
 import type { Task } from "@/types/task";
 import Button from "@/components/common/buttons/Button";
@@ -53,7 +52,7 @@ export default function ProjectTable({
                 <Button
                     variant="primary"
                     size="md"
-                    icon={faPlus}
+                    icon={<Plus className="w-4 h-4" />}
                     onClick={onCreateClick}
                 >
                     Opret dit første projekt
@@ -73,9 +72,9 @@ export default function ProjectTable({
                     <DropdownMenu
                         trigger={
                             <Button variant="ghost" size="md" className="-mr-2" >
-                                <FontAwesomeIcon icon={faArrowDownWideShort} className="w-4 h-4" />
+                                <ArrowUpNarrowWide className="w-4 h-4" />
                                 {sortLabels[sortBy]}
-                                <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                <ChevronDown className="w-3 h-3" />
                             </Button>
                         }
                         items={(["name", "tasks", "created"] as ProjectSortKey[]).map((key) => ({

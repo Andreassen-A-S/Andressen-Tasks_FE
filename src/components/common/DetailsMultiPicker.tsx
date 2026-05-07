@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { Check, Search } from "lucide-react";
+
 import { colors } from "@/constants/colors";
 import {
   useFloating,
@@ -171,7 +171,7 @@ export default function DetailsMultiPicker({
                 backgroundColor: colors.white,
               }}
             >
-              <FontAwesomeIcon icon={faMagnifyingGlass} className="body-sm flex-shrink-0" style={{ color: colors.textMuted }} />
+              <Search className="w-4 h-4 flex-shrink-0" style={{ color: colors.textMuted }} />
               <input
                 ref={searchRef}
                 value={search}
@@ -212,7 +212,7 @@ export default function DetailsMultiPicker({
                         backgroundColor: isSelected ? colors.green : "transparent",
                       }}
                     >
-                      {isSelected && <FontAwesomeIcon icon={faCheck} className="text-[9px]" style={{ color: colors.white }} />}
+                      {isSelected && <Check className="w-2.5 h-2.5" style={{ color: colors.white }} />}
                     </span>
 
                     {option.color != null && (

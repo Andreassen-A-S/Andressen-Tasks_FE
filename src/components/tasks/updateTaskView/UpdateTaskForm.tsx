@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { updateTask, getTaskAssignments } from "@/lib/api";
 import type { Task, UpdateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskUnit } from "@/types/task";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { Info, TriangleAlert } from "lucide-react";
 import { removeUndefined, toIsoDate, toDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "../createTask/BasicInfoCard";
 import AssignmentCard from "../createTask/AssignmentCard";
@@ -150,9 +149,7 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
             {isRecurringInstance && (
                 <div className="mb-6 p-4 bg-[#EBF0FD] border-l-4 border-[#2C5FE0] rounded-r-[12px]">
                     <div className="flex items-start gap-3">
-                        <span className="text-[#2C5FE0] text-lg">
-                            <FontAwesomeIcon icon={faCircleInfo} />
-                        </span>
+                        <Info className="w-5 h-5 flex-shrink-0 text-[#2C5FE0]" />
                         <div>
                             <h4 className="h5">Gentagende opgave instans</h4>
                             <p className="body-sm mt-1">
@@ -167,9 +164,7 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
             {isSubtask && (
                 <div className="mb-6 p-4 bg-[#E8F7F0] border-l-4 border-[#2D9F6F] rounded-r-[12px]">
                     <div className="flex items-start gap-3">
-                        <span className="text-[#2D9F6F] text-lg">
-                            <FontAwesomeIcon icon={faCircleInfo} />
-                        </span>
+                        <Info className="w-5 h-5 flex-shrink-0 text-[#2D9F6F]" />
                         <div>
                             <h4 className="h5">Redigerer underopgave</h4>
                             <p className="body-sm mt-1">
@@ -184,9 +179,7 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
             {error && (
                 <div className="mb-6 p-4 bg-[#FDECEC] border-l-4 border-[#D64545] rounded-r-[12px]">
                     <div className="flex items-start gap-3">
-                        <span className="text-[#D64545] text-lg">
-                            <FontAwesomeIcon icon={faTriangleExclamation} />
-                        </span>
+                        <TriangleAlert className="w-5 h-5 flex-shrink-0 text-[#D64545]" />
                         <p className="body-sm">{error}</p>
                     </div>
                 </div>

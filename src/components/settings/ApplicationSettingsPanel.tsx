@@ -15,7 +15,7 @@ export default function ApplicationSettingsPanel({ user }: { user: User }) {
             >
                 <SettingsRow
                     label="App navn"
-                    value="Andreassen A/S"
+                    value="MesterPlan"
                     description="Bruges i sidebaren og som intern identitet for panelet."
                 />
                 <SettingsRow
