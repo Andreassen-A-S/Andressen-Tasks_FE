@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "7AZ49WFQVJ.app.mesterplan",
+        "paths": ["/tasks", "/tasks/*"]
+      }
+    ]
+  }
+}
