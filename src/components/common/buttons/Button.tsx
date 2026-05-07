@@ -17,7 +17,6 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
   iconOnly?: boolean;
-  iconClassName?: string;
   fullWidth?: boolean;
   tooltip?: string;
 }
@@ -55,7 +54,6 @@ export default function Button({
   icon,
   iconPosition = "left",
   iconOnly = false,
-  iconClassName,
   fullWidth = false,
   tooltip,
   disabled,

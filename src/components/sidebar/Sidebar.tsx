@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ClipboardList, Repeat, Users, BarChart2, Settings, LogOut, ChevronsUpDown, Info, ExternalLink } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -72,10 +73,10 @@ export default function Sidebar() {
 
     return (
         <aside className="w-75 bg-[#1B1D22] border-r border-[rgba(255,255,255,0.06)] h-screen flex flex-col fixed left-0 top-0">
-            {/* Header - Brand */}
-            <div className="p-6 border-b border-[rgba(255,255,255,0.06)] flex-shrink-0">
-                <Link href="/" className="flex items-center gap-3">
-                    <img src="/logo.png" alt="MesterPlan" width={80} />
+                {/* Header - Brand */}
+                <div className="p-6 border-b border-[rgba(255,255,255,0.06)] flex-shrink-0">
+                    <Link href="/" className="flex items-center gap-3">
+                    <Image src="/logo.png" alt="MesterPlan" width={80} height={43} priority />
                     <div>
                         <h1 className="sidebar-brand">MesterPlan</h1>
                         <span className="sidebar-brand-sub">Opgavestyring</span>

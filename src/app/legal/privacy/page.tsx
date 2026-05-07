@@ -67,7 +67,7 @@ export default function PrivacyPage() {
 
                 <div className="space-y-8 text-[#374151]">
                     <p className="text-sm leading-relaxed">
-                        This privacy policy is applicable to the MesterPlan app for mobile devices, developed by Andreassen A/S as a commercial service. This service is provided "AS IS".
+                        This privacy policy is applicable to the MesterPlan app for mobile devices, developed by Andreassen A/S as a commercial service. This service is provided &quot;AS IS&quot;.
                     </p>
 
                     {sections.map((section, i) => (
