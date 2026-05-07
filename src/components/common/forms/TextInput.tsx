@@ -41,7 +41,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInpu
       style={{ color: colors.textMuted }}
       onMouseDown={(event) => event.preventDefault()}
     >
-      {showSensitiveValue ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+      {showSensitiveValue ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
     </button>
   ) : trailingVisual;
   const hasTrailing = Boolean(effectiveTrailingVisual);
