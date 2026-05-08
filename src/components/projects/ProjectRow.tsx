@@ -1,7 +1,6 @@
 "use client";
 
-import { faListCheck, faRotate, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { SquarePen, Settings, Trash2, Repeat, ClipboardList, } from "lucide-react";
 import Link from "next/link";
 import type { Project } from "@/types/project";
 import type { Task } from "@/types/task";
@@ -9,7 +8,6 @@ import DropdownMenu from "@/components/common/DropdownMenu";
 import { formatCommentDate, formatNumber } from "@/helpers/helpers";
 import ProjectActivityBar from "./ProjectActivityBar";
 import { colors } from "@/constants/colors";
-import OutlineGearIcon from "@/components/common/icons/OutlineGearIcon";
 
 interface ProjectRowProps {
     project: Project;
@@ -59,7 +57,7 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
                         onMouseEnter={(e) => (e.currentTarget.style.color = colors.textSecondary)}
                         onMouseLeave={(e) => (e.currentTarget.style.color = colors.textMuted)}
                     >
-                        <FontAwesomeIcon icon={faListCheck} className="w-3 h-3" />
+                        <ClipboardList className="w-4 h-4" />
                         {formatNumber(taskCount)}
                     </Link>
 
@@ -72,7 +70,7 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
                         onMouseEnter={(e) => (e.currentTarget.style.color = colors.textSecondary)}
                         onMouseLeave={(e) => (e.currentTarget.style.color = colors.textMuted)}
                     >
-                        <FontAwesomeIcon icon={faRotate} className="w-3 h-3" />
+                        <Repeat className="w-4 h-4" />
                         {formatNumber(templateCount)}
                     </Link>
 
@@ -92,12 +90,12 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
                                 onMouseEnter={(e) => (e.currentTarget.style.color = colors.textSecondary)}
                                 onMouseLeave={(e) => (e.currentTarget.style.color = colors.textMuted)}
                             >
-                                <OutlineGearIcon className="w-4 h-3.5" />
+                                <Settings className="w-4 h-4" />
                             </button>
                         }
                         items={[
-                            { label: "Rediger", icon: faPenToSquare, onClick: onEdit },
-                            { label: "Slet", icon: faTrash, onClick: onDelete, danger: true, dividerBefore: true },
+                            { label: "Rediger", icon: <SquarePen className="w-4 h-4" />, onClick: onEdit },
+                            { label: "Slet", icon: <Trash2 className="w-4 h-4" />, onClick: onDelete, danger: true, dividerBefore: true },
                         ]}
                     />
                 </div>

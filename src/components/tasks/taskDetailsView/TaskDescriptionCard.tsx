@@ -5,7 +5,7 @@ import { formatRelativeDate } from "@/helpers/helpers";
 import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
-import { faEllipsis, faPencil } from "@fortawesome/free-solid-svg-icons";
+import { Ellipsis, Pencil } from "lucide-react";
 
 interface TaskDescriptionCardProps {
     creator: User | null;
@@ -71,12 +71,12 @@ export default function TaskDescriptionCard({
                         {!isArchived && onSaveDescription && !isEditing && (
                             <DropdownMenu
                                 trigger={
-                                    <Button variant="ghost" size="sm" icon={faEllipsis} iconOnly tooltip="Mere" />
+                                    <Button variant="ghost" size="sm" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />
                                 }
                                 items={[
                                     {
                                         label: "Rediger",
-                                        icon: faPencil,
+                                        icon: <Pencil className="w-4 h-4" />,
                                         onClick: () => setIsEditing(true),
                                     },
                                 ]}

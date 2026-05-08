@@ -1,9 +1,8 @@
 "use client";
 
 import { forwardRef, useState, type InputHTMLAttributes, type ReactNode } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "@/constants/colors";
+import { Eye, EyeOff } from "lucide-react";
 
 type TextInputSize = "sm" | "md";
 
@@ -42,7 +41,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInpu
       style={{ color: colors.textMuted }}
       onMouseDown={(event) => event.preventDefault()}
     >
-      <FontAwesomeIcon icon={showSensitiveValue ? faEyeSlash : faEye} />
+      {showSensitiveValue ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
     </button>
   ) : trailingVisual;
   const hasTrailing = Boolean(effectiveTrailingVisual);

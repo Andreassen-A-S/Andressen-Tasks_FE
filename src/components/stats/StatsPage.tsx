@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { ChevronDown, ArrowUpRightFromSquare } from "lucide-react";
 import StatsLoadingState from "./StatsLoadingState";
 import StatsErrorState from "./StatsErrorState";
 import StatsHeader from "./StatsHeader";
@@ -96,7 +95,7 @@ export default function StatsPage() {
                         <Button
                             variant="secondary"
                             size="lg"
-                            icon={faArrowUpRightFromSquare}
+                            icon={<ArrowUpRightFromSquare className="w-4 h-4" />}
                             iconPosition="right"
                             onClick={() => window.open("/dashboard", "_blank", "noopener,noreferrer")}
                         >
@@ -106,7 +105,7 @@ export default function StatsPage() {
                             trigger={
                                 <Button variant="secondary" size="lg">
                                     Periode: {selectedPeriod.label}
-                                    <FontAwesomeIcon icon={faCaretDown} className="w-3 h-3" />
+                                    <ChevronDown className="w-3 h-3" />
                                 </Button>
                             }
                             items={PERIOD_OPTIONS.map(option => ({

@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faPaperclip } from "@fortawesome/free-solid-svg-icons";
+import { X, Paperclip } from "lucide-react";
 import Button from "@/components/common/buttons/Button";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
 import { getFileExtension, formatNumber } from "@/helpers/helpers";
@@ -190,7 +189,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
                           className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           style={{ backgroundColor: colors.charcoal }}
                         >
-                          <FontAwesomeIcon icon={faXmark} className="text-xs" style={{ color: colors.textWhite }} />
+                          <X className="w-3 h-3" style={{ color: colors.textWhite }} />
                         </button>
                       )}
                     </div>
@@ -205,7 +204,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
             <Button
               variant="ghost"
               size="md"
-              icon={faPaperclip}
+              icon={<Paperclip className="w-4 h-4" />}
               disabled={uploading}
               onClick={() => fileInputRef.current?.click()}
             >

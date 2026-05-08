@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faClock,
-} from "@fortawesome/free-solid-svg-icons";
+import { Clock } from "lucide-react";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { Task } from "@/types/task";
 import { getTaskAssignments, getTemplateInstances } from "@/lib/api";
@@ -124,7 +121,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                             </div>
                                             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 body-sm" style={{ color: colors.textSecondary }}>
                                                 <span className="inline-flex items-center gap-2">
-                                                    <FontAwesomeIcon icon={faClock} className="w-3.5 h-3.5" />
+                                                    <Clock className="w-3.5 h-3.5" />
                                                     <span>Deadline: {formatRelativeDate(instance.deadline)}</span>
                                                 </span>
                                                 <TaskAssignedUsers assignments={assignments} size="sm" className="min-h-6" />

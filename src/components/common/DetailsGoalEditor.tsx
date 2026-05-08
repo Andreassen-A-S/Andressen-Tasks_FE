@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { ArrowRight } from "lucide-react";
 import { colors } from "@/constants/colors";
 import Button from "@/components/common/buttons/Button";
 import { TaskGoalType, TaskUnit } from "@/types/task";
@@ -215,7 +214,7 @@ export default function DetailsGoalEditor({
             </label>
 
             <span className="pb-2 flex-shrink-0" style={{ color: colors.textMuted }}>
-              <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+              <ArrowRight className="w-3 h-3" />
             </span>
 
             <label className="min-w-0">

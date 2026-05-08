@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAuth } from "@/hooks/useAuth";
 import { colors } from "@/constants/colors";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -38,12 +37,12 @@ export default function LoginPage() {
                 <div className="flex flex-col items-center mb-8">
                     <Image
                         src="/logo.png"
-                        alt="Andreassen A/S"
+                        alt="MesterPlan"
                         width={180}
                         height={56}
                         className="rounded-lg mb-4"
                     />
-                    <h1 className="h2" style={{ color: colors.textPrimary }}>Andreassen TMS</h1>
+                    <h1 className="h2" style={{ color: colors.textPrimary }}>MesterPlan</h1>
                     <p className="body-sm mt-1">Log ind for at fortsætte</p>
                 </div>
 
@@ -91,7 +90,13 @@ export default function LoginPage() {
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
                                     aria-label={showPassword ? "Skjul adgangskode" : "Vis adgangskode"}
                                 >
-                                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="w-4 h-4" />
+                                    {showPassword ? (
+                                        <EyeOff className="w-4 h-4" />
+                                    ) : (
+                                        <Eye className="w-4 h-4" />
+                                    )}
+
+
                                 </button>
                             </div>
                         </div>

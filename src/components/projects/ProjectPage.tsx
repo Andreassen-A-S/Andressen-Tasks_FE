@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { Plus } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createProject, updateProject, deleteProject } from "@/lib/api";
 import type { Project, CreateProjectInput, UpdateProjectInput } from "@/types/project";
@@ -120,7 +120,7 @@ export default function ProjectPage() {
                     <Button
                         variant="primary"
                         size="lg"
-                        icon={faPlus}
+                        icon={<Plus className="w-4 h-4" />}
                         onClick={() => setShowCreateModal(true)}
                     >
                         Nyt projekt

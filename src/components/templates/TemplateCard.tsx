@@ -1,12 +1,6 @@
 "use client";
 
-import {
-    faEllipsis,
-    faPause,
-    faPenToSquare,
-    faPlay,
-    faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { Ellipsis, Pause, SquarePen, Play, Trash2 } from "lucide-react";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import Badge from "@/components/common/label/Badge";
 import { formatDate, formatNumber } from "@/helpers/helpers";
@@ -143,7 +137,7 @@ export default function TemplateCard({
                         <Button
                             variant="secondary"
                             size="md"
-                            icon={faEllipsis}
+                            icon={<Ellipsis className="w-4 h-4" />}
                             iconOnly
                             className="rounded-md"
                             tooltip="Handlinger"
@@ -152,17 +146,17 @@ export default function TemplateCard({
                     items={[
                         {
                             label: "Rediger skabelon",
-                            icon: faPenToSquare,
+                            icon: <SquarePen className="w-4 h-4" />,
                             onClick: onEdit,
                         },
                         {
                             label: isActive ? "Pause skabelon" : "Aktiver skabelon",
-                            icon: isActive ? faPause : faPlay,
+                            icon: isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />,
                             onClick: onToggleActive,
                         },
                         {
                             label: "Slet skabelon",
-                            icon: faTrash,
+                            icon: <Trash2 className="w-4 h-4" />,
                             onClick: onDelete,
                             danger: true,
                             dividerBefore: true,

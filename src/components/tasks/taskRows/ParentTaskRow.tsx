@@ -7,8 +7,7 @@ import { formatCommentDate, formatRelativeDate, translateTaskUnit, formatNumber 
 import { colors } from "@/constants/colors";
 import Badge from "../../common/label/Badge";
 import TaskAssignedUsers from "../../common/label/TaskAssignedUsers";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBullseye, faChevronRight, faListCheck, faRepeat } from "@fortawesome/free-solid-svg-icons";
+import { Target, ChevronRight, ListChecks, Repeat } from "lucide-react";
 import SubTaskRow from "./SubTaskRow";
 
 interface ParentTaskRowProps {
@@ -71,7 +70,7 @@ export default function ParentTaskRow({
                             aria-label={isExpanded ? "Skjul delopgaver" : "Vis delopgaver"}
                             aria-expanded={isExpanded}
                         >
-                            <FontAwesomeIcon icon={faChevronRight} className="w-3.5 h-3.5" />
+                            <ChevronRight className="w-3.5 h-3.5" />
                         </button>
                     )}
                 </td>
@@ -92,7 +91,7 @@ export default function ParentTaskRow({
                         <div className={`flex items-center gap-2 body-xs flex-wrap ${isRecurring ? "mt-1" : "mt-0.5"}`} style={{ color: colors.textMuted }}>
                             {isRecurring && (
                                 <span className="flex items-center gap-1">
-                                    <FontAwesomeIcon icon={faRepeat} className="w-3 h-3" />
+                                    <Repeat className="w-3 h-3" />
                                     Gentages
                                 </span>
                             )}
@@ -101,7 +100,7 @@ export default function ParentTaskRow({
 
                             {hasSubtasks && progress && (
                                 <span className="flex items-center gap-1">
-                                    <FontAwesomeIcon icon={faListCheck} className="w-3 h-3" />
+                                    <ListChecks className="w-3 h-3" />
                                     {progress.completed}/{progress.total}
                                 </span>
                             )}
@@ -110,7 +109,7 @@ export default function ParentTaskRow({
 
                             {!hasSubtasks && hasQuantityProgress && quantitySummary && (
                                 <span className="flex items-center gap-1">
-                                    <FontAwesomeIcon icon={faBullseye} className="w-3 h-3" />
+                                    <Target className="w-3 h-3" />
                                     {quantitySummary}
                                 </span>
                             )}

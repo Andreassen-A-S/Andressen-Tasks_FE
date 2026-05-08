@@ -2,13 +2,6 @@ import parseDecimalNumber from "parse-decimal-number";
 import { TaskEvent } from "@/types/taskEvent";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import { TaskAssignment } from "@/types/assignment";
-import {
-  faFile,
-  faFilePdf,
-  faFileWord,
-  faFileExcel,
-  faFileImage,
-} from "@fortawesome/free-solid-svg-icons";
 import { AllowedMimeType } from "@/types/attachment";
 
 function parseDateInput(dateInput: string | Date): Date {
@@ -326,19 +319,21 @@ export function getFileExtension(name: string): string {
   return i > 0 && i < name.length - 1 ? name.slice(i + 1) : "fil";
 }
 
-export function getFileIcon(mimeType?: string | null) {
-  if (!mimeType) return faFile;
-  if (mimeType === AllowedMimeType.PDF) return faFilePdf;
-  if (mimeType === AllowedMimeType.DOCX) return faFileWord;
-  if (mimeType === AllowedMimeType.XLSX) return faFileExcel;
+export type FileIconType = "file" | "file-pdf" | "file-word" | "file-excel" | "file-image";
+
+export function getFileIcon(mimeType?: string | null): FileIconType {
+  if (!mimeType) return "file";
+  if (mimeType === AllowedMimeType.PDF) return "file-pdf";
+  if (mimeType === AllowedMimeType.DOCX) return "file-word";
+  if (mimeType === AllowedMimeType.XLSX) return "file-excel";
   if (
     mimeType === AllowedMimeType.JPEG ||
     mimeType === AllowedMimeType.PNG ||
     mimeType === AllowedMimeType.WEBP ||
     mimeType === AllowedMimeType.HEIC
   )
-    return faFileImage;
-  return faFile;
+    return "file-image";
+  return "file";
 }
 
 export function parseLocalizedNumber(value: string): number {

@@ -5,9 +5,8 @@ import { createSubtask, createTask } from "@/lib/api";
 import type { Task, CreateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Info, TriangleAlert } from "lucide-react";
 import { toIsoDate, toDateKey } from "@/helpers/helpers";
-import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
 import BasicInfoSection from "./BasicInfoCard";
 import RecurringCard from "./RecurringCard";
@@ -217,9 +216,7 @@ export default function CreateTaskForm({
             {isSubtask && (
                 <div className="mb-6 p-4 bg-[#EBF0FD] border-l-4 border-[#2C5FE0] rounded-r-lg">
                     <div className="flex items-start gap-3">
-                        <span className="text-[#2C5FE0] text-lg">
-                            <FontAwesomeIcon icon={faCircleInfo} />
-                        </span>
+                        <Info className="w-5 h-5 flex-shrink-0 text-[#2C5FE0]" />
                         <div>
                             <h4 className="h5">Opretter underopgave</h4>
                             <p className="body-sm mt-1">
@@ -234,9 +231,7 @@ export default function CreateTaskForm({
             {error && (
                 <div className="mb-6 p-4 bg-[#FDECEC] border-l-4 border-[#D64545] rounded-r-lg">
                     <div className="flex items-start gap-3">
-                        <span className="text-[#D64545] text-lg">
-                            <FontAwesomeIcon icon={faTriangleExclamation} />
-                        </span>
+                        <TriangleAlert className="w-5 h-5 flex-shrink-0 text-[#D64545]" />
                         <p className="body-sm">{error}</p>
                     </div>
                 </div>

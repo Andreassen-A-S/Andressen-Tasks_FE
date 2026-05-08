@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { colors } from "@/constants/colors";
 import Button from "@/components/common/buttons/Button";
 import {
@@ -123,11 +123,11 @@ export default function DetailsDatePicker({ open, triggerEl, onClose, value, onS
       >
         {/* Month navigation */}
         <div className="flex items-center justify-between px-4 pt-4 pb-4">
-          <Button variant="secondary" size="md" icon={faChevronLeft} onClick={prevMonth} />
+          <Button variant="secondary" size="md" icon={<ChevronLeft className="w-4 h-4" />} onClick={prevMonth} />
           <span className="label-md" style={{ color: colors.textPrimary }}>
             {MONTH_NAMES[viewMonth]} {viewYear}
           </span>
-          <Button variant="secondary" size="md" icon={faChevronRight} onClick={nextMonth} />
+          <Button variant="secondary" size="md" icon={<ChevronRight className="w-4 h-4" />} onClick={nextMonth} />
         </div>
 
         {/* Day-of-week labels */}

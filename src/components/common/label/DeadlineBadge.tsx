@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock } from "@fortawesome/free-regular-svg-icons";
+import { Clock } from "lucide-react";
 import { colors } from "@/constants/colors";
 import { formatRelativeDate, toDateKey } from "@/helpers/helpers";
 
@@ -26,7 +25,7 @@ export default function DeadlineBadge({ deadline, size = "md" }: DeadlineBadgePr
     const color = getDeadlineColor(deadline);
     return (
         <span className={`inline-flex items-center ${sizeClasses[size]}`} style={{ color }}>
-            <FontAwesomeIcon icon={faClock} className="w-3 h-3 flex-shrink-0" />
+            <Clock className="w-3 h-3 flex-shrink-0" />
             <span>{formatRelativeDate(deadline)}</span>
         </span>
     );

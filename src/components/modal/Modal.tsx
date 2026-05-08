@@ -3,7 +3,7 @@
 import { useEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Button from "../common/buttons/Button";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { X } from "lucide-react";
 import { colors } from "@/constants/colors";
 
 interface ModalProps {
@@ -101,7 +101,7 @@ export default function Modal({
                         <span className={"h5"} id="modal-title">
                             {title}
                         </span>
-                        <Button variant="ghost" size="md" icon={faXmark} iconOnly onClick={onClose} tooltip="Luk panel" className="-mr-1" aria-label="Luk" />
+                        <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} tooltip="Luk panel" className="-mr-1" aria-label="Luk" />
                     </div>
                     <div className={"p-4"}>
                         {children}

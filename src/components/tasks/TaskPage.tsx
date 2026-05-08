@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTaskParams } from "@/hooks/useTaskParams";
 import { formatNumber } from "@/helpers/helpers";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { Plus } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import TaskTable from "./TaskTable";
@@ -121,7 +121,7 @@ export default function TaskPage() {
                     <Button
                         variant="primary"
                         size="lg"
-                        icon={faPlus}
+                        icon={<Plus className="w-4 h-4" />}
                         onClick={() => setShowCreateModal(true)}
                     >
                         Ny opgave

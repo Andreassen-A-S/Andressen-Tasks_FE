@@ -5,8 +5,7 @@ import type { TaskEvent } from "@/types/taskEvent";
 import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
-import { faEllipsis, faTrash, faPencil, faCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Ellipsis, Trash2, Pencil } from "lucide-react";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import Button from "@/components/common/buttons/Button";
@@ -105,7 +104,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                         {editedBy ? (
                             <span className="body-xs flex-shrink-0 inline-flex items-center gap-1.5">
                                 {formatCommentDate(event.created_at)}
-                                <FontAwesomeIcon icon={faCircle} style={{ fontSize: 2 }} />
+                                <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ backgroundColor: colors.textMuted }} />
                                 redigeret af {editedBy}
                             </span>
                         ) : (
@@ -123,17 +122,17 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                                 <div>
                                     <DropdownMenu
                                         trigger={
-                                            <Button variant="ghost" size="sm" icon={faEllipsis} iconOnly tooltip="Mere" />
+                                            <Button variant="ghost" size="sm" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />
                                         }
                                         items={[
                                             ...(canEdit ? [{
                                                 label: "Rediger",
-                                                icon: faPencil,
+                                                icon: <Pencil className="w-4 h-4" />,
                                                 onClick: () => setEditing(true),
                                             }] : []),
                                             ...(canDelete ? [{
                                                 label: "Slet",
-                                                icon: faTrash,
+                                                icon: <Trash2 className="w-4 h-4" />,
                                                 danger: true,
                                                 dividerBefore: canEdit,
                                                 onClick: () => setConfirmOpen(true),

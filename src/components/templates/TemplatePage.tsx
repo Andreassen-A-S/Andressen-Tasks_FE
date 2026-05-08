@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-    faPlus
-} from "@fortawesome/free-solid-svg-icons";
+import { Plus } from "lucide-react";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { deleteRecurringTemplate, deactivateTemplate, reactivateTemplate } from "@/lib/api";
 import ViewTemplate from "@/components/templates/ViewTemplate";
@@ -167,7 +165,7 @@ export default function RecurringTemplatesPage() {
                     <Button
                         variant="primary"
                         size="lg"
-                        icon={faPlus}
+                        icon={<Plus className="w-4 h-4" />}
                         onClick={() => setShowCreateTemplate(true)}
                     >
                         Opret skabelon
