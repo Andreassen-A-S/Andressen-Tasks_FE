@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import TaskPage from "@/components/tasks/TaskPage";
 import TableSkeleton from "@/components/common/loading/TableSkeleton";
+
+export const metadata: Metadata = { title: "Opgaver" };
 
 export default function Tasks() {
     return (

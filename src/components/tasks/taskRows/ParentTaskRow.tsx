@@ -114,7 +114,7 @@ export default function ParentTaskRow({
                                 </span>
                             )}
 
-                            {hasDetailSegment && <Dot />}
+                            {(isRecurring || hasDetailSegment) && <Dot />}
 
                             <span>Opdateret {updatedLabel}</span>
                         </div>
