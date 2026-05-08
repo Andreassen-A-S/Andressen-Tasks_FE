@@ -105,8 +105,6 @@ export default function ParentTaskRow({
                                 </span>
                             )}
 
-                            {isRecurring && hasSubtasks && progress && <Dot />}
-
                             {!hasSubtasks && hasQuantityProgress && quantitySummary && (
                                 <span className="flex items-center gap-1">
                                     <Target className="w-3 h-3" />
@@ -114,7 +112,7 @@ export default function ParentTaskRow({
                                 </span>
                             )}
 
-                            {hasDetailSegment && <Dot />}
+                            {(isRecurring || hasDetailSegment) && <Dot />}
 
                             <span>Opdateret {updatedLabel}</span>
                         </div>

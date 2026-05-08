@@ -18,7 +18,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MesterPlan",
+  title: {
+    default: "MesterPlan",
+    template: "%s · MesterPlan",
+  },
   description: "MesterPlan – Opgavestyring til håndværkere",
 };
 
