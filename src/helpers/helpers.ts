@@ -3,6 +3,7 @@ import { TaskEvent } from "@/types/taskEvent";
 import { TaskPriority, TaskStatus } from "@/types/task";
 import { TaskAssignment } from "@/types/assignment";
 import { AllowedMimeType } from "@/types/attachment";
+import { toast } from "sonner";
 
 function parseDateInput(dateInput: string | Date): Date {
   if (dateInput instanceof Date) return dateInput;
@@ -344,4 +345,21 @@ export function parseLocalizedNumber(value: string): number {
 
 export function formatNumber(value: number | string): string {
   return typeof value === "number" ? value.toLocaleString("da-DK") : value;
+}
+
+export async function downloadImages(images: { url: string; file_name?: string | null }[]): Promise<void> {
+    for (const image of images) {
+        const response = await fetch(image.url);
+        if (!response.ok) { toast.error(`Kunne ikke hente ${image.file_name ?? "billede"}`); continue; }
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = image.file_name ?? "billede";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    }
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/SingleAvatar";
-import { formatCommentDate } from "@/helpers/helpers";
+import { formatCommentDate, downloadImages } from "@/helpers/helpers";
 import { Ellipsis, Trash2, Pencil, ImageDown } from "lucide-react";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
@@ -102,20 +102,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
         if (isDownloading) return;
         setIsDownloading(true);
         try {
-            for (const image of images) {
-                const response = await fetch(image.url);
-                if (!response.ok) { toast.error(`Kunne ikke hente ${image.file_name ?? "billede"}`); continue; }
-                const blob = await response.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = blobUrl;
-                a.download = image.file_name ?? "billede";
-                a.style.display = "none";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-            }
+            await downloadImages(images);
         } catch {
             toast.error("Kunne ikke hente billeder. Prøv igen.");
         } finally {
@@ -157,6 +144,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                                             ...(canDownloadImages ? [{
                                                 label: isDownloading ? "Downloader..." : "Download billeder",
                                                 icon: <ImageDown className="w-4 h-4" />,
+                                                disabled: isDownloading,
                                                 onClick: handleDownloadImages,
                                             }] : []),
                                             ...(canEdit ? [{
@@ -168,7 +156,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                                                 label: "Slet",
                                                 icon: <Trash2 className="w-4 h-4" />,
                                                 danger: true,
-                                                dividerBefore: canEdit,
+                                                dividerBefore: canEdit || canDownloadImages,
                                                 onClick: () => setConfirmOpen(true),
                                             }] : []),
                                         ]}
