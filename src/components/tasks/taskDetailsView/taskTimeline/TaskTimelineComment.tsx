@@ -4,8 +4,9 @@ import { useState } from "react";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/SingleAvatar";
-import { formatCommentDate } from "@/helpers/helpers";
-import { Ellipsis, Trash2, Pencil } from "lucide-react";
+import { formatCommentDate, downloadImages } from "@/helpers/helpers";
+import { Ellipsis, Trash2, Pencil, ImageDown } from "lucide-react";
+import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import Button from "@/components/common/buttons/Button";
@@ -71,6 +72,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const isDeleted = event.type === "COMMENT_DELETED";
     const message = isDeleted
@@ -78,10 +80,12 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
         : event.comment?.message ?? event.message ?? "";
 
     const attachments = event.comment?.attachments ?? [];
+    const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC);
 
     const commentId = event.comment?.comment_id ?? event.comment_id;
     const canDelete = !isArchived && !isDeleted && onDelete && !!commentId && (isAdmin || currentUserId === event.actor_id);
     const canEdit = !isArchived && !isDeleted && !!commentId && currentUserId === event.actor_id;
+    const canDownloadImages = !!isAdmin && images.length > 0;
 
     async function handleDelete() {
         if (!onDelete || !commentId) return;
@@ -91,6 +95,18 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
         } finally {
             setDeleting(false);
             setConfirmOpen(false);
+        }
+    }
+
+    async function handleDownloadImages() {
+        if (isDownloading) return;
+        setIsDownloading(true);
+        try {
+            await downloadImages(images);
+        } catch {
+            toast.error("Kunne ikke hente billeder. Prøv igen.");
+        } finally {
+            setIsDownloading(false);
         }
     }
 
@@ -118,13 +134,19 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                             {isTaskOwner && (
                                 <OutlineBadge label="Ejer" tooltip={currentUserId === event.actor_id ? "Du er opgavens ejer" : "Opgavens ejer"} />
                             )}
-                            {(canEdit || canDelete) && (
+                            {(canEdit || canDelete || canDownloadImages) && (
                                 <div>
                                     <DropdownMenu
                                         trigger={
                                             <Button variant="ghost" size="sm" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />
                                         }
                                         items={[
+                                            ...(canDownloadImages ? [{
+                                                label: isDownloading ? "Downloader..." : "Download billeder",
+                                                icon: <ImageDown className="w-4 h-4" />,
+                                                disabled: isDownloading,
+                                                onClick: handleDownloadImages,
+                                            }] : []),
                                             ...(canEdit ? [{
                                                 label: "Rediger",
                                                 icon: <Pencil className="w-4 h-4" />,
@@ -134,7 +156,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                                                 label: "Slet",
                                                 icon: <Trash2 className="w-4 h-4" />,
                                                 danger: true,
-                                                dividerBefore: canEdit,
+                                                dividerBefore: canEdit || canDownloadImages,
                                                 onClick: () => setConfirmOpen(true),
                                             }] : []),
                                         ]}

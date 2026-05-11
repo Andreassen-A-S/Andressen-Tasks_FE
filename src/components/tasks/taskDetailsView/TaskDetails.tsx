@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateTask, getTaskAssignments } from "@/lib/api";
 import { TaskStatus, TaskPriority, TaskGoalType, TaskUnit } from "@/types/task";
-import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit, formatNumber } from "@/helpers/helpers";
+import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit, formatNumber, downloadImages } from "@/helpers/helpers";
 
 
 import Modal from "@/components/modal/Modal";
@@ -113,20 +113,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
             const attachments = await getTaskAttachments(task.task_id);
             const images = attachments.filter((a) => a.type === "IMAGE");
             if (images.length === 0) { toast.info("Ingen billeder at downloade"); return; }
-            for (const image of images) {
-                const response = await fetch(image.url);
-                if (!response.ok) { toast.error(`Kunne ikke hente ${image.file_name ?? "billede"}`); continue; }
-                const blob = await response.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = blobUrl;
-                a.download = image.file_name ?? "billede";
-                a.style.display = "none";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-            }
+            await downloadImages(images);
         } catch {
             toast.error("Kunne ikke hente billeder. Prøv igen.");
         } finally {
