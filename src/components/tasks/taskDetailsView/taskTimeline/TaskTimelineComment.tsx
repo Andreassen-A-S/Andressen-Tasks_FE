@@ -5,7 +5,8 @@ import type { TaskEvent } from "@/types/taskEvent";
 import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate } from "@/helpers/helpers";
-import { Ellipsis, Trash2, Pencil } from "lucide-react";
+import { Ellipsis, Trash2, Pencil, ImageDown } from "lucide-react";
+import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import Button from "@/components/common/buttons/Button";
@@ -71,6 +72,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const isDeleted = event.type === "COMMENT_DELETED";
     const message = isDeleted
@@ -78,10 +80,12 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
         : event.comment?.message ?? event.message ?? "";
 
     const attachments = event.comment?.attachments ?? [];
+    const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC);
 
     const commentId = event.comment?.comment_id ?? event.comment_id;
     const canDelete = !isArchived && !isDeleted && onDelete && !!commentId && (isAdmin || currentUserId === event.actor_id);
     const canEdit = !isArchived && !isDeleted && !!commentId && currentUserId === event.actor_id;
+    const canDownloadImages = !!isAdmin && images.length > 0;
 
     async function handleDelete() {
         if (!onDelete || !commentId) return;
@@ -91,6 +95,31 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
         } finally {
             setDeleting(false);
             setConfirmOpen(false);
+        }
+    }
+
+    async function handleDownloadImages() {
+        if (isDownloading) return;
+        setIsDownloading(true);
+        try {
+            for (const image of images) {
+                const response = await fetch(image.url);
+                if (!response.ok) { toast.error(`Kunne ikke hente ${image.file_name ?? "billede"}`); continue; }
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = blobUrl;
+                a.download = image.file_name ?? "billede";
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            }
+        } catch {
+            toast.error("Kunne ikke hente billeder. Prøv igen.");
+        } finally {
+            setIsDownloading(false);
         }
     }
 
@@ -118,13 +147,18 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                             {isTaskOwner && (
                                 <OutlineBadge label="Ejer" tooltip={currentUserId === event.actor_id ? "Du er opgavens ejer" : "Opgavens ejer"} />
                             )}
-                            {(canEdit || canDelete) && (
+                            {(canEdit || canDelete || canDownloadImages) && (
                                 <div>
                                     <DropdownMenu
                                         trigger={
                                             <Button variant="ghost" size="sm" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />
                                         }
                                         items={[
+                                            ...(canDownloadImages ? [{
+                                                label: isDownloading ? "Downloader..." : "Download billeder",
+                                                icon: <ImageDown className="w-4 h-4" />,
+                                                onClick: handleDownloadImages,
+                                            }] : []),
                                             ...(canEdit ? [{
                                                 label: "Rediger",
                                                 icon: <Pencil className="w-4 h-4" />,
