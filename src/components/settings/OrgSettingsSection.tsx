@@ -117,11 +117,13 @@ function OrgForm({ org }: { org: Organization }) {
     async function handleSave() {
         setSaving(true);
         try {
+            const trimmedName = name.trim();
             await updateOrganization(org.org_id, {
-                name: name.trim(),
+                name: trimmedName,
                 logo_url: logoUrl,
             });
-            setSavedName(name.trim());
+            setName(trimmedName);
+            setSavedName(trimmedName);
             setSavedLogoUrl(logoUrl);
             toast.success("Organisation opdateret");
             queryClient.invalidateQueries({ queryKey: ["organization", org.org_id] });

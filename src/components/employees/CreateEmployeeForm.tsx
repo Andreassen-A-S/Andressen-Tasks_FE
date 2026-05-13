@@ -20,8 +20,9 @@ interface CreateEmployeeFormProps {
 }
 
 export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange }: CreateEmployeeFormProps) {
-    const { userRole, user } = useAuth();
+    const { contextOrgId, userRole, user } = useAuth();
     const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
+    const defaultOrgId = contextOrgId ?? user?.organization_id ?? "";
 
     const { data: organizations = [] } = useQuery({
         queryKey: ["organizations"],
@@ -35,7 +36,7 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         password: "",
         role: UserRole.USER,
         position: "",
-        organization_id: user?.organization_id ?? "",
+        organization_id: defaultOrgId,
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -81,6 +82,10 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
     useEffect(() => {
         onLoadingChange?.(loading);
     }, [loading, onLoadingChange]);
+
+    useEffect(() => {
+        setFormData(prev => prev.organization_id === defaultOrgId ? prev : { ...prev, organization_id: defaultOrgId });
+    }, [defaultOrgId]);
 
     return (
         <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-6">

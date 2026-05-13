@@ -35,8 +35,8 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
             setIsLoading(true);
             setError(null);
             await login(email, password);
-            handleClose();
             onSuccess();
+            window.location.href = "/";
         } catch {
             setError("Forkert email eller adgangskode. Prøv igen.");
         } finally {
