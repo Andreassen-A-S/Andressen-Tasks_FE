@@ -27,12 +27,12 @@ export default function SubTaskRow({
     onTaskClick,
 }: SubTaskRowProps) {
     return (
-        <tr className="bg-[#FAFAF7] hover:bg-[#F6F5F1] transition-colors">
+        <tr className="bg-surface-hover hover:bg-surface-subtle transition-colors">
             {/* Tree lines column */}
             <td className="pl-4 pr-2 py-3 align-top relative">
                 <div className="absolute left-0 top-0 bottom-0 z-10 pointer-events-none" style={{ width: "50px" }}>
                     <div
-                        className="absolute bg-[#E8E6E1]"
+                        className="absolute bg-border"
                         style={{
                             left: `${lineX}px`,
                             top: isFirst ? "-30px" : 0,
@@ -42,7 +42,7 @@ export default function SubTaskRow({
                     />
                     {!isLast && (
                         <div
-                            className="absolute bg-[#E8E6E1]"
+                            className="absolute bg-border"
                             style={{
                                 left: `${lineX}px`,
                                 top: "51%",
@@ -52,7 +52,7 @@ export default function SubTaskRow({
                         />
                     )}
                     <div
-                        className="absolute bg-[#E8E6E1]"
+                        className="absolute bg-border"
                         style={{
                             left: `${lineX}px`,
                             top: "50%",
@@ -62,7 +62,7 @@ export default function SubTaskRow({
                         }}
                     />
                     <div
-                        className="absolute rounded-full bg-[#A8AABB]"
+                        className="absolute rounded-full bg-nav-inactive"
                         style={{
                             width: `${dotSize}px`,
                             height: `${dotSize}px`,

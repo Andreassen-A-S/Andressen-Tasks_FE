@@ -13,7 +13,7 @@ export default function TableSkeleton({
 }: TableSkeletonProps) {
     return (
         <div
-            className="rounded-md border overflow-hidden bg-white animate-pulse"
+            className="rounded-md border overflow-hidden bg-surface animate-pulse"
             style={{ borderColor: colors.border }}
         >
             {showToolbar && (

@@ -14,7 +14,7 @@ const PUBLIC_PREFIXES = ["/legal"];
 const NO_SIDEBAR_ROUTES = ["/dashboard"];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, isLoading, userRole } = useAuth();
+    const { isAuthenticated, isLoading, userRole, contextOrgId } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const showDelayedLoader = useDelayedVisibility(isLoading || !isAuthenticated, 180);
@@ -31,18 +31,33 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             return;
         }
 
-        if (isAuthenticated && userRole !== UserRole.ADMIN && pathname !== "/unauthorized") {
+        const isPrivileged = userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
+
+        if (isAuthenticated && !isPrivileged && pathname !== "/unauthorized") {
             topProgress.start();
             router.push("/unauthorized");
             return;
         }
 
-        if (isAuthenticated && userRole === UserRole.ADMIN && (pathname === "/login" || pathname === "/unauthorized")) {
+        if (isAuthenticated && isPrivileged && pathname.startsWith("/organizations") && userRole !== UserRole.SUPER_ADMIN) {
+            topProgress.start();
+            router.push("/unauthorized");
+            return;
+        }
+
+        const platformOnlyRoutes = ["/tasks", "/projects", "/templates"];
+        if (isAuthenticated && userRole === UserRole.SUPER_ADMIN && !contextOrgId && platformOnlyRoutes.some(r => pathname.startsWith(r))) {
+            topProgress.start();
+            router.push("/organizations");
+            return;
+        }
+
+        if (isAuthenticated && isPrivileged && (pathname === "/login" || pathname === "/unauthorized")) {
             topProgress.start();
             router.push("/");
             return;
         }
-    }, [isAuthenticated, isLoading, isPublicRoute, pathname, router, topProgress, userRole]);
+    }, [isAuthenticated, isLoading, isPublicRoute, pathname, router, topProgress, userRole, contextOrgId]);
 
     if (isPublicRoute) {
         return <>{children}</>;

@@ -125,7 +125,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); addFiles(Array.from(e.dataTransfer.files)); }}
             >
                 <textarea
-                    className="w-full body-sm rounded-md px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-[#0f6e56] transition-colors"
+                    className="w-full body-sm rounded-md px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     style={{ border: `1px solid ${dragOver ? colors.blue : colors.border}`, color: colors.textPrimary, minHeight: 80 }}
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}

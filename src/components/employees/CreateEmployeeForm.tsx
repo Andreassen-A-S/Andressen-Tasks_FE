@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { createUser } from "@/lib/api/users";
+import { getOrganizations } from "@/lib/api/organizations";
 import { User, UserRole } from "@/types/users";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
@@ -17,12 +20,22 @@ interface CreateEmployeeFormProps {
 }
 
 export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange }: CreateEmployeeFormProps) {
+    const { userRole, user } = useAuth();
+    const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
+
+    const { data: organizations = [] } = useQuery({
+        queryKey: ["organizations"],
+        queryFn: getOrganizations,
+        enabled: isSuperAdmin,
+    });
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
         role: UserRole.USER,
         position: "",
+        organization_id: user?.organization_id ?? "",
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -52,9 +65,12 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         setLoading(true);
         setError(null);
         try {
-            const user = await createUser(formData);
+            const payload = isSuperAdmin
+                ? formData
+                : { name: formData.name, email: formData.email, password: formData.password, role: formData.role, position: formData.position };
+            const created = await createUser(payload);
             toast.success("Medarbejder oprettet");
-            onSuccess(user);
+            onSuccess(created);
         } catch {
             setError("Kunne ikke oprette medarbejder. Prøv igen.");
         } finally {
@@ -117,6 +133,23 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
                         onChange={handleChange}
                     />
                 </div>
+                {isSuperAdmin && (
+                    <div className="space-y-2">
+                        <label htmlFor="organization_id" className="label-md block">Organisation</label>
+                        <SelectField
+                            id="organization_id"
+                            name="organization_id"
+                            value={formData.organization_id}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="">Vælg organisation...</option>
+                            {organizations.map(org => (
+                                <option key={org.org_id} value={org.org_id}>{org.name}</option>
+                            ))}
+                        </SelectField>
+                    </div>
+                )}
                 <div className="space-y-2">
                     <label htmlFor="role" className="label-md block">Rolle</label>
                     <SelectField

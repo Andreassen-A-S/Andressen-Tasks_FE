@@ -4,7 +4,7 @@ import { forwardRef, useState, type InputHTMLAttributes, type ReactNode } from "
 import { colors } from "@/constants/colors";
 import { Eye, EyeOff } from "lucide-react";
 
-type TextInputSize = "sm" | "md";
+type TextInputSize = "sm" | "md" | "lg";
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   leadingVisual?: ReactNode;
@@ -58,6 +58,12 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInpu
       leading: "pl-4",
       trailing: "pr-4",
     },
+    lg: {
+      wrapper: "h-10", //80px in browser
+      input: "px-3 body-md",
+      leading: "pl-4",
+      trailing: "pr-4",
+    },
   } as const;
   const currentSize = sizeClasses[inputSize];
 
@@ -91,7 +97,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInpu
         type={sensitive ? (showSensitiveValue ? "text" : "password") : type}
         className={[
           "h-full w-full min-w-0 rounded-md border-0 bg-transparent ",
-          "placeholder:text-[#9DA1B4]",
+          "placeholder:text-text-muted",
           "focus:outline-none focus:ring-0",
           currentSize.input,
           hasLeading ? "pl-2" : "",

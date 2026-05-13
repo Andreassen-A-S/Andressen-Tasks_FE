@@ -11,7 +11,7 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
   });
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.message || "Failed to login");
+    throw new Error(error.error || "Failed to login");
   }
 
   const response = await res.json();
@@ -32,7 +32,7 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
   if (!res.ok) {
     const error = await res.json();
     console.error("Verify token failed:", error);
-    throw new Error(error.message || "Failed to verify token");
+    throw new Error(error.error || "Failed to verify token");
   }
 
   // Backend returns { success: true, data: { user_id, role, email, name, iat, exp } }
@@ -46,6 +46,7 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
       role: data.role,
       name: data.name,
       position: data.position ?? "",
+      organization_id: data.organization_id ?? null,
     },
   };
 }

@@ -51,20 +51,20 @@ export default function UserSelector({
             {loading ? (
                 <InlineLoadingState label="Indlæser medarbejdere..." />
             ) : (
-                <div className={`space-y-2 ${maxHeight} overflow-y-auto border border-[#E8E6E1] rounded-lg bg-white p-3`}>
+                <div className={`space-y-2 ${maxHeight} overflow-y-auto border border-border rounded-lg bg-surface p-3`}>
                     {users.length === 0 ? (
-                        <div className="body-sm text-[#9DA1B4]">Ingen medarbejdere tilgængelige</div>
+                        <div className="body-sm text-text-muted">Ingen medarbejdere tilgængelige</div>
                     ) : (
                         users.map((user) => (
                             <label
                                 key={user.user_id}
-                                className="flex items-center gap-2 cursor-pointer hover:bg-[#FAFAF7] p-2 rounded-lg transition-colors"
+                                className="flex items-center gap-2 cursor-pointer hover:bg-surface-hover p-2 rounded-lg transition-colors"
                             >
                                 <input
                                     type="checkbox"
                                     checked={selectedUserIds.includes(user.user_id)}
                                     onChange={() => handleUserSelection(user.user_id)}
-                                    className="rounded border-[#E8E6E1] text-[#2C5FE0] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:border-[#2D9F6F]"
+                                    className="rounded border-border text-link focus:ring-2 focus:ring-accent-mid/30 focus:border-accent-mid"
                                 />
                                 <span className="body-sm">{user.name} <span className="caption">({user.position})</span></span>
                             </label>
@@ -73,7 +73,7 @@ export default function UserSelector({
                 </div>
             )}
             {selectedUserIds.length > 0 && (
-                <div className="caption mt-2 text-[#6B7084]">
+                <div className="caption mt-2 text-text-muted">
                     {formatNumber(selectedUserIds.length)} medarbejder(e) valgt
                 </div>
             )}

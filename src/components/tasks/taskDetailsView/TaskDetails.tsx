@@ -266,8 +266,8 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     if (error || !task) {
         return (
             <div className="h-full flex flex-col">
-                <div className="p-6 bg-red-50 border-b border-red-200">
-                    <span className="label-lg text-red-800">{error instanceof Error ? error.message : error || "Opgave ikke fundet"}</span>
+                <div className="p-6 bg-danger-surface border-b border-danger">
+                    <span className="label-lg text-danger">{error instanceof Error ? error.message : error || "Opgave ikke fundet"}</span>
                 </div>
             </div>
         );
@@ -276,7 +276,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     const isArchived = task.status === TaskStatus.ARCHIVED;
 
     return (
-        <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-col h-full bg-surface">
             {/* Archived banner */}
             {isArchived && (
                 <div

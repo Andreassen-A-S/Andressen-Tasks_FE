@@ -147,9 +147,9 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
         <form id={formId} onSubmit={handleSubmit} className="flex flex-col h-full">
             {/* Info Banner for Recurring Tasks */}
             {isRecurringInstance && (
-                <div className="mb-6 p-4 bg-[#EBF0FD] border-l-4 border-[#2C5FE0] rounded-r-[12px]">
+                <div className="mb-6 p-4 bg-info-surface border-l-4 border-link rounded-r-[12px]">
                     <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 flex-shrink-0 text-[#2C5FE0]" />
+                        <Info className="w-5 h-5 flex-shrink-0 text-link" />
                         <div>
                             <h4 className="h5">Gentagende opgave instans</h4>
                             <p className="body-sm mt-1">
@@ -162,9 +162,9 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
 
             {/* Info Banner for Subtasks */}
             {isSubtask && (
-                <div className="mb-6 p-4 bg-[#E8F7F0] border-l-4 border-[#2D9F6F] rounded-r-[12px]">
+                <div className="mb-6 p-4 bg-accent-surface border-l-4 border-accent-mid rounded-r-[12px]">
                     <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 flex-shrink-0 text-[#2D9F6F]" />
+                        <Info className="w-5 h-5 flex-shrink-0 text-accent-mid" />
                         <div>
                             <h4 className="h5">Redigerer underopgave</h4>
                             <p className="body-sm mt-1">
@@ -177,9 +177,9 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
 
             {/* Error Message */}
             {error && (
-                <div className="mb-6 p-4 bg-[#FDECEC] border-l-4 border-[#D64545] rounded-r-[12px]">
+                <div className="mb-6 p-4 bg-danger-surface border-l-4 border-danger rounded-r-[12px]">
                     <div className="flex items-start gap-3">
-                        <TriangleAlert className="w-5 h-5 flex-shrink-0 text-[#D64545]" />
+                        <TriangleAlert className="w-5 h-5 flex-shrink-0 text-danger" />
                         <p className="body-sm">{error}</p>
                     </div>
                 </div>

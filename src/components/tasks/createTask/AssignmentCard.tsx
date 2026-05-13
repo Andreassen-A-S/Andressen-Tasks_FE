@@ -30,14 +30,14 @@ export default function AssignmentCard({
             />
 
             {selectedCount >= 2 && onCreationModeChange && (
-                <label className="flex items-start gap-3 cursor-pointer p-3 bg-[#FAFAF7] rounded-lg border border-[#E8E6E1] hover:bg-[#EBF0FD] transition-colors">
+                <label className="flex items-start gap-3 cursor-pointer p-3 bg-surface-hover rounded-lg border border-border hover:bg-info-surface transition-colors">
                     <input
                         type="checkbox"
                         checked={creationMode === "individual"}
                         onChange={(e) =>
                             onCreationModeChange(e.target.checked ? "individual" : "combined")
                         }
-                        className="mt-0.5 rounded border-[#E8E6E1] text-[#2C5FE0] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:border-[#2D9F6F]"
+                        className="mt-0.5 rounded border-border text-link focus:ring-2 focus:ring-accent-mid/30 focus:border-accent-mid"
                     />
                     <div>
                         <span className="label-lg">

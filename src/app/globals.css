@@ -1,31 +1,164 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
-@source inline("border-red-600 border-orange-400 border-yellow-400 border-yellow-600 border-green-600 border-gray-600");
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ─── DESIGN TOKENS ─────────────────────────────────────────── */
 
 :root {
-  --background: #f6f5f1;
-  --foreground: #171717;
+  /* Shadows */
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.10);
+  --shadow-drawer:   -8px 0 32px rgba(0, 0, 0, 0.10);
+
+  /* Tooltip — always dark bg regardless of theme */
+  --tooltip-bg:   #1B1D22;
+  --tooltip-text: #F6F5F1;
+
+  /* Page & surfaces */
+  --surface:          #FFFFFF;
+  --surface-subtle:   #F3F3F0;
+  --surface-hover:    #FAFAF7;
+  --surface-page:     #F6F5F1;
+
+  /* Text */
+  --text-primary:     #1B1D22;
+  --text-secondary:   #6B7084;
+  --text-muted:       #9DA1B4;
+  --text-on-accent:   #FFFFFF;
+
+  /* Border */
+  --border:           #E8E6E1;
+
+  /* Sidebar — light in light mode */
+  --sidebar-bg:           #F6F5F1;
+  --sidebar-border:       #E8E6E1;
+  --sidebar-hover:        #EEEDE9;
+  --sidebar-active:       #E4E3DF;
+  --sidebar-text:         #1B1D22;
+  --sidebar-text-muted:   #6B7084;
+
+  /* Accent (brand green) */
+  --accent:           #0f6e56;
+  --accent-hover:     #0a5551;
+  --accent-mid:       #2D9F6F;
+  --accent-surface:   #E8F7F0;
+
+  /* Link / info (brand blue) */
+  --link:             #2C5FE0;
+  --link-hover:       #4A7AF5;
+  --info-surface:     #EBF0FD;
+
+  /* Danger */
+  --danger:           #D64545;
+  --danger-surface:   #FDECEC;
+  --danger-border:    #FCA5A5;
+  --danger-text:      #991B1B;
+
+  /* Warning */
+  --warning:          #D97706;
+  --warning-surface:  #FEF3C7;
+  --warning-border:   #FCD34D;
+
+  /* Legacy — background used by body/layout */
+  --background: var(--surface-page);
+  --foreground: var(--text-primary);
 }
+
+[data-theme="dark"] {
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.40);
+  --shadow-drawer:   -8px 0 32px rgba(0, 0, 0, 0.40);
+
+  --tooltip-bg:   #3A3D47;
+  --tooltip-text: #F6F5F1;
+
+  --surface:          #1B1D22;
+  --surface-subtle:   #22252C;
+  --surface-hover:    #2A2D35;
+  --surface-page:     #141517;
+
+  --text-primary:     #F6F5F1;
+  --text-secondary:   #9DA1B4;
+  --text-muted:       #6B7084;
+
+  --border:           #2E3139;
+
+  --sidebar-bg:           #0D0E11;
+  --sidebar-border:       rgba(255,255,255,0.06);
+  --sidebar-hover:        rgba(255,255,255,0.06);
+  --sidebar-active:       rgba(255,255,255,0.08);
+  --sidebar-text:         #FFFFFF;
+  --sidebar-text-muted:   #A8AABB;
+
+  --accent:           #2D9F6F;
+  --accent-hover:     #259060;
+  --accent-surface:   #0D2B20;
+
+  --link:             #4A7AF5;
+  --link-hover:       #6B95FF;
+  --info-surface:     #0F1B3D;
+
+  --danger:           #E25757;
+  --danger-surface:   #2D1515;
+  --danger-border:    #7A2020;
+  --danger-text:      #FCA5A5;
+
+  --warning:          #F59E0B;
+  --warning-surface:  #2D2000;
+  --warning-border:   #78450A;
+}
+
+/* Mix: light content, dark sidebar */
+[data-theme="mix"] {
+  --sidebar-bg:           #1B1D22;
+  --sidebar-border:       rgba(255,255,255,0.06);
+  --sidebar-hover:        rgba(255,255,255,0.06);
+  --sidebar-active:       rgba(255,255,255,0.08);
+  --sidebar-text:         #FFFFFF;
+  --sidebar-text-muted:   #A8AABB;
+}
+
+/* ─── TAILWIND THEME ─────────────────────────────────────────── */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-surface:          var(--surface);
+  --color-surface-subtle:   var(--surface-subtle);
+  --color-surface-hover:    var(--surface-hover);
+  --color-surface-page:     var(--surface-page);
+  --color-border:           var(--border);
+  --color-text-primary:     var(--text-primary);
+  --color-text-secondary:   var(--text-secondary);
+  --color-text-muted:       var(--text-muted);
+  --color-accent:           var(--accent);
+  --color-accent-hover:     var(--accent-hover);
+  --color-accent-mid:       var(--accent-mid);
+  --color-accent-surface:   var(--accent-surface);
+  --color-link:             var(--link);
+  --color-link-hover:       var(--link-hover);
+  --color-info-surface:     var(--info-surface);
+  --color-danger:           var(--danger);
+  --color-danger-surface:   var(--danger-surface);
+  --color-danger-border:    var(--danger-border);
+  --color-warning:          var(--warning);
+  --color-warning-surface:  var(--warning-surface);
+  --color-sidebar-bg:           var(--sidebar-bg);
+  --color-sidebar-hover:        var(--sidebar-hover);
+  --color-sidebar-active:       var(--sidebar-active);
+  --color-sidebar-text:         var(--sidebar-text);
+  --color-sidebar-text-muted:   var(--sidebar-text-muted);
+  --color-nav-inactive:         var(--sidebar-text-muted);
 }
 
-/* for dark mode in the future */
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
+*, *::before, *::after {
+  --tw-ring-offset-color: var(--surface);
+}
 
 body {
   background: var(--background);
-  /* color: var(--foreground); */
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -34,33 +167,15 @@ body[data-scroll-locked="true"] {
   padding-right: var(--scrollbar-width, 0px);
 }
 
-
-/* ─── TYPOGRAPHY SYSTEM ───────────────────────────────────────
-Core set for new UI:
-- h1, h2, h3, h4, h5
-- body-md, body-sm, body-xs
-- label-lg, label-md, label-sm
-- caption, overline, table-header
-
-Legacy aliases remain for now so existing UI keeps rendering while usage
-is migrated over time.
-*/
-
-/* Legacy userview-only aliases:
-- h2-color, h2-white, h3-white
-- body-sm-white
-- label-lg-gray, label-lg-white
-*/
-
-/* ─── HEADINGS ──────────────────────────────────────────────── */
+/* ─── TYPOGRAPHY SYSTEM ──────────────────────────────────────── */
 
 .h1 {
   font-family: "Outfit", sans-serif;
   font-weight: 700;
-  font-size: 2.25rem; /* 36px */
-  line-height: 2.5rem; /* 40px */
+  font-size: 2.25rem;
+  line-height: 2.5rem;
   letter-spacing: -0.03em;
-  color: #1b1d22;
+  color: var(--text-primary);
 }
 
 .h2,
@@ -68,56 +183,41 @@ is migrated over time.
 .h2-white {
   font-family: "Outfit", sans-serif;
   font-weight: 700;
-  font-size: 1.75rem; /* 28px */
-  line-height: 2.125rem; /* 34px */
+  font-size: 1.75rem;
+  line-height: 2.125rem;
   letter-spacing: -0.025em;
 }
-
-.h2 {
-  color: #1b1d22;
-}
-
-.h2-color {
-  color: inherit;
-}
-
-.h2-white {
-  color: #ffffff;
-}
+.h2       { color: var(--text-primary); }
+.h2-color { color: inherit; }
+.h2-white { color: var(--text-on-accent); }
 
 .h3,
 .h3-white {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  font-size: 1.375rem; /* 22px */
-  line-height: 1.75rem; /* 28px */
+  font-size: 1.375rem;
+  line-height: 1.75rem;
   letter-spacing: -0.02em;
 }
-
-.h3 {
-  color: #1b1d22;
-}
-
-.h3-white {
-  color: #ffffff;
-}
+.h3       { color: var(--text-primary); }
+.h3-white { color: var(--text-on-accent); }
 
 .h4 {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  font-size: 1.125rem; /* 18px */
-  line-height: 1.5rem; /* 24px */
+  font-size: 1.125rem;
+  line-height: 1.5rem;
   letter-spacing: -0.015em;
-  color: #1b1d22;
+  color: var(--text-primary);
 }
 
 .h5 {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  font-size: 1rem; /* 16px */
-  line-height: 1.375rem; /* 22px */
+  font-size: 1rem;
+  line-height: 1.375rem;
   letter-spacing: -0.01em;
-  color: #1b1d22;
+  color: var(--text-primary);
 }
 
 /* ─── BODY TEXT ─────────────────────────────────────────────── */
@@ -125,33 +225,27 @@ is migrated over time.
 .body-md {
   font-family: "Outfit", sans-serif;
   font-weight: 400;
-  font-size: 1rem; /* 16px */
-  line-height: 1.5rem; /* 24px */
-  color: #1b1d22;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: var(--text-primary);
 }
 
 .body-sm,
 .body-sm-white {
   font-family: "Outfit", sans-serif;
   font-weight: 400;
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
-
-.body-sm {
-  color: #6b7084;
-}
-
-.body-sm-white {
-  color: #ffffff;
-}
+.body-sm       { color: var(--text-secondary); }
+.body-sm-white { color: var(--text-on-accent); }
 
 .body-xs {
   font-family: "Outfit", sans-serif;
   font-weight: 400;
-  font-size: 0.8125rem; /* 13px */
-  line-height: 1.125rem; /* 18px */
-  color: #6b7084;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--text-secondary);
 }
 
 /* ─── LABELS & UI TEXT ──────────────────────────────────────── */
@@ -161,36 +255,27 @@ is migrated over time.
 .label-lg-white {
   font-family: "Outfit", sans-serif;
   font-weight: 500;
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
-
-.label-lg {
-  color: #1b1d22;
-}
-
-.label-lg-gray {
-  color: #6b7084;
-}
-
-.label-lg-white {
-  color: #ffffff;
-}
+.label-lg       { color: var(--text-primary); }
+.label-lg-gray  { color: var(--text-secondary); }
+.label-lg-white { color: var(--text-on-accent); }
 
 .label-md {
   font-family: "Outfit", sans-serif;
   font-weight: 500;
-  font-size: 0.8125rem; /* 13px */
-  line-height: 1.125rem; /* 18px */
-  color: #1b1d22;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--text-primary);
 }
 
 .label-sm {
   font-family: "Outfit", sans-serif;
   font-weight: 500;
-  font-size: 0.75rem; /* 12px */
-  line-height: 1rem; /* 16px */
-  color: #6b7084;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--text-secondary);
 }
 
 /* ─── OVERLINES & CAPTIONS ──────────────────────────────────── */
@@ -198,31 +283,29 @@ is migrated over time.
 .overline {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  font-size: 0.625rem; /* 10px */
-  line-height: 0.875rem; /* 14px */
+  font-size: 0.625rem;
+  line-height: 0.875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #9da1b4;
+  color: var(--text-muted);
 }
 
 .caption {
   font-family: "Outfit", sans-serif;
   font-weight: 400;
-  font-size: 0.6875rem; /* 11px */
-  line-height: 1rem; /* 16px */
-  color: #9da1b4;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  color: var(--text-muted);
 }
-
-/* ─── TABLE HEADER ──────────────────────────────────────────── */
 
 .table-header {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  font-size: 0.625rem; /* 10px */
-  line-height: 0.875rem; /* 14px */
+  font-size: 0.625rem;
+  line-height: 0.875rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9da1b4;
+  color: var(--text-muted);
 }
 
 /* ─── BADGES & TAGS ─────────────────────────────────────────── */
@@ -232,27 +315,15 @@ is migrated over time.
   font-weight: 600;
   letter-spacing: 0.02em;
 }
-
-.badge-sm {
-  font-size: 0.75rem; /* 12px */
-  line-height: 1rem; /* 16px */
-}
-
-.badge-md {
-  font-size: 0.625rem; /* 10px */
-  line-height: 0.875rem; /* 14px */
-}
-
-.badge-lg {
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
-}
+.badge-sm { font-size: 0.75rem;   line-height: 1rem; }
+.badge-md { font-size: 0.625rem;  line-height: 0.875rem; }
+.badge-lg { font-size: 0.875rem;  line-height: 1.25rem; }
 
 .tag {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  font-size: 0.5625rem; /* 9px */
-  line-height: 0.75rem; /* 12px */
+  font-size: 0.5625rem;
+  line-height: 0.75rem;
   letter-spacing: 0.02em;
 }
 
@@ -261,22 +332,20 @@ is migrated over time.
 .btn-lg {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  font-size: 0.9375rem; /* 15px */
-  line-height: 1.25rem; /* 20px */
+  font-size: 0.9375rem;
+  line-height: 1.25rem;
 }
-
 .btn-md {
   font-family: "Outfit", sans-serif;
   font-weight: 600;
-  font-size: 0.8125rem; /* 13px */
-  line-height: 1.125rem; /* 18px */
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
 }
-
 .btn-sm {
   font-family: "Outfit", sans-serif;
   font-weight: 500;
-  font-size: 0.75rem; /* 12px */
-  line-height: 1rem; /* 16px */
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 /* ─── NAVIGATION ────────────────────────────────────────────── */
@@ -284,70 +353,67 @@ is migrated over time.
 .nav-item {
   font-family: "Outfit", sans-serif;
   font-weight: 400;
-  font-size: 0.8125rem; /* 13px */
-  line-height: 1.125rem; /* 18px */
-  color: #a8aabb;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--sidebar-text-muted);
 }
 
 .nav-item-active {
   font-family: "Outfit", sans-serif;
   font-weight: 500;
-  font-size: 0.8125rem; /* 13px */
-  line-height: 1.125rem; /* 18px */
-  color: #ffffff;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--sidebar-text);
 }
 
 .sidebar-brand {
   font-family: "Outfit", sans-serif;
   font-weight: 700;
-  font-size: 0.9375rem; /* 15px */
-  line-height: 1.25rem; /* 20px */
+  font-size: 0.9375rem;
+  line-height: 1.25rem;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: var(--sidebar-text);
 }
 
 .sidebar-brand-sub {
   font-family: "Outfit", sans-serif;
   font-weight: 400;
-  font-size: 0.625rem; /* 10px */
-  line-height: 0.875rem; /* 14px */
+  font-size: 0.625rem;
+  line-height: 0.875rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #a8aabb;
+  color: var(--sidebar-text-muted);
 }
 
-/* ─── MONOSPACE (data, emails, IDs, percentages) ────────────── */
+/* ─── MONOSPACE ─────────────────────────────────────────────── */
 
 .mono-md {
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
-  font-size: 0.8125rem; /* 13px */
-  line-height: 1.125rem; /* 18px */
-  color: #6b7084;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--text-secondary);
 }
-
 .mono-sm {
   font-family: "IBM Plex Mono", monospace;
   font-weight: 400;
-  font-size: 0.75rem; /* 12px */
-  line-height: 1rem; /* 16px */
-  color: #6b7084;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--text-secondary);
 }
-
 .mono-xs {
   font-family: "IBM Plex Mono", monospace;
   font-weight: 500;
-  font-size: 0.625rem; /* 10px */
-  line-height: 0.875rem; /* 14px */
-  color: #6b7084;
+  font-size: 0.625rem;
+  line-height: 0.875rem;
+  color: var(--text-secondary);
 }
-
 .mono-xs-accent {
   font-family: "IBM Plex Mono", monospace;
   font-weight: 500;
-  font-size: 0.625rem; /* 10px */
-  line-height: 0.875rem; /* 14px */
-  color: #0f6e56;
+  font-size: 0.625rem;
+  line-height: 0.875rem;
+  color: var(--accent);
 }
 
 /* ─── LINKS ─────────────────────────────────────────────────── */
@@ -355,80 +421,49 @@ is migrated over time.
 .link {
   font-family: "Outfit", sans-serif;
   font-weight: 500;
-  font-size: 0.6875rem; /* 11px */
-  line-height: 1rem; /* 16px */
-  color: #2c5fe0;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  color: var(--link);
   cursor: pointer;
   text-decoration: none;
 }
-
-.link:hover {
-  color: #4a7af5;
-}
+.link:hover { color: var(--link-hover); }
 
 .link-danger {
   font-family: "Outfit", sans-serif;
   font-weight: 500;
-  font-size: 0.6875rem; /* 11px */
-  line-height: 1rem; /* 16px */
-  color: #d64545;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  color: var(--danger);
   cursor: pointer;
   text-decoration: none;
 }
-
-.link-danger:hover {
-  color: #e25757;
-}
+.link-danger:hover { color: var(--danger); opacity: 0.8; }
 
 /* ─── INITIALS (avatars) ────────────────────────────────────── */
 
-.initials-lg {
-  font-family: "Outfit", sans-serif;
-  font-weight: 600;
-  font-size: 0.8125rem; /* 13px */
-  color: #ffffff;
-}
+.initials-lg { font-family: "Outfit", sans-serif; font-weight: 600; font-size: 0.8125rem; color: var(--text-on-accent); }
+.initials-md { font-family: "Outfit", sans-serif; font-weight: 600; font-size: 0.6875rem; color: var(--text-on-accent); }
+.initials-sm { font-family: "Outfit", sans-serif; font-weight: 600; font-size: 0.5625rem; color: var(--text-on-accent); }
+.initials-xs { font-family: "Outfit", sans-serif; font-weight: 600; font-size: 8px;       color: var(--text-on-accent); }
 
-.initials-md {
-  font-family: "Outfit", sans-serif;
-  font-weight: 600;
-  font-size: 0.6875rem; /* 11px */
-  color: #ffffff;
-}
-
-.initials-sm {
-  font-family: "Outfit", sans-serif;
-  font-weight: 600;
-  font-size: 0.5625rem; /* 9px */
-  color: #ffffff;
-}
-
-/* ─── CALENDER ────────────────────────────────────── */
+/* ─── CALENDAR ──────────────────────────────────────────────── */
 
 .calendar-day-number {
   font-size: 13px;
   font-weight: 500;
   font-family: "Outfit", sans-serif;
-  color: #1b1d22;
+  color: var(--text-primary);
 }
-
 .calendar-day-number-today {
   font-size: 13px;
   font-weight: 700;
   font-family: "Outfit", sans-serif;
-  color: #fff;
+  color: var(--text-on-accent);
 }
 
-/* ─── COLORS ────────────────────────────────────── */
+/* ─── UTILITY ALIASES ───────────────────────────────────────── */
 
-.accent-green {
-  color: #0f6e56;
-}
-
-.bg-egg-white {
-  background-color: #f6f5f1;
-}
-
-.dark-charcoal {
-  color: #1b1d22;
-}
+.accent-green  { color: var(--accent); }
+.bg-egg-white  { background-color: var(--surface-page); }
+.dark-charcoal { color: var(--text-primary); }

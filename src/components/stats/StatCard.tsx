@@ -24,21 +24,21 @@ export default function StatCard({
     tooltip,
 }: StatCardProps) {
     const variantStyles = {
-        default: "bg-white border-gray-200",
+        default: "bg-surface border-border",
         success: "bg-green-50 border-green-200",
         warning: "bg-yellow-50 border-yellow-200",
         danger: "bg-red-50 border-red-200",
     };
 
     const textColors = {
-        default: "text-gray-900",
+        default: "text-text-primary",
         success: "text-green-900",
         warning: "text-yellow-900",
         danger: "text-red-900",
     };
 
     const subtitleColors = {
-        default: "text-gray-500",
+        default: "text-text-muted",
         success: "text-green-600",
         warning: "text-yellow-600",
         danger: "text-red-600",
@@ -47,7 +47,7 @@ export default function StatCard({
     const trendColors = {
         up: "text-green-600",
         down: "text-red-600",
-        neutral: "text-gray-600",
+        neutral: "text-text-secondary",
     };
 
     const trendIcons = {
@@ -78,7 +78,7 @@ export default function StatCard({
                             <FloatingTooltip content={tooltip} placement="bottom-start" variant="default">
                                 <button
                                     type="button"
-                                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="text-text-muted hover:text-text-secondary transition-colors"
                                     aria-label="More information"
                                 >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

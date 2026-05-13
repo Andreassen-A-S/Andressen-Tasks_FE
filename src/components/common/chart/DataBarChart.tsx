@@ -60,7 +60,7 @@ export default function DataBarChart({
     const rowDividerStyle = { "--chart-divider": colors.border } as CSSProperties;
 
     return (
-        <div className="overflow-hidden rounded-md border bg-white" style={{ borderColor: colors.border }}>
+        <div className="overflow-hidden rounded-md border bg-surface" style={{ borderColor: colors.border }}>
             {toolbar && (
                 <div
                     className="flex items-center justify-between px-4 pt-4"

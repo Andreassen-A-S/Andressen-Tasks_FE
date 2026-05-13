@@ -30,9 +30,9 @@ export default function EditButton({
 
     const variantClasses = {
         primary:
-            "bg-[#2C5FE0] text-white hover:bg-[#4a7af5] focus:ring-[#2C5FE0] border-none",
+            "bg-link text-white hover:bg-link-hover focus:ring-link border-none",
         secondary:
-            "bg-white border border-[#E8E6E1] text-[#1B1D22] hover:bg-[#F6F5F1] focus:ring-[#E8E6E1]"
+            "bg-surface border border-border text-text-primary hover:bg-surface-page focus:ring-border"
     };
 
     const baseClasses = `

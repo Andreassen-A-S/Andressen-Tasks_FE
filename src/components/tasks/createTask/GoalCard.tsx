@@ -42,7 +42,7 @@ export default function GoalSection({
                                 onFieldChange('target_quantity', 100);
                             }
                         }}
-                        className="rounded border-[#E8E6E1] text-[#2C5FE0] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:border-[#2D9F6F] h-4 w-4"
+                        className="rounded border-border text-link focus:ring-2 focus:ring-accent-mid/30 focus:border-accent-mid h-4 w-4"
                     />
                 </label>
                 <div>
@@ -59,7 +59,7 @@ export default function GoalSection({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="target_quantity" className="label-lg mb-2 block">
-                                Mål<span className="text-[#D64545]">*</span>
+                                Mål<span className="text-danger">*</span>
                             </label>
                             <TextInput
                                 type="number"

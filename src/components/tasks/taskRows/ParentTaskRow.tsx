@@ -55,7 +55,7 @@ export default function ParentTaskRow({
         <Fragment>
             {/* Task Row */}
             <tr
-                className="bg-white transition-colors"
+                className="bg-surface transition-colors"
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.whiteHover)}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.white)}
             >
@@ -66,7 +66,7 @@ export default function ParentTaskRow({
                             onClick={() => setIsExpanded((v) => !v)}
                             className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
         inline-flex items-center justify-center h-8 w-8 transition-transform duration-200 rounded-lg
-        ${isExpanded ? "rotate-90 text-[#E8E6E1]" : "text-gray-400"}`}
+        ${isExpanded ? "rotate-90 text-border" : "text-text-muted"}`}
                             aria-label={isExpanded ? "Skjul delopgaver" : "Vis delopgaver"}
                             aria-expanded={isExpanded}
                         >

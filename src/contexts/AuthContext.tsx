@@ -5,13 +5,47 @@ import { User, UserRole } from "@/types/users";
 import { verifyToken } from "@/lib/api";
 import { login as apiLogin } from "@/lib/api";
 
+export interface SavedAccount {
+    token: string;
+    user: User;
+}
+
+const SAVED_ACCOUNTS_KEY = "savedAccounts";
+
+function loadSavedAccounts(): SavedAccount[] {
+    if (typeof window === "undefined") return [];
+    try {
+        return JSON.parse(localStorage.getItem(SAVED_ACCOUNTS_KEY) ?? "[]");
+    } catch {
+        return [];
+    }
+}
+
+function persistSavedAccounts(accounts: SavedAccount[]) {
+    localStorage.setItem(SAVED_ACCOUNTS_KEY, JSON.stringify(accounts));
+}
+
+function upsertAccount(accounts: SavedAccount[], account: SavedAccount): SavedAccount[] {
+    const idx = accounts.findIndex((a) => a.user.user_id === account.user.user_id);
+    if (idx >= 0) {
+        const updated = [...accounts];
+        updated[idx] = account;
+        return updated;
+    }
+    return [...accounts, account];
+}
+
 interface AuthContextType {
     isAuthenticated: boolean;
     userRole: UserRole | null;
     user: User | null;
     isLoading: boolean;
+    savedAccounts: SavedAccount[];
+    contextOrgId: string | null;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
+    switchAccount: (account: SavedAccount) => void;
+    setContextOrg: (orgId: string | null) => void;
 }
 
 interface AuthProviderProps {
@@ -25,6 +59,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState<UserRole | null>(null);
     const [user, setUser] = useState<User | null>(null);
+    const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
+    const [contextOrgId] = useState<string | null>(
+        typeof window !== "undefined" ? localStorage.getItem("orgContext") : null
+    );
 
     useEffect(() => {
         const initializeAuth = async () => {
@@ -34,28 +72,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
 
             const token = localStorage.getItem("authToken");
+            setSavedAccounts(loadSavedAccounts());
 
             if (token) {
                 try {
-                    console.log("Verifying token...");
                     const response = await verifyToken(token);
-                    console.log("Token verification response:", response);
 
-                    // Ensure we have user data before setting state
                     if (response?.user?.user_id) {
                         setIsAuthenticated(true);
                         setUser(response.user);
                         setUserRole(response.user.role);
-                        console.log("Auth state set successfully:", {
-                            userId: response.user.user_id,
-                            role: response.user.role
-                        });
                     } else {
-                        console.error("Invalid user data in token response:", response);
                         throw new Error("Invalid user data");
                     }
-                } catch (error) {
-                    console.error("Token verification failed:", error);
+                } catch {
                     localStorage.removeItem("authToken");
                     localStorage.removeItem("userRole");
                     setIsAuthenticated(false);
@@ -77,17 +107,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const response = await apiLogin({ email, password });
 
             if (!response.token) {
-                console.error("Backend did not return a token.", response);
                 throw new Error("Backend did not return a token.");
             }
 
             if (!response.user) {
-                console.error("Backend did not return user data.", response);
                 throw new Error("Backend did not return user data.");
             }
 
             localStorage.setItem("authToken", response.token);
             localStorage.setItem("userRole", response.user.role);
+
+            const updated = upsertAccount(loadSavedAccounts(), { token: response.token, user: response.user });
+            persistSavedAccounts(updated);
+            setSavedAccounts(updated);
 
             setIsAuthenticated(true);
             setUser(response.user);
@@ -97,12 +129,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
+    const setContextOrg = (orgId: string | null) => {
+        if (orgId) localStorage.setItem("orgContext", orgId);
+        else localStorage.removeItem("orgContext");
+        window.location.href = "/";
+    };
+
     const logout = () => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("userRole");
+        localStorage.removeItem("orgContext");
+        localStorage.removeItem(SAVED_ACCOUNTS_KEY);
         setIsAuthenticated(false);
         setUser(null);
         setUserRole(null);
+        setSavedAccounts([]);
+    };
+
+    const switchAccount = (account: SavedAccount) => {
+        localStorage.setItem("authToken", account.token);
+        localStorage.setItem("userRole", account.user.role);
+        setIsAuthenticated(true);
+        setUser(account.user);
+        setUserRole(account.user.role);
+        // Full reload ensures query cache, route state, and all server components reset cleanly
+        window.location.href = "/";
     };
 
     return (
@@ -111,8 +162,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
             userRole,
             user,
             isLoading,
+            savedAccounts,
+            contextOrgId,
             login,
-            logout
+            logout,
+            switchAccount,
+            setContextOrg,
         }}>
             {children}
         </AuthContext.Provider>

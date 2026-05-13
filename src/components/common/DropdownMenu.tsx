@@ -30,6 +30,7 @@ export const DropdownOpenContext = createContext(false);
 export interface DropdownMenuItem {
   label: string;
   icon?: React.ReactNode;
+  badge?: React.ReactNode;
   checked?: boolean;
   onClick?: () => void;
   href?: string;
@@ -49,7 +50,7 @@ interface DropdownMenuProps {
 function renderIcon(icon: React.ReactNode | undefined, danger?: boolean) {
   if (!icon) return null;
   return (
-    <span className="w-4 flex items-center justify-center" style={{ color: danger ? colors.red : colors.textPrimary }}>
+    <span className="shrink-0 flex items-center justify-center" style={{ color: danger ? colors.red : colors.textPrimary }}>
       {icon}
     </span>
   );
@@ -65,6 +66,7 @@ function renderItemContent(item: DropdownMenuItem, hasChecked: boolean) {
       )}
       {renderIcon(item.icon, item.danger)}
       <span className="flex-1">{item.label}</span>
+      {item.badge}
     </>
   );
 }
@@ -74,8 +76,8 @@ function isExternalHref(href: string) {
 }
 
 // Background is declarative so hover cannot stick if a portal/submenu opens before mouseleave fires.
-const ITEM_CLS = "w-full flex items-center gap-2 px-2 py-1.5 rounded-md body-sm text-left outline-none transition-colors hover:bg-[#F3F3F0] data-[active]:bg-[#F3F3F0] data-[open]:bg-[#F3F3F0]";
-const DANGER_ITEM_CLS = "w-full flex items-center gap-2 px-2 py-1.5 rounded-md body-sm text-left outline-none transition-colors hover:bg-[#FDECEC] data-[active]:bg-[#FDECEC] data-[open]:bg-[#FDECEC]";
+const ITEM_CLS = "w-full flex items-center gap-2 px-2 py-1.5 rounded-md body-sm text-left outline-none transition-colors hover:bg-surface-subtle data-[active]:bg-surface-subtle data-[open]:bg-surface-subtle";
+const DANGER_ITEM_CLS = "w-full flex items-center gap-2 px-2 py-1.5 rounded-md body-sm text-left outline-none transition-colors hover:bg-danger-surface data-[active]:bg-danger-surface data-[open]:bg-danger-surface";
 
 function SubMenuItem({
   item,
@@ -230,14 +232,14 @@ function SubMenuItem({
                 visibility: isPositioned ? "visible" : "hidden",
                 border: `1px solid ${colors.border}`,
                 backgroundColor: colors.white,
-                boxShadow: "0 8px 24px rgba(140, 149, 159, 0.2)",
+                boxShadow: "var(--shadow-elevated)",
                 ...(item.subMenuWidth && { width: item.subMenuWidth }),
               }}
               className={`z-[9999] min-w-[160px] rounded-lg py-1.5 outline-none${isPositioned ? " animate-in fade-in zoom-in-95 ease-out" : ""}`}
               {...getFloatingProps({ tabIndex: -1 })}
             >
               {item.subItems!.map((sub, i) => (
-                <div key={sub.label}>
+                <div key={i}>
                   {sub.dividerBefore && (
                     <div className="my-1.5" style={{ borderTop: `1px solid ${colors.border}` }} />
                   )}
@@ -276,7 +278,11 @@ function SubMenuItem({
                         })}
                       >
                         {renderIcon(sub.icon, sub.danger)}
-                        {sub.label}
+                        <span className="flex-1">{sub.label}</span>
+                        {sub.badge}
+                        {sub.checked !== undefined && (
+                          <Check className="w-4 h-4 shrink-0" style={{ color: colors.textPrimary, opacity: sub.checked ? 1 : 0 }} />
+                        )}
                       </button>
                     )}
                   </div>
@@ -395,7 +401,7 @@ function DropdownMenuInner({ trigger, items, width }: DropdownMenuProps) {
                 visibility: isPositioned ? "visible" : "hidden",
                 border: `1px solid ${colors.border}`,
                 backgroundColor: colors.white,
-                boxShadow: "0 8px 24px rgba(140, 149, 159, 0.2)",
+                boxShadow: "var(--shadow-elevated)",
                 ...(width && { width }),
               }}
               className={`z-[9999] min-w-[160px] rounded-lg py-1.5 outline-none${isPositioned ? " animate-in fade-in zoom-in-95 ease-out" : ""}`}
@@ -412,8 +418,14 @@ function DropdownMenuInner({ trigger, items, width }: DropdownMenuProps) {
                       allowHover={allowHover}
                       isOpen={openSubMenuIndex === i}
                       onOpenChange={(open) => {
-                        setOpenSubMenuIndex(open ? i : null);
-                        if (open) setActiveIndex(i);
+                        if (open) {
+                          setOpenSubMenuIndex(i);
+                          setActiveIndex(i);
+                        } else {
+                          // Only clear if this submenu was actually the open one —
+                          // prevents clobbering another submenu that just opened.
+                          setOpenSubMenuIndex(prev => prev === i ? null : prev);
+                        }
                       }}
                       active={openSubMenuIndex === null && activeIndex === i}
                       parentItemRef={(node) => { listRef.current[i] = node; }}

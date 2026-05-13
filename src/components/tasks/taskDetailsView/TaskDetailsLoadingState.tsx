@@ -2,7 +2,7 @@ import { colors } from "@/constants/colors";
 
 export default function TaskDetailsLoadingState() {
     return (
-        <div className="flex flex-col h-full bg-white animate-pulse">
+        <div className="flex flex-col h-full bg-surface animate-pulse">
             <div className="px-8 pt-7 pb-5 space-y-4">
                 <div className="h-10 w-2/3 rounded" style={{ backgroundColor: colors.muted }} />
                 <div className="flex gap-3">

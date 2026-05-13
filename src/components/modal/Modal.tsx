@@ -12,7 +12,7 @@ interface ModalProps {
     title: string | ReactNode;
     children: ReactNode;
     footer?: ReactNode;
-    maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
+    maxWidth?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
 }
 
 export default function Modal({
@@ -69,6 +69,7 @@ export default function Modal({
     }
 
     const maxWidthClasses = {
+        xs: "sm:max-w-xs",
         sm: "sm:max-w-md",
         md: "sm:max-w-lg",
         lg: "sm:max-w-xl",

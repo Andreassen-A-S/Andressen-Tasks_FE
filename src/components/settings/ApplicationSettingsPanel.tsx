@@ -5,13 +5,32 @@ import { colors } from "@/constants/colors";
 import SettingsSection from "./SettingsSection";
 import SettingsRow from "./SettingsRow";
 import { UserPositions } from "@/types/users";
+import { useTheme, type Theme } from "@/hooks/useTheme";
+import OrgSettingsSection from "./OrgSettingsSection";
+import { useAuth } from "@/hooks/useAuth";
+
+const THEMES: { value: Theme; label: string; description: string }[] = [
+    { value: "light", label: "Lys", description: "Lys sidebar og indhold" },
+    { value: "mix", label: "Mix", description: "Mørk sidebar, lys indhold" },
+    { value: "dark", label: "Mørk", description: "Mørk sidebar og indhold" },
+];
 
 export default function ApplicationSettingsPanel({ user }: { user: User }) {
+    const { theme, setTheme } = useTheme();
+    const { contextOrgId } = useAuth();
+
+    const isAdmin = user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN;
+    const hasOrg = !!(user.organization_id || contextOrgId);
+
     return (
         <div className="space-y-2">
+            {isAdmin && hasOrg && (
+                <OrgSettingsSection user={user} />
+            )}
+
             <SettingsSection
-                title="Organisation"
-                description="Det der vises i admin-panelet i dag."
+                title="Panel"
+                description="Systeminformation om det aktuelle admin-panel."
             >
                 <SettingsRow
                     label="App navn"
@@ -34,7 +53,7 @@ export default function ApplicationSettingsPanel({ user }: { user: User }) {
                     value={getUserRoleLabel(UserRole.USER)}
                     description="Nye medarbejdere starter som brugere, medmindre en administrator vælger andet."
                 />
-                <div className="rounded-lg border bg-white px-4 py-3" style={{ borderColor: colors.border }}>
+                <div className="rounded-lg border bg-surface px-4 py-3" style={{ borderColor: colors.border }}>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <p className="label-lg" style={{ color: colors.textPrimary }}>
@@ -61,6 +80,35 @@ export default function ApplicationSettingsPanel({ user }: { user: User }) {
                         >
                             Bør flyttes til backend
                         </span>
+                    </div>
+                </div>
+            </SettingsSection>
+
+            <SettingsSection
+                title="Udseende"
+                description="Vælg et farvetema til admin-panelet. Gælder kun denne browser."
+            >
+                <div className="rounded-lg border px-4 py-3" style={{ borderColor: colors.border, backgroundColor: colors.white }}>
+                    <p className="label-lg mb-3" style={{ color: colors.textPrimary }}>Tema</p>
+                    <div className="flex gap-3">
+                        {THEMES.map(({ value, label, description }) => {
+                            const isActive = theme === value;
+                            return (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    onClick={() => setTheme(value)}
+                                    className="flex-1 rounded-lg border px-3 py-3 text-left transition-colors cursor-pointer"
+                                    style={{
+                                        borderColor: isActive ? colors.green : colors.border,
+                                        backgroundColor: isActive ? colors.greenLight : "transparent",
+                                    }}
+                                >
+                                    <p className="label-md" style={{ color: isActive ? colors.green : colors.textPrimary }}>{label}</p>
+                                    <p className="caption mt-0.5" style={{ color: colors.textMuted }}>{description}</p>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </SettingsSection>

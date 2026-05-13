@@ -45,7 +45,7 @@ export default function RecurringCard({
                         type="checkbox"
                         checked={isRecurring}
                         onChange={(e) => setIsRecurring(e.target.checked)}
-                        className="rounded border-[#E8E6E1] text-[#2C5FE0] focus:ring-2 focus:ring-[#2D9F6F]/30 focus:border-[#2D9F6F] h-4 w-4"
+                        className="rounded border-border text-link focus:ring-2 focus:ring-accent-mid/30 focus:border-accent-mid h-4 w-4"
                     />
                     <div>
                         <span className="label-lg">Gentag</span>
@@ -64,7 +64,7 @@ export default function RecurringCard({
                         {/* Frequency */}
                         <div className="flex-1">
                             <label htmlFor="frequency" className="label-lg mb-2 block">
-                                Gentag hver<span className="text-[#D64545]">*</span>
+                                Gentag hver<span className="text-danger">*</span>
                             </label>
                             <SelectField
                                 id="frequency"
@@ -103,7 +103,7 @@ export default function RecurringCard({
                                         }
                                     />
                                 </div>
-                                <span className="body-sm text-[#6B7084]">
+                                <span className="body-sm text-text-muted">
                                     {recurringData.frequency === RecurrenceFrequency.DAILY && "dag(e)"}
                                     {recurringData.frequency === RecurrenceFrequency.WEEKLY && "uge(r)"}
                                     {recurringData.frequency === RecurrenceFrequency.MONTHLY && "måned(er)"}
@@ -137,8 +137,8 @@ export default function RecurringCard({
                                             setRecurringData({ ...recurringData, days_of_week: days });
                                         }}
                                         className={`px-4 py-2 rounded-lg btn-md font-medium transition-colors ${recurringData.days_of_week.includes(day.value)
-                                            ? "bg-[#2C5FE0] text-white"
-                                            : "bg-white text-[#6B7084] border border-[#E8E6E1] hover:border-[#2C5FE0]"
+                                            ? "bg-link text-white"
+                                            : "bg-surface text-text-muted border border-border hover:border-link"
                                             }`}
                                     >
                                         {day.label}
@@ -180,7 +180,7 @@ export default function RecurringCard({
                     {/* Start Date */}
                     <div>
                         <label htmlFor="start_date" className="label-lg mb-2 block">
-                            Start dato<span className="text-[#D64545]">*</span>
+                            Start dato<span className="text-danger">*</span>
                         </label>
                         <TextInput
                             type="date"

@@ -22,7 +22,7 @@ export default function PriorityChart({ data }: PriorityChartProps) {
     };
 
     return (
-        <div className="rounded-lg border p-6 bg-white border-gray-200">
+        <div className="rounded-lg border p-6 bg-surface border-border">
             <h3 className="h3 mb-6">Prioritetsfordeling</h3>
 
             {/* Stacked bar */}
@@ -52,29 +52,29 @@ export default function PriorityChart({ data }: PriorityChartProps) {
                             <div className="flex items-center gap-2">
                                 <Badge variant="priority" value={priority.priority} />
                             </div>
-                            <span className="label-md text-gray-900">
+                            <span className="label-md text-text-primary">
                                 {priority.data.total} opgaver
                             </span>
                         </div>
 
                         <div className="ml-5 grid grid-cols-3 gap-2 label-sm">
                             <div className="flex flex-col">
-                                <span className="label-sm text-gray-500">Total</span>
-                                <span className="label-md text-gray-900">{priority.data.total}</span>
+                                <span className="label-sm text-text-muted">Total</span>
+                                <span className="label-md text-text-primary">{priority.data.total}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="label-sm text-gray-500">Fuldført</span>
+                                <span className="label-sm text-text-muted">Fuldført</span>
                                 <span className="label-md text-green-600">{priority.data.completed}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="label-sm text-gray-500">Forfalden</span>
+                                <span className="label-sm text-text-muted">Forfalden</span>
                                 <span className="label-md text-red-600">{priority.data.overdue}</span>
                             </div>
                         </div>
 
                         {/* Progress bar */}
                         <div className="ml-5">
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div className="w-full bg-border rounded-full h-1.5">
                                 <div
                                     className="bg-green-500 h-1.5 rounded-full transition-all duration-500"
                                     style={{

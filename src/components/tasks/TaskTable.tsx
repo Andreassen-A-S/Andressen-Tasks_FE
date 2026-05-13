@@ -74,7 +74,7 @@ export default function TaskTable({
     return (
         <>
             {tasks.length === 0 ? (
-                <div className="text-center body-sm text-[#6B7084] mt-8">
+                <div className="text-center body-sm text-text-secondary mt-8">
                     Ingen opgaver endnu. Opret din første opgave!
                 </div>
             ) : (
