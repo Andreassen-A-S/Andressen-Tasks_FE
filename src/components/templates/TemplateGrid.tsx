@@ -28,13 +28,13 @@ export default function TemplateGrid({
     if (templates.length === 0) {
         return (
             <div className="text-center py-12">
-                <CalendarDays className="w-16 h-16 text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <CalendarDays className="w-16 h-16 text-text-muted mb-4" />
+                <h3 className="text-lg font-medium text-text-primary mb-2">
                     {filter === "active" ? "Ingen aktive skabeloner" :
                         filter === "inactive" ? "Ingen inaktive skabeloner" :
                             "Ingen skabeloner endnu"}
                 </h3>
-                <p className="text-gray-500 mb-6">
+                <p className="text-text-muted mb-6">
                     Opret en gentagende opgaveskabelon for at komme i gang
                 </p>
                 {filter === "active" && (

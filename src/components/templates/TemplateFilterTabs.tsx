@@ -1,7 +1,5 @@
 "use client";
 
-import { colors } from "@/constants/colors";
-
 export type TemplateFilter = "all" | "active" | "inactive";
 
 interface TemplateFilterTabsProps {
@@ -16,16 +14,15 @@ export default function TemplateFilterTabs({
     onFilterChange,
 }: TemplateFilterTabsProps) {
     return (
-        <div className="flex gap-2 border-b border-gray-200">
+        <div className="flex gap-2 border-b border-border">
             {options.map(({ key, label, count }) => (
                 <button
                     key={key}
                     onClick={() => onFilterChange(key)}
                     className={`label-lg px-4 py-2 transition-colors border-b-2 ${activeFilter === key
-                        ? "border-blue-600"
-                        : "border-transparent hover:text-green-200"
+                        ? "border-link text-text-primary"
+                        : "border-transparent text-text-secondary hover:text-text-primary"
                         }`}
-                    style={activeFilter === key ? undefined : { color: colors.textSecondary }}
                 >
                     {label} ({count})
                 </button>

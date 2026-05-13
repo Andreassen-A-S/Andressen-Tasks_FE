@@ -164,46 +164,42 @@ export function translateStatusLowercase(status: string): string {
 
 export const getPriorityColors = (priority: TaskPriority): string => {
   const colors = {
-    [TaskPriority.HIGH]: "bg-red-100 text-red-600 border-red-200",
-    [TaskPriority.MEDIUM]: "bg-orange-100 text-orange-600 border-orange-200",
-    [TaskPriority.LOW]: "bg-yellow-100 text-yellow-600 border-yellow-200",
+    [TaskPriority.HIGH]:   "bg-red-100 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-400 dark:border-red-900",
+    [TaskPriority.MEDIUM]: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-950/50 dark:text-orange-400 dark:border-orange-900",
+    [TaskPriority.LOW]:    "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950/50 dark:text-yellow-400 dark:border-yellow-900",
   };
   return colors[priority];
 };
 
 export const getStatusColors = (status: TaskStatus): string => {
   const colors: Record<TaskStatus, string> = {
-    [TaskStatus.DONE]: "bg-green-100 text-green-600 border-green-200",
-    [TaskStatus.PENDING]: "bg-yellow-100 text-yellow-600 border-yellow-200",
-    [TaskStatus.REJECTED]: "bg-red-100 text-red-600 border-red-200",
-    [TaskStatus.IN_PROGRESS]: "bg-blue-100 text-blue-600 border-blue-200",
-    [TaskStatus.ARCHIVED]: "bg-gray-100 text-gray-600 border-gray-200",
+    [TaskStatus.DONE]:        "bg-green-100 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-400 dark:border-green-900",
+    [TaskStatus.PENDING]:     "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950/50 dark:text-yellow-400 dark:border-yellow-900",
+    [TaskStatus.REJECTED]:    "bg-red-100 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-400 dark:border-red-900",
+    [TaskStatus.IN_PROGRESS]: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-900",
+    [TaskStatus.ARCHIVED]:    "bg-surface-hover text-text-muted border-border dark:bg-surface-subtle dark:text-text-muted dark:border-border",
   };
-  return colors[status] || "bg-gray-100 text-gray-800 border-gray-200";
+  return colors[status] || "bg-surface-hover text-text-muted border-border";
 };
 
-export const getPriorityAccentColors = (
-  priority: TaskPriority,
-): { accent: string; bg: string } => {
+export const getPriorityAccentColors = (priority: TaskPriority): string => {
   const map = {
-    [TaskPriority.HIGH]: { accent: "red-600", bg: "red-100" },
-    [TaskPriority.MEDIUM]: { accent: "orange-400", bg: "orange-100" },
-    [TaskPriority.LOW]: { accent: "yellow-400", bg: "yellow-100" },
+    [TaskPriority.HIGH]:   "border-red-500 bg-red-100 dark:bg-red-900/40",
+    [TaskPriority.MEDIUM]: "border-orange-500 bg-orange-100 dark:bg-orange-900/40",
+    [TaskPriority.LOW]:    "border-yellow-500 bg-yellow-100 dark:bg-yellow-900/40",
   };
   return map[priority];
 };
 
-export const getStatusAccentColors = (
-  status: TaskStatus,
-): { accent: string; bg: string } => {
-  const map: Record<TaskStatus, { accent: string; bg: string }> = {
-    [TaskStatus.DONE]: { accent: "green-600", bg: "green-100" },
-    [TaskStatus.PENDING]: { accent: "yellow-400", bg: "yellow-100" },
-    [TaskStatus.REJECTED]: { accent: "red-600", bg: "red-100" },
-    [TaskStatus.IN_PROGRESS]: { accent: "blue-600", bg: "blue-100" },
-    [TaskStatus.ARCHIVED]: { accent: "gray-600", bg: "gray-100" },
+export const getStatusAccentColors = (status: TaskStatus): string => {
+  const map: Record<TaskStatus, string> = {
+    [TaskStatus.DONE]:        "border-green-500 bg-green-100 dark:bg-green-900/40",
+    [TaskStatus.PENDING]:     "border-yellow-500 bg-yellow-100 dark:bg-yellow-900/40",
+    [TaskStatus.REJECTED]:    "border-red-500 bg-red-100 dark:bg-red-900/40",
+    [TaskStatus.IN_PROGRESS]: "border-blue-500 bg-blue-100 dark:bg-blue-900/40",
+    [TaskStatus.ARCHIVED]:    "border-border bg-surface-hover",
   };
-  return map[status] ?? { accent: "gray-600", bg: "gray-100" };
+  return map[status] ?? "border-border bg-surface-hover";
 };
 
 // Avatar utilities
@@ -236,12 +232,14 @@ export function getAvatarColor(name: string): string {
 }
 
 export function getAuthHeaders(): HeadersInit {
-  // Check if we're in the browser before accessing localStorage
   const token =
     typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const orgContext =
+    typeof window !== "undefined" ? localStorage.getItem("orgContext") : null;
   return {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
+    ...(orgContext && { "X-Org-Context": orgContext }),
   };
 }
 

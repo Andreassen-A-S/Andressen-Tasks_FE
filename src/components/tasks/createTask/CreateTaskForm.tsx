@@ -214,9 +214,9 @@ export default function CreateTaskForm({
         <form id={formId} onSubmit={handleSubmit} className="flex flex-col h-full">
             {/* Info Banner for Subtasks */}
             {isSubtask && (
-                <div className="mb-6 p-4 bg-[#EBF0FD] border-l-4 border-[#2C5FE0] rounded-r-lg">
+                <div className="mb-6 p-4 bg-info-surface border-l-4 border-link rounded-r-lg">
                     <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 flex-shrink-0 text-[#2C5FE0]" />
+                        <Info className="w-5 h-5 flex-shrink-0 text-link" />
                         <div>
                             <h4 className="h5">Opretter underopgave</h4>
                             <p className="body-sm mt-1">
@@ -229,9 +229,9 @@ export default function CreateTaskForm({
 
             {/* Error Message */}
             {error && (
-                <div className="mb-6 p-4 bg-[#FDECEC] border-l-4 border-[#D64545] rounded-r-lg">
+                <div className="mb-6 p-4 bg-danger-surface border-l-4 border-danger rounded-r-lg">
                     <div className="flex items-start gap-3">
-                        <TriangleAlert className="w-5 h-5 flex-shrink-0 text-[#D64545]" />
+                        <TriangleAlert className="w-5 h-5 flex-shrink-0 text-danger" />
                         <p className="body-sm">{error}</p>
                     </div>
                 </div>

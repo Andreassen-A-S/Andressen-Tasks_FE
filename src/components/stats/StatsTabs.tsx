@@ -1,6 +1,5 @@
 import { TrendingUp, Trophy } from "lucide-react";
 import ProjectIcon from "@/components/common/icons/ProjectIcon";
-import { colors } from "@/constants/colors";
 
 export type StatsTab = "performance" | "leaderboard" | "projects";
 
@@ -19,8 +18,7 @@ export default function StatsTabs({ activeTab, onChange }: StatsTabsProps) {
     return (
         <div
             role="tablist"
-            className="inline-flex rounded-lg border p-1"
-            style={{ borderColor: colors.border, backgroundColor: colors.white }}
+            className="inline-flex rounded-lg border border-border bg-surface-subtle p-1"
         >
             {tabs.map(tab => {
                 const active = activeTab === tab.id;
@@ -32,11 +30,11 @@ export default function StatsTabs({ activeTab, onChange }: StatsTabsProps) {
                         role="tab"
                         aria-selected={active}
                         onClick={() => onChange(tab.id)}
-                        className="inline-flex items-center gap-2 rounded-md px-4 py-2 label-md transition-colors"
-                        style={{
-                            backgroundColor: active ? colors.charcoal : "transparent",
-                            color: active ? colors.textWhite : colors.textSecondary,
-                        }}
+                        className={`inline-flex items-center gap-2 rounded-md px-4 py-2 label-md transition-colors ${
+                            active
+                                ? "bg-surface text-text-primary shadow-sm"
+                                : "text-text-secondary hover:text-text-primary"
+                        }`}
                     >
                         {tab.icon}
                         {tab.label}

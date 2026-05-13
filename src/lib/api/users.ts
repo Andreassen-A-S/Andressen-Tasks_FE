@@ -1,5 +1,6 @@
 import { getAuthHeaders } from "@/helpers/helpers";
 import { CreateUserInput, UpdateUserInput, User } from "@/types/users";
+import { normalizeUser } from "./userNormalizer";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -11,7 +12,7 @@ export async function getUsers(): Promise<User[]> {
     throw new Error("Failed to fetch users");
   }
   const data = await res.json();
-  return data.data;
+  return data.data.map(normalizeUser);
 }
 
 export async function getUser(userId: string): Promise<User> {
@@ -22,7 +23,7 @@ export async function getUser(userId: string): Promise<User> {
     throw new Error("Failed to fetch user");
   }
   const data = await res.json();
-  return data.data;
+  return normalizeUser(data.data);
 }
 
 export async function createUser(user: CreateUserInput): Promise<User> {
@@ -33,7 +34,7 @@ export async function createUser(user: CreateUserInput): Promise<User> {
   });
   if (!res.ok) throw new Error("Failed to create user");
   const data = await res.json();
-  return data.data;
+  return normalizeUser(data.data);
 }
 
 export async function updateUser(
@@ -47,7 +48,7 @@ export async function updateUser(
   });
   if (!res.ok) throw new Error("Failed to update user");
   const data = await res.json();
-  return data.data;
+  return normalizeUser(data.data);
 }
 
 export async function deleteUser(userId: string): Promise<void> {

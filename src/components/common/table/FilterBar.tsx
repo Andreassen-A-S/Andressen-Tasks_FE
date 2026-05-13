@@ -11,7 +11,7 @@ interface FilterBarProps {
 export default function FilterBar({ left, right }: FilterBarProps) {
     return (
         <div
-            className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-md border bg-white"
+            className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-md border bg-surface"
             style={{ borderColor: colors.border }}
         >
             <div className="flex flex-wrap items-center gap-1">{left}</div>

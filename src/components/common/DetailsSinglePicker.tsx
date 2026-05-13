@@ -19,7 +19,7 @@ export interface SinglePickerOption {
   value: string;
   label: string;
   subtitle?: string;
-  color?: { accent: string; bg: string };
+  color?: string;
 }
 
 interface Props {
@@ -141,7 +141,7 @@ export default function DetailsSinglePicker({
           visibility: isPositioned ? "visible" : "hidden",
           backgroundColor: colors.white,
           border: `1px solid ${colors.border}`,
-          boxShadow: "0 8px 24px rgba(140, 149, 159, 0.2)",
+          boxShadow: "var(--shadow-elevated)",
         }}
         className={`z-[9999] flex flex-col rounded-xl overflow-hidden${isPositioned ? " animate-in fade-in" : ""}`}
         {...getFloatingProps()}
@@ -201,7 +201,7 @@ export default function DetailsSinglePicker({
                     onMouseEnter={() => setActiveIndex(i)}
                   >
                     {option.color != null && (
-                      <span className={`w-3 h-3 rounded-full flex-shrink-0 border-2 border-${option.color.accent} bg-${option.color.bg}`} />
+                      <span className={`w-3 h-3 rounded-full flex-shrink-0 border-2 ${option.color}`} />
                     )}
                     <span className="flex-1 min-w-0">
                       <span className="block label-md truncate" style={{ color: colors.textPrimary }}>{option.label}</span>

@@ -84,9 +84,7 @@ export default function Drawer({
                 style={{
                     backgroundColor: colors.white,
                     borderColor: colors.border,
-                    boxShadow: side === "right"
-                        ? "-1px 0 2px rgba(140,149,159,0.05), -4px 0 12px rgba(140,149,159,0.1), -12px 0 32px rgba(140,149,159,0.15)"
-                        : "1px 0 2px rgba(140,149,159,0.05), 4px 0 12px rgba(140,149,159,0.1), 12px 0 32px rgba(140,149,159,0.15)",
+                    boxShadow: "var(--shadow-drawer)",
                 }}
                 className={`absolute top-0 h-full ${placement.position} ${widthClasses[width]} ${placement.border} ${open ? `${placement.open} transition-transform duration-150 ease-out` : `${placement.closed} transition-transform duration-100 ease-in`} ${className}`}
             >

@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { updateUser } from "@/lib/api/users";
-import { UpdateUserInput, User, UserPositions } from "@/types/users";
+import { getOrganizations } from "@/lib/api/organizations";
+import { UpdateUserInput, User, UserPositions, UserRole } from "@/types/users";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
@@ -16,12 +19,22 @@ interface UpdateEmployeeFormProps {
 }
 
 export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingChange }: UpdateEmployeeFormProps) {
+    const { userRole } = useAuth();
+    const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
+
+    const { data: organizations = [] } = useQuery({
+        queryKey: ["organizations"],
+        queryFn: getOrganizations,
+        enabled: isSuperAdmin,
+    });
+
     const [formData, setFormData] = useState({
         name: user.name || "",
         email: user.email || "",
         password: "",
         role: user.role || "USER",
         position: user.position || "",
+        organization_id: user.organization_id || "",
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -42,6 +55,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 email: formData.email,
                 role: formData.role,
                 position: formData.position,
+                ...(isSuperAdmin && formData.organization_id ? { organization_id: formData.organization_id } : {}),
             };
             if (formData.password) {
                 updates.password = formData.password;
@@ -112,6 +126,23 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                     />
 
                 </div>
+                {isSuperAdmin && (
+                    <div>
+                        <label htmlFor="organization_id" className="label-md block mb-2">Organisation</label>
+                        <SelectField
+                            id="organization_id"
+                            name="organization_id"
+                            value={formData.organization_id}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="">Vælg organisation...</option>
+                            {organizations.map(org => (
+                                <option key={org.org_id} value={org.org_id}>{org.name}</option>
+                            ))}
+                        </SelectField>
+                    </div>
+                )}
                 <div>
                     <label htmlFor="role" className="label-md block mb-2">Rolle</label>
                     <SelectField

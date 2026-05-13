@@ -74,7 +74,7 @@ export default function FloatingTooltip({
                         className={getTooltipClassName(variant, className)}
                     >
                         {variant === "default" && (
-                            <div className="absolute -top-1 left-4 h-2 w-2 rotate-45 bg-gray-50 border-t border-l border-gray-200" />
+                            <div className="absolute -top-1 left-4 h-2 w-2 rotate-45 bg-surface-hover border-t border-l border-border" />
                         )}
                         {content}
                     </div>
@@ -88,7 +88,7 @@ function getTooltipClassName(variant: TooltipVariant, className: string) {
     const base = "z-[9999] fade-in";
 
     if (variant === "default") {
-        return `${base} w-64 max-w-xs rounded-lg bg-gray-50 px-3 py-2 label-sm border border-gray-200 ${className}`.trim();
+        return `${base} w-64 max-w-xs rounded-lg bg-surface-hover px-3 py-2 label-sm border border-border ${className}`.trim();
     }
 
     if (variant === "card") {
@@ -109,8 +109,8 @@ function getTooltipStyle(variant: TooltipVariant) {
 
     if (variant === "bare") {
         return {
-            backgroundColor: colors.charcoal,
-            color: colors.textWhite,
+            backgroundColor: "var(--tooltip-bg)",
+            color: "var(--tooltip-text)",
         };
     }
 

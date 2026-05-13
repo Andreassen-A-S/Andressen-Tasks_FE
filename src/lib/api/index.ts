@@ -7,3 +7,4 @@ export * from "./comments";
 export * from "./stats";
 export * from "./recurringTemplates";
 export * from "./projects";
+export * from "./organizations";

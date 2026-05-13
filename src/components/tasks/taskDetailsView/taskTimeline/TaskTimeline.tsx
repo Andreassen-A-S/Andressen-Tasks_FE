@@ -4,7 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import { getTaskEvents, createComment, deleteComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
-import { UserRole } from "@/types/users";
+import { isAdminRole } from "@/types/users";
 import { toast } from "sonner";
 import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate, formatNumber, translateStatusLowercase, translateTaskUnit } from "@/helpers/helpers";
@@ -38,14 +38,14 @@ function eventLabel(e: TaskEvent) {
             return to ? (
                 <>
                     ændrede status til{" "}
-                    <span className="font-semibold text-[#1B1D22]">
+                    <span className="font-semibold text-text-primary">
                         {translateStatusLowercase(to)}
                     </span>
                     {" "}
                 </>
             ) : (
                 <>
-                    ændrede <span className="font-semibold text-[#1B1D22]">status</span>
+                    ændrede <span className="font-semibold text-text-primary">status</span>
                     {" "}
                 </>
             );
@@ -53,7 +53,7 @@ function eventLabel(e: TaskEvent) {
         case "TASK_PRIORITY_CHANGED": {
             return (
                 <>
-                    ændrede <span className="font-semibold text-[#1B1D22]">prioritet</span>
+                    ændrede <span className="font-semibold text-text-primary">prioritet</span>
                     {" "}
                 </>
             );
@@ -65,7 +65,7 @@ function eventLabel(e: TaskEvent) {
             return (
                 <>
                     tildelte{" "}
-                    <span className="font-semibold text-[#1B1D22]">{assignedUser}</span>
+                    <span className="font-semibold text-text-primary">{assignedUser}</span>
                     {" "}
                 </>
             );
@@ -77,7 +77,7 @@ function eventLabel(e: TaskEvent) {
             return (
                 <>
                     fjernede tildelingen af{" "}
-                    <span className="font-semibold text-[#1B1D22]">{assignedUser}</span>
+                    <span className="font-semibold text-text-primary">{assignedUser}</span>
                     {" "}
                 </>
             );
@@ -90,7 +90,7 @@ function eventLabel(e: TaskEvent) {
             return (
                 <>
                     loggede fremskridt {" "}
-                    <span className="font-semibold text-[#1B1D22]">
+                    <span className="font-semibold text-text-primary">
                         {progressLabel}
                     </span>
                     {" "}
@@ -102,12 +102,12 @@ function eventLabel(e: TaskEvent) {
             return sub.title ? (
                 <>
                     tilføjede underopgave {" "}
-                    <span className="font-semibold text-[#1B1D22]">“{sub.title}”</span>
+                    <span className="font-semibold text-text-primary">“{sub.title}”</span>
                     {" "}
                 </>
             ) : (
                 <>
-                    tilføjede <span className="font-semibold text-[#1B1D22]">en underopgave</span>
+                    tilføjede <span className="font-semibold text-text-primary">en underopgave</span>
                     {" "}
                 </>
             );
@@ -117,12 +117,12 @@ function eventLabel(e: TaskEvent) {
             return sub ? (
                 <>
                     fjernede underopgaven{" "}
-                    <span className="font-semibold text-[#1B1D22]">“{sub}”</span>
+                    <span className="font-semibold text-text-primary">“{sub}”</span>
                     {" "}
                 </>
             ) : (
                 <>
-                    fjernede <span className="font-semibold text-[#1B1D22]">en underopgave</span>
+                    fjernede <span className="font-semibold text-text-primary">en underopgave</span>
                     {" "}
                 </>
             );
@@ -130,21 +130,21 @@ function eventLabel(e: TaskEvent) {
         case "COMMENT_CREATED":
             return (
                 <>
-                    <span className="font-semibold text-[#1B1D22]">kommenterede</span>
+                    <span className="font-semibold text-text-primary">kommenterede</span>
                     {" "}
                 </>
             );
         case "COMMENT_UPDATED":
             return (
                 <>
-                    <span className="font-semibold text-[#1B1D22]">redigerede en kommentar</span>
+                    <span className="font-semibold text-text-primary">redigerede en kommentar</span>
                     {" "}
                 </>
             );
         case "COMMENT_DELETED":
             return (
                 <>
-                    <span className="font-semibold text-[#1B1D22]">slettede en kommentar</span>
+                    <span className="font-semibold text-text-primary">slettede en kommentar</span>
                     {" "}
                 </>
             );
@@ -222,7 +222,7 @@ export default function TaskTimeline({ taskId, creatorId, isArchived = false }: 
 
     if (error) {
         return (
-            <div className="bg-[#FDECEC] border border-[#E8E6E1] rounded-[12px] p-3 body-sm text-[#D64545]">
+            <div className="bg-danger-surface border border-border rounded-[12px] p-3 body-sm text-danger">
                 {error}
             </div>
         );
@@ -233,7 +233,7 @@ export default function TaskTimeline({ taskId, creatorId, isArchived = false }: 
             {/* Timeline */}
             <div className="relative space-y-4">
                 {/* Timeline vertical line */}
-                <div className="absolute left-16.75 -top-7.5 -bottom-6 w-0.5 bg-[#E8E6E1] z-0" />
+                <div className="absolute left-16.75 -top-7.5 -bottom-6 w-0.5 bg-border z-0" />
 
                 {events.filter((e) => e.type !== "COMMENT_UPDATED").map((e) => {
                     const actorName = e.actor?.name || e.actor?.email || "Ukendt bruger";
@@ -246,7 +246,7 @@ export default function TaskTimeline({ taskId, creatorId, isArchived = false }: 
                                     event={e}
                                     actorName={actorName}
                                     currentUserId={currentUser?.user_id}
-                                    isAdmin={currentUser?.role === UserRole.ADMIN}
+                                    isAdmin={isAdminRole(currentUser?.role)}
                                     isTaskOwner={!!creatorId && e.actor_id === creatorId}
                                     isArchived={isArchived}
                                     editedBy={commentId ? editedByMap.get(commentId) : undefined}
@@ -262,10 +262,10 @@ export default function TaskTimeline({ taskId, creatorId, isArchived = false }: 
                             key={e.event_id}
                             className="relative z-10 pl-14 flex items-center gap-3"
                         >
-                            <SingleAvatar name={actorName} size="xs" className="border-2" />
+                            <SingleAvatar name={actorName} size="xs" className="border-2 border-surface" />
                             <div className="flex-1">
                                 <div className="body-sm">
-                                    <span className="font-semibold text-[#1B1D22]">{actorName}</span>{" "}
+                                    <span className="font-semibold text-text-primary">{actorName}</span>{" "}
                                     {eventLabel(e)}
                                     <span className="underline">
                                         {`${formatCommentDate(e.created_at)}`}

@@ -10,7 +10,7 @@ export default function CardGridSkeleton({ cards = 6 }: CardGridSkeletonProps) {
             {Array.from({ length: cards }).map((_, index) => (
                 <div
                     key={index}
-                    className="rounded-lg border bg-white p-5 space-y-4"
+                    className="rounded-lg border bg-surface p-5 space-y-4"
                     style={{ borderColor: colors.border }}
                 >
                     <div className="space-y-2">

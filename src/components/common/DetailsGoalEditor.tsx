@@ -179,7 +179,7 @@ export default function DetailsGoalEditor({
           width: SHEET_WIDTH,
           backgroundColor: colors.white,
           border: `1px solid ${colors.border}`,
-          boxShadow: "0 8px 24px rgba(140, 149, 159, 0.2)",
+          boxShadow: "var(--shadow-elevated)",
         }}
         className={`z-[9999] flex flex-col rounded-xl overflow-hidden${isPositioned ? ` animate-in fade-in ${openAbove ? "slide-in-from-bottom-1" : "slide-in-from-top-1"}` : ""}`}
         {...getFloatingProps()}
@@ -204,7 +204,7 @@ export default function DetailsGoalEditor({
                 onFocus={() => setCurrentFocused(true)}
                 onBlur={() => setCurrentFocused(false)}
                 placeholder="0"
-                className="w-full rounded-lg border px-3 py-2 body-sm bg-white text-center transition-all focus:outline-none"
+                className="w-full rounded-lg border px-3 py-2 body-sm bg-surface text-center transition-all focus:outline-none"
                 style={{
                   borderColor: currentFocused ? colors.blue : colors.border,
                   boxShadow: currentFocused ? `0 0 0 3px ${colors.blueLight}` : "none",
@@ -230,7 +230,7 @@ export default function DetailsGoalEditor({
                 onBlur={() => setTargetFocused(false)}
                 placeholder={isPercent ? "100" : "Angiv mål"}
                 disabled={isPercent}
-                className="w-full rounded-lg border px-3 py-2 body-sm bg-white text-center transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-lg border px-3 py-2 body-sm bg-surface text-center transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
                   borderColor: targetFocused ? colors.blue : colors.border,
                   boxShadow: targetFocused ? `0 0 0 3px ${colors.blueLight}` : "none",
@@ -255,7 +255,7 @@ export default function DetailsGoalEditor({
               }}
               onFocus={() => setUnitFocused(true)}
               onBlur={() => setUnitFocused(false)}
-              className="w-full rounded-lg border px-3 py-2 body-sm bg-white transition-all focus:outline-none"
+              className="w-full rounded-lg border px-3 py-2 body-sm bg-surface transition-all focus:outline-none"
               style={{
                 borderColor: unitFocused ? colors.blue : colors.border,
                 boxShadow: unitFocused ? `0 0 0 3px ${colors.blueLight}` : "none",

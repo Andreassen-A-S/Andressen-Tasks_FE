@@ -4,6 +4,8 @@ import { useState, useCallback, useMemo } from "react";
 import { formatNumber } from "@/helpers/helpers";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserRole, getUserRoleLabel } from "@/types/users";
+import { useAuth } from "@/hooks/useAuth";
+import { getOrganizations } from "@/lib/api/organizations";
 import EmployeeTable from "./EmployeeTable";
 import EmployeeFilterRow, { type EmployeeSortField, type SortDirection } from "./EmployeeFilterRow";
 import EmployeeCreateModal from "./EmployeeCreateModal";
@@ -13,9 +15,12 @@ import Button from "../common/buttons/Button";
 import PageHeader from "@/components/common/PageHeader";
 import TableSkeleton from "@/components/common/loading/TableSkeleton";
 import { adminQueryKeys, fetchEmployeesPageData, type EmployeesPageData } from "@/lib/queries/admin";
+import { MESTERPLAN_ORG_ID } from "@/constants/org";
 
 export default function EmployeePage() {
     const queryClient = useQueryClient();
+    const { user, contextOrgId } = useAuth();
+    const isInMesterplanContext = user?.organization_id === MESTERPLAN_ORG_ID && !contextOrgId;
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
     const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
@@ -26,6 +31,12 @@ export default function EmployeePage() {
     const { data, isPending, isError } = useQuery({
         queryKey: adminQueryKeys.employeesPage,
         queryFn: fetchEmployeesPageData,
+    });
+
+    const { data: organizations = [] } = useQuery({
+        queryKey: ["organizations"],
+        queryFn: getOrganizations,
+        enabled: isInMesterplanContext,
     });
 
     const employees = useMemo(() => data?.employees ?? [], [data?.employees]);
@@ -118,6 +129,7 @@ export default function EmployeePage() {
                 ) : (
                     <EmployeeTable
                         employees={filteredEmployees}
+                        organizations={isInMesterplanContext ? organizations : undefined}
                         onEmployeeUpdate={() => queryClient.invalidateQueries({ queryKey: adminQueryKeys.employeesPage })}
                         onEmployeeDelete={handleEmployeeDeleted}
                     />

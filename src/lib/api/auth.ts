@@ -1,4 +1,5 @@
 import { LoginRequest, LoginResponse, VerifyResponse } from "@/types/auth";
+import { normalizeUser } from "./userNormalizer";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 // Auth related API functions can be added here as needed
@@ -11,14 +12,17 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
   });
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.message || "Failed to login");
+    throw new Error(error.error || "Failed to login");
   }
 
   const response = await res.json();
 
   // Backend returns { success: true, data: { token, user } }
   // We need to return just { token, user }
-  return response.data;
+  return {
+    ...response.data,
+    user: normalizeUser(response.data.user),
+  };
 }
 
 export async function verifyToken(token: string): Promise<VerifyResponse> {
@@ -32,7 +36,7 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
   if (!res.ok) {
     const error = await res.json();
     console.error("Verify token failed:", error);
-    throw new Error(error.message || "Failed to verify token");
+    throw new Error(error.error || "Failed to verify token");
   }
 
   // Backend returns { success: true, data: { user_id, role, email, name, iat, exp } }
@@ -40,12 +44,13 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
   const { data } = await res.json();
 
   return {
-    user: {
+    user: normalizeUser({
       user_id: data.user_id,
       email: data.email,
       role: data.role,
       name: data.name,
-      position: data.position ?? "",
-    },
+      position: data.position,
+      organization_id: data.organization_id,
+    }),
   };
 }

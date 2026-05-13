@@ -81,7 +81,7 @@ export default function Button({
       style={{ ...resolvedVariantStyle, ...style }}
       className={[
         "inline-flex shrink-0 items-center justify-center transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#0f6e56]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-accent",
         iconOnly ? iconOnlySizeClasses[size] : sizeClasses[size],
         !iconOnly && fullWidth ? "w-full" : "",
         isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",

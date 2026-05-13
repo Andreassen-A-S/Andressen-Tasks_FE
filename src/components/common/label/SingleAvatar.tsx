@@ -4,7 +4,7 @@ import { getInitials, getAvatarColor } from "@/helpers/helpers";
 
 interface SingleAvatarProps {
     name: string;
-    size?: "xs" | "sm" | "md" | "lg";
+    size?: "xxs" | "xs" | "sm" | "md" | "lg";
     className?: string;
 }
 
@@ -14,17 +14,17 @@ export default function SingleAvatar({
     className = ""
 }: SingleAvatarProps) {
     const sizeClasses = {
-        xs: "w-6 h-6 initials-sm",
-        sm: "w-8 h-8 text-[12px] initials-md",
-        md: "w-[26px] h-[26px] initials-md",
-        lg: "w-[34px] h-[34px] initials-lg ",
+        xxs: "w-4 h-4 initials-xs rounded",
+        xs: "w-6 h-6 initials-sm rounded-lg",
+        sm: "w-8 h-8 text-[12px] initials-md rounded-lg",
+        md: "w-[26px] h-[26px] initials-md rounded-lg",
+        lg: "w-[34px] h-[34px] initials-lg rounded-lg",
     };
 
     return (
         <div
             className={`
                 ${sizeClasses[size]}
-                rounded-lg
                 flex items-center justify-center
                 ${getAvatarColor(name)}
                 ${className}

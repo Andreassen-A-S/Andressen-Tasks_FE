@@ -11,7 +11,7 @@ export default function SettingsPage() {
         return (
             <div className="min-h-screen">
                 <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
-                    <p className="body-md text-gray-500">Ingen bruger er indlæst.</p>
+                    <p className="body-md text-text-muted">Ingen bruger er indlæst.</p>
                 </div>
             </div>
         );

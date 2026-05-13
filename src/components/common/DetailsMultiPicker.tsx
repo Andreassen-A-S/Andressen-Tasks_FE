@@ -150,7 +150,7 @@ export default function DetailsMultiPicker({
           visibility: isPositioned ? "visible" : "hidden",
           backgroundColor: colors.white,
           border: `1px solid ${colors.border}`,
-          boxShadow: "0 8px 24px rgba(140, 149, 159, 0.2)",
+          boxShadow: "var(--shadow-elevated)",
         }}
         className={`z-[9999] flex flex-col rounded-xl overflow-hidden${isPositioned ? " animate-in fade-in" : ""}`}
         {...getFloatingProps()}
@@ -212,7 +212,7 @@ export default function DetailsMultiPicker({
                         backgroundColor: isSelected ? colors.green : "transparent",
                       }}
                     >
-                      {isSelected && <Check className="w-2.5 h-2.5" style={{ color: colors.white }} />}
+                      {isSelected && <Check className="w-2.5 h-2.5" style={{ color: colors.textWhite }} />}
                     </span>
 
                     {option.color != null && (

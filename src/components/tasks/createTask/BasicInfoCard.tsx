@@ -35,7 +35,7 @@ export default function BasicInfoSection({
             {/* Title */}
             <div>
                 <label htmlFor="task-title" className="label-lg mb-2 block">
-                    Opgave titel<span className="text-[#D64545]">*</span>
+                    Opgave titel<span className="text-danger">*</span>
                 </label>
                 <TextInput
                     type="text"
@@ -50,7 +50,7 @@ export default function BasicInfoSection({
             {/* Description */}
             <div>
                 <label htmlFor="task-description" className="label-lg mb-2 block">
-                    Beskrivelse<span className="text-[#D64545]">*</span>
+                    Beskrivelse<span className="text-danger">*</span>
                 </label>
                 <TextArea
                     id="task-description"
@@ -98,7 +98,7 @@ export default function BasicInfoSection({
 
                 <div>
                     <label htmlFor="task-deadline" className="label-lg mb-2 block">
-                        Deadline<span className="text-[#D64545]">*</span>
+                        Deadline<span className="text-danger">*</span>
                     </label>
                     <TextInput
                         type="date"

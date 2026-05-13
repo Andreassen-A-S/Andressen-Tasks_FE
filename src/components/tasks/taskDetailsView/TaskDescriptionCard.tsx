@@ -57,7 +57,7 @@ export default function TaskDescriptionCard({
         <div className="mb-6 z-10 relative flex items-start gap-3">
             <SingleAvatar name={creatorName} size="sm" />
 
-            <div className="w-full overflow-hidden rounded-lg border bg-white" style={{ borderColor: colors.border }}>
+            <div className="w-full overflow-hidden rounded-lg border bg-surface" style={{ borderColor: colors.border }}>
                 {/* Card Header */}
                 <div className="pl-4 pr-1 py-1 border-b flex items-center gap-1" style={{ backgroundColor: colors.whiteHover, borderColor: colors.border }}>
                     <div className="flex items-center gap-1 min-w-0">
@@ -91,7 +91,7 @@ export default function TaskDescriptionCard({
                         {isEditing ? (
                             <div className="-mx-4 -my-4 p-2 space-y-1">
                                 <textarea
-                                    className="w-full body-sm rounded-md px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-[#0f6e56] transition-colors"
+                                    className="w-full body-sm rounded-md px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                                     style={{ border: `1px solid ${colors.border}`, color: colors.textPrimary, minHeight: 80 }}
                                     value={draftDescription}
                                     onChange={(e) => setDraftDescription(e.target.value)}
@@ -124,12 +124,9 @@ export default function TaskDescriptionCard({
                     </div>
 
                     {showSubtaskButton && !isArchived && !isEditing && (
-                        <button
-                            onClick={onAddSubtask}
-                            className="inline-flex items-center gap-2 bg-[#EBF0FD] hover:bg-[#dbe6fc] text-[#2C5FE0] px-3 py-1.5 rounded-lg font-medium btn-md transition-colors border border-[#E8E6E1]"
-                        >
+                        <Button variant="secondary" size="sm" onClick={onAddSubtask}>
                             + Tilføj underopgave
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>

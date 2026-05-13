@@ -6,7 +6,7 @@ interface StatusDistributionProps {
 
 export default function StatusDistribution({ status }: StatusDistributionProps) {
     return (
-        <div className="my-6 rounded-lg border border-gray-200 bg-white p-6">
+        <div className="my-6 rounded-lg border border-border bg-surface p-6">
             <h3 className="h3 mb-6">Statusfordeling</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 rounded-lg bg-yellow-50">
@@ -21,9 +21,9 @@ export default function StatusDistribution({ status }: StatusDistributionProps) 
                     <p className="h2 text-green-600">{status.completed}</p>
                     <p className="label-md text-green-700 mt-1">Fuldført</p>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-gray-50">
-                    <p className="h2 text-gray-600">{status.archived}</p>
-                    <p className="label-md text-gray-700 mt-1">Arkiveret</p>
+                <div className="text-center p-4 rounded-lg bg-surface-hover">
+                    <p className="h2 text-text-secondary">{status.archived}</p>
+                    <p className="label-md text-text-secondary mt-1">Arkiveret</p>
                 </div>
             </div>
         </div>

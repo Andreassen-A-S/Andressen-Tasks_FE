@@ -18,7 +18,7 @@ export default function StatsPanel({
 }: StatsPanelProps) {
     return (
         <section
-            className="overflow-hidden rounded-md border bg-white"
+            className="overflow-hidden rounded-md border bg-surface"
             style={{ borderColor: colors.border }}
         >
             <div

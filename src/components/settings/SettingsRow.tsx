@@ -9,7 +9,7 @@ interface SettingsRowProps {
 
 export default function SettingsRow({ label, value, description, badge }: SettingsRowProps) {
     return (
-        <div className="rounded-lg border bg-white px-4 py-3" style={{ borderColor: colors.border }}>
+        <div className="rounded-lg border bg-surface px-4 py-3" style={{ borderColor: colors.border }}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                     <p className="label-lg" style={{ color: colors.textPrimary }}>

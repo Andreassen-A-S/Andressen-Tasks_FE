@@ -53,7 +53,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function TextAre
         disabled={disabled}
         className={[
           "min-h-[104px] w-full min-w-0 resize-y rounded-md border-0 bg-transparent px-3 py-3 body-sm",
-          "placeholder:text-[#9DA1B4]",
+          "placeholder:text-text-muted",
           "focus:outline-none focus:ring-0",
           hasLeading ? "pl-2" : "",
           hasTrailing ? "pr-2" : "",

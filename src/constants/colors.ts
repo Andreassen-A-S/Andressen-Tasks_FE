@@ -1,40 +1,45 @@
 export const colors = {
-  // Brand — green
-  green: "#0f6e56",
-  greenHover: "#0a5551",
-  greenMid: "#2D9F6F",
-  greenLight: "#E8F7F0",
+  // Brand — green (accent)
+  green: "var(--accent)",
+  greenHover: "var(--accent-hover)",
+  greenMid: "var(--accent-mid)",
+  greenLight: "var(--accent-surface)",
 
-  // Brand — blue (accent: links, active states)
-  blue: "#2C5FE0",
-  blueHover: "#4A7AF5",
-  blueLight: "#EBF0FD",
+  // Brand — blue (link / info)
+  blue: "var(--link)",
+  blueHover: "var(--link-hover)",
+  blueLight: "var(--info-surface)",
 
-  // Neutrals
-  charcoal: "#1B1D22",
-  eggWhite: "#F6F5F1",
-  white: "#FFFFFF",
-  whiteHover: "#FAFAF7",
-  border: "#E8E6E1",
-  muted: "#F3F3F0",
+  // Surfaces
+  charcoal: "var(--text-primary)",   // kept for compat — use textPrimary going forward
+  eggWhite: "var(--surface-page)",
+  white: "var(--surface)",
+  whiteHover: "var(--surface-hover)",
+  border: "var(--border)",
+  muted: "var(--surface-subtle)",
 
   // Text
-  textPrimary: "#1B1D22",
-  textSecondary: "#6B7084",
-  textMuted: "#9DA1B4",
-  textWhite: "#FFFFFF",
+  textPrimary: "var(--text-primary)",
+  textSecondary: "var(--text-secondary)",
+  textMuted: "var(--text-muted)",
+  textWhite: "var(--text-on-accent)",
 
-  // Semantic — red / danger
-  red: "#D64545",
-  redLight: "#FDECEC",
-  redBorder: "#FCA5A5",
-  redText: "#991B1B",
+  // Danger
+  red: "var(--danger)",
+  redLight: "var(--danger-surface)",
+  redBorder: "var(--danger-border)",
+  redText: "var(--danger-text)",
 
-  // Semantic — yellow / warning
-  yellow: "#D97706",
-  yellowLight: "#FEF3C7",
-  yellowBorder: "#FCD34D",
+  // Warning
+  yellow: "var(--warning)",
+  yellowLight: "var(--warning-surface)",
+  yellowBorder: "var(--warning-border)",
 
-  // Navigation
-  navInactive: "#A8AABB",
+  // Sidebar
+  navInactive: "var(--sidebar-text-muted)",
+  sidebarBorder: "var(--sidebar-border)",
+  sidebarHover: "var(--sidebar-hover)",
+  sidebarActive: "var(--sidebar-active)",
+  sidebarBg: "var(--sidebar-bg)",
+  sidebarText: "var(--sidebar-text)",
 } as const;

@@ -22,7 +22,7 @@ export default function RecurringBadge({ size = "md", iconOnly = false }: Recurr
 
     if (size === "sm") {
         return (
-            <span className={`${iconOnly ? iconOnlyClasses.sm : sizeClasses.sm} badge bg-[#EBF0FD] text-[#2C5FE0] rounded-lg`}>
+            <span className={`${iconOnly ? iconOnlyClasses.sm : sizeClasses.sm} badge bg-info-surface text-link rounded-lg`}>
                 <Repeat className="w-3 h-3" />
                 {!iconOnly && "Gentages"}
             </span>
@@ -31,7 +31,7 @@ export default function RecurringBadge({ size = "md", iconOnly = false }: Recurr
 
     if (size === "md") {
         return (
-            <span className={`${iconOnly ? iconOnlyClasses.md : sizeClasses.md} badge bg-[#EBF0FD] text-[#2C5FE0] rounded-lg`}>
+            <span className={`${iconOnly ? iconOnlyClasses.md : sizeClasses.md} badge bg-info-surface text-link rounded-lg`}>
                 <Repeat className="w-3 h-3" />
                 {!iconOnly && "Gentages"}
             </span>
@@ -40,7 +40,7 @@ export default function RecurringBadge({ size = "md", iconOnly = false }: Recurr
 
     if (size === "lg") {
         return (
-            <span className={`${iconOnly ? iconOnlyClasses.lg : sizeClasses.lg} badge bg-[#EBF0FD] text-[#2C5FE0] rounded-lg`}>
+            <span className={`${iconOnly ? iconOnlyClasses.lg : sizeClasses.lg} badge bg-info-surface text-link rounded-lg`}>
                 <Repeat className="w-3 h-3" />
                 {!iconOnly && "Gentages"}
             </span>

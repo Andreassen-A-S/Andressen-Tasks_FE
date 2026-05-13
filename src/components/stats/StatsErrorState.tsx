@@ -5,7 +5,7 @@ interface StatsErrorStateProps {
 
 export default function StatsErrorState({ error, onRetry }: StatsErrorStateProps) {
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-surface-page">
             <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
                 <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center">
                     <div className="h2 text-red-600 mb-2">
@@ -22,7 +22,7 @@ export default function StatsErrorState({ error, onRetry }: StatsErrorStateProps
                             </button>
                         </>
                     ) : (
-                        <p className="body-md text-gray-500">Ingen statistik tilgængelig</p>
+                        <p className="body-md text-text-muted">Ingen statistik tilgængelig</p>
                     )}
                 </div>
             </div>

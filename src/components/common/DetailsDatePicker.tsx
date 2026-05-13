@@ -116,7 +116,7 @@ export default function DetailsDatePicker({ open, triggerEl, onClose, value, onS
           width: SHEET_WIDTH,
           backgroundColor: colors.white,
           border: `1px solid ${colors.border}`,
-          boxShadow: "0 8px 24px rgba(140, 149, 159, 0.2)",
+          boxShadow: "var(--shadow-elevated)",
         }}
         className={`z-[9999] flex flex-col rounded-xl overflow-hidden${isPositioned ? " animate-in fade-in" : ""}`}
         {...getFloatingProps()}
@@ -167,7 +167,7 @@ export default function DetailsDatePicker({ open, triggerEl, onClose, value, onS
                   <span
                     className="body-sm"
                     style={{
-                      color: isSelected ? colors.white : cell.current ? colors.textPrimary : colors.textMuted,
+                      color: isSelected ? colors.textWhite : cell.current ? colors.textPrimary : colors.textMuted,
                       fontWeight: isToday ? 600 : undefined,
                     }}
                   >
