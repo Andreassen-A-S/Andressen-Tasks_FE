@@ -28,6 +28,7 @@ import {
 export const DropdownOpenContext = createContext(false);
 
 export interface DropdownMenuItem {
+  id?: string;
   label: string;
   icon?: React.ReactNode;
   badge?: React.ReactNode;
@@ -408,7 +409,7 @@ function DropdownMenuInner({ trigger, items, width }: DropdownMenuProps) {
               {...getFloatingProps({ tabIndex: -1 })}
             >
               {items.map((item, i) => (
-                <div key={item.label}>
+                <div key={item.id ?? `${item.label}-${i}`}>
                   {item.dividerBefore && (
                     <div className="my-1.5" style={{ borderTop: `1px solid ${colors.border}` }} />
                   )}

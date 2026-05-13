@@ -1,5 +1,6 @@
 import { getAuthHeaders } from "@/helpers/helpers";
 import { CreateUserInput, UpdateUserInput, User } from "@/types/users";
+import { normalizeUser } from "./userNormalizer";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -56,12 +57,4 @@ export async function deleteUser(userId: string): Promise<void> {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to delete user");
-}
-
-function normalizeUser(user: User): User {
-  return {
-    ...user,
-    position: user.position ?? "",
-    organization_id: user.organization_id ?? null,
-  };
 }

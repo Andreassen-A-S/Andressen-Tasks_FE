@@ -22,7 +22,11 @@ function loadSavedAccounts(): SavedAccount[] {
 }
 
 function persistSavedAccounts(accounts: SavedAccount[]) {
-    localStorage.setItem(SAVED_ACCOUNTS_KEY, JSON.stringify(accounts));
+    try {
+        localStorage.setItem(SAVED_ACCOUNTS_KEY, JSON.stringify(accounts));
+    } catch {
+        // Account switching is best-effort; a storage failure should not fail login.
+    }
 }
 
 function getStoredOrgContext(): string | null {

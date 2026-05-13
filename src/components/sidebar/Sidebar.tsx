@@ -171,12 +171,14 @@ export default function Sidebar() {
                             }
                             items={[
                                 {
+                                    id: "platform",
                                     label: "MesterPlan",
                                     icon: <OrgAvatar name="MesterPlan" />,
                                     checked: !contextOrgId,
                                     onClick: contextOrgId ? () => setContextOrg(null) : undefined,
                                 },
                                 ...organizations.filter(o => o.org_id !== MESTERPLAN_ORG_ID).map(org => ({
+                                    id: org.org_id,
                                     label: org.name,
                                     icon: <OrgAvatar name={org.name} logoUrl={org.logo_url} />,
                                     checked: contextOrgId === org.org_id,

@@ -1,5 +1,5 @@
 import { LoginRequest, LoginResponse, VerifyResponse } from "@/types/auth";
-import type { User } from "@/types/users";
+import { normalizeUser } from "./userNormalizer";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 // Auth related API functions can be added here as needed
@@ -25,14 +25,6 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
   };
 }
 
-function normalizeUser(user: User): User {
-  return {
-    ...user,
-    position: user.position ?? "",
-    organization_id: user.organization_id ?? null,
-  };
-}
-
 export async function verifyToken(token: string): Promise<VerifyResponse> {
   const res = await fetch(`${API_URL}/auth/verify`, {
     headers: {
@@ -52,13 +44,13 @@ export async function verifyToken(token: string): Promise<VerifyResponse> {
   const { data } = await res.json();
 
   return {
-    user: {
+    user: normalizeUser({
       user_id: data.user_id,
       email: data.email,
       role: data.role,
       name: data.name,
       position: data.position ?? "",
       organization_id: data.organization_id ?? null,
-    },
+    }),
   };
 }

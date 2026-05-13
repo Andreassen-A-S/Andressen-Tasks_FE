@@ -88,10 +88,11 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                     variant="primary"
                     size="lg"
                     type="submit"
+                    loading={isLoading}
                     disabled={!email || !password || isLoading}
                     fullWidth={true}
                 >
-                    {isLoading ? "Logger ind..." : "Log ind"}
+                    Log ind
                 </Button>
             </form>
         </Modal>

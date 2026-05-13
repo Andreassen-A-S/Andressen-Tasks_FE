@@ -42,9 +42,10 @@ export default function EmployeeTable({
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const editFormId = "edit-employee-form";
+    const groupOrganizations = organizations && organizations.length > 0 ? organizations : undefined;
 
     const grouped = useMemo(() => {
-        if (!organizations) return null;
+        if (!groupOrganizations) return null;
         const map = new Map<string, User[]>();
         for (const emp of employees) {
             const key = emp.organization_id ?? "__none__";
@@ -52,11 +53,11 @@ export default function EmployeeTable({
             map.get(key)!.push(emp);
         }
         return map;
-    }, [employees, organizations]);
+    }, [employees, groupOrganizations]);
 
     const sortedKeys = useMemo(() => {
-        if (!grouped || !organizations) return null;
-        const orgKeys = [...organizations]
+        if (!grouped || !groupOrganizations) return null;
+        const orgKeys = [...groupOrganizations]
             .sort((a, b) => {
                 if (a.org_id === MESTERPLAN_ORG_ID) return -1;
                 if (b.org_id === MESTERPLAN_ORG_ID) return 1;
@@ -65,7 +66,7 @@ export default function EmployeeTable({
             .map(o => o.org_id);
         const ungrouped = [...grouped.keys()].filter(k => k === "__none__");
         return [...orgKeys, ...ungrouped];
-    }, [grouped, organizations]);
+    }, [grouped, groupOrganizations]);
 
     function handleEditClick(employee: User) {
         setSelectedEmployee(employee);
@@ -123,7 +124,7 @@ export default function EmployeeTable({
             <DataTable columns={columns}>
                 {grouped && sortedKeys ? sortedKeys.map((key) => {
                     const members = grouped.get(key) ?? [];
-                    const orgName = organizations!.find(o => o.org_id === key)?.name ?? (key === "__none__" ? "Ukategoriseret" : key);
+                    const orgName = groupOrganizations!.find(o => o.org_id === key)?.name ?? (key === "__none__" ? "Ukategoriseret" : key);
                     return (
                         <Fragment key={key}>
                             <RowGroup label={orgName} colSpan={5} count={members.length}>
