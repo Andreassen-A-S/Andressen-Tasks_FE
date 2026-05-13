@@ -204,7 +204,7 @@ export default function DetailsGoalEditor({
                 onFocus={() => setCurrentFocused(true)}
                 onBlur={() => setCurrentFocused(false)}
                 placeholder="0"
-                className="w-full rounded-lg border px-3 py-2 body-sm bg-surfacetext-center transition-all focus:outline-none"
+                className="w-full rounded-lg border px-3 py-2 body-sm bg-surface text-center transition-all focus:outline-none"
                 style={{
                   borderColor: currentFocused ? colors.blue : colors.border,
                   boxShadow: currentFocused ? `0 0 0 3px ${colors.blueLight}` : "none",
@@ -230,7 +230,7 @@ export default function DetailsGoalEditor({
                 onBlur={() => setTargetFocused(false)}
                 placeholder={isPercent ? "100" : "Angiv mål"}
                 disabled={isPercent}
-                className="w-full rounded-lg border px-3 py-2 body-sm bg-surfacetext-center transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-lg border px-3 py-2 body-sm bg-surface text-center transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
                   borderColor: targetFocused ? colors.blue : colors.border,
                   boxShadow: targetFocused ? `0 0 0 3px ${colors.blueLight}` : "none",
@@ -255,7 +255,7 @@ export default function DetailsGoalEditor({
               }}
               onFocus={() => setUnitFocused(true)}
               onBlur={() => setUnitFocused(false)}
-              className="w-full rounded-lg border px-3 py-2 body-sm bg-surfacetransition-all focus:outline-none"
+              className="w-full rounded-lg border px-3 py-2 body-sm bg-surface transition-all focus:outline-none"
               style={{
                 borderColor: unitFocused ? colors.blue : colors.border,
                 boxShadow: unitFocused ? `0 0 0 3px ${colors.blueLight}` : "none",

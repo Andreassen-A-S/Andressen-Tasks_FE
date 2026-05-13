@@ -17,10 +17,14 @@ function applyTheme(theme: Theme) {
 
 function getStoredTheme(): Theme {
     if (typeof window === "undefined") return DEFAULT_THEME;
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === "light" || stored === "mix" || stored === "dark"
-        ? stored
-        : DEFAULT_THEME;
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored === "light" || stored === "mix" || stored === "dark"
+            ? stored
+            : DEFAULT_THEME;
+    } catch {
+        return DEFAULT_THEME;
+    }
 }
 
 export function useTheme() {
@@ -31,7 +35,11 @@ export function useTheme() {
     }, [theme]);
 
     function setTheme(next: Theme) {
-        localStorage.setItem(STORAGE_KEY, next);
+        try {
+            localStorage.setItem(STORAGE_KEY, next);
+        } catch {
+            // Theme still updates in-memory when storage is blocked.
+        }
         setThemeState(next);
     }
 

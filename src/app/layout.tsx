@@ -35,7 +35,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem('mp-theme');if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);})();`,
+            __html: `(function(){try{var t=localStorage.getItem('mp-theme')||'mix';if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`,
           }}
         />
       </head>

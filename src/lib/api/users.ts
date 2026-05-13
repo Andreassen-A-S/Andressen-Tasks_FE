@@ -11,7 +11,7 @@ export async function getUsers(): Promise<User[]> {
     throw new Error("Failed to fetch users");
   }
   const data = await res.json();
-  return data.data;
+  return data.data.map(normalizeUser);
 }
 
 export async function getUser(userId: string): Promise<User> {
@@ -22,7 +22,7 @@ export async function getUser(userId: string): Promise<User> {
     throw new Error("Failed to fetch user");
   }
   const data = await res.json();
-  return data.data;
+  return normalizeUser(data.data);
 }
 
 export async function createUser(user: CreateUserInput): Promise<User> {
@@ -33,7 +33,7 @@ export async function createUser(user: CreateUserInput): Promise<User> {
   });
   if (!res.ok) throw new Error("Failed to create user");
   const data = await res.json();
-  return data.data;
+  return normalizeUser(data.data);
 }
 
 export async function updateUser(
@@ -47,7 +47,7 @@ export async function updateUser(
   });
   if (!res.ok) throw new Error("Failed to update user");
   const data = await res.json();
-  return data.data;
+  return normalizeUser(data.data);
 }
 
 export async function deleteUser(userId: string): Promise<void> {
@@ -56,4 +56,12 @@ export async function deleteUser(userId: string): Promise<void> {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to delete user");
+}
+
+function normalizeUser(user: User): User {
+  return {
+    ...user,
+    position: user.position ?? "",
+    organization_id: user.organization_id ?? null,
+  };
 }

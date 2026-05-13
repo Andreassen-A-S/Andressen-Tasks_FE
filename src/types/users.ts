@@ -19,6 +19,10 @@ export function getUserRoleLabel(role: UserRole): string {
   }
 }
 
+export function isAdminRole(role?: UserRole | null): boolean {
+  return role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
+}
+
 export interface User {
   user_id: string;
   name: string;

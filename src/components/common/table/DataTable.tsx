@@ -32,13 +32,14 @@ export function RowGroup({ label, colSpan, count, defaultOpen = true, children }
 
     return (
         <>
-            <tr
-                style={{ backgroundColor: colors.muted }}
-                className="cursor-pointer select-none"
-                onClick={() => setIsOpen((v) => !v)}
-            >
-                <td colSpan={colSpan} className="px-4 py-2">
-                    <div className="flex items-center gap-2">
+            <tr style={{ backgroundColor: colors.muted }}>
+                <td colSpan={colSpan} className="p-0">
+                    <button
+                        type="button"
+                        className="flex w-full items-center gap-2 px-4 py-2 text-left select-none"
+                        aria-expanded={isOpen}
+                        onClick={() => setIsOpen((v) => !v)}
+                    >
                         {isOpen
                             ? <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: colors.textMuted }} />
                             : <ChevronRight className="w-3.5 h-3.5 shrink-0" style={{ color: colors.textMuted }} />
@@ -47,7 +48,7 @@ export function RowGroup({ label, colSpan, count, defaultOpen = true, children }
                         {count !== undefined && (
                             <span className="label-sm" style={{ color: colors.textMuted }}>{count} {count === 1 ? "række" : "rækker"}</span>
                         )}
-                    </div>
+                    </button>
                 </td>
             </tr>
             {isOpen && children}

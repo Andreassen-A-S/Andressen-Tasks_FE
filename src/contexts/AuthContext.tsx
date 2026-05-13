@@ -25,6 +25,15 @@ function persistSavedAccounts(accounts: SavedAccount[]) {
     localStorage.setItem(SAVED_ACCOUNTS_KEY, JSON.stringify(accounts));
 }
 
+function getStoredOrgContext(): string | null {
+    if (typeof window === "undefined") return null;
+    try {
+        return localStorage.getItem("orgContext");
+    } catch {
+        return null;
+    }
+}
+
 function upsertAccount(accounts: SavedAccount[], account: SavedAccount): SavedAccount[] {
     const idx = accounts.findIndex((a) => a.user.user_id === account.user.user_id);
     if (idx >= 0) {
@@ -60,9 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [userRole, setUserRole] = useState<UserRole | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
-    const [contextOrgId] = useState<string | null>(
-        typeof window !== "undefined" ? localStorage.getItem("orgContext") : null
-    );
+    const [contextOrgId] = useState<string | null>(getStoredOrgContext);
 
     useEffect(() => {
         const initializeAuth = async () => {
@@ -149,6 +156,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const switchAccount = (account: SavedAccount) => {
         localStorage.setItem("authToken", account.token);
         localStorage.setItem("userRole", account.user.role);
+        localStorage.removeItem("orgContext");
         setIsAuthenticated(true);
         setUser(account.user);
         setUserRole(account.user.role);

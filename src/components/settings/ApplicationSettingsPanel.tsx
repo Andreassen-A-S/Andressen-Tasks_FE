@@ -1,6 +1,6 @@
 "use client";
 
-import { getUserRoleLabel, type User, UserRole } from "@/types/users";
+import { getUserRoleLabel, isAdminRole, type User, UserRole } from "@/types/users";
 import { colors } from "@/constants/colors";
 import SettingsSection from "./SettingsSection";
 import SettingsRow from "./SettingsRow";
@@ -19,7 +19,7 @@ export default function ApplicationSettingsPanel({ user }: { user: User }) {
     const { theme, setTheme } = useTheme();
     const { contextOrgId } = useAuth();
 
-    const isAdmin = user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN;
+    const isAdmin = isAdminRole(user.role);
     const hasOrg = !!(user.organization_id || contextOrgId);
 
     return (

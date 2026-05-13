@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { UserRole } from "@/types/users";
+import { isAdminRole, UserRole } from "@/types/users";
 import Sidebar from "@/components/sidebar/Sidebar";
 import FullPageLoadingState from "@/components/common/loading/FullPageLoadingState";
 import useDelayedVisibility from "@/hooks/useDelayedVisibility";
@@ -31,7 +31,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             return;
         }
 
-        const isPrivileged = userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
+        const isPrivileged = isAdminRole(userRole);
 
         if (isAuthenticated && !isPrivileged && pathname !== "/unauthorized") {
             topProgress.start();

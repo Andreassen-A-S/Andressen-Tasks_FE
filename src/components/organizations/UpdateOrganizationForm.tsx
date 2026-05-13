@@ -20,6 +20,10 @@ interface UpdateOrganizationFormProps {
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
+function revokeObjectUrl(url: string | null) {
+    if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+}
+
 export default function UpdateOrganizationForm({ formId, organization, onSuccess, onLoadingChange }: UpdateOrganizationFormProps) {
     const [formData, setFormData] = useState({
         name: organization.name,
@@ -32,6 +36,8 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cropSrcRef = useRef<string | null>(null);
+    const logoPreviewRef = useRef<string | null>(null);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = e.target;
@@ -46,13 +52,23 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
             toast.error("Kun JPEG, PNG og WebP er tilladt");
             return;
         }
-        setCropSrc(URL.createObjectURL(file));
+        const nextCropSrc = URL.createObjectURL(file);
+        setCropSrc((previous) => {
+            revokeObjectUrl(previous);
+            return nextCropSrc;
+        });
     }
 
     async function handleCropConfirm(blob: Blob) {
         const preview = URL.createObjectURL(blob);
-        setCropSrc(null);
-        setLogoPreview(preview);
+        setCropSrc((previous) => {
+            revokeObjectUrl(previous);
+            return null;
+        });
+        setLogoPreview((previous) => {
+            revokeObjectUrl(previous);
+            return preview;
+        });
         setLogoLoading(true);
         try {
             const { uploadUrl, gcsPath } = await prepareOrgLogo(organization.org_id, blob.type);
@@ -60,7 +76,10 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
             setLogoUrl(gcsPath);
         } catch {
             toast.error("Logo-upload fejlede. Prøv igen.");
-            setLogoPreview(logoUrl);
+            setLogoPreview((previous) => {
+                revokeObjectUrl(previous);
+                return logoUrl;
+            });
         } finally {
             setLogoLoading(false);
         }
@@ -88,6 +107,16 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
     useEffect(() => {
         onLoadingChange?.(loading || logoLoading);
     }, [loading, logoLoading, onLoadingChange]);
+
+    useEffect(() => {
+        cropSrcRef.current = cropSrc;
+        logoPreviewRef.current = logoPreview;
+    }, [cropSrc, logoPreview]);
+
+    useEffect(() => () => {
+        revokeObjectUrl(cropSrcRef.current);
+        revokeObjectUrl(logoPreviewRef.current);
+    }, []);
 
     return (
         <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-4">
@@ -128,7 +157,13 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
                                 variant="ghost"
                                 size="sm"
                                 icon={<X className="w-4 h-4" />}
-                                onClick={() => { setLogoUrl(null); setLogoPreview(null); }}
+                                onClick={() => {
+                                    setLogoUrl(null);
+                                    setLogoPreview((previous) => {
+                                        revokeObjectUrl(previous);
+                                        return null;
+                                    });
+                                }}
                             >
                                 Fjern logo
                             </Button>
@@ -146,7 +181,10 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
                     <LogoCropModal
                         imageSrc={cropSrc}
                         onConfirm={handleCropConfirm}
-                        onClose={() => setCropSrc(null)}
+                        onClose={() => setCropSrc((previous) => {
+                            revokeObjectUrl(previous);
+                            return null;
+                        })}
                     />
                 )}
             </div>

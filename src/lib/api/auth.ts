@@ -1,4 +1,5 @@
 import { LoginRequest, LoginResponse, VerifyResponse } from "@/types/auth";
+import type { User } from "@/types/users";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 // Auth related API functions can be added here as needed
@@ -18,7 +19,18 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
 
   // Backend returns { success: true, data: { token, user } }
   // We need to return just { token, user }
-  return response.data;
+  return {
+    ...response.data,
+    user: normalizeUser(response.data.user),
+  };
+}
+
+function normalizeUser(user: User): User {
+  return {
+    ...user,
+    position: user.position ?? "",
+    organization_id: user.organization_id ?? null,
+  };
 }
 
 export async function verifyToken(token: string): Promise<VerifyResponse> {

@@ -4,7 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import { getTaskEvents, createComment, deleteComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
-import { UserRole } from "@/types/users";
+import { isAdminRole } from "@/types/users";
 import { toast } from "sonner";
 import SingleAvatar from "../../../common/label/SingleAvatar";
 import { formatCommentDate, formatNumber, translateStatusLowercase, translateTaskUnit } from "@/helpers/helpers";
@@ -246,7 +246,7 @@ export default function TaskTimeline({ taskId, creatorId, isArchived = false }: 
                                     event={e}
                                     actorName={actorName}
                                     currentUserId={currentUser?.user_id}
-                                    isAdmin={currentUser?.role === UserRole.ADMIN}
+                                    isAdmin={isAdminRole(currentUser?.role)}
                                     isTaskOwner={!!creatorId && e.actor_id === creatorId}
                                     isArchived={isArchived}
                                     editedBy={commentId ? editedByMap.get(commentId) : undefined}

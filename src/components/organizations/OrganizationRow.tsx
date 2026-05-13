@@ -33,7 +33,7 @@ export default function OrganizationRow({ organization, onEdit, onDelete }: Orga
                     >
                         {organization.logo_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={organization.logo_url} alt="" className="w-full h-full object-cover" />
+                            <img src={organization.logo_url} alt={`${organization.name} logo`} className="w-full h-full object-cover" />
                         ) : (
                             <Building2 className="w-4 h-4" style={{ color: colors.textMuted }} />
                         )}

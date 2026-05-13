@@ -57,9 +57,9 @@ export default function ConfirmModal({
         </div>
       }
     >
-      <p className="body-md" style={{ color: colors.textSecondary }}>
+      <div className="body-md" style={{ color: colors.textSecondary }}>
         {description}
-      </p>
+      </div>
     </Modal>
   );
 }
