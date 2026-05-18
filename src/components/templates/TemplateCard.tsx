@@ -3,6 +3,7 @@
 import { Ellipsis, Pause, SquarePen, Play, Trash2 } from "lucide-react";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import Badge from "@/components/common/label/Badge";
+import Pill from "@/components/common/label/Pill";
 import { formatDate, formatNumber } from "@/helpers/helpers";
 import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
@@ -56,15 +57,9 @@ export default function TemplateCard({
                             </p>
                         )}
                     </div>
-                    <span
-                        className="badge badge-md inline-flex items-center h-6 px-2 rounded-full whitespace-nowrap"
-                        style={{
-                            backgroundColor: isActive ? colors.greenLight : colors.muted,
-                            color: isActive ? colors.greenMid : colors.textMuted,
-                        }}
-                    >
+                    <Pill color={isActive ? "green" : "muted"}>
                         {isActive ? "Aktiv" : "Inaktiv"}
-                    </span>
+                    </Pill>
                 </div>
 
             </div>

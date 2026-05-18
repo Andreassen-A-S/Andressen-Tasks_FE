@@ -20,6 +20,8 @@ interface OrganizationTableProps {
 const columns = [
     { key: "name", header: "Navn", className: "px-6 py-2.5 label-sm min-w-[200px]" },
     { key: "slug", header: "Slug", className: "px-6 py-2.5 label-sm" },
+    { key: "orgStatus", header: "Org status", className: "px-6 py-2.5 label-sm whitespace-nowrap" },
+    { key: "subscriptionStatus", header: "Abonnement", className: "px-6 py-2.5 label-sm whitespace-nowrap" },
     { key: "created", header: "Oprettet", className: "px-6 py-2.5 label-sm" },
     { key: "actions", header: "", className: "py-2.5 w-px pr-4" },
 ];

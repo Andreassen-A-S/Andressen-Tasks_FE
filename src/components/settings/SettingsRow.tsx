@@ -1,4 +1,5 @@
 import { colors } from "@/constants/colors";
+import Pill from "@/components/common/label/Pill";
 
 interface SettingsRowProps {
     label: string;
@@ -27,14 +28,7 @@ export default function SettingsRow({ label, value, description, badge }: Settin
                             {value}
                         </div>
                     )}
-                    {badge && (
-                        <span
-                            className="badge badge-md rounded-full px-3 py-1"
-                            style={{ backgroundColor: colors.yellowLight, color: colors.yellow }}
-                        >
-                            {badge}
-                        </span>
-                    )}
+                    {badge && <Pill color="yellow">{badge}</Pill>}
                 </div>
             </div>
         </div>

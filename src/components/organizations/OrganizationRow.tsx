@@ -1,7 +1,8 @@
-import type { Organization } from "@/types/organization";
+import { OrganizationStatus, SubscriptionStatus, type Organization } from "@/types/organization";
 import { colors } from "@/constants/colors";
 import Button from "@/components/common/buttons/Button";
 import DropdownMenu from "@/components/common/DropdownMenu";
+import Pill, { type PillColor } from "@/components/common/label/Pill";
 import { Building2, Ellipsis, SquarePen, Trash2 } from "lucide-react";
 import { MESTERPLAN_ORG_ID } from "@/constants/org";
 
@@ -10,6 +11,30 @@ interface OrganizationRowProps {
     onEdit: (org: Organization) => void;
     onDelete: (orgId: string) => void;
 }
+
+const organizationStatusLabels: Record<OrganizationStatus, string> = {
+    [OrganizationStatus.ACTIVE]: "Aktiv",
+    [OrganizationStatus.SUSPENDED]: "Suspenderet",
+    [OrganizationStatus.INACTIVE]: "Inaktiv",
+};
+
+const subscriptionStatusLabels: Record<SubscriptionStatus, string> = {
+    [SubscriptionStatus.TRIALING]: "Prøve",
+    [SubscriptionStatus.ACTIVE]: "Aktiv",
+    [SubscriptionStatus.PAST_DUE]: "Forfalden",
+    [SubscriptionStatus.CANCELED]: "Opsagt",
+    [SubscriptionStatus.EXPIRED]: "Udløbet",
+};
+
+const statusColor: Record<OrganizationStatus | SubscriptionStatus, PillColor> = {
+    [OrganizationStatus.ACTIVE]: "green",
+    [SubscriptionStatus.TRIALING]: "blue",
+    [SubscriptionStatus.PAST_DUE]: "yellow",
+    [OrganizationStatus.SUSPENDED]: "red",
+    [SubscriptionStatus.CANCELED]: "red",
+    [SubscriptionStatus.EXPIRED]: "red",
+    [OrganizationStatus.INACTIVE]: "muted",
+};
 
 export default function OrganizationRow({ organization, onEdit, onDelete }: OrganizationRowProps) {
     const isMesterPlan = organization.org_id === MESTERPLAN_ORG_ID;
@@ -43,6 +68,16 @@ export default function OrganizationRow({ organization, onEdit, onDelete }: Orga
             </td>
             <td className="px-6 py-3 whitespace-nowrap">
                 <span className="mono-xs" style={{ color: colors.textMuted }}>{organization.slug}</span>
+            </td>
+            <td className="px-6 py-3 whitespace-nowrap">
+                <Pill color={statusColor[organization.status]} bordered>
+                    {organizationStatusLabels[organization.status]}
+                </Pill>
+            </td>
+            <td className="px-6 py-3 whitespace-nowrap">
+                <Pill color={statusColor[organization.subscriptionStatus]} bordered>
+                    {subscriptionStatusLabels[organization.subscriptionStatus]}
+                </Pill>
             </td>
             <td className="px-6 py-3 whitespace-nowrap">
                 <span className="label-md" style={{ color: colors.textSecondary }}>{createdAt}</span>

@@ -3,6 +3,7 @@ import type { Project } from "@/types/project";
 import type { TaskAssignment } from "@/types/assignment";
 import { colors } from "@/constants/colors";
 import DashboardTaskCard from "./DashboardTaskCard";
+import Pill from "@/components/common/label/Pill";
 import { formatNumber } from "@/helpers/helpers";
 
 export type ColumnVariant = "upcoming" | "active" | "overdue" | "done";
@@ -38,12 +39,7 @@ export default function DashboardColumn({ title, tasks, projectMap, assignmentMa
                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: accent }} />
                 <span className="label-md" style={{ color: colors.textPrimary }}>{title}</span>
                 {action ?? <div className="h-7" />}
-                <span
-                    className="ml-auto mono-xs px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: colors.muted, color: colors.textSecondary }}
-                >
-                    {formatNumber(tasks.length)}
-                </span>
+                <Pill size="sm" className="ml-auto">{formatNumber(tasks.length)}</Pill>
             </div>
 
             <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-2.5" style={{ backgroundColor: variant === "overdue" ? colors.redLight : colors.eggWhite }}>
