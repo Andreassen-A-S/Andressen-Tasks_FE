@@ -4,6 +4,7 @@ import { getUserRoleLabel, isAdminRole, type User, UserRole } from "@/types/user
 import { colors } from "@/constants/colors";
 import SettingsSection from "./SettingsSection";
 import SettingsRow from "./SettingsRow";
+import Pill from "@/components/common/label/Pill";
 import { UserPositions } from "@/types/users";
 import { useTheme, type Theme } from "@/hooks/useTheme";
 import OrgSettingsSection from "./OrgSettingsSection";
@@ -64,22 +65,11 @@ export default function ApplicationSettingsPanel({ user }: { user: User }) {
                             </p>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 {UserPositions.map((position) => (
-                                    <span
-                                        key={position}
-                                        className="badge badge-md rounded-full px-3 py-1"
-                                        style={{ backgroundColor: colors.greenLight, color: colors.green }}
-                                    >
-                                        {position}
-                                    </span>
+                                    <Pill key={position} color="green">{position}</Pill>
                                 ))}
                             </div>
                         </div>
-                        <span
-                            className="badge badge-md rounded-full px-3 py-1"
-                            style={{ backgroundColor: colors.yellowLight, color: colors.yellow }}
-                        >
-                            Bør flyttes til backend
-                        </span>
+                        <Pill color="yellow">Bør flyttes til backend</Pill>
                     </div>
                 </div>
             </SettingsSection>

@@ -5,6 +5,7 @@ import { Task } from "@/types/task";
 import { TaskComment } from "@/types/comment";
 import { colors } from "@/constants/colors";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
+import Pill from "@/components/common/label/Pill";
 import { formatCommentDate, formatNumber } from "@/helpers/helpers";
 import LinkedText from "@/components/common/LinkedText";
 
@@ -83,9 +84,7 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
             <div className="flex items-center justify-between gap-2 px-3 py-2 border-b" style={{ borderColor: colors.border }}>
                 <div className="flex items-center gap-2">
                     <span className="label-md" style={{ color: colors.textPrimary }}>Kommentarer i dag</span>
-                    <span className="mono-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: colors.muted, color: colors.textSecondary }}>
-                        {formatNumber(comments.length)}
-                    </span>
+                    <Pill size="sm">{formatNumber(comments.length)}</Pill>
                 </div>
                 {pageCount > 1 && (
                     <div className="flex gap-1">

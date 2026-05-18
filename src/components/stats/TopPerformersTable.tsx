@@ -2,6 +2,7 @@
 
 import type { TopPerformer } from "@/types/stats";
 import SingleAvatar from "../common/label/SingleAvatar";
+import Pill from "@/components/common/label/Pill";
 import { colors } from "@/constants/colors";
 import DataTable from "@/components/common/table/DataTable";
 import { formatNumber } from "@/helpers/helpers";
@@ -47,16 +48,14 @@ export default function TopPerformersTable({ data, periodLabel }: TopPerformersT
             {data.map((performer, index) => (
                 <tr key={performer.user_id}>
                     <td className="px-5 py-4">
-                        <span
-                            className="inline-flex h-7 min-w-9 items-center justify-center rounded-full border px-2 label-md"
-                            style={{
-                                backgroundColor: index === 0 ? colors.greenLight : colors.white,
-                                borderColor: index === 0 ? colors.green : colors.border,
-                                color: index === 0 ? colors.green : colors.textSecondary,
-                            }}
+                        <Pill
+                            color={index === 0 ? "green" : "default"}
+                            size="lg"
+                            bordered
+                            className="min-w-9 justify-center"
                         >
                             #{index + 1}
-                        </span>
+                        </Pill>
                     </td>
                     <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
