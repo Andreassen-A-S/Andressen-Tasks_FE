@@ -1,15 +1,15 @@
 export enum OrganizationStatus {
-    ACTIVE = "ACTIVE",
-    SUSPENDED = "SUSPENDED",
-    INACTIVE = "INACTIVE",
+  ACTIVE = "ACTIVE",
+  SUSPENDED = "SUSPENDED",
+  INACTIVE = "INACTIVE",
 }
 
 export enum SubscriptionStatus {
-    TRIALING = "TRIALING",
-    ACTIVE = "ACTIVE",
-    PAST_DUE = "PAST_DUE",
-    CANCELED = "CANCELED",
-    EXPIRED = "EXPIRED",
+  TRIALING = "TRIALING",
+  ACTIVE = "ACTIVE",
+  PAST_DUE = "PAST_DUE",
+  CANCELED = "CANCELED",
+  EXPIRED = "EXPIRED",
 }
 
 export interface Organization {
@@ -18,8 +18,8 @@ export interface Organization {
   slug: string;
   logo_url: string | null;
   status: OrganizationStatus;
-  subscriptionStatus: SubscriptionStatus;
-  currentPeriodEnd: string | null;
+  subscription_status: SubscriptionStatus;
+  current_period_end: string | null;
   created_at: string;
   updated_at: string;
   _count?: { users: number };

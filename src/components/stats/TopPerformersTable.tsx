@@ -52,6 +52,7 @@ export default function TopPerformersTable({ data, periodLabel }: TopPerformersT
                             color={index === 0 ? "green" : "default"}
                             size="lg"
                             bordered
+                            className="min-w-9 justify-center"
                         >
                             #{index + 1}
                         </Pill>
