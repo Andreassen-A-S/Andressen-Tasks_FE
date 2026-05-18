@@ -75,8 +75,8 @@ export default function OrganizationRow({ organization, onEdit, onDelete }: Orga
                 </Pill>
             </td>
             <td className="px-6 py-3 whitespace-nowrap">
-                <Pill color={statusColor[organization.subscriptionStatus]} bordered>
-                    {subscriptionStatusLabels[organization.subscriptionStatus]}
+                <Pill color={statusColor[organization.subscription_status]} bordered>
+                    {subscriptionStatusLabels[organization.subscription_status]}
                 </Pill>
             </td>
             <td className="px-6 py-3 whitespace-nowrap">
