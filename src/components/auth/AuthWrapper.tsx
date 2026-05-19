@@ -60,7 +60,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             router.push("/");
             return;
         }
-    }, [isAuthenticated, isLoading, isPublicRoute, pathname, router, topProgress, userRole, contextOrgId]);
+    }, [isAuthenticated, isLoading, isPublicRoute, pathname, router, topProgress, userRole, contextOrgId, user?.organization_id]);
 
     if (isPublicRoute) {
         return <>{children}</>;

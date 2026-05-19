@@ -47,7 +47,6 @@ export interface UpdateUserInput {
   role?: UserRole;
   password?: string;
   status?: UserStatus;
-  organization_id?: string;
 }
 
 export interface CreateUserInput {
