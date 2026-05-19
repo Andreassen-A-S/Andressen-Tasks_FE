@@ -12,12 +12,13 @@ import type { User } from "@/types/users";
 import { getProjects } from "@/lib/api/projects";
 import { getTasks } from "@/lib/api/tasks";
 import { OrganizationStatus, SubscriptionStatus, type Organization } from "@/types/organization";
-import { getUserRoleLabel, UserStatus, UserRole, isAdminRole } from "@/types/users";
+import { organizationStatusLabels, subscriptionStatusLabels, orgStatusColor } from "./organizationDisplay";
+import { getUserRoleLabel, UserStatus, UserRole } from "@/types/users";
 import { colors } from "@/constants/colors";
 import { formatDateTime, formatCommentDate } from "@/helpers/helpers";
 import Button from "@/components/common/buttons/Button";
 import DropdownMenu from "@/components/common/DropdownMenu";
-import Pill, { type PillColor } from "@/components/common/label/Pill";
+import Pill from "@/components/common/label/Pill";
 import Modal from "@/components/modal/Modal";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
@@ -32,29 +33,6 @@ interface Props {
     paramsPromise: Promise<{ id: string }>;
 }
 
-const organizationStatusLabels: Record<OrganizationStatus, string> = {
-    [OrganizationStatus.ACTIVE]: "Aktiv",
-    [OrganizationStatus.SUSPENDED]: "Suspenderet",
-    [OrganizationStatus.INACTIVE]: "Inaktiv",
-};
-
-const subscriptionStatusLabels: Record<SubscriptionStatus, string> = {
-    [SubscriptionStatus.TRIALING]: "Prøve",
-    [SubscriptionStatus.ACTIVE]: "Aktiv",
-    [SubscriptionStatus.PAST_DUE]: "Forfalden",
-    [SubscriptionStatus.CANCELED]: "Opsagt",
-    [SubscriptionStatus.EXPIRED]: "Udløbet",
-};
-
-const statusColor: Record<OrganizationStatus | SubscriptionStatus, PillColor> = {
-    [OrganizationStatus.ACTIVE]: "green",
-    [SubscriptionStatus.TRIALING]: "blue",
-    [SubscriptionStatus.PAST_DUE]: "yellow",
-    [OrganizationStatus.SUSPENDED]: "red",
-    [SubscriptionStatus.CANCELED]: "red",
-    [SubscriptionStatus.EXPIRED]: "red",
-    [OrganizationStatus.INACTIVE]: "muted",
-};
 
 
 export default function OrganizationDetailsPage({ paramsPromise }: Props) {
@@ -202,10 +180,10 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                         <div className="space-y-1.5">
                             <h1 className="h1">{org.name}</h1>
                             <div className="flex items-center gap-2 flex-wrap">
-                                <Pill color={statusColor[org.status]} size="md" bordered>
+                                <Pill color={orgStatusColor[org.status]} size="md" bordered>
                                     {organizationStatusLabels[org.status]}
                                 </Pill>
-                                <Pill color={statusColor[org.subscription_status]} size="md" bordered>
+                                <Pill color={orgStatusColor[org.subscription_status]} size="md" bordered>
                                     {subscriptionStatusLabels[org.subscription_status]}
                                 </Pill>
                             </div>
@@ -316,40 +294,19 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                             <h2 className="label-lg" style={{ color: colors.textSecondary }}>Fakturering</h2>
                             <Pill color="blue" size="sm">Kommer snart</Pill>
                         </div>
-                        <DataTable columns={[
-                            { key: "date", header: "Dato", className: "px-6 py-2.5 label-sm" },
-                            { key: "description", header: "Beskrivelse", className: "px-6 py-2.5 label-sm" },
-                            { key: "amount", header: "Beløb", className: "px-6 py-2.5 label-sm" },
-                            { key: "status", header: "Status", className: "px-6 py-2.5 label-sm" },
-                        ]}>
-                            {[
-                                { date: "1. maj 2026", description: "Pro Plan — månedlig", amount: "kr. 299,00", status: "Betalt", statusColor: "green" as const },
-                                { date: "1. apr. 2026", description: "Pro Plan — månedlig", amount: "kr. 299,00", status: "Betalt", statusColor: "green" as const },
-                                { date: "1. mar. 2026", description: "Pro Plan — månedlig", amount: "kr. 299,00", status: "Betalt", statusColor: "green" as const },
-                            ].map((row, i) => (
-                                <tr key={i} style={{ backgroundColor: colors.white, opacity: 0.5 }}>
-                                    <td className="px-6 py-3 whitespace-nowrap">
-                                        <span className="label-md" style={{ color: colors.textPrimary }}>{row.date}</span>
-                                    </td>
-                                    <td className="px-6 py-3">
-                                        <span className="body-sm" style={{ color: colors.textPrimary }}>{row.description}</span>
-                                    </td>
-                                    <td className="px-6 py-3 whitespace-nowrap">
-                                        <span className="label-md" style={{ color: colors.textPrimary }}>{row.amount}</span>
-                                    </td>
-                                    <td className="px-6 py-3 whitespace-nowrap">
-                                        <Pill color={row.statusColor} size="md" bordered>{row.status}</Pill>
-                                    </td>
-                                </tr>
-                            ))}
-                        </DataTable>
+                        <div
+                            className="rounded-lg border px-6 py-10 text-center"
+                            style={{ borderColor: colors.border }}
+                        >
+                            <p className="body-sm" style={{ color: colors.textMuted }}>Faktureringshistorik er ikke tilgængelig endnu.</p>
+                        </div>
                     </div>
                 </div>
 
                 {/* Sidebar */}
                 <div className="w-64 flex-shrink-0 py-2">
                     <DetailsSectionHeader label="Org status" onGearClick={() => { }} disabled>
-                        <Pill color={statusColor[org.status]} size="md" bordered>
+                        <Pill color={orgStatusColor[org.status]} size="md" bordered>
                             {organizationStatusLabels[org.status]}
                         </Pill>
                     </DetailsSectionHeader>
@@ -357,7 +314,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                     <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
 
                     <DetailsSectionHeader label="Abonnement" onGearClick={() => { }} disabled>
-                        <Pill color={statusColor[org.subscription_status]} size="md" bordered>
+                        <Pill color={orgStatusColor[org.subscription_status]} size="md" bordered>
                             {subscriptionStatusLabels[org.subscription_status]}
                         </Pill>
                     </DetailsSectionHeader>
@@ -467,7 +424,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                         formId={editMemberFormId}
                         user={selectedMember}
                         onLoadingChange={setEditMemberLoading}
-                        onSuccess={(updated) => {
+                        onSuccess={() => {
                             queryClient.invalidateQueries({ queryKey: ["users"] });
                             setShowEditMemberModal(false);
                             setSelectedMember(null);

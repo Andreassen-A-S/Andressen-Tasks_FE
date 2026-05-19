@@ -1,36 +1,13 @@
-import { OrganizationStatus, SubscriptionStatus, type Organization } from "@/types/organization";
+import { type Organization } from "@/types/organization";
 import { colors } from "@/constants/colors";
-import Pill, { type PillColor } from "@/components/common/label/Pill";
+import Pill from "@/components/common/label/Pill";
 import { Building2 } from "lucide-react";
 import Link from "next/link";
+import { organizationStatusLabels, subscriptionStatusLabels, orgStatusColor } from "./organizationDisplay";
 
 interface OrganizationRowProps {
     organization: Organization;
 }
-
-const organizationStatusLabels: Record<OrganizationStatus, string> = {
-    [OrganizationStatus.ACTIVE]: "Aktiv",
-    [OrganizationStatus.SUSPENDED]: "Suspenderet",
-    [OrganizationStatus.INACTIVE]: "Inaktiv",
-};
-
-const subscriptionStatusLabels: Record<SubscriptionStatus, string> = {
-    [SubscriptionStatus.TRIALING]: "Prøve",
-    [SubscriptionStatus.ACTIVE]: "Aktiv",
-    [SubscriptionStatus.PAST_DUE]: "Forfalden",
-    [SubscriptionStatus.CANCELED]: "Opsagt",
-    [SubscriptionStatus.EXPIRED]: "Udløbet",
-};
-
-const statusColor: Record<OrganizationStatus | SubscriptionStatus, PillColor> = {
-    [OrganizationStatus.ACTIVE]: "green",
-    [SubscriptionStatus.TRIALING]: "blue",
-    [SubscriptionStatus.PAST_DUE]: "yellow",
-    [OrganizationStatus.SUSPENDED]: "red",
-    [SubscriptionStatus.CANCELED]: "red",
-    [SubscriptionStatus.EXPIRED]: "red",
-    [OrganizationStatus.INACTIVE]: "muted",
-};
 
 export default function OrganizationRow({ organization }: OrganizationRowProps) {
     const createdAt = new Date(organization.created_at).toLocaleDateString("da-DK", {
@@ -69,12 +46,12 @@ export default function OrganizationRow({ organization }: OrganizationRowProps) 
                 <span className="mono-xs" style={{ color: colors.textMuted }}>{organization.slug}</span>
             </td>
             <td className="px-6 py-3 whitespace-nowrap">
-                <Pill color={statusColor[organization.status]} bordered>
+                <Pill color={orgStatusColor[organization.status]} bordered>
                     {organizationStatusLabels[organization.status]}
                 </Pill>
             </td>
             <td className="px-6 py-3 whitespace-nowrap">
-                <Pill color={statusColor[organization.subscription_status]} bordered>
+                <Pill color={orgStatusColor[organization.subscription_status]} bordered>
                     {subscriptionStatusLabels[organization.subscription_status]}
                 </Pill>
             </td>
