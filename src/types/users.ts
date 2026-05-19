@@ -4,6 +4,11 @@ export enum UserRole {
   SUPER_ADMIN = "SUPER_ADMIN",
 }
 
+export enum UserStatus {
+  ACTIVE = "ACTIVE",
+  TERMINATED = "TERMINATED",
+}
+
 export const UserPositions = ["Håndmand", "CEO", "Maskinfører", "Revisor"];
 
 export function getUserRoleLabel(role: UserRole): string {
@@ -29,6 +34,7 @@ export interface User {
   email: string;
   position: string;
   role: UserRole;
+  status: UserStatus;
   organization_id: string | null;
   created_at?: string;
   updated_at?: string;
@@ -40,6 +46,7 @@ export interface UpdateUserInput {
   position?: string;
   role?: UserRole;
   password?: string;
+  status?: UserStatus;
 }
 
 export interface CreateUserInput {

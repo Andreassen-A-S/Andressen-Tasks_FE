@@ -31,7 +31,7 @@ export default function DashboardTaskCard({ task, project, assignments }: Dashbo
                     {project && <ProjectBadge name={project.name} size="sm" />}
                     <DeadlineBadge deadline={task.deadline} size="sm" />
                 </div>
-                <TaskAssignedUsers assignments={assignments} size="sm" />
+                <TaskAssignedUsers users={assignments.map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position }))} size="sm" />
             </div>
         </div>
     );

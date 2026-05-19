@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { updateUser } from "@/lib/api/users";
 import { getOrganizations } from "@/lib/api/organizations";
-import { UpdateUserInput, User, UserPositions, UserRole } from "@/types/users";
+import { UpdateUserInput, User, UserPositions, UserRole, UserStatus, isAdminRole } from "@/types/users";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
@@ -21,6 +21,7 @@ interface UpdateEmployeeFormProps {
 export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingChange }: UpdateEmployeeFormProps) {
     const { userRole } = useAuth();
     const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
+    const canEditStatus = isAdminRole(userRole);
 
     const { data: organizations = [] } = useQuery({
         queryKey: ["organizations"],
@@ -35,6 +36,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         role: user.role || "USER",
         position: user.position || "",
         organization_id: user.organization_id || "",
+        status: user.status || UserStatus.ACTIVE,
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 email: formData.email,
                 role: formData.role,
                 position: formData.position,
+                ...(canEditStatus ? { status: formData.status } : {}),
                 ...(isSuperAdmin && formData.organization_id ? { organization_id: formData.organization_id } : {}),
             };
             if (formData.password) {
@@ -155,6 +158,20 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                         <option value="ADMIN">Administrator</option>
                     </SelectField>
                 </div>
+                {canEditStatus && (
+                    <div>
+                        <label htmlFor="status" className="label-md block mb-2">Status</label>
+                        <SelectField
+                            id="status"
+                            name="status"
+                            value={formData.status}
+                            onChange={handleChange}
+                        >
+                            <option value={UserStatus.ACTIVE}>Aktiv</option>
+                            <option value={UserStatus.TERMINATED}>Opsagt</option>
+                        </SelectField>
+                    </div>
+                )}
                 <div>
                     <label htmlFor="position" className="label-md block mb-2">Stilling</label>
                     <SelectField

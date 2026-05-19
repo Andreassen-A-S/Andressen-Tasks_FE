@@ -5,6 +5,7 @@ import DropdownMenu from "@/components/common/DropdownMenu";
 import Pill, { type PillColor } from "@/components/common/label/Pill";
 import { Building2, Ellipsis, SquarePen, Trash2 } from "lucide-react";
 import { MESTERPLAN_ORG_ID } from "@/constants/org";
+import Link from "next/link";
 
 interface OrganizationRowProps {
     organization: Organization;
@@ -63,7 +64,13 @@ export default function OrganizationRow({ organization, onEdit, onDelete }: Orga
                             <Building2 className="w-4 h-4" style={{ color: colors.textMuted }} />
                         )}
                     </div>
-                    <span className="label-lg" style={{ color: colors.textPrimary }}>{organization.name}</span>
+                    <Link
+                        href={`/organizations/${organization.org_id}`}
+                        className="label-lg hover:underline"
+                        style={{ color: colors.textPrimary }}
+                    >
+                        {organization.name}
+                    </Link>
                 </div>
             </td>
             <td className="px-6 py-3 whitespace-nowrap">

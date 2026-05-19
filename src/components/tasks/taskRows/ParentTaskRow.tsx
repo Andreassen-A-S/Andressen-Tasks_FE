@@ -129,7 +129,7 @@ export default function ParentTaskRow({
 
                 <td className="px-6 py-3 align-middle">
                     <TaskAssignedUsers
-                        assignments={taskAssignments[task.task_id] || []}
+                        users={(taskAssignments[task.task_id] || []).map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position }))}
                         loading={!taskAssignments[task.task_id]}
                     />
                 </td>

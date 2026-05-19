@@ -14,7 +14,7 @@ const PUBLIC_PREFIXES = ["/legal"];
 const NO_SIDEBAR_ROUTES = ["/dashboard"];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, isLoading, userRole, contextOrgId } = useAuth();
+    const { isAuthenticated, isLoading, userRole, contextOrgId, user } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const showDelayedLoader = useDelayedVisibility(isLoading || !isAuthenticated, 180);
@@ -40,9 +40,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         }
 
         if (isAuthenticated && isPrivileged && pathname.startsWith("/organizations") && userRole !== UserRole.SUPER_ADMIN) {
-            topProgress.start();
-            router.push("/unauthorized");
-            return;
+            const ownOrgPath = user?.organization_id ? `/organizations/${user.organization_id}` : null;
+            if (pathname !== ownOrgPath) {
+                topProgress.start();
+                router.push("/unauthorized");
+                return;
+            }
         }
 
         const platformOnlyRoutes = ["/tasks", "/projects", "/templates"];
