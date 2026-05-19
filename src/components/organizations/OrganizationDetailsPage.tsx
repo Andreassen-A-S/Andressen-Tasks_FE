@@ -11,7 +11,7 @@ import { getUsers, deleteUser } from "@/lib/api/users";
 import type { User } from "@/types/users";
 import { getProjects } from "@/lib/api/projects";
 import { getTasks } from "@/lib/api/tasks";
-import { OrganizationStatus, SubscriptionStatus, type Organization } from "@/types/organization";
+import { type Organization } from "@/types/organization";
 import { organizationStatusLabels, subscriptionStatusLabels, orgStatusColor } from "./organizationDisplay";
 import { getUserRoleLabel, UserStatus, UserRole } from "@/types/users";
 import { colors } from "@/constants/colors";
