@@ -22,7 +22,7 @@ function revokeObjectUrl(url: string | null) {
 
 export default function OrgSettingsSection({ user }: { user: User }) {
     const { contextOrgId } = useAuth();
-    const orgId = contextOrgId ?? user.organization_id ?? null;
+    const orgId = contextOrgId ?? user.organization_id;
     const { data: org, isLoading } = useQuery({
         queryKey: ["organization", orgId],
         queryFn: () => getOrganization(orgId!),

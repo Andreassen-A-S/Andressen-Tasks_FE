@@ -9,7 +9,7 @@ export function normalizeUser(user: ApiUser): User {
     email: user.email,
     role: user.role,
     position: user.position ?? "",
-    organization_id: user.organization_id ?? null,
+    organization_id: user.organization_id ?? "",
     status: user.status ?? UserStatus.ACTIVE,
     created_at: user.created_at,
     updated_at: user.updated_at,

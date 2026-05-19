@@ -493,11 +493,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                 onClose={() => setConfirmDeleteOpen(false)}
                 onConfirm={handleConfirmDelete}
                 title="Slet organisation"
-                description={
-                    org._count?.users
-                        ? `Denne organisation har ${org._count.users} ${org._count.users === 1 ? "medarbejder" : "medarbejdere"} som mister deres organisationstilknytning. Er du sikker på, at du vil fortsætte?`
-                        : "Er du sikker på, at du vil slette denne organisation? Dette kan ikke fortrydes."
-                }
+                description={`Al data tilknyttet denne organisation — inklusiv ${org._count?.users ?? 0} ${(org._count?.users ?? 0) === 1 ? "medarbejder" : "medarbejdere"} og ${org._count?.projects ?? 0} ${(org._count?.projects ?? 0) === 1 ? "projekt" : "projekter"} — vil blive slettet permanent. Dette kan ikke fortrydes.`}
                 confirmLabel="Slet"
                 cancelLabel="Annuller"
                 danger

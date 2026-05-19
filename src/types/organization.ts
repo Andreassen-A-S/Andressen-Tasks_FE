@@ -22,7 +22,7 @@ export interface Organization {
   current_period_end: string | null;
   created_at: string;
   updated_at: string;
-  _count?: { users: number };
+  _count?: { users: number; projects: number };
 }
 
 export interface CreateOrganizationInput {

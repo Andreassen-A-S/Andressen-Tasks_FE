@@ -35,7 +35,7 @@ export interface User {
   position: string;
   role: UserRole;
   status: UserStatus;
-  organization_id: string | null;
+  organization_id: string;
   created_at?: string;
   updated_at?: string;
 }

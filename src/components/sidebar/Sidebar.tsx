@@ -85,7 +85,7 @@ export default function Sidebar() {
     }
 
     const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
-    const activeOrgId = contextOrgId ?? user?.organization_id ?? null;
+    const activeOrgId = contextOrgId ?? user?.organization_id;
 
     const { data: organizations = [] } = useQuery({
         queryKey: ["organizations"],

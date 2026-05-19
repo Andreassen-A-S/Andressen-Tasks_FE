@@ -30,10 +30,6 @@ export default function OrganizationPage() {
         setShowCreateModal(false);
     }, [queryClient]);
 
-    const handleDeleted = useCallback(() => {
-        queryClient.invalidateQueries({ queryKey: ["organizations"] });
-    }, [queryClient]);
-
     return (
         <div className="min-h-screen">
             <PageHeader
@@ -59,11 +55,7 @@ export default function OrganizationPage() {
                         <p className="body-md" style={{ color: colors.textMuted }}>Kunne ikke hente organisationer. Prøv igen senere.</p>
                     </div>
                 ) : (
-                    <OrganizationTable
-                        organizations={organizations}
-                        onUpdate={() => queryClient.invalidateQueries({ queryKey: ["organizations"] })}
-                        onDelete={handleDeleted}
-                    />
+                    <OrganizationTable organizations={organizations} />
                 )}
             </div>
 
