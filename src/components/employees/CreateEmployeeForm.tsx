@@ -29,7 +29,7 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         enabled: isSuperAdmin,
     });
 
-    const { data: allPositions = [] } = useQuery({
+    const { data: allPositions = [], isLoading: positionsLoading, isError: positionsError } = useQuery({
         queryKey: ["positions"],
         queryFn: getPositions,
     });
@@ -173,8 +173,9 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
                         name="position_id"
                         value={formData.position_id}
                         onChange={handleChange}
+                        disabled={positionsLoading || positionsError}
                     >
-                        <option value="">Vælg stilling...</option>
+                        <option value="">{positionsLoading ? "Indlæser stillinger..." : positionsError ? "Kunne ikke indlæse stillinger" : "Vælg stilling..."}</option>
                         {positions.map(pos => (
                             <option key={pos.position_id} value={pos.position_id}>{pos.name}</option>
                         ))}

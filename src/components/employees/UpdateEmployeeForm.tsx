@@ -22,7 +22,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
     const { userRole } = useAuth();
     const canEditStatus = isAdminRole(userRole);
 
-    const { data: allPositions = [] } = useQuery({
+    const { data: allPositions = [], isLoading: positionsLoading, isError: positionsError } = useQuery({
         queryKey: ["positions"],
         queryFn: getPositions,
     });
@@ -159,8 +159,9 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                         name="position_id"
                         value={formData.position_id}
                         onChange={handleChange}
+                        disabled={positionsLoading || positionsError}
                     >
-                        <option value="">Ingen stilling</option>
+                        <option value="">{positionsLoading ? "Indlæser stillinger..." : positionsError ? "Kunne ikke indlæse stillinger" : "Ingen stilling"}</option>
                         {positions.map(pos => (
                             <option key={pos.position_id} value={pos.position_id}>{pos.name}</option>
                         ))}

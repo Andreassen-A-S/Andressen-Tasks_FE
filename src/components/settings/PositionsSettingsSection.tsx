@@ -23,7 +23,7 @@ export default function PositionsSettingsSection() {
     const [confirmTarget, setConfirmTarget] = useState<Position | null>(null);
     const [deleting, setDeleting] = useState(false);
 
-    const { data: positions = [], isLoading } = useQuery({
+    const { data: positions = [], isLoading, isError } = useQuery({
         queryKey: ["positions"],
         queryFn: getPositions,
     });
@@ -89,6 +89,10 @@ export default function PositionsSettingsSection() {
                                 <div key={i} className="h-6 w-20 rounded-full bg-surface-subtle animate-pulse" />
                             ))}
                         </div>
+                    ) : isError ? (
+                        <p className="body-sm" style={{ color: colors.red }}>
+                            Kunne ikke indlæse stillinger. Prøv at genindlæse siden.
+                        </p>
                     ) : positions.length === 0 ? (
                         <p className="body-sm" style={{ color: colors.textMuted }}>
                             Ingen stillinger oprettet endnu.
