@@ -9,7 +9,10 @@ export enum UserStatus {
   TERMINATED = "TERMINATED",
 }
 
-export const UserPositions = ["Håndmand", "CEO", "Maskinfører", "Revisor"];
+export interface UserPosition {
+  position_id: string;
+  name: string;
+}
 
 export function getUserRoleLabel(role: UserRole): string {
   switch (role) {
@@ -32,7 +35,8 @@ export interface User {
   user_id: string;
   name: string;
   email: string;
-  position: string;
+  position_id: string | null;
+  position: UserPosition | null;
   role: UserRole;
   status: UserStatus;
   organization_id: string;
@@ -43,7 +47,7 @@ export interface User {
 export interface UpdateUserInput {
   name?: string;
   email?: string;
-  position?: string;
+  position_id?: string | null;
   role?: UserRole;
   password?: string;
   status?: UserStatus;
@@ -52,7 +56,7 @@ export interface UpdateUserInput {
 export interface CreateUserInput {
   name: string;
   email: string;
-  position: string;
+  position_id?: string;
   role: UserRole;
   password: string;
   organization_id?: string;

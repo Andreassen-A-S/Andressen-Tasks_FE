@@ -1,4 +1,5 @@
 import { TaskAttachment } from "./attachment";
+import type { UserPosition } from "./users";
 
 export enum TaskEventType {
   TASK_CREATED = "TASK_CREATED",
@@ -45,7 +46,8 @@ export interface TaskEvent {
     user_id: string;
     name?: string | null;
     email: string;
-    position?: string | null;
+    position_id?: string | null;
+    position?: UserPosition | null;
   } | null;
 
   comment?: {

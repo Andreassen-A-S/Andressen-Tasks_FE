@@ -58,7 +58,7 @@ export default function EmployeePage() {
 
     const positionOptions = useMemo(
         () =>
-            [...new Set(employees.map((employee) => employee.position).filter(Boolean))]
+            [...new Set(employees.map((employee) => employee.position?.name).filter(Boolean) as string[])]
                 .sort((a, b) => a.localeCompare(b, "da")),
         [employees]
     );
@@ -66,7 +66,7 @@ export default function EmployeePage() {
     const filteredEmployees = useMemo(() => {
         const filtered = employees.filter((employee) => {
             if (roleFilter !== "all" && employee.role !== roleFilter) return false;
-            if (positionFilter !== "all" && employee.position !== positionFilter) return false;
+            if (positionFilter !== "all" && employee.position?.name !== positionFilter) return false;
             return true;
         });
 
@@ -74,7 +74,7 @@ export default function EmployeePage() {
             let result = 0;
             switch (sortField) {
                 case "position":
-                    result = (a.position || "").localeCompare(b.position || "", "da"); break;
+                    result = (a.position?.name || "").localeCompare(b.position?.name || "", "da"); break;
                 case "role":
                     result = getUserRoleLabel(a.role).localeCompare(getUserRoleLabel(b.role), "da"); break;
                 case "name":

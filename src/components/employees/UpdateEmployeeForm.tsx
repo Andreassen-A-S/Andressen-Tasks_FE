@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { updateUser } from "@/lib/api/users";
-import { UpdateUserInput, User, UserPositions, UserStatus, isAdminRole } from "@/types/users";
+import { getPositions } from "@/lib/api/positions";
+import { UpdateUserInput, User, UserStatus, isAdminRole } from "@/types/users";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
@@ -20,12 +22,20 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
     const { userRole } = useAuth();
     const canEditStatus = isAdminRole(userRole);
 
+    const { data: allPositions = [] } = useQuery({
+        queryKey: ["positions"],
+        queryFn: getPositions,
+    });
+
+    // Always scope to the user's own org — correct for regular admins and superadmins alike.
+    const positions = allPositions.filter(p => p.organization_id === user.organization_id);
+
     const [formData, setFormData] = useState({
         name: user.name || "",
         email: user.email || "",
         password: "",
         role: user.role || "USER",
-        position: user.position || "",
+        position_id: user.position_id || "",
         status: user.status || UserStatus.ACTIVE,
     });
     const [loading, setLoading] = useState(false);
@@ -41,12 +51,11 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         setLoading(true);
         setError(null);
         try {
-            // Only send password if it's filled in
             const updates: UpdateUserInput = {
                 name: formData.name,
                 email: formData.email,
                 role: formData.role,
-                position: formData.position,
+                position_id: formData.position_id || null,
                 ...(canEditStatus ? { status: formData.status } : {}),
             };
             if (formData.password) {
@@ -116,7 +125,6 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                         onChange={handleChange}
                         placeholder="Efterlad tom for at beholde nuværende"
                     />
-
                 </div>
                 <div>
                     <label htmlFor="role" className="label-md block mb-2">Rolle</label>
@@ -145,20 +153,17 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                     </div>
                 )}
                 <div>
-                    <label htmlFor="position" className="label-md block mb-2">Stilling</label>
+                    <label htmlFor="position_id" className="label-md block mb-2">Stilling</label>
                     <SelectField
-                        id="position"
-                        name="position"
-                        value={formData.position}
+                        id="position_id"
+                        name="position_id"
+                        value={formData.position_id}
                         onChange={handleChange}
                     >
-                        <option value="">Vælg stilling...</option>
-                        {UserPositions.map(pos => (
-                            <option key={pos} value={pos}>{pos}</option>
+                        <option value="">Ingen stilling</option>
+                        {positions.map(pos => (
+                            <option key={pos.position_id} value={pos.position_id}>{pos.name}</option>
                         ))}
-                        {formData.position && !UserPositions.includes(formData.position) && (
-                            <option value={formData.position}>{formData.position}</option>
-                        )}
                     </SelectField>
                 </div>
             </div>

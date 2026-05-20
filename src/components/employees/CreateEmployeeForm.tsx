@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createUser } from "@/lib/api/users";
 import { getOrganizations } from "@/lib/api/organizations";
+import { getPositions } from "@/lib/api/positions";
 import { User, UserRole } from "@/types/users";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
 import SelectField from "@/components/common/forms/SelectField";
-import { UserPositions } from "@/types/users";
 
 interface CreateEmployeeFormProps {
     formId: string;
@@ -30,35 +29,35 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         enabled: isSuperAdmin,
     });
 
+    const { data: allPositions = [] } = useQuery({
+        queryKey: ["positions"],
+        queryFn: getPositions,
+    });
+
+    // Superadmin sees all positions — filter to the selected org so only valid positions show.
+    // Regular admins already get their own org's positions from the API.
+    const positions = isSuperAdmin
+        ? allPositions.filter(p => p.organization_id === formData.organization_id)
+        : allPositions;
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
         role: UserRole.USER,
-        position: "",
+        position_id: "",
         organization_id: defaultOrgId,
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Local state for custom positions
-    const [customPositions, setCustomPositions] = useState<string[]>([]);
-    const [showCustomPositionInput, setShowCustomPositionInput] = useState(false);
-    const [newPosition, setNewPosition] = useState("");
-
-    const allPositions = [...UserPositions, ...customPositions];
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleAddCustomPosition = () => {
-        if (newPosition.trim() && !allPositions.includes(newPosition.trim())) {
-            setCustomPositions(prev => [...prev, newPosition.trim()]);
-            setFormData(prev => ({ ...prev, position: newPosition.trim() }));
-            setNewPosition("");
-            setShowCustomPositionInput(false);
-        }
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+            ...(name === "organization_id" ? { position_id: "" } : {}),
+        }));
     };
 
     async function handleSubmit(e: React.FormEvent) {
@@ -67,8 +66,8 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         setError(null);
         try {
             const payload = isSuperAdmin
-                ? formData
-                : { name: formData.name, email: formData.email, password: formData.password, role: formData.role, position: formData.position };
+                ? { ...formData, position_id: formData.position_id || undefined }
+                : { name: formData.name, email: formData.email, password: formData.password, role: formData.role, position_id: formData.position_id || undefined };
             const created = await createUser(payload);
             toast.success("Medarbejder oprettet");
             onSuccess(created);
@@ -168,67 +167,18 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
                     </SelectField>
                 </div>
                 <div className="space-y-2">
-                    <label htmlFor="position" className="label-md block">Stilling</label>
-                    {!showCustomPositionInput ? (
-                        <div className="space-y-2">
-                            <SelectField
-                                id="position"
-                                name="position"
-                                value={formData.position}
-                                onChange={handleChange}
-                            >
-                                <option value="">Vælg stilling...</option>
-                                {allPositions.map(pos => (
-                                    <option key={pos} value={pos}>{pos}</option>
-                                ))}
-                            </SelectField>
-                            <button
-                                type="button"
-                                onClick={() => setShowCustomPositionInput(true)}
-                                className="link"
-                            >
-                                + Tilføj ny stilling
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            <div className="flex gap-2">
-                                <TextInput
-                                    type="text"
-                                    value={newPosition}
-                                    onChange={(e) => setNewPosition(e.target.value)}
-                                    onKeyPress={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            handleAddCustomPosition();
-                                        }
-                                    }}
-                                    placeholder="Indtast ny stilling..."
-                                    className="flex-1"
-                                    autoFocus
-                                />
-                                <Button
-                                    type="button"
-                                    onClick={handleAddCustomPosition}
-                                    variant="primary"
-                                    size="md"
-                                >
-                                    Tilføj
-                                </Button>
-                                <Button
-                                    type="button"
-                                    onClick={() => {
-                                        setShowCustomPositionInput(false);
-                                        setNewPosition("");
-                                    }}
-                                    variant="secondary"
-                                    size="md"
-                                >
-                                    Annuller
-                                </Button>
-                            </div>
-                        </div>
-                    )}
+                    <label htmlFor="position_id" className="label-md block">Stilling</label>
+                    <SelectField
+                        id="position_id"
+                        name="position_id"
+                        value={formData.position_id}
+                        onChange={handleChange}
+                    >
+                        <option value="">Vælg stilling...</option>
+                        {positions.map(pos => (
+                            <option key={pos.position_id} value={pos.position_id}>{pos.name}</option>
+                        ))}
+                    </SelectField>
                 </div>
             </div>
         </form>
