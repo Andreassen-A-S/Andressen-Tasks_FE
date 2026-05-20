@@ -34,12 +34,6 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         queryFn: getPositions,
     });
 
-    // Superadmin sees all positions — filter to the selected org so only valid positions show.
-    // Regular admins already get their own org's positions from the API.
-    const positions = isSuperAdmin
-        ? allPositions.filter(p => p.organization_id === formData.organization_id)
-        : allPositions;
-
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -48,6 +42,12 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         position_id: "",
         organization_id: defaultOrgId,
     });
+
+    // Superadmin sees all positions — filter to the selected org so only valid positions show.
+    // Regular admins already get their own org's positions from the API.
+    const positions = isSuperAdmin
+        ? allPositions.filter(p => p.organization_id === formData.organization_id)
+        : allPositions;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
