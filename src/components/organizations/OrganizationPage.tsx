@@ -49,7 +49,7 @@ export default function OrganizationPage() {
 
             <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
                 {isPending ? (
-                    <TableSkeleton columns={4} rows={5} />
+                    <TableSkeleton columns={5} rows={5} />
                 ) : isError ? (
                     <div className="rounded-md border px-6 py-12 text-center" style={{ borderColor: colors.border }}>
                         <p className="body-md" style={{ color: colors.textMuted }}>Kunne ikke hente organisationer. Prøv igen senere.</p>
