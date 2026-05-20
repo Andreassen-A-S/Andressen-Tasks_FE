@@ -9,6 +9,7 @@ export interface Project {
   description?: string | null;
   color?: string | null;
   created_by: string;
+  organization_id: string;
   created_at: string;
   updated_at: string;
 }

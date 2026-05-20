@@ -1,18 +1,23 @@
 "use client";
 
-import type { TaskAssignment } from "@/types/assignment";
 import { getInitials, getAvatarColor, formatNumber } from "@/helpers/helpers";
 import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 
+export interface AvatarUser {
+    id: string;
+    name: string;
+    position?: string;
+}
+
 interface TaskAssignedUsersProps {
-    assignments: TaskAssignment[];
+    users: AvatarUser[];
     loading?: boolean;
     className?: string;
     size?: "sm" | "md";
 }
 
 export default function TaskAssignedUsers({
-    assignments,
+    users,
     loading = false,
     className = "",
     size = "md",
@@ -44,24 +49,24 @@ export default function TaskAssignedUsers({
         );
     }
 
-    if (assignments.length === 0) {
+    if (users.length === 0) {
         return <span className={`body-xs text-text-muted ${className}`}>Ikke tildelt</span>;
     }
 
     const maxVisible = 3;
-    const visible = assignments.slice(0, maxVisible);
-    const remaining = assignments.length - maxVisible;
+    const visible = users.slice(0, maxVisible);
+    const remaining = users.length - maxVisible;
 
     const trigger = (
         <div className={`flex items-center cursor-pointer ${className}`}>
             <div className={`flex ${currentSize.stack}`}>
-                {visible.map((a, i) => (
+                {visible.map((u, i) => (
                     <div
-                        key={a.assignment_id}
-                        className={`${currentSize.avatar} flex items-center justify-center relative ${getAvatarColor(a.user.name)}`}
+                        key={u.id}
+                        className={`${currentSize.avatar} flex items-center justify-center relative ${getAvatarColor(u.name)}`}
                         style={{ zIndex: visible.length - i }}
                     >
-                        {getInitials(a.user.name)}
+                        {getInitials(u.name)}
                     </div>
                 ))}
                 {remaining > 0 && (
@@ -77,14 +82,14 @@ export default function TaskAssignedUsers({
         <FloatingTooltip
             content={
                 <div className="space-y-1">
-                    {assignments.map((a) => (
-                        <div key={a.assignment_id} className="flex items-center gap-2">
-                            <div className={`${currentSize.tooltipAvatar} flex items-center justify-center ${getAvatarColor(a.user.name)}`}>
-                                {getInitials(a.user.name)}
+                    {users.map((u) => (
+                        <div key={u.id} className="flex items-center gap-2">
+                            <div className={`${currentSize.tooltipAvatar} flex items-center justify-center ${getAvatarColor(u.name)}`}>
+                                {getInitials(u.name)}
                             </div>
                             <div>
-                                <div className="h5">{a.user.name}</div>
-                                <div className="body-xs text-text-secondary">{a.user.position}</div>
+                                <div className="h5">{u.name}</div>
+                                <div className="body-xs text-text-secondary">{u.position}</div>
                             </div>
                         </div>
                     ))}

@@ -85,7 +85,7 @@ export default function Sidebar() {
     }
 
     const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
-    const activeOrgId = contextOrgId ?? user?.organization_id ?? null;
+    const activeOrgId = contextOrgId ?? user?.organization_id;
 
     const { data: organizations = [] } = useQuery({
         queryKey: ["organizations"],
@@ -111,6 +111,7 @@ export default function Sidebar() {
         { href: "/projects", label: "Projekter", icon: <ProjectIcon className="w-3.5 h-3.5" /> },
         { href: "/templates", label: "Gentagende opgaver", icon: <Repeat className="w-4 h-4" /> },
         { href: "/employees", label: "Medarbejdere", icon: <Users className="w-4 h-4" /> },
+        { href: `/organizations/${activeOrgId}`, label: "Organisation", icon: <Building2 className="w-4 h-4" /> },
         { href: "/statistics", label: "Statistik", icon: <BarChart2 className="w-4 h-4" /> },
         { href: "/settings", label: "Indstillinger", icon: <Settings className="w-4 h-4" /> },
     ];
