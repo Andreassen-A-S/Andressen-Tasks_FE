@@ -165,7 +165,7 @@ export default function PositionsSettingsSection() {
                 title="Slet stilling"
                 description={
                     <>
-                        Er du sikker på, at du vil slette stillingen <strong>"{confirmTarget?.name}"</strong>?
+                        Er du sikker på, at du vil slette stillingen <strong>{'"'}{confirmTarget?.name}{'"'}</strong>?
                         Medarbejdere med denne stilling mister deres tilknytning.
                     </>
                 }
