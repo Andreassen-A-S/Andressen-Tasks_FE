@@ -21,12 +21,13 @@ interface CreateEmployeeFormProps {
 export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange }: CreateEmployeeFormProps) {
     const { contextOrgId, userRole, user } = useAuth();
     const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
+    const canChooseOrg = isSuperAdmin && !contextOrgId;
     const defaultOrgId = contextOrgId ?? user?.organization_id ?? "";
 
     const { data: organizations = [] } = useQuery({
         queryKey: ["organizations"],
         queryFn: getOrganizations,
-        enabled: isSuperAdmin,
+        enabled: canChooseOrg,
     });
 
     const { data: allPositions = [], isLoading: positionsLoading, isError: positionsError } = useQuery({
@@ -43,9 +44,9 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         organization_id: defaultOrgId,
     });
 
-    // Superadmin sees all positions — filter to the selected org so only valid positions show.
-    // Regular admins already get their own org's positions from the API.
-    const positions = isSuperAdmin
+    // Platform super-admins see all positions — filter to the selected org.
+    // Org-context super-admins and regular admins get their org's positions from the API.
+    const positions = canChooseOrg
         ? allPositions.filter(p => p.organization_id === formData.organization_id)
         : allPositions;
     const [loading, setLoading] = useState(false);
@@ -65,7 +66,7 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
         setLoading(true);
         setError(null);
         try {
-            const payload = isSuperAdmin
+            const payload = canChooseOrg
                 ? { ...formData, position_id: formData.position_id || undefined }
                 : { name: formData.name, email: formData.email, password: formData.password, role: formData.role, position_id: formData.position_id || undefined };
             const created = await createUser(payload);
@@ -137,7 +138,7 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
                         onChange={handleChange}
                     />
                 </div>
-                {isSuperAdmin && (
+                {canChooseOrg && (
                     <div className="space-y-2">
                         <label htmlFor="organization_id" className="label-md block">Organisation</label>
                         <SelectField
