@@ -165,6 +165,9 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                         {positions.map(pos => (
                             <option key={pos.position_id} value={pos.position_id}>{pos.name}</option>
                         ))}
+                        {user.position && !positions.some(p => p.position_id === user.position!.position_id) && (
+                            <option value={user.position.position_id}>{user.position.name}</option>
+                        )}
                     </SelectField>
                 </div>
             </div>
