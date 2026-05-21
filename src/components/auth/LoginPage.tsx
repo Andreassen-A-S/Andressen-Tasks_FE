@@ -41,7 +41,7 @@ export default function LoginPage() {
                         alt="MesterPlan"
                         width={180}
                         height={56}
-                        className="rounded-lg mb-4"
+                        className="mb-4"
                     />
                     <h1 className="h2" style={{ color: colors.textPrimary }}>MesterPlan</h1>
                     <p className="body-sm mt-1">Log ind for at fortsætte</p>
