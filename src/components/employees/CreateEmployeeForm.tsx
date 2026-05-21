@@ -30,7 +30,7 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
     });
 
     const { data: allPositions = [], isLoading: positionsLoading, isError: positionsError } = useQuery({
-        queryKey: ["positions"],
+        queryKey: ["positions", contextOrgId ?? "platform"],
         queryFn: getPositions,
     });
 

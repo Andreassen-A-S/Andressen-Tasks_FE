@@ -6,6 +6,7 @@ import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { getPositions, createPosition, deletePosition } from "@/lib/api/positions";
 import type { Position } from "@/types/position";
+import { useAuth } from "@/hooks/useAuth";
 import { colors } from "@/constants/colors";
 import SettingsSection from "./SettingsSection";
 import TextInput from "@/components/common/forms/TextInput";
@@ -15,6 +16,7 @@ import ConfirmModal from "@/components/common/ConfirmModal";
 
 export default function PositionsSettingsSection() {
     const queryClient = useQueryClient();
+    const { contextOrgId } = useAuth();
 
     const [createOpen, setCreateOpen] = useState(false);
     const [newName, setNewName] = useState("");
@@ -24,7 +26,7 @@ export default function PositionsSettingsSection() {
     const [deleting, setDeleting] = useState(false);
 
     const { data: positions = [], isLoading, isError } = useQuery({
-        queryKey: ["positions"],
+        queryKey: ["positions", contextOrgId ?? "platform"],
         queryFn: getPositions,
     });
 
@@ -39,7 +41,7 @@ export default function PositionsSettingsSection() {
         setAdding(true);
         try {
             await createPosition(trimmed);
-            queryClient.invalidateQueries({ queryKey: ["positions"] });
+            queryClient.invalidateQueries({ queryKey: ["positions", contextOrgId ?? "platform"] });
             toast.success(`Stilling "${trimmed}" oprettet`);
             setCreateOpen(false);
         } catch (err) {
@@ -54,7 +56,7 @@ export default function PositionsSettingsSection() {
         setDeleting(true);
         try {
             await deletePosition(confirmTarget.position_id);
-            queryClient.invalidateQueries({ queryKey: ["positions"] });
+            queryClient.invalidateQueries({ queryKey: ["positions", contextOrgId ?? "platform"] });
             toast.success(`Stilling "${confirmTarget.name}" slettet`);
             setConfirmTarget(null);
         } catch (err) {

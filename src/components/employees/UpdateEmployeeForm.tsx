@@ -19,11 +19,11 @@ interface UpdateEmployeeFormProps {
 }
 
 export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingChange }: UpdateEmployeeFormProps) {
-    const { userRole } = useAuth();
+    const { userRole, contextOrgId } = useAuth();
     const canEditStatus = isAdminRole(userRole);
 
     const { data: allPositions = [], isLoading: positionsLoading, isError: positionsError } = useQuery({
-        queryKey: ["positions"],
+        queryKey: ["positions", contextOrgId ?? "platform"],
         queryFn: getPositions,
     });
 
