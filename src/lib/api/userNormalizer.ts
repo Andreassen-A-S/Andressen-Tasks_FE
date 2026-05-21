@@ -1,4 +1,4 @@
-import { UserStatus, type User, type UserPosition } from "@/types/users";
+import { UserStatus, type User, type PositionSummary } from "@/types/users";
 
 type ApiUser = {
   user_id: string;
@@ -7,7 +7,7 @@ type ApiUser = {
   name: string;
   organization_id: string;
   position_id?: string | null;
-  position?: UserPosition | null;
+  position?: PositionSummary | null;
   status?: User["status"];
   created_at?: string;
   updated_at?: string;

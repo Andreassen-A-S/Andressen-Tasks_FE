@@ -1,3 +1,7 @@
+import type { PositionSummary } from "./position";
+
+export type { PositionSummary };
+
 export enum UserRole {
   USER = "USER",
   ADMIN = "ADMIN",
@@ -7,11 +11,6 @@ export enum UserRole {
 export enum UserStatus {
   ACTIVE = "ACTIVE",
   TERMINATED = "TERMINATED",
-}
-
-export interface UserPosition {
-  position_id: string;
-  name: string;
 }
 
 export function getUserRoleLabel(role: UserRole): string {
@@ -36,7 +35,7 @@ export interface User {
   name: string;
   email: string;
   position_id: string | null;
-  position: UserPosition | null;
+  position: PositionSummary | null;
   role: UserRole;
   status: UserStatus;
   organization_id: string;

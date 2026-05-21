@@ -1,7 +1,9 @@
 export interface Position {
-    position_id: string;
-    name: string;
-    organization_id: string;
-    created_at: string;
-    updated_at: string;
+  position_id: string;
+  name: string;
+  organization_id: string;
+  created_at: string;
+  updated_at: string;
 }
+
+export type PositionSummary = Pick<Position, "position_id" | "name">;

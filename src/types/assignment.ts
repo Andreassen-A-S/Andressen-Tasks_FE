@@ -1,5 +1,5 @@
 import { Task } from "./task";
-import type { UserPosition } from "./users";
+import type { PositionSummary } from "./position";
 
 export interface TaskAssignment {
   assignment_id: string;
@@ -12,7 +12,7 @@ export interface TaskAssignment {
     name: string;
     email: string;
     position_id: string | null;
-    position: UserPosition | null;
+    position: PositionSummary | null;
   };
   task: Task;
 }
