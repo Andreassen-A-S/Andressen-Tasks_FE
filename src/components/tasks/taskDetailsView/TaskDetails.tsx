@@ -408,7 +408,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                                                     <SingleAvatar name={a.user.name} size="sm" />
                                                     <div>
                                                         <span className="label-md block">{a.user.name}</span>
-                                                        {a.user.position && <span className="body-xs block">{a.user.position}</span>}
+                                                        {a.user.position?.name && <span className="body-xs block">{a.user.position.name}</span>}
                                                     </div>
                                                 </li>
                                             ))}
@@ -585,7 +585,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                 triggerEl={openPicker?.key === "assignee" ? openPicker.triggerEl : null}
                 onClose={closePicker}
                 title="Tildel medarbejdere"
-                options={allUsers.map((u) => ({ value: u.user_id, label: u.name, subtitle: u.position }))}
+                options={allUsers.map((u) => ({ value: u.user_id, label: u.name, subtitle: u.position?.name }))}
                 selectedValues={assignments.map((a) => a.user.user_id)}
                 onSelect={handleAssigneesSelect}
                 searchable

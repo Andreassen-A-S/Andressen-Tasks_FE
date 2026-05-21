@@ -4,10 +4,9 @@ import { getUserRoleLabel, isAdminRole, type User, UserRole } from "@/types/user
 import { colors } from "@/constants/colors";
 import SettingsSection from "./SettingsSection";
 import SettingsRow from "./SettingsRow";
-import Pill from "@/components/common/label/Pill";
-import { UserPositions } from "@/types/users";
 import { useTheme, type Theme } from "@/hooks/useTheme";
 import OrgSettingsSection from "./OrgSettingsSection";
+import PositionsSettingsSection from "./PositionsSettingsSection";
 import { useAuth } from "@/hooks/useAuth";
 
 const THEMES: { value: Theme; label: string; description: string }[] = [
@@ -22,6 +21,7 @@ export default function ApplicationSettingsPanel({ user }: { user: User }) {
 
     const isAdmin = isAdminRole(user.role);
     const hasOrg = !!(user.organization_id || contextOrgId);
+    const isSuperAdminPlatformContext = user.role === UserRole.SUPER_ADMIN && !contextOrgId;
 
     return (
         <div className="space-y-2">
@@ -54,25 +54,11 @@ export default function ApplicationSettingsPanel({ user }: { user: User }) {
                     value={getUserRoleLabel(UserRole.USER)}
                     description="Nye medarbejdere starter som brugere, medmindre en administrator vælger andet."
                 />
-                <div className="rounded-lg border bg-surface px-4 py-3" style={{ borderColor: colors.border }}>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                            <p className="label-lg" style={{ color: colors.textPrimary }}>
-                                Stillinger
-                            </p>
-                            <p className="body-sm mt-1" style={{ color: colors.textSecondary }}>
-                                Listen bruges i medarbejderformularen, men er stadig hardcoded.
-                            </p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {UserPositions.map((position) => (
-                                    <Pill key={position} color="green">{position}</Pill>
-                                ))}
-                            </div>
-                        </div>
-                        <Pill color="yellow">Bør flyttes til backend</Pill>
-                    </div>
-                </div>
             </SettingsSection>
+
+            {isAdmin && hasOrg && !isSuperAdminPlatformContext && (
+                <PositionsSettingsSection />
+            )}
 
             <SettingsSection
                 title="Udseende"

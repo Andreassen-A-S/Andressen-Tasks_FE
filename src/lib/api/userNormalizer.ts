@@ -1,6 +1,17 @@
-import { UserStatus, type User } from "@/types/users";
+import { UserStatus, type User, type PositionSummary } from "@/types/users";
 
-type ApiUser = Partial<User> & Pick<User, "user_id" | "email" | "role" | "name" | "organization_id">;
+type ApiUser = {
+  user_id: string;
+  email: string;
+  role: User["role"];
+  name: string;
+  organization_id: string;
+  position_id?: string | null;
+  position?: PositionSummary | null;
+  status?: User["status"];
+  created_at?: string;
+  updated_at?: string;
+};
 
 export function normalizeUser(user: ApiUser): User {
   return {
@@ -8,7 +19,8 @@ export function normalizeUser(user: ApiUser): User {
     name: user.name,
     email: user.email,
     role: user.role,
-    position: user.position ?? "",
+    position_id: user.position_id ?? null,
+    position: user.position ?? null,
     organization_id: user.organization_id,
     status: user.status ?? UserStatus.ACTIVE,
     created_at: user.created_at,

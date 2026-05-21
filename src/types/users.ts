@@ -1,3 +1,7 @@
+import type { PositionSummary } from "./position";
+
+export type { PositionSummary };
+
 export enum UserRole {
   USER = "USER",
   ADMIN = "ADMIN",
@@ -8,8 +12,6 @@ export enum UserStatus {
   ACTIVE = "ACTIVE",
   TERMINATED = "TERMINATED",
 }
-
-export const UserPositions = ["Håndmand", "CEO", "Maskinfører", "Revisor"];
 
 export function getUserRoleLabel(role: UserRole): string {
   switch (role) {
@@ -32,7 +34,8 @@ export interface User {
   user_id: string;
   name: string;
   email: string;
-  position: string;
+  position_id: string | null;
+  position: PositionSummary | null;
   role: UserRole;
   status: UserStatus;
   organization_id: string;
@@ -43,7 +46,7 @@ export interface User {
 export interface UpdateUserInput {
   name?: string;
   email?: string;
-  position?: string;
+  position_id?: string | null;
   role?: UserRole;
   password?: string;
   status?: UserStatus;
@@ -52,7 +55,7 @@ export interface UpdateUserInput {
 export interface CreateUserInput {
   name: string;
   email: string;
-  position: string;
+  position_id?: string;
   role: UserRole;
   password: string;
   organization_id?: string;

@@ -99,7 +99,7 @@ export default function SubTaskRow({
 
             <td className="px-6 py-3 align-middle">
                 <TaskAssignedUsers
-                    users={(taskAssignments[subtask.task_id] || []).map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position }))}
+                    users={(taskAssignments[subtask.task_id] || []).map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position?.name }))}
                     loading={!taskAssignments[subtask.task_id]}
                 />
             </td>

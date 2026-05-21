@@ -29,7 +29,7 @@ export default function EmployeeRow({ employee, onEdit, onDelete }: EmployeeRowP
                 </div>
             </td>
             <td className="px-6 py-3 whitespace-nowrap">
-                <span className="label-md" style={{ color: colors.textPrimary }}>{employee.position || "Ikke angivet"}</span>
+                <span className="label-md" style={{ color: colors.textPrimary }}>{employee.position?.name || "Ikke angivet"}</span>
             </td>
             <td className="px-6 py-3 whitespace-nowrap">
                 <span className="label-md" style={{ color: colors.textPrimary }}>{employee.email}</span>

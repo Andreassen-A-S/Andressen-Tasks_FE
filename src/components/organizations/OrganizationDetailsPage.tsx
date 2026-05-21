@@ -259,7 +259,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-3 whitespace-nowrap">
-                                            <span className="label-md" style={{ color: colors.textPrimary }}>{member.position || "Ikke angivet"}</span>
+                                            <span className="label-md" style={{ color: colors.textPrimary }}>{member.position?.name || "Ikke angivet"}</span>
                                         </td>
                                         <td className="px-6 py-3 whitespace-nowrap">
                                             <span className="label-md" style={{ color: colors.textSecondary }}>{getUserRoleLabel(member.role)}</span>
@@ -332,7 +332,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
 
                     <DetailsSectionHeader label="Medarbejdere" onGearClick={() => { }} disabled>
                         <TaskAssignedUsers
-                            users={members.map((m) => ({ id: m.user_id, name: m.name, position: m.position }))}
+                            users={members.map((m) => ({ id: m.user_id, name: m.name, position: m.position?.name }))}
                         />
                     </DetailsSectionHeader>
 

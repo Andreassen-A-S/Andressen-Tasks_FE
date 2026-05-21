@@ -66,7 +66,7 @@ export default function UserSelector({
                                     onChange={() => handleUserSelection(user.user_id)}
                                     className="rounded border-border text-link focus:ring-2 focus:ring-accent-mid/30 focus:border-accent-mid"
                                 />
-                                <span className="body-sm">{user.name} <span className="caption">({user.position})</span></span>
+                                <span className="body-sm">{user.name}{user.position?.name && <span className="caption"> ({user.position.name})</span>}</span>
                             </label>
                         ))
                     )}
