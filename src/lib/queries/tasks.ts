@@ -1,4 +1,4 @@
-import { getProjects, getTask, getTaskAssignments, getUser, getUsers } from "@/lib/api";
+import { getProjects, getTask, getTaskAssignments, getUsers } from "@/lib/api";
 import type { Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
 import type { User } from "@/types/users";
@@ -13,7 +13,6 @@ export interface TaskDetailsData {
     assignments: TaskAssignment[];
     allUsers: User[];
     projects: Project[];
-    creator: User | null;
 }
 
 export async function fetchTaskDetailsData(taskId: string): Promise<TaskDetailsData> {
@@ -24,15 +23,5 @@ export async function fetchTaskDetailsData(taskId: string): Promise<TaskDetailsD
         getProjects(),
     ]);
 
-    const creator = task.created_by
-        ? (allUsers.find((u) => u.user_id === task.created_by) ?? await getUser(task.created_by))
-        : null;
-
-    return {
-        task,
-        assignments,
-        allUsers,
-        projects,
-        creator,
-    };
+    return { task, assignments, allUsers, projects };
 }

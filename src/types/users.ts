@@ -39,6 +39,7 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   organization_id: string;
+  organization?: { name: string } | null;
   created_at?: string;
   updated_at?: string;
 }

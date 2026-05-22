@@ -153,7 +153,7 @@ function eventLabel(e: TaskEvent) {
     }
 }
 
-export default function TaskTimeline({ taskId, creatorId, isArchived = false }: { taskId: string; creatorId?: string; isArchived?: boolean }) {
+export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isArchived = false }: { taskId: string; creatorId?: string; assigneeIds?: string[]; isArchived?: boolean }) {
     const auth = useContext(AuthContext);
     const currentUser = auth?.user;
 
@@ -248,6 +248,7 @@ export default function TaskTimeline({ taskId, creatorId, isArchived = false }: 
                                     currentUserId={currentUser?.user_id}
                                     isAdmin={isAdminRole(currentUser?.role)}
                                     isTaskOwner={!!creatorId && e.actor_id === creatorId}
+                                    isAssignee={assigneeIds.includes(e.actor_id ?? "")}
                                     isArchived={isArchived}
                                     editedBy={commentId ? editedByMap.get(commentId) : undefined}
                                     onDelete={handleDeleteComment}

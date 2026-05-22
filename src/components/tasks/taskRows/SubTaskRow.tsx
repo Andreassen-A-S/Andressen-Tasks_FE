@@ -1,8 +1,14 @@
 import Badge from "@/components/common/label/Badge";
 import TaskAssignedUsers from "@/components/common/label/TaskAssignedUsers";
-import { formatRelativeDate } from "@/helpers/helpers";
-import type { Task } from "@/types/task";
+import { formatCommentDate, formatRelativeDate, translateTaskUnit, formatNumber } from "@/helpers/helpers";
+import { colors } from "@/constants/colors";
+import { TaskGoalType, type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
+import { Target, Repeat } from "lucide-react";
+
+function Dot() {
+    return <span aria-hidden="true" style={{ color: colors.textMuted }}>•</span>;
+}
 
 const lineX = 19;
 const dotX = 50;
@@ -26,6 +32,18 @@ export default function SubTaskRow({
     taskAssignments,
     onTaskClick,
 }: SubTaskRowProps) {
+    const isRecurring = !!subtask.recurring_template_id;
+
+    const hasQuantityProgress =
+        (subtask.current_quantity != null || subtask.target_quantity != null) &&
+        subtask.goal_type === TaskGoalType.FIXED;
+
+    const progressUnit = translateTaskUnit(subtask.unit);
+    const quantitySummary = subtask.target_quantity != null
+        ? `${formatNumber(subtask.current_quantity ?? 0)}/${formatNumber(subtask.target_quantity)}${progressUnit ? ` ${progressUnit}` : ""}`
+        : null;
+    const updatedLabel = formatCommentDate(subtask.updated_at);
+
     return (
         <tr className="bg-surface-hover hover:bg-surface-subtle transition-colors">
             {/* Tree lines column */}
@@ -85,6 +103,29 @@ export default function SubTaskRow({
                         >
                             {subtask.title}
                         </button>
+                        <div className="flex items-center gap-2 body-xs flex-wrap mt-0.5" style={{ color: colors.textMuted }}>
+                            {subtask.number > 0 && (
+                                <>
+                                    <span>{subtask.project?.name ? `${subtask.project.name} #${subtask.number}` : `#${subtask.number}`}</span>
+                                    <Dot />
+                                </>
+                            )}
+                            {isRecurring && (
+                                <span className="flex items-center gap-1">
+                                    <Repeat className="w-3 h-3" />
+                                    Gentages
+                                </span>
+                            )}
+                            {isRecurring && hasQuantityProgress && <Dot />}
+                            {hasQuantityProgress && quantitySummary && (
+                                <span className="flex items-center gap-1">
+                                    <Target className="w-3 h-3" />
+                                    {quantitySummary}
+                                </span>
+                            )}
+                            {(isRecurring || hasQuantityProgress) && <Dot />}
+                            <span>Opdateret {updatedLabel}</span>
+                        </div>
                     </div>
                 </div>
             </td>

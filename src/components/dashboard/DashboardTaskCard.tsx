@@ -21,6 +21,7 @@ export default function DashboardTaskCard({ task, project, assignments }: Dashbo
         >
             <div className="flex items-start justify-between gap-3">
                 <p className="label-lg leading-snug min-w-0" style={{ color: colors.textPrimary }}>
+                    {task.number > 0 && <span className="body-xs font-normal mr-1" style={{ color: colors.textMuted }}>#{task.number}</span>}
                     {task.title}
                 </p>
                 <Badge variant="priority" value={task.priority} size="sm" />

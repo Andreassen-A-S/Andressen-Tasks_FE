@@ -1,4 +1,5 @@
 import type { ProjectSummary } from "@/types/project";
+import type { UserRole } from "@/types/users";
 
 export enum TaskPriority {
   LOW = "LOW",
@@ -35,9 +36,11 @@ export enum TaskGoalType {
 
 export interface Task {
   task_id: string;
+  number: number;
   project_id: string;
   project?: ProjectSummary;
   created_by: string;
+  creator?: { name: string | null; role: UserRole } | null;
   title: string;
   description: string;
   priority: TaskPriority;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import SingleAvatar from "../../common/label/SingleAvatar";
-import type { User } from "@/types/users";
+import UserCard from "@/components/common/UserCard";
+import { UserRole } from "@/types/users";
 import { formatRelativeDate } from "@/helpers/helpers";
 import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
@@ -8,7 +9,8 @@ import DropdownMenu from "@/components/common/DropdownMenu";
 import { Ellipsis, Pencil } from "lucide-react";
 
 interface TaskDescriptionCardProps {
-    creator: User | null;
+    creator: { name: string | null; role: UserRole } | null;
+    creatorId?: string;
     createdAt: string;
     description: string | null;
     showSubtaskButton?: boolean;
@@ -19,6 +21,7 @@ interface TaskDescriptionCardProps {
 
 export default function TaskDescriptionCard({
     creator,
+    creatorId,
     createdAt,
     description,
     showSubtaskButton = false,
@@ -26,7 +29,7 @@ export default function TaskDescriptionCard({
     isArchived = false,
     onSaveDescription,
 }: TaskDescriptionCardProps) {
-    const creatorName = creator?.name || creator?.email || "Ukendt";
+    const creatorName = creator?.name ?? "Ukendt";
     const [isEditing, setIsEditing] = useState(false);
     const [draftDescription, setDraftDescription] = useState(description ?? "");
     const [isSaving, setIsSaving] = useState(false);
@@ -55,7 +58,10 @@ export default function TaskDescriptionCard({
 
     return (
         <div className="mb-6 z-10 relative flex items-start gap-3">
-            <SingleAvatar name={creatorName} size="sm" />
+            {creatorId
+                ? <UserCard userId={creatorId} name={creatorName} actor={creator ? { role: creator.role } : null}><SingleAvatar name={creatorName} size="sm" /></UserCard>
+                : <SingleAvatar name={creatorName} size="sm" />
+            }
 
             <div className="w-full overflow-hidden rounded-lg border bg-surface" style={{ borderColor: colors.border }}>
                 {/* Card Header */}

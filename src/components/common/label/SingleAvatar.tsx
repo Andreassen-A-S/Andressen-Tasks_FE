@@ -1,17 +1,20 @@
 "use client";
 
 import { getInitials, getAvatarColor } from "@/helpers/helpers";
+import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 
 interface SingleAvatarProps {
     name: string;
     size?: "xxs" | "xs" | "sm" | "md" | "lg";
     className?: string;
+    tooltip?: string;
 }
 
 export default function SingleAvatar({
     name,
     size = "md",
-    className = ""
+    className = "",
+    tooltip,
 }: SingleAvatarProps) {
     const sizeClasses = {
         xxs: "w-4 h-4 initials-xs rounded",
@@ -21,7 +24,7 @@ export default function SingleAvatar({
         lg: "w-[34px] h-[34px] initials-lg rounded-lg",
     };
 
-    return (
+    const avatar = (
         <div
             className={`
                 ${sizeClasses[size]}
@@ -32,5 +35,13 @@ export default function SingleAvatar({
         >
             {getInitials(name)}
         </div>
+    );
+
+    if (!tooltip) return avatar;
+
+    return (
+        <FloatingTooltip content={tooltip} placement="top" variant="bare">
+            {avatar}
+        </FloatingTooltip>
     );
 }
