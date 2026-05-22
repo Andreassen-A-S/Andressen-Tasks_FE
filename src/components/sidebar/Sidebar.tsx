@@ -58,6 +58,14 @@ export default function Sidebar() {
     const topProgress = useTopProgress();
     const [showAddAccount, setShowAddAccount] = useState(false);
     const [switchingOrg, setSwitchingOrg] = useState<string | null>(null);
+
+    function switchOrg(orgId: string | null, label: string) {
+        setSwitchingOrg(label);
+        setContextOrg(orgId);
+        queryClient.clear();
+        router.push("/");
+    }
+
     const handleLogout = () => {
         logout();
         topProgress.start();
@@ -181,8 +189,6 @@ export default function Sidebar() {
                                         {activeOrg ? activeOrg.name : "MesterPlan"}
                                     </span>
                                     <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: colors.navInactive }} />
-
-
                                 </Button>
                             }
                             items={[
@@ -192,14 +198,14 @@ export default function Sidebar() {
                                     icon: <OrgAvatar name="MesterPlan" logoUrl={organizations.find(o => o.org_id === MESTERPLAN_ORG_ID)?.logo_url ?? "/logo.png"} />,
                                     badge: <StaffBadge />,
                                     checked: !contextOrgId,
-                                    onClick: contextOrgId ? () => { setSwitchingOrg("Platform"); setContextOrg(null); queryClient.clear(); router.push("/"); } : undefined,
+                                    onClick: contextOrgId ? () => switchOrg(null, "Platform") : undefined,
                                 },
                                 ...organizations.filter(o => o.org_id !== MESTERPLAN_ORG_ID).map(org => ({
                                     id: org.org_id,
                                     label: org.name,
                                     icon: <OrgAvatar name={org.name} logoUrl={org.logo_url} />,
                                     checked: contextOrgId === org.org_id,
-                                    onClick: contextOrgId === org.org_id ? undefined : () => { setSwitchingOrg(org.name); setContextOrg(org.org_id); queryClient.clear(); router.push("/"); },
+                                    onClick: contextOrgId === org.org_id ? undefined : () => switchOrg(org.org_id, org.name),
                                 })),
                             ]}
                             width={240}
