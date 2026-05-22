@@ -51,7 +51,7 @@ export default function UserCard({ userId, name, actor, children }: UserCardProp
     const hover = useHover(context, { move: false, handleClose: safePolygon() });
     const focus = useFocus(context);
     const dismiss = useDismiss(context);
-    const role = useRole(context, { role: "tooltip" });
+    const role = useRole(context, { role: "dialog" });
     const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss, role]);
     const { setReference, setFloating } = refs;
 

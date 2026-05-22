@@ -106,7 +106,7 @@ export default function SubTaskRow({
                         <div className="flex items-center gap-2 body-xs flex-wrap mt-0.5" style={{ color: colors.textMuted }}>
                             {subtask.number > 0 && (
                                 <>
-                                    <span>{subtask.project?.name} #{subtask.number}</span>
+                                    <span>{subtask.project?.name ? `${subtask.project.name} #${subtask.number}` : `#${subtask.number}`}</span>
                                     <Dot />
                                 </>
                             )}

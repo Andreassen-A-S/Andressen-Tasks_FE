@@ -91,7 +91,7 @@ export default function ParentTaskRow({
                         <div className={`flex items-center gap-2 body-xs flex-wrap ${isRecurring ? "mt-1" : "mt-0.5"}`} style={{ color: colors.textMuted }}>
                             {task.number > 0 && (
                                 <>
-                                    <span>{task.project?.name} #{task.number}</span>
+                                    <span>{task.project?.name ? `${task.project.name} #${task.number}` : `#${task.number}`}</span>
                                     <Dot />
                                 </>
                             )}

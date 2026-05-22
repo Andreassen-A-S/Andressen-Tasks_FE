@@ -9,7 +9,7 @@ import DropdownMenu from "@/components/common/DropdownMenu";
 import { Ellipsis, Pencil } from "lucide-react";
 
 interface TaskDescriptionCardProps {
-    creator: { name: string; role?: string } | null;
+    creator: { name: string | null; role: UserRole } | null;
     creatorId?: string;
     createdAt: string;
     description: string | null;
@@ -59,7 +59,7 @@ export default function TaskDescriptionCard({
     return (
         <div className="mb-6 z-10 relative flex items-start gap-3">
             {creatorId
-                ? <UserCard userId={creatorId} name={creatorName} actor={creator ? { role: creator.role as UserRole } : null}><SingleAvatar name={creatorName} size="sm" /></UserCard>
+                ? <UserCard userId={creatorId} name={creatorName} actor={creator ? { role: creator.role } : null}><SingleAvatar name={creatorName} size="sm" /></UserCard>
                 : <SingleAvatar name={creatorName} size="sm" />
             }
 
