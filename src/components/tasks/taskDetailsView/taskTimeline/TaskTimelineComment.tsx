@@ -11,6 +11,7 @@ import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import Button from "@/components/common/buttons/Button";
 import OutlineBadge from "@/components/common/label/OutlineBadge";
+import UserCard from "@/components/common/UserCard";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import FileAttachmentCard from "../FileAttachmentCard";
 import CommentEditForm from "./CommentEditForm";
@@ -22,6 +23,7 @@ type Props = {
     currentUserId?: string;
     isAdmin?: boolean;
     isTaskOwner?: boolean;
+    isAssignee?: boolean;
     isArchived?: boolean;
     editedBy?: string;
     onDelete?: (commentId: string) => Promise<void>;
@@ -68,7 +70,7 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, isArchived = false, editedBy, onDelete, onUpdate }: Props) {
+export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editedBy, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -113,7 +115,10 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
     return (
         <>
             <div className="flex items-start gap-3">
-                <SingleAvatar name={actorName} size="sm" />
+                {event.actor_id
+                    ? <UserCard userId={event.actor_id} name={actorName} actor={event.actor}><SingleAvatar name={actorName} size="sm" /></UserCard>
+                    : <SingleAvatar name={actorName} size="sm" />
+                }
                 <div className="flex-1 rounded-lg overflow-hidden" style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}>
                     <div className="pl-4 pr-1 py-1 flex items-center gap-1" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.whiteHover }}>
                         <span className="label-lg flex-shrink-0">{actorName}</span>
@@ -133,6 +138,9 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                         <div className="ml-auto flex min-h-7 min-w-7 items-center justify-end gap-1 flex-shrink-0">
                             {isTaskOwner && (
                                 <OutlineBadge label="Ejer" tooltip={currentUserId === event.actor_id ? "Du er opgavens ejer" : "Opgavens ejer"} />
+                            )}
+                            {isAssignee && !isTaskOwner && (
+                                <OutlineBadge label="Tildelt" tooltip={currentUserId === event.actor_id ? "Du er tildelt opgaven" : "Tildelt opgaven"} />
                             )}
                             {(canEdit || canDelete || canDownloadImages) && (
                                 <div>

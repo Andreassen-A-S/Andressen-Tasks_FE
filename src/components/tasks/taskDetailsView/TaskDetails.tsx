@@ -92,7 +92,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
             .catch(() => toast.error("Kunne ikke kopiere link"));
     }
     const task = data?.task ?? null;
-    const creator = data?.creator ?? null;
+    const creator = task?.creator ?? null;
     const assignments = data?.assignments ?? [];
     const allUsers = data?.allUsers ?? [];
     const projects = data?.projects ?? [];
@@ -291,7 +291,12 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
             {/* Header */}
             <div className="px-8 pt-7 pb-5">
                 <div className="flex items-start justify-between mb-3">
-                    <h1 className="h1 wrap-break-word">{task.title}</h1>
+                    <h1 className="h1 wrap-break-word">
+                        {task.title}
+                        {task.number > 0 && (
+                            <span className="ml-2 font-normal" style={{ color: colors.textMuted }}>#{task.number}</span>
+                        )}
+                    </h1>
                     <div className="flex items-center gap-1 flex-shrink-0">
                         <Button
                             variant="ghost"
@@ -335,6 +340,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                     <div className="flex-1 pt-6 min-w-0">
                         <TaskDescriptionCard
                             creator={creator}
+                            creatorId={task.created_by}
                             createdAt={task.created_at}
                             description={task.description}
                             showSubtaskButton={task.parent_task_id == null}
@@ -342,7 +348,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                             isArchived={isArchived}
                             onSaveDescription={handleDescriptionSave}
                         />
-                        <TaskTimeline taskId={task.task_id} creatorId={task.created_by} isArchived={isArchived} />
+                        <TaskTimeline taskId={task.task_id} creatorId={task.created_by} assigneeIds={assignments.map((a) => a.user_id)} isArchived={isArchived} />
                         <div className="h-12" />
                     </div>
 
