@@ -82,6 +82,7 @@ export default function UserCard({ userId, name, actor, children }: UserCardProp
                             border: "1px solid var(--border)",
                         }}
                         {...getFloatingProps()}
+                        aria-label={`${displayName} profil`}
                         className="z-[9999] rounded-lg p-4 fade-in pr-10 min-w-[240px]"
                     >
                         {/* Line 1: Avatar */}
