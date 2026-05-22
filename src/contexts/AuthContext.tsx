@@ -146,7 +146,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (orgId) localStorage.setItem("orgContext", orgId);
         else localStorage.removeItem("orgContext");
         setContextOrgId(orgId);
-        window.location.href = "/";
     };
 
     const logout = () => {

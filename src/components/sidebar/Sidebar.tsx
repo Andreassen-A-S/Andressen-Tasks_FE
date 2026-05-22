@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -56,6 +57,15 @@ export default function Sidebar() {
     const { user, userRole, logout, savedAccounts, switchAccount, contextOrgId, setContextOrg } = useAuth();
     const topProgress = useTopProgress();
     const [showAddAccount, setShowAddAccount] = useState(false);
+    const [switchingOrg, setSwitchingOrg] = useState<string | null>(null);
+
+    function switchOrg(orgId: string | null, label: string) {
+        setSwitchingOrg(label);
+        setContextOrg(orgId);
+        queryClient.clear();
+        router.push("/");
+    }
+
     const handleLogout = () => {
         logout();
         topProgress.start();
@@ -93,11 +103,16 @@ export default function Sidebar() {
         enabled: isSuperAdmin,
     });
 
-    const { data: activeOrg } = useQuery({
+    const { data: activeOrg, isError: activeOrgError } = useQuery({
         queryKey: ["organization", activeOrgId],
         queryFn: () => getOrganization(activeOrgId!),
         enabled: !!activeOrgId,
     });
+
+    useEffect(() => {
+        if (!switchingOrg) return;
+        if (!activeOrgId || activeOrg || activeOrgError) setSwitchingOrg(null);
+    }, [switchingOrg, activeOrg, activeOrgId, activeOrgError]);
 
     const navItems = isSuperAdmin && !contextOrgId ? [
         // SUPER_ADMIN platform mode — org management only
@@ -118,15 +133,25 @@ export default function Sidebar() {
 
     return (
         <>
+            {switchingOrg && (
+                <div className="fixed inset-0 z-50 flex flex-row items-center justify-center gap-4" style={{ backgroundColor: colors.eggWhite }}>
+                    <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: colors.green, borderTopColor: "transparent" }} />
+                    <p className="body-sm" style={{ color: colors.textSecondary }}>Skifter til {switchingOrg}…</p>
+                </div>
+            )}
             <aside className="w-75 bg-sidebar-bg border-r border-[var(--sidebar-border)] h-screen flex flex-col fixed left-0 top-0">
                 {/* Header - Brand */}
                 <div className="px-6 py-4 border-b border-[var(--sidebar-border)] flex-shrink-0">
                     {activeOrg ? (
-                        <div className="flex items-center gap-3">
+                        <Link href="/" className="flex items-center gap-3">
                             {activeOrg.logo_url ? (
                                 <div className="w-14 h-14 flex-shrink-0 overflow-hidden">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={activeOrg.logo_url} alt={activeOrg.name} className="w-full h-full object-contain" />
+                                </div>
+                            ) : activeOrg.org_id === MESTERPLAN_ORG_ID ? (
+                                <div className="w-14 h-14 flex-shrink-0 overflow-hidden">
+                                    <Image src="/logo.png" alt="MesterPlan" width={56} height={56} className="w-full h-full object-contain" priority />
                                 </div>
                             ) : (
                                 <div className="w-14 h-14 rounded-xl flex-shrink-0 flex items-center justify-center bg-[var(--sidebar-active)]">
@@ -135,12 +160,12 @@ export default function Sidebar() {
                             )}
                             <div className="min-w-0">
                                 <h1 className="sidebar-brand truncate">{activeOrg.name}</h1>
-                                <span className="sidebar-brand-sub">via MesterPlan</span>
+                                <span className="sidebar-brand-sub">{activeOrg.org_id === MESTERPLAN_ORG_ID ? "Platform" : "via MesterPlan"}</span>
                             </div>
-                        </div>
+                        </Link>
                     ) : (
                         <Link href="/" className="flex items-center gap-3">
-                            <Image src="/logo.png" alt="MesterPlan" width={80} height={43} priority />
+                            <Image src="/logo.png" alt="MesterPlan" width={64} height={43} priority />
                             <div>
                                 <h1 className="sidebar-brand">MesterPlan</h1>
                                 <span className="sidebar-brand-sub">Opgavestyring</span>
@@ -159,31 +184,28 @@ export default function Sidebar() {
                                     size="lg"
                                     fullWidth={true}
                                 >
-
-
-                                    <OrgAvatar name={activeOrg?.name ?? "MesterPlan"} logoUrl={activeOrg?.logo_url} />
+                                    <OrgAvatar name={activeOrg?.name ?? "MesterPlan"} logoUrl={(!activeOrg || activeOrg.org_id === MESTERPLAN_ORG_ID) ? (activeOrg?.logo_url ?? "/logo.png") : activeOrg.logo_url} />
                                     <span className="flex-1 text-left nav-item truncate">
                                         {activeOrg ? activeOrg.name : "MesterPlan"}
                                     </span>
                                     <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: colors.navInactive }} />
-
-
                                 </Button>
                             }
                             items={[
                                 {
                                     id: "platform",
                                     label: "MesterPlan",
-                                    icon: <OrgAvatar name="MesterPlan" />,
+                                    icon: <OrgAvatar name="MesterPlan" logoUrl={organizations.find(o => o.org_id === MESTERPLAN_ORG_ID)?.logo_url ?? "/logo.png"} />,
+                                    badge: <StaffBadge />,
                                     checked: !contextOrgId,
-                                    onClick: contextOrgId ? () => setContextOrg(null) : undefined,
+                                    onClick: contextOrgId ? () => switchOrg(null, "Platform") : undefined,
                                 },
                                 ...organizations.filter(o => o.org_id !== MESTERPLAN_ORG_ID).map(org => ({
                                     id: org.org_id,
                                     label: org.name,
                                     icon: <OrgAvatar name={org.name} logoUrl={org.logo_url} />,
                                     checked: contextOrgId === org.org_id,
-                                    onClick: contextOrgId === org.org_id ? undefined : () => setContextOrg(org.org_id),
+                                    onClick: contextOrgId === org.org_id ? undefined : () => switchOrg(org.org_id, org.name),
                                 })),
                             ]}
                             width={240}
