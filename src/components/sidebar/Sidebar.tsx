@@ -95,7 +95,7 @@ export default function Sidebar() {
         enabled: isSuperAdmin,
     });
 
-    const { data: activeOrg } = useQuery({
+    const { data: activeOrg, isError: activeOrgError } = useQuery({
         queryKey: ["organization", activeOrgId],
         queryFn: () => getOrganization(activeOrgId!),
         enabled: !!activeOrgId,
@@ -103,8 +103,8 @@ export default function Sidebar() {
 
     useEffect(() => {
         if (!switchingOrg) return;
-        if (!activeOrgId || activeOrg) setSwitchingOrg(null);
-    }, [switchingOrg, activeOrg, activeOrgId]);
+        if (!activeOrgId || activeOrg || activeOrgError) setSwitchingOrg(null);
+    }, [switchingOrg, activeOrg, activeOrgId, activeOrgError]);
 
     const navItems = isSuperAdmin && !contextOrgId ? [
         // SUPER_ADMIN platform mode — org management only
@@ -157,7 +157,7 @@ export default function Sidebar() {
                         </Link>
                     ) : (
                         <Link href="/" className="flex items-center gap-3">
-                            <Image src="/logo.png" alt="MesterPlan" width={80} height={43} priority />
+                            <Image src="/logo.png" alt="MesterPlan" width={64} height={43} priority />
                             <div>
                                 <h1 className="sidebar-brand">MesterPlan</h1>
                                 <span className="sidebar-brand-sub">Opgavestyring</span>
@@ -176,8 +176,6 @@ export default function Sidebar() {
                                     size="lg"
                                     fullWidth={true}
                                 >
-
-
                                     <OrgAvatar name={activeOrg?.name ?? "MesterPlan"} logoUrl={(!activeOrg || activeOrg.org_id === MESTERPLAN_ORG_ID) ? (activeOrg?.logo_url ?? "/logo.png") : activeOrg.logo_url} />
                                     <span className="flex-1 text-left nav-item truncate">
                                         {activeOrg ? activeOrg.name : "MesterPlan"}

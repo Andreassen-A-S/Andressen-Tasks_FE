@@ -48,7 +48,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
         <Modal isOpen={isOpen} onClose={handleClose} title="Tilføj konto" maxWidth="xs">
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
                 <div className="flex flex-col items-center gap-2 my-4">
-                    <Image src="/logo.png" alt="MesterPlan" width={100} height={38} />
+                    <Image src="/logo.png" alt="MesterPlan" width={100} height={67} />
                     <p className="body-sm" style={{ color: colors.textMuted }}>Log ind med en anden konto</p>
                 </div>
 
