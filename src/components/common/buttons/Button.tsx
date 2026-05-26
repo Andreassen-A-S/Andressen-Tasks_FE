@@ -19,6 +19,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   iconOnly?: boolean;
   fullWidth?: boolean;
   tooltip?: string;
+  kbd?: React.ReactNode;
 }
 
 const variantBaseStyle: Record<ButtonVariant, CSSProperties> = {
@@ -56,6 +57,7 @@ export default function Button({
   iconOnly = false,
   fullWidth = false,
   tooltip,
+  kbd,
   disabled,
   className = "",
   children,
@@ -106,6 +108,18 @@ export default function Button({
       )}
       {children}
       {!loading && icon && iconPosition === "right" && icon}
+      {!loading && kbd && (
+        <span
+          className="inline-flex items-center justify-center rounded"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.15)",
+            padding: "2px 4px",
+            marginRight: "-4px",
+          }}
+        >
+          {kbd}
+        </span>
+      )}
     </button>
   );
 

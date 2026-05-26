@@ -63,9 +63,9 @@ export default function TaskDescriptionCard({
                 : <SingleAvatar name={creatorName} size="sm" />
             }
 
-            <div className="w-full overflow-hidden rounded-lg border bg-surface" style={{ borderColor: colors.border }}>
+            <div className="w-full overflow-hidden rounded-lg border border-accent/30 bg-background">
                 {/* Card Header */}
-                <div className="pl-4 pr-1 py-1 border-b flex items-center gap-1" style={{ backgroundColor: colors.whiteHover, borderColor: colors.border }}>
+                <div className="pl-4 pr-1 py-1 flex items-center gap-1 border-b border-accent/30 bg-accent-surface">
                     <div className="flex items-center gap-1 min-w-0">
                         <span className="label-lg">{creatorName}</span>
                         <span className="body-xs">åbnet</span>
