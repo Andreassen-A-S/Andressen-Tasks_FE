@@ -52,6 +52,7 @@ export default function DetailsMultiPicker({
   const [search, setSearch] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [draftSelected, setDraftSelected] = useState(selectedValues);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const { refs, floatingStyles, context, isPositioned } = useFloating({
@@ -139,6 +140,7 @@ export default function DetailsMultiPicker({
       ? current.filter((v) => v !== value)
       : [...current, value];
     selectedValuesRef.current = next;
+    setDraftSelected(next);
     onSelect(next);
   };
 
@@ -195,7 +197,7 @@ export default function DetailsMultiPicker({
             <div className="px-2 py-2 body-sm" style={{ color: colors.textMuted }}>Ingen resultater</div>
           ) : (
             filtered.map((option, i) => {
-              const isSelected = selectedValues.includes(option.value);
+              const isSelected = draftSelected.includes(option.value);
               const isActive = activeIndex === i;
               return (
                 <div key={option.value}>

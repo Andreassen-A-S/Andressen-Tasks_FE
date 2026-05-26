@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Task } from "@/types/task";
 import { TaskComment } from "@/types/comment";
 import { colors } from "@/constants/colors";
@@ -25,7 +25,6 @@ const INTERVAL_MS = 4000;
 export default function DashboardCommentsPanel({ comments }: DashboardCommentsPanelProps) {
     const trackRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const router = useRouter();
     const [index, setIndex] = useState(0);
     const [paused, setPaused] = useState(false);
     const [visibleCount, setVisibleCount] = useState(1);
@@ -123,11 +122,7 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                             <div
                                 key={comment.comment_id}
                                 ref={element => { cardRefs.current[commentIndex] = element; }}
-                                role="button"
-                                tabIndex={0}
-                                onClick={() => router.push(`/tasks/${comment.task.task_id}`)}
-                                onKeyDown={e => { if (e.key === "Enter" || e.key === " ") router.push(`/tasks/${comment.task.task_id}`); }}
-                                className="flex-shrink-0 rounded-md border p-3 flex flex-col gap-2 cursor-pointer"
+                                className="flex-shrink-0 rounded-md border p-3 flex flex-col gap-2"
                                 style={{
                                     flexBasis: "clamp(260px, 24vw, 328px)",
                                     borderColor: colors.border,
@@ -145,7 +140,13 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                                         {formatCommentDate(comment.created_at)}
                                     </span>
                                 </div>
-                                <span className="h5 truncate">{comment.task.title}</span>
+                                <Link
+                                    href={`/tasks/${comment.task.task_id}`}
+                                    className="h5 truncate hover:underline"
+                                    style={{ color: colors.textPrimary }}
+                                >
+                                    {comment.task.title}
+                                </Link>
                                 <LinkedText
                                     as="p"
                                     text={comment.message}

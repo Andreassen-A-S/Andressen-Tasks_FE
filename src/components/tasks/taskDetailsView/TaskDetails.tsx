@@ -135,13 +135,32 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     const allUsers = data?.allUsers ?? [];
     const projects = data?.projects ?? [];
 
-    function togglePicker(key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal", triggerEl: HTMLButtonElement) {
-        if (isArchived) return;
-        setOpenPicker((current) => current?.key === key ? null : { key, triggerEl });
+    function closePicker() {
+        const pending = pendingAssigneesRef.current;
+        pendingAssigneesRef.current = null;
+        setOpenPicker(null);
+        if (task && pending !== null) {
+            void (async () => {
+                try {
+                    await updateTask(task.task_id, { assigned_users: pending });
+                    const updated = await getTaskAssignments(task.task_id);
+                    queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, assignments: updated } : current);
+                    queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+                } catch {
+                    toast.error("Kunne ikke opdatere tildelte brugere");
+                }
+            })();
+        }
     }
 
-    function closePicker() {
-        setOpenPicker(null);
+    function togglePicker(key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal", triggerEl: HTMLButtonElement) {
+        if (isArchived) return;
+        if (openPicker?.key === key) {
+            closePicker();
+        } else {
+            closePicker();
+            setOpenPicker({ key, triggerEl });
+        }
     }
 
     async function handleDownloadAllImages() {
@@ -236,22 +255,6 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         pendingAssigneesRef.current = userIds;
     }
 
-    function handleAssigneesClose() {
-        closePicker();
-        const pending = pendingAssigneesRef.current;
-        pendingAssigneesRef.current = null;
-        if (!task || pending === null) return;
-        void (async () => {
-            try {
-                await updateTask(task.task_id, { assigned_users: pending });
-                const updated = await getTaskAssignments(task.task_id);
-                queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, assignments: updated } : current);
-                queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
-            } catch {
-                toast.error("Kunne ikke opdatere tildelte brugere");
-            }
-        })();
-    }
 
     async function handleGoalSave(input: {
         goal_type: TaskGoalType;
@@ -725,7 +728,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                 key={`assignee-${openPicker?.key === "assignee" ? "open" : "closed"}`}
                 open={openPicker?.key === "assignee"}
                 triggerEl={openPicker?.key === "assignee" ? openPicker.triggerEl : null}
-                onClose={handleAssigneesClose}
+                onClose={closePicker}
                 title="Tildel medarbejdere"
                 options={allUsers.map((u) => ({ value: u.user_id, label: u.name, subtitle: u.position?.name }))}
                 selectedValues={assignments.map((a) => a.user.user_id)}
