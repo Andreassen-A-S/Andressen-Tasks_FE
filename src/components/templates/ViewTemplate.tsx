@@ -12,6 +12,7 @@ import TaskAssignedUsers from "@/components/common/label/TaskAssignedUsers";
 import Modal from "@/components/modal/Modal";
 import { colors } from "@/constants/colors";
 import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
+import Link from "next/link";
 
 interface ViewTemplateProps {
     template: RecurringTemplate;
@@ -105,8 +106,9 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                     : null;
 
                                 return (
-                                    <div
+                                    <Link
                                         key={instance.task_id}
+                                        href={`/tasks/${instance.task_id}`}
                                         className="flex items-start justify-between gap-4 px-4 py-2.5"
                                         style={{
                                             borderTop: index === 0 ? "none" : `1px solid ${colors.border}`,
@@ -151,7 +153,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                                 </>
                                             ) : null}
                                         </div>
-                                    </div>
+                                    </Link>
                                 );
                             })()
                         ))}

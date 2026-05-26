@@ -16,6 +16,7 @@ import TemplateEditModal from "./TemplateEditModal";
 import PageHeader from "@/components/common/PageHeader";
 import CardGridSkeleton from "@/components/common/loading/CardGridSkeleton";
 import { adminQueryKeys, fetchTemplatesPageData, type TemplatesPageData } from "@/lib/queries/admin";
+import PageContainer from "@/components/layout/PageContainer";
 
 
 export default function RecurringTemplatesPage() {
@@ -173,15 +174,15 @@ export default function RecurringTemplatesPage() {
                 }
             />
 
-            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8">
+            <PageContainer className="mt-3 px-8">
                 <TemplateFilterTabs
                     activeFilter={filter}
                     options={filterOptions}
                     onFilterChange={setFilter}
                 />
-            </div>
+            </PageContainer>
 
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pb-12">
+            <PageContainer className="my-6 px-8 pb-12">
                 {isPending ? (
                     <CardGridSkeleton />
                 ) : (
@@ -195,7 +196,7 @@ export default function RecurringTemplatesPage() {
                         onEditTemplate={handleEditTemplate}
                     />
                 )}
-            </div>
+            </PageContainer>
 
             <TemplateCreateModal
                 isOpen={showCreateTemplate}

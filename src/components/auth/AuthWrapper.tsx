@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { isAdminRole, UserRole } from "@/types/users";
-import Sidebar from "@/components/sidebar/Sidebar";
+import AppShell from "@/components/layout/AppShell";
 import FullPageLoadingState from "@/components/common/loading/FullPageLoadingState";
 import useDelayedVisibility from "@/hooks/useDelayedVisibility";
 import { useTopProgress } from "@/components/common/loading/TopProgressProvider";
@@ -79,11 +79,8 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     }
 
     return (
-        <div className="flex min-h-screen bg-background max-w-[1920px] mx-auto">
-            <Sidebar />
-            <main className="flex-1 ml-80">
-                {children}
-            </main>
-        </div>
+        <AppShell>
+            {children}
+        </AppShell>
     );
 }

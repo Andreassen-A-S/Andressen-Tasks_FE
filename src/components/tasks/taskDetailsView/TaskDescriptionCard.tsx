@@ -16,6 +16,7 @@ interface TaskDescriptionCardProps {
     showSubtaskButton?: boolean;
     onAddSubtask?: () => void;
     isArchived?: boolean;
+    isAuthor?: boolean;
     onSaveDescription?: (description: string) => Promise<void>;
 }
 
@@ -27,6 +28,7 @@ export default function TaskDescriptionCard({
     showSubtaskButton = false,
     onAddSubtask,
     isArchived = false,
+    isAuthor = false,
     onSaveDescription,
 }: TaskDescriptionCardProps) {
     const creatorName = creator?.name ?? "Ukendt";
@@ -63,9 +65,9 @@ export default function TaskDescriptionCard({
                 : <SingleAvatar name={creatorName} size="sm" />
             }
 
-            <div className="w-full overflow-hidden rounded-lg border border-accent/30 bg-background">
+            <div className={`w-full overflow-hidden rounded-lg border bg-background ${isAuthor ? "border-accent/30" : "border-border"}`}>
                 {/* Card Header */}
-                <div className="pl-4 pr-1 py-1 flex items-center gap-1 border-b border-accent/30 bg-accent-surface">
+                <div className={`pl-4 pr-1 py-1 flex items-center gap-1 border-b ${isAuthor ? "border-accent/30 bg-accent-surface" : "border-border bg-surface"}`}>
                     <div className="flex items-center gap-1 min-w-0">
                         <span className="label-lg">{creatorName}</span>
                         <span className="body-xs">åbnet</span>

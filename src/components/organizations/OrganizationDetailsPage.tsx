@@ -28,6 +28,7 @@ import DataTable from "@/components/common/table/DataTable";
 import UpdateOrganizationForm from "./UpdateOrganizationForm";
 import UpdateEmployeeForm from "@/components/employees/UpdateEmployeeForm";
 import { toast } from "sonner";
+import PageContainer from "@/components/layout/PageContainer";
 
 interface Props {
     paramsPromise: Promise<{ id: string }>;
@@ -131,9 +132,9 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
     if (isLoading) {
         return (
             <div className="min-h-screen">
-                <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
+                <PageContainer className="my-6 px-8 pt-10">
                     <div className="h-8 w-48 rounded-md animate-pulse" style={{ backgroundColor: colors.muted }} />
-                </div>
+                </PageContainer>
             </div>
         );
     }
@@ -141,9 +142,9 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
     if (isError || !org) {
         return (
             <div className="min-h-screen">
-                <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
+                <PageContainer className="my-6 px-8 pt-10">
                     <p className="body-md" style={{ color: colors.textMuted }}>Kunne ikke hente organisation. Prøv igen.</p>
-                </div>
+                </PageContainer>
             </div>
         );
     }
@@ -154,6 +155,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
 
     return (
         <div className="min-h-screen">
+            <PageContainer className="px-8 pb-12">
             {/* Back link — only super admins can navigate the org list */}
             {isSuperAdmin && (
                 <Button variant="ghost" size="md" className="mt-4" onClick={() => router.back()}>
@@ -227,7 +229,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
             <div className="px-4" style={{ borderTop: `1px solid ${colors.border}` }} />
 
             {/* Content */}
-            <div className="mt-6 pb-12 flex gap-8 items-start">
+            <div className="mt-6 flex gap-8 items-start">
                 {/* Main */}
                 <div className="flex-1 min-w-0 space-y-6">
                     <div className="space-y-3">
@@ -382,6 +384,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                     </div>
                 </div>
             </div>
+            </PageContainer>
 
             <Modal
                 isOpen={showEditModal}

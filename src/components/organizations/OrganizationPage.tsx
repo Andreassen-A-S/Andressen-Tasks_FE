@@ -12,6 +12,7 @@ import { formatNumber } from "@/helpers/helpers";
 import OrganizationTable from "./OrganizationTable";
 import OrganizationCreateModal from "./OrganizationCreateModal";
 import { MESTERPLAN_ORG_ID } from "@/constants/org";
+import PageContainer from "@/components/layout/PageContainer";
 
 export default function OrganizationPage() {
     const queryClient = useQueryClient();
@@ -47,7 +48,7 @@ export default function OrganizationPage() {
                 }
             />
 
-            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
+            <PageContainer className="mt-3 px-8 pb-12 flex flex-col gap-3">
                 {isPending ? (
                     <TableSkeleton columns={5} rows={5} />
                 ) : isError ? (
@@ -57,7 +58,7 @@ export default function OrganizationPage() {
                 ) : (
                     <OrganizationTable organizations={organizations} />
                 )}
-            </div>
+            </PageContainer>
 
             <OrganizationCreateModal
                 isOpen={showCreateModal}

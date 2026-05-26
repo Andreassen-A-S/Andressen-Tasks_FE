@@ -6,13 +6,17 @@ import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 interface OutlineBadgeProps {
   label: string;
   tooltip?: string;
+  variant?: "neutral" | "accent";
 }
 
-export default function OutlineBadge({ label, tooltip }: OutlineBadgeProps) {
+export default function OutlineBadge({ label, tooltip, variant = "neutral" }: OutlineBadgeProps) {
   const badge = (
     <span
-      className="px-1.5 py-0.5 rounded-full body-xs font-medium cursor-default"
-      style={{ border: `1px solid ${colors.border}`, color: colors.textSecondary }}
+      className={`inline-flex h-5 shrink-0 items-center rounded-full border px-2 body-xs font-medium cursor-default ${variant === "accent" ? "border-accent/30 bg-accent-surface" : "border-border"}`}
+      style={{
+        backgroundColor: variant === "accent" ? undefined : colors.whiteHover,
+        color: colors.textSecondary,
+      }}
     >
       {label}
     </span>

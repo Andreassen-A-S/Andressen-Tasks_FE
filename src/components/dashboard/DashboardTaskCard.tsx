@@ -6,6 +6,7 @@ import Badge from "@/components/common/label/Badge";
 import ProjectBadge from "@/components/common/label/ProjectBadge";
 import DeadlineBadge from "@/components/common/label/DeadlineBadge";
 import TaskAssignedUsers from "@/components/common/label/TaskAssignedUsers";
+import Link from "next/link";
 
 interface DashboardTaskCardProps {
     task: Task;
@@ -15,8 +16,9 @@ interface DashboardTaskCardProps {
 
 export default function DashboardTaskCard({ task, project, assignments }: DashboardTaskCardProps) {
     return (
-        <div
-            className="rounded-md border px-4 py-3 flex flex-col gap-2 transition-colors"
+        <Link
+            href={`/tasks/${task.task_id}`}
+            className="rounded-md border px-4 py-3 flex flex-col gap-2 transition-colors hover:no-underline"
             style={{ backgroundColor: colors.white, borderColor: colors.border }}
         >
             <div className="flex items-start justify-between gap-3">
@@ -34,6 +36,6 @@ export default function DashboardTaskCard({ task, project, assignments }: Dashbo
                 </div>
                 <TaskAssignedUsers users={assignments.map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position?.name }))} size="sm" />
             </div>
-        </div>
+        </Link>
     );
 }

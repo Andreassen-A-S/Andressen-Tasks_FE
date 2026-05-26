@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -34,6 +34,9 @@ import TaskDetailsLoadingState from "./TaskDetailsLoadingState";
 import useDelayedVisibility from "@/hooks/useDelayedVisibility";
 import { adminQueryKeys } from "@/lib/queries/admin";
 import { fetchTaskDetailsData, taskQueryKeys, type TaskDetailsData } from "@/lib/queries/tasks";
+import PageChrome from "@/components/layout/PageChrome";
+import PageContainer from "@/components/layout/PageContainer";
+import { useAuth } from "@/hooks/useAuth";
 
 
 interface TaskDetailsProps {
@@ -66,12 +69,36 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const queryClient = useQueryClient();
     const router = useRouter();
+    const { user: currentUser } = useAuth();
 
     useEffect(() => {
         return () => {
             if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
         };
     }, []);
+
+    const [scrollContainer, setScrollContainer] = useState<HTMLElement | Window | null>(null);
+
+    const outerRef = useCallback((el: HTMLDivElement | null) => {
+        if (!el) return;
+        function findScrollParent(node: HTMLElement | null): HTMLElement | Window {
+            if (!node || node === document.documentElement) return window;
+            const { overflow, overflowY } = getComputedStyle(node);
+            if (/auto|scroll/.test(overflow + overflowY)) return node;
+            return findScrollParent(node.parentElement);
+        }
+        setScrollContainer(findScrollParent(el.parentElement));
+    }, []);
+
+    useEffect(() => {
+        if (!scrollContainer) return;
+        function handler() {
+            const top = scrollContainer instanceof Window ? scrollContainer.scrollY : (scrollContainer as HTMLElement).scrollTop;
+            setIsScrolled(top > COLLAPSE_THRESHOLD);
+        }
+        scrollContainer.addEventListener("scroll", handler, { passive: true });
+        return () => scrollContainer.removeEventListener("scroll", handler);
+    }, [scrollContainer]);
 
     const subtaskFormId = "create-subtask-form";
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
@@ -244,10 +271,6 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         }
     }
 
-    function handleDetailsScroll(e: React.UIEvent<HTMLDivElement>) {
-        setIsScrolled(e.currentTarget.scrollTop > COLLAPSE_THRESHOLD);
-    }
-
     function handleStartEditTitle() {
         if (!task) return;
         setTitleDraft(task.title);
@@ -301,23 +324,29 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     }
 
     if (isLoading) {
-        return showDelayedLoader ? <TaskDetailsLoadingState /> : null;
+        if (!showDelayedLoader) return null;
+        return fullPage ? (
+            <PageContainer size="task">
+                <TaskDetailsLoadingState />
+            </PageContainer>
+        ) : <TaskDetailsLoadingState />;
     }
 
     if (error || !task) {
-        return (
+        const errorState = (
             <div className="h-full flex flex-col">
                 <div className="p-6 bg-danger-surface border-b border-danger">
                     <span className="label-lg text-danger">{error instanceof Error ? error.message : error || "Opgave ikke fundet"}</span>
                 </div>
             </div>
         );
+        return fullPage ? <PageContainer size="task">{errorState}</PageContainer> : errorState;
     }
 
     const isArchived = task.status === TaskStatus.ARCHIVED;
 
     return (
-        <div className={`flex flex-col bg-background ${fullPage ? "max-w-6xl mx-auto w-full" : "h-full"}`}>
+        <div ref={outerRef} className={`flex flex-col bg-background ${fullPage ? "w-full min-w-0" : "min-h-full"}`}>
             {/* Archived banner */}
             {isArchived && (
                 <div
@@ -329,13 +358,14 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                 </div>
             )}
 
-            <div
-                className="flex flex-col flex-1 overflow-y-auto"
-                onScroll={handleDetailsScroll}
-            >
-                {/* Sticky collapsed header */}
-                {isScrolled && <div className="sticky top-0 z-20 border-b border-border bg-background">
-                    <div className={`flex items-center justify-between gap-4 py-3 ${fullPage ? "max-w-6xl mx-auto px-8" : "px-8"}`}>
+            <PageChrome
+                header={isScrolled ? (
+                    <div className="sticky top-0 z-20 w-full border-b border-border bg-background">
+                        <PageContainer
+                            size="task"
+                            disabled={!fullPage}
+                            className="flex items-center justify-between gap-4 px-8 py-3"
+                        >
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                             <Badge variant="status" size="lg" value={task.status} />
                             <div className="flex flex-col min-w-0">
@@ -366,9 +396,12 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                             />
                             {!fullPage && <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />}
                         </div>
+                        </PageContainer>
                     </div>
-                </div>}
+                ) : undefined}
+            >
 
+                <PageContainer size="task" disabled={!fullPage}>
                 {/* Header */}
                 <div className="px-8 pt-7 pb-5">
                     {isEditingTitle ? (
@@ -435,6 +468,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                             showSubtaskButton={task.parent_task_id == null}
                             onAddSubtask={() => setShowSubtaskModal(true)}
                             isArchived={isArchived}
+                            isAuthor={currentUser?.user_id === task.created_by}
                             onSaveDescription={handleDescriptionSave}
                         />
                         <TaskTimeline taskId={task.task_id} creatorId={task.created_by} assigneeIds={assignments.map((a) => a.user_id)} isArchived={isArchived} />
@@ -632,7 +666,8 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                         </div>
                     </div>
                 </div>
-            </div>
+                </PageContainer>
+            </PageChrome>
 
             {/* Pickers */}
             <DetailsSinglePicker
