@@ -122,6 +122,7 @@ export default function DetailsMultiPicker({
             ? current.filter((v) => v !== option.value)
             : [...current, option.value];
           selectedValuesRef.current = next;
+          setDraftSelected(next);
           onSelect(next);
         }
       } else if (e.key === "Escape") {
