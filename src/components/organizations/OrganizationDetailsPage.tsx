@@ -404,7 +404,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
             >
                 <UpdateOrganizationForm
                     formId={editFormId}
-                    organization={org}
+                    organization={org!}
                     onLoadingChange={setEditLoading}
                     onSuccess={handleUpdated}
                 />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Task } from "@/types/task";
 import { TaskComment } from "@/types/comment";
 import { colors } from "@/constants/colors";
@@ -8,7 +9,6 @@ import SingleAvatar from "@/components/common/label/SingleAvatar";
 import Pill from "@/components/common/label/Pill";
 import { formatCommentDate, formatNumber } from "@/helpers/helpers";
 import LinkedText from "@/components/common/LinkedText";
-import Link from "next/link";
 
 interface CommentWithTask extends TaskComment {
     task: Task;
@@ -24,7 +24,8 @@ const INTERVAL_MS = 4000;
 
 export default function DashboardCommentsPanel({ comments }: DashboardCommentsPanelProps) {
     const trackRef = useRef<HTMLDivElement>(null);
-    const cardRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+    const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const router = useRouter();
     const [index, setIndex] = useState(0);
     const [paused, setPaused] = useState(false);
     const [visibleCount, setVisibleCount] = useState(1);
@@ -119,11 +120,14 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                         className="flex gap-3 overflow-x-hidden scroll-smooth"
                     >
                         {comments.map((comment, commentIndex) => (
-                            <Link
+                            <div
                                 key={comment.comment_id}
                                 ref={element => { cardRefs.current[commentIndex] = element; }}
-                                href={`/tasks/${comment.task.task_id}`}
-                                className="flex-shrink-0 rounded-md border p-3 flex flex-col gap-2 hover:no-underline"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => router.push(`/tasks/${comment.task.task_id}`)}
+                                onKeyDown={e => { if (e.key === "Enter" || e.key === " ") router.push(`/tasks/${comment.task.task_id}`); }}
+                                className="flex-shrink-0 rounded-md border p-3 flex flex-col gap-2 cursor-pointer"
                                 style={{
                                     flexBasis: "clamp(260px, 24vw, 328px)",
                                     borderColor: colors.border,
@@ -148,7 +152,7 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                                     className="body-sm line-clamp-5"
                                     style={{ color: colors.textSecondary }}
                                 />
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 </div>

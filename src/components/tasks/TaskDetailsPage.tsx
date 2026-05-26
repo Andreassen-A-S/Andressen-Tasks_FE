@@ -19,7 +19,7 @@ export default function TaskDetailsPage({ paramsPromise }: Props) {
         router.push("/tasks");
     }
 
-    function handleDelete(_deletedTaskId: string) {
+    function handleDelete() {
         queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         router.push("/tasks");
     }

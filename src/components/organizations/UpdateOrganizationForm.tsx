@@ -10,6 +10,8 @@ import TextInput from "@/components/common/forms/TextInput";
 import Button from "@/components/common/buttons/Button";
 import LogoCropModal from "./LogoCropModal";
 import { Building2, ImageUp, X } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { UserRole } from "@/types/users";
 
 interface UpdateOrganizationFormProps {
     formId: string;
@@ -25,6 +27,8 @@ function revokeObjectUrl(url: string | null) {
 }
 
 export default function UpdateOrganizationForm({ formId, organization, onSuccess, onLoadingChange }: UpdateOrganizationFormProps) {
+    const { userRole } = useAuth();
+    const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
     const [formData, setFormData] = useState({
         name: organization.name,
         slug: organization.slug,
@@ -92,7 +96,7 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
         try {
             const payload: Parameters<typeof updateOrganization>[1] = {
                 name: formData.name.trim(),
-                slug: formData.slug.trim(),
+                ...(isSuperAdmin ? { slug: formData.slug.trim() } : {}),
             };
             if (logoUrl !== organization.logo_url) payload.logo_url = logoUrl;
             await updateOrganization(organization.org_id, payload);
@@ -194,10 +198,12 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
                 <label htmlFor="update-org-name" className="label-md block">Navn</label>
                 <TextInput id="update-org-name" name="name" type="text" required value={formData.name} onChange={handleChange} />
             </div>
-            <div className="space-y-2">
-                <label htmlFor="update-org-slug" className="label-md block">Slug</label>
-                <TextInput id="update-org-slug" name="slug" type="text" required value={formData.slug} onChange={handleChange} />
-            </div>
+            {isSuperAdmin && (
+                <div className="space-y-2">
+                    <label htmlFor="update-org-slug" className="label-md block">Slug</label>
+                    <TextInput id="update-org-slug" name="slug" type="text" required value={formData.slug} onChange={handleChange} />
+                </div>
+            )}
         </form>
     );
 }
