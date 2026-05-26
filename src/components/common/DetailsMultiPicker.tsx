@@ -117,11 +117,11 @@ export default function DetailsMultiPicker({
         const option = filteredRef.current[activeIndexRef.current];
         if (option) {
           const current = selectedValuesRef.current;
-          onSelect(
-            current.includes(option.value)
-              ? current.filter((v) => v !== option.value)
-              : [...current, option.value]
-          );
+          const next = current.includes(option.value)
+            ? current.filter((v) => v !== option.value)
+            : [...current, option.value];
+          selectedValuesRef.current = next;
+          onSelect(next);
         }
       } else if (e.key === "Escape") {
         onClose();
@@ -134,11 +134,12 @@ export default function DetailsMultiPicker({
   if (!open) return null;
 
   const toggle = (value: string) => {
-    onSelect(
-      selectedValues.includes(value)
-        ? selectedValues.filter((v) => v !== value)
-        : [...selectedValues, value]
-    );
+    const current = selectedValuesRef.current;
+    const next = current.includes(value)
+      ? current.filter((v) => v !== value)
+      : [...current, value];
+    selectedValuesRef.current = next;
+    onSelect(next);
   };
 
   return (

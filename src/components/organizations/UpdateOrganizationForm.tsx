@@ -90,11 +90,12 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
         setLoading(true);
         setError(null);
         try {
-            await updateOrganization(organization.org_id, {
+            const payload: Parameters<typeof updateOrganization>[1] = {
                 name: formData.name.trim(),
                 slug: formData.slug.trim(),
-                logo_url: logoUrl,
-            });
+            };
+            if (logoUrl !== organization.logo_url) payload.logo_url = logoUrl;
+            await updateOrganization(organization.org_id, payload);
             toast.success("Organisation opdateret");
             onSuccess();
         } catch (err) {

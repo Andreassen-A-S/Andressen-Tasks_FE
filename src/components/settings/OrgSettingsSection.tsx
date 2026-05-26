@@ -24,7 +24,7 @@ export default function OrgSettingsSection({ user }: { user: User }) {
     const { contextOrgId } = useAuth();
     const orgId = contextOrgId ?? user.organization_id;
     const { data: org, isLoading } = useQuery({
-        queryKey: ["organization", orgId],
+        queryKey: ["organizations", orgId],
         queryFn: () => getOrganization(orgId!),
         enabled: !!orgId,
     });
@@ -118,15 +118,14 @@ function OrgForm({ org }: { org: Organization }) {
         setSaving(true);
         try {
             const trimmedName = name.trim();
-            await updateOrganization(org.org_id, {
-                name: trimmedName,
-                logo_url: logoUrl,
-            });
+            const payload: Parameters<typeof updateOrganization>[1] = { name: trimmedName };
+            if (logoUrl !== savedLogoUrl) payload.logo_url = logoUrl;
+            await updateOrganization(org.org_id, payload);
             setName(trimmedName);
             setSavedName(trimmedName);
             setSavedLogoUrl(logoUrl);
             toast.success("Organisation opdateret");
-            queryClient.invalidateQueries({ queryKey: ["organization", org.org_id] });
+            queryClient.invalidateQueries({ queryKey: ["organizations", org.org_id] });
         } catch (err) {
             toast.error(err instanceof Error ? err.message : "Kunne ikke opdatere organisation");
         } finally {
