@@ -19,7 +19,7 @@ interface DrawerProps {
 const widthClasses: Record<DrawerWidth, string> = {
     md: "w-full sm:w-[520px]",
     lg: "w-full sm:w-[720px]",
-    xl: "w-full sm:w-[1080px]",
+    xl: "w-full sm:w-[1280px]",
     full: "w-full",
 };
 
@@ -86,7 +86,7 @@ export default function Drawer({
                     borderColor: colors.border,
                     boxShadow: "var(--shadow-drawer)",
                 }}
-                className={`absolute top-0 h-full ${placement.position} ${widthClasses[width]} ${placement.border} ${open ? `${placement.open} transition-transform duration-150 ease-out` : `${placement.closed} transition-transform duration-100 ease-in`} ${className}`}
+                className={`absolute top-0 h-full overflow-y-auto ${placement.position} ${widthClasses[width]} ${placement.border} ${open ? `${placement.open} transition-transform duration-150 ease-out` : `${placement.closed} transition-transform duration-100 ease-in`} ${className}`}
             >
                 {children}
             </aside>

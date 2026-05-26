@@ -16,6 +16,7 @@ import PageHeader from "@/components/common/PageHeader";
 import TableSkeleton from "@/components/common/loading/TableSkeleton";
 import { adminQueryKeys, fetchEmployeesPageData, type EmployeesPageData } from "@/lib/queries/admin";
 import { MESTERPLAN_ORG_ID } from "@/constants/org";
+import PageContainer from "@/components/layout/PageContainer";
 
 export default function EmployeePage() {
     const queryClient = useQueryClient();
@@ -107,7 +108,7 @@ export default function EmployeePage() {
                 }
             />
 
-            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
+            <PageContainer className="mt-3 px-8 pb-12 flex flex-col gap-3">
                 <EmployeeFilterRow
                     roleFilter={roleFilter}
                     positionFilter={positionFilter}
@@ -143,7 +144,7 @@ export default function EmployeePage() {
                     onLoadingChange={setCreateLoading}
                     onSuccess={handleEmployeeCreated}
                 />
-            </div>
+            </PageContainer>
         </div>
 
     );

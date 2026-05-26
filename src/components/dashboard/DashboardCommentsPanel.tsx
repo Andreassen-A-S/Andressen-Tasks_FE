@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Task } from "@/types/task";
 import { TaskComment } from "@/types/comment";
 import { colors } from "@/constants/colors";
@@ -139,7 +140,13 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                                         {formatCommentDate(comment.created_at)}
                                     </span>
                                 </div>
-                                <span className="h5 truncate">{comment.task.title}</span>
+                                <Link
+                                    href={`/tasks/${comment.task.task_id}`}
+                                    className="h5 truncate hover:underline"
+                                    style={{ color: colors.textPrimary }}
+                                >
+                                    {comment.task.title}
+                                </Link>
                                 <LinkedText
                                     as="p"
                                     text={comment.message}

@@ -16,6 +16,7 @@ import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import Button from "@/components/common/buttons/Button";
 import { formatLocalDate } from "@/helpers/helpers";
+import PageContainer from "@/components/layout/PageContainer";
 
 const PERIOD_OPTIONS = [
     { days: 7, label: "1 uge" },
@@ -118,7 +119,7 @@ export default function StatsPage() {
                 }
             />
 
-            <div className="mx-8 mt-5 px-4 pb-12 sm:px-6 lg:px-8">
+            <PageContainer className="mt-5 px-8 pb-12">
                 <div className="mb-5">
                     <StatsTabs activeTab={activeTab} onChange={setActiveTab} />
                 </div>
@@ -132,7 +133,7 @@ export default function StatsPage() {
                 {activeTab === "projects" && (
                     <ProjectStatsTab data={stats.projects} periodLabel={selectedPeriod.label} />
                 )}
-            </div>
+            </PageContainer>
         </div>
     );
 }

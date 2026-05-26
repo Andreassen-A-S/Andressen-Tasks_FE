@@ -263,7 +263,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                             key={e.event_id}
                             className="relative z-10 pl-14 flex items-center gap-3"
                         >
-                            <SingleAvatar name={actorName} size="xs" className="border-2 border-surface" />
+                            <SingleAvatar name={actorName} size="xs" className="border-2 border-background" />
                             <div className="flex-1">
                                 <div className="body-sm">
                                     <span className="font-semibold text-text-primary">{actorName}</span>{" "}

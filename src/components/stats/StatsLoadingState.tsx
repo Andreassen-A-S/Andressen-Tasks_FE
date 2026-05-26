@@ -1,7 +1,9 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 export default function StatsLoadingState() {
     return (
         <div className="min-h-screen">
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
+            <PageContainer className="my-6 px-8 pt-10">
                 <div className="animate-pulse space-y-6">
                     <div className="h-8 bg-border rounded w-64"></div>
 
@@ -18,7 +20,7 @@ export default function StatsLoadingState() {
 
                     <div className="h-96 bg-border rounded-lg"></div>
                 </div>
-            </div>
+            </PageContainer>
         </div>
     );
 }

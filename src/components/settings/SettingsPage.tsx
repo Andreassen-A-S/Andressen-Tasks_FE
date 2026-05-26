@@ -3,6 +3,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import ApplicationSettingsPanel from "./ApplicationSettingsPanel";
 import PageHeader from "@/components/common/PageHeader";
+import PageContainer from "@/components/layout/PageContainer";
 
 export default function SettingsPage() {
     const { user } = useAuth();
@@ -10,9 +11,9 @@ export default function SettingsPage() {
     if (!user) {
         return (
             <div className="min-h-screen">
-                <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
+                <PageContainer className="my-6 px-8 pt-10">
                     <p className="body-md text-text-muted">Ingen bruger er indlæst.</p>
-                </div>
+                </PageContainer>
             </div>
         );
     }
@@ -24,9 +25,9 @@ export default function SettingsPage() {
                 subtitle="De få applikationsindstillinger og systemoplysninger der er relevante lige nu."
             />
 
-            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 max-w-5xl">
+            <PageContainer className="mt-3 px-8 pb-12" size="narrow">
                 <ApplicationSettingsPanel user={user} />
-            </div>
+            </PageContainer>
         </div>
     );
 }

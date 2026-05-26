@@ -146,10 +146,9 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
 
           {/* Textarea box */}
           <div
-            className="rounded-lg overflow-hidden transition-colors"
+            className="rounded-lg overflow-hidden transition-colors bg-background"
             style={{
               border: `1px solid ${dragOver ? colors.blue : colors.border}`,
-              backgroundColor: colors.white,
             }}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
@@ -162,8 +161,8 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
               placeholder="Skriv din kommentar her..."
               disabled={uploading}
               rows={4}
-              className="w-full px-4 py-3 body-md resize-y focus:outline-none disabled:cursor-not-allowed"
-              style={{ backgroundColor: colors.white, color: colors.textPrimary }}
+              className="w-full px-4 py-3 body-md resize-y focus:outline-none disabled:cursor-not-allowed bg-background"
+              style={{ color: colors.textPrimary }}
             />
 
             {/* Attachment previews inside box */}

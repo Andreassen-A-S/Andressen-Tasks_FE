@@ -1,3 +1,5 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 interface StatsErrorStateProps {
     error?: string;
     onRetry: () => void;
@@ -6,7 +8,7 @@ interface StatsErrorStateProps {
 export default function StatsErrorState({ error, onRetry }: StatsErrorStateProps) {
     return (
         <div className="min-h-screen bg-surface-page">
-            <div className="my-6 mx-8 px-4 sm:px-6 lg:px-8 pt-10">
+            <PageContainer className="my-6 px-8 pt-10">
                 <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center">
                     <div className="h2 text-red-600 mb-2">
                         {error ? "Kunne ikke hente statistik" : "Ingen statistik tilgængelig"}
@@ -25,7 +27,7 @@ export default function StatsErrorState({ error, onRetry }: StatsErrorStateProps
                         <p className="body-md text-text-muted">Ingen statistik tilgængelig</p>
                     )}
                 </div>
-            </div>
+            </PageContainer>
         </div>
     );
 }

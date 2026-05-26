@@ -104,7 +104,7 @@ export default function Sidebar() {
     });
 
     const { data: activeOrg, isError: activeOrgError } = useQuery({
-        queryKey: ["organization", activeOrgId],
+        queryKey: ["organizations", activeOrgId],
         queryFn: () => getOrganization(activeOrgId!),
         enabled: !!activeOrgId,
     });

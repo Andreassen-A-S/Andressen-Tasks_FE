@@ -14,6 +14,7 @@ import ProjectEditModal from "./ProjectEditModal";
 import PageHeader from "@/components/common/PageHeader";
 import TableSkeleton from "@/components/common/loading/TableSkeleton";
 import { adminQueryKeys, fetchProjectsPageData, type ProjectsPageData } from "@/lib/queries/admin";
+import PageContainer from "@/components/layout/PageContainer";
 
 export default function ProjectPage() {
     const createProjectFormId = "create-project-form";
@@ -128,7 +129,7 @@ export default function ProjectPage() {
                 }
             />
 
-            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12">
+            <PageContainer className="mt-3 px-8 pb-12">
                 {isPending ? (
                     <TableSkeleton columns={2} rows={6} showToolbar />
                 ) : (
@@ -144,7 +145,7 @@ export default function ProjectPage() {
                         onDeleteProject={handleDelete}
                     />
                 )}
-            </div>
+            </PageContainer>
 
             <ProjectCreateModal
                 isOpen={showCreateModal}

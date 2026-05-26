@@ -13,6 +13,7 @@ import Button from "../common/buttons/Button";
 import PageHeader from "@/components/common/PageHeader";
 import TableSkeleton from "@/components/common/loading/TableSkeleton";
 import { adminQueryKeys, fetchTasksPageData, type TasksPageData } from "@/lib/queries/admin";
+import PageContainer from "@/components/layout/PageContainer";
 
 export default function TaskPage() {
     const queryClient = useQueryClient();
@@ -129,7 +130,7 @@ export default function TaskPage() {
                 }
             />
 
-            <div className="mx-8 mt-3 px-4 sm:px-6 lg:px-8 pb-12 flex flex-col gap-3">
+            <PageContainer className="mt-3 px-8 pb-12 flex flex-col gap-3">
                 <TaskFilterRow
                     projects={projects}
                     users={users}
@@ -167,7 +168,7 @@ export default function TaskPage() {
                     onSubmitLabelChange={setCreateSubmitLabel}
                     onSuccess={handleTaskCreated}
                 />
-            </div>
+            </PageContainer>
         </div>
     );
 }

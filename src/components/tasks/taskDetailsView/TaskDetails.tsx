@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { updateTask, getTaskAssignments } from "@/lib/api";
 import { TaskStatus, TaskPriority, TaskGoalType, TaskUnit } from "@/types/task";
 import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit, formatNumber, downloadImages } from "@/helpers/helpers";
@@ -9,13 +11,14 @@ import { formatDateTime, formatDate, translatePriority, translateStatus, getPrio
 
 import Modal from "@/components/modal/Modal";
 import CreateTaskForm from "@/components/tasks/createTask/CreateTaskForm";
-import { Clock, Calendar, Ellipsis, Check, Trash2, X, Archive, Copy, ImageDown } from "lucide-react";
+import { Clock, Calendar, Ellipsis, Check, Trash2, X, Archive, Copy, ImageDown, CornerDownLeft } from "lucide-react";
 import Badge from "../../common/label/Badge";
 import ProjectBadge from "../../common/label/ProjectBadge";
 import SingleAvatar from "../../common/label/SingleAvatar";
 import RecurringBadge from "../../common/label/RecurringBadge";
 import TaskTimeline from "@/components/tasks/taskDetailsView/taskTimeline/TaskTimeline";
 import TaskDescriptionCard from "./TaskDescriptionCard";
+import TextInput from "@/components/common/forms/TextInput";
 import Button from "@/components/common/buttons/Button";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import DetailsSectionHeader from "@/components/common/DetailsSectionHeader";
@@ -31,15 +34,21 @@ import TaskDetailsLoadingState from "./TaskDetailsLoadingState";
 import useDelayedVisibility from "@/hooks/useDelayedVisibility";
 import { adminQueryKeys } from "@/lib/queries/admin";
 import { fetchTaskDetailsData, taskQueryKeys, type TaskDetailsData } from "@/lib/queries/tasks";
+import PageChrome from "@/components/layout/PageChrome";
+import PageContainer from "@/components/layout/PageContainer";
+import { useAuth } from "@/hooks/useAuth";
 
 
 interface TaskDetailsProps {
     taskId: string;
     onClose: () => void;
     onDelete?: (taskId: string) => void;
+    fullPage?: boolean;
 }
 
 const sc = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
+
+const COLLAPSE_THRESHOLD = 80;
 
 const PRIORITY_OPTIONS = [
     { value: TaskPriority.HIGH, label: translatePriority(TaskPriority.HIGH), color: getPriorityAccentColors(TaskPriority.HIGH) },
@@ -55,16 +64,41 @@ const STATUS_OPTIONS = [
     TaskStatus.ARCHIVED,
 ].map((s) => ({ value: s, label: sc(translateStatus(s)), color: getStatusAccentColors(s) }));
 
-export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsProps) {
+export default function TaskDetails({ taskId, onClose, onDelete, fullPage = false }: TaskDetailsProps) {
     const [linkCopied, setLinkCopied] = useState(false);
     const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const queryClient = useQueryClient();
+    const router = useRouter();
+    const { user: currentUser } = useAuth();
 
     useEffect(() => {
         return () => {
             if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
         };
     }, []);
+
+    const [scrollContainer, setScrollContainer] = useState<HTMLElement | Window | null>(null);
+
+    const outerRef = useCallback((el: HTMLDivElement | null) => {
+        if (!el) return;
+        function findScrollParent(node: HTMLElement | null): HTMLElement | Window {
+            if (!node || node === document.documentElement) return window;
+            const { overflow, overflowY } = getComputedStyle(node);
+            if (/auto|scroll/.test(overflow + overflowY)) return node;
+            return findScrollParent(node.parentElement);
+        }
+        setScrollContainer(findScrollParent(el.parentElement));
+    }, []);
+
+    useEffect(() => {
+        if (!scrollContainer) return;
+        function handler() {
+            const top = scrollContainer instanceof Window ? scrollContainer.scrollY : (scrollContainer as HTMLElement).scrollTop;
+            setIsScrolled(top > COLLAPSE_THRESHOLD);
+        }
+        scrollContainer.addEventListener("scroll", handler, { passive: true });
+        return () => scrollContainer.removeEventListener("scroll", handler);
+    }, [scrollContainer]);
 
     const subtaskFormId = "create-subtask-form";
     const [showSubtaskModal, setShowSubtaskModal] = useState(false);
@@ -73,6 +107,10 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     const [isDownloading, setIsDownloading] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [titleDraft, setTitleDraft] = useState("");
+    const [titleSaveLoading, setTitleSaveLoading] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const { data, isLoading, error } = useQuery({
         queryKey: taskQueryKeys.details(taskId),
         queryFn: () => fetchTaskDetailsData(taskId),
@@ -82,7 +120,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     const [openPicker, setOpenPicker] = useState<{ key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal"; triggerEl: HTMLButtonElement } | null>(null);
 
     function handleCopyLink() {
-        const url = `${window.location.origin}/tasks?taskId=${taskId}`;
+        const url = `${window.location.origin}/tasks/${taskId}`;
         void navigator.clipboard.writeText(url)
             .then(() => {
                 if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
@@ -97,13 +135,32 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     const allUsers = data?.allUsers ?? [];
     const projects = data?.projects ?? [];
 
-    function togglePicker(key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal", triggerEl: HTMLButtonElement) {
-        if (isArchived) return;
-        setOpenPicker((current) => current?.key === key ? null : { key, triggerEl });
+    function closePicker() {
+        const pending = pendingAssigneesRef.current;
+        pendingAssigneesRef.current = null;
+        setOpenPicker(null);
+        if (task && pending !== null) {
+            void (async () => {
+                try {
+                    await updateTask(task.task_id, { assigned_users: pending });
+                    const updated = await getTaskAssignments(task.task_id);
+                    queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, assignments: updated } : current);
+                    queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+                } catch {
+                    toast.error("Kunne ikke opdatere tildelte brugere");
+                }
+            })();
+        }
     }
 
-    function closePicker() {
-        setOpenPicker(null);
+    function togglePicker(key: "project" | "priority" | "status" | "assignee" | "startDate" | "deadline" | "goal", triggerEl: HTMLButtonElement) {
+        if (isArchived) return;
+        if (openPicker?.key === key) {
+            closePicker();
+        } else {
+            closePicker();
+            setOpenPicker({ key, triggerEl });
+        }
     }
 
     async function handleDownloadAllImages() {
@@ -192,17 +249,12 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         }
     }
 
-    async function handleAssigneesSelect(userIds: string[]) {
-        if (!task) return;
-        try {
-            await updateTask(task.task_id, { assigned_users: userIds });
-            const updated = await getTaskAssignments(task.task_id);
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, assignments: updated } : current);
-            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
-        } catch {
-            toast.error("Kunne ikke opdatere tildelte brugere");
-        }
+    const pendingAssigneesRef = useRef<string[] | null>(null);
+
+    function handleAssigneesSelect(userIds: string[]) {
+        pendingAssigneesRef.current = userIds;
     }
+
 
     async function handleGoalSave(input: {
         goal_type: TaskGoalType;
@@ -233,10 +285,37 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
         }
     }
 
+    function handleStartEditTitle() {
+        if (!task) return;
+        setTitleDraft(task.title);
+        setIsEditingTitle(true);
+    }
+
+    function handleCancelEditTitle() {
+        setIsEditingTitle(false);
+        setTitleDraft("");
+    }
+
+    async function handleSaveTitle() {
+        if (!task || titleSaveLoading) return;
+        if (!titleDraft.trim()) { toast.error("Titel må ikke være tom"); return; }
+        if (titleDraft.trim() === task.title) { setIsEditingTitle(false); return; }
+        setTitleSaveLoading(true);
+        try {
+            const updated = await updateTask(task.task_id, { title: titleDraft.trim() });
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+            setIsEditingTitle(false);
+        } catch {
+            toast.error("Kunne ikke opdatere titel");
+        } finally {
+            setTitleSaveLoading(false);
+        }
+    }
+
     function handleOpenParentTask() {
         if (!task?.parent_task_id) return;
-        // TODO: Replace this stub once a dedicated single-task route exists.
-        toast.info(`Naviger til overopgave #${task.parent_task_id.slice(0, 8)} når task-routen er implementeret.`);
+        router.push(`/tasks/${task.parent_task_id}`);
     }
 
     async function handleDeleteTask() {
@@ -260,23 +339,29 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
     }
 
     if (isLoading) {
-        return showDelayedLoader ? <TaskDetailsLoadingState /> : null;
+        if (!showDelayedLoader) return null;
+        return fullPage ? (
+            <PageContainer size="task">
+                <TaskDetailsLoadingState />
+            </PageContainer>
+        ) : <TaskDetailsLoadingState />;
     }
 
     if (error || !task) {
-        return (
+        const errorState = (
             <div className="h-full flex flex-col">
                 <div className="p-6 bg-danger-surface border-b border-danger">
                     <span className="label-lg text-danger">{error instanceof Error ? error.message : error || "Opgave ikke fundet"}</span>
                 </div>
             </div>
         );
+        return fullPage ? <PageContainer size="task">{errorState}</PageContainer> : errorState;
     }
 
     const isArchived = task.status === TaskStatus.ARCHIVED;
 
     return (
-        <div className="flex flex-col h-full bg-surface">
+        <div ref={outerRef} className={`flex flex-col bg-background ${fullPage ? "w-full min-w-0" : "min-h-full"}`}>
             {/* Archived banner */}
             {isArchived && (
                 <div
@@ -288,53 +373,105 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                 </div>
             )}
 
-            {/* Header */}
-            <div className="px-8 pt-7 pb-5">
-                <div className="flex items-start justify-between mb-3">
-                    <h1 className="h1 wrap-break-word">
-                        {task.title}
-                        {task.number > 0 && (
-                            <span className="ml-2 font-normal" style={{ color: colors.textMuted }}>#{task.number}</span>
-                        )}
-                    </h1>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            icon={linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                            iconOnly
-                            onClick={handleCopyLink}
-                            tooltip={linkCopied ? "Kopieret!" : "Kopier link"}
-                        />
-                        <DropdownMenu
-                            trigger={<Button variant="ghost" size="md" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />}
-                            items={[
-                                {
-                                    label: isDownloading ? "Henter billeder..." : "Download billeder",
-                                    icon: <ImageDown className="w-4 h-4" />,
-                                    onClick: handleDownloadAllImages,
-                                },
-                                {
-                                    label: "Slet",
-                                    icon: <Trash2 className="w-4 h-4" />,
-                                    onClick: () => setConfirmDeleteOpen(true),
-                                    danger: true,
-                                    dividerBefore: true,
-                                },
-                            ]}
-                        />
-                        <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />
+            <PageChrome
+                header={isScrolled ? (
+                    <div className="sticky top-0 z-20 w-full border-b border-border bg-background">
+                        <PageContainer
+                            size="task"
+                            disabled={!fullPage}
+                            className="flex items-center justify-between gap-4 px-8 py-3"
+                        >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <Badge variant="status" size="lg" value={task.status} />
+                            <div className="flex flex-col min-w-0">
+                                <div className="flex items-center gap-1 min-w-0">
+                                    <span className="h5 truncate">{task.title}</span>
+                                    {task.number > 0 && (
+                                        fullPage
+                                            ? <span className="font-normal shrink-0" style={{ color: colors.textMuted }}>#{task.number}</span>
+                                            : <Link href={`/tasks/${taskId}`} className="font-normal shrink-0 hover:no-underline underline" style={{ color: colors.textMuted }}>#{task.number}</Link>
+                                    )}
+                                </div>
+                                {(task.recurring_template_id || task.project?.name) && (
+                                    <div className="flex items-center gap-2">
+                                        {task.recurring_template_id && <RecurringBadge iconOnly size="sm" />}
+                                        {task.project?.name && <ProjectBadge size="sm" name={task.project.name} />}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                            <Button variant="ghost" size="md" icon={linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} iconOnly onClick={handleCopyLink} tooltip={linkCopied ? "Kopieret!" : "Kopier link"} />
+                            <DropdownMenu
+                                trigger={<Button variant="ghost" size="md" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />}
+                                items={[
+                                    { label: isDownloading ? "Henter billeder..." : "Download billeder", icon: <ImageDown className="w-4 h-4" />, onClick: handleDownloadAllImages },
+                                    { label: "Slet", icon: <Trash2 className="w-4 h-4" />, onClick: () => setConfirmDeleteOpen(true), danger: true, dividerBefore: true },
+                                ]}
+                            />
+                            {!fullPage && <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />}
+                        </div>
+                        </PageContainer>
+                    </div>
+                ) : undefined}
+            >
+
+                <PageContainer size="task" disabled={!fullPage}>
+                {/* Header */}
+                <div className="px-8 pt-7 pb-5">
+                    {isEditingTitle ? (
+                        <div className="flex items-center gap-2 mb-3">
+                            <TextInput
+                                autoFocus
+                                value={titleDraft}
+                                onChange={(e) => setTitleDraft(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") void handleSaveTitle();
+                                    if (e.key === "Escape") handleCancelEditTitle();
+                                }}
+                            />
+                            <Button variant="secondary" size="md" onClick={handleCancelEditTitle} disabled={titleSaveLoading}>Annuller</Button>
+                            <Button variant="primary" size="md" kbd={<CornerDownLeft className="w-3.5 h-3.5" />} onClick={() => void handleSaveTitle()} loading={titleSaveLoading}>Gem</Button>
+                        </div>
+                    ) : (
+                        <div className="flex items-start justify-between mb-3">
+                            <h1 className="h1 wrap-break-word">
+                                {task.title}
+                                {task.number > 0 && (
+                                    fullPage
+                                        ? <span className="ml-2 font-normal" style={{ color: colors.textMuted }}>#{task.number}</span>
+                                        : <Link href={`/tasks/${taskId}`} className="ml-2 font-normal hover:no-underline underline" style={{ color: colors.textMuted }}>#{task.number}</Link>
+                                )}
+                            </h1>
+                            <div className="flex items-center gap-1 shrink-0">
+                                {!isArchived && <Button variant="secondary" onClick={handleStartEditTitle}>Rediger</Button>}
+                                <Button
+                                    variant="ghost"
+                                    size="md"
+                                    icon={linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                    iconOnly
+                                    onClick={handleCopyLink}
+                                    tooltip={linkCopied ? "Kopieret!" : "Kopier link"}
+                                />
+                                <DropdownMenu
+                                    trigger={<Button variant="ghost" size="md" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />}
+                                    items={[
+                                        { label: isDownloading ? "Henter billeder..." : "Download billeder", icon: <ImageDown className="w-4 h-4" />, onClick: handleDownloadAllImages },
+                                        { label: "Slet", icon: <Trash2 className="w-4 h-4" />, onClick: () => setConfirmDeleteOpen(true), danger: true, dividerBefore: true },
+                                    ]}
+                                />
+                                {!fullPage && <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />}
+                            </div>
+                        </div>
+                    )}
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <Badge variant="status" value={task.status} size="lg" />
+                        {task.recurring_template_id && <RecurringBadge size="lg" />}
+                        {task.project?.name && <ProjectBadge name={task.project.name} size="md" />}
                     </div>
                 </div>
-                <div className="flex items-center gap-3 flex-wrap">
-                    <Badge variant="status" value={task.status} size="lg" />
-                    {task.recurring_template_id && <RecurringBadge size="lg" />}
-                    {task.project?.name && <ProjectBadge name={task.project.name} size="md" />}
-                </div>
-            </div>
-            <div className="mx-8" style={{ borderTop: `1px solid ${colors.border}` }} />
+                <div className="mx-8" style={{ borderTop: `1px solid ${colors.border}` }} />
 
-            <div className="flex flex-1 overflow-y-auto">
                 <div className="flex flex-1 px-8 gap-8 min-w-0">
                     {/* Main content */}
                     <div className="flex-1 pt-6 min-w-0">
@@ -346,6 +483,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                             showSubtaskButton={task.parent_task_id == null}
                             onAddSubtask={() => setShowSubtaskModal(true)}
                             isArchived={isArchived}
+                            isAuthor={currentUser?.user_id === task.created_by}
                             onSaveDescription={handleDescriptionSave}
                         />
                         <TaskTimeline taskId={task.task_id} creatorId={task.created_by} assigneeIds={assignments.map((a) => a.user_id)} isArchived={isArchived} />
@@ -353,7 +491,7 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                     </div>
 
                     {/* Sidebar */}
-                    <div className="w-70 py-6 self-start" style={{ position: "sticky", top: 0 }}>
+                    <div className="w-70 py-6 self-start" style={{ position: "sticky", top: isScrolled ? 64 : 16, transition: "top 150ms ease" }}>
                         <div>
                             <div>
 
@@ -543,7 +681,8 @@ export default function TaskDetails({ taskId, onClose, onDelete }: TaskDetailsPr
                         </div>
                     </div>
                 </div>
-            </div>
+                </PageContainer>
+            </PageChrome>
 
             {/* Pickers */}
             <DetailsSinglePicker

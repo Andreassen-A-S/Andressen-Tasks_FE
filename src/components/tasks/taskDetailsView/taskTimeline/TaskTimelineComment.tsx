@@ -88,6 +88,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
     const canDelete = !isArchived && !isDeleted && onDelete && !!commentId && (isAdmin || currentUserId === event.actor_id);
     const canEdit = !isArchived && !isDeleted && !!commentId && currentUserId === event.actor_id;
     const canDownloadImages = !!isAdmin && images.length > 0;
+    const isAuthor = currentUserId === event.actor_id;
 
     async function handleDelete() {
         if (!onDelete || !commentId) return;
@@ -119,28 +120,28 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                     ? <UserCard userId={event.actor_id} name={actorName} actor={event.actor}><SingleAvatar name={actorName} size="sm" /></UserCard>
                     : <SingleAvatar name={actorName} size="sm" />
                 }
-                <div className="flex-1 rounded-lg overflow-hidden" style={{ backgroundColor: colors.white, border: `1px solid ${colors.border}` }}>
-                    <div className="pl-4 pr-1 py-1 flex items-center gap-1" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.whiteHover }}>
-                        <span className="label-lg flex-shrink-0">{actorName}</span>
+                <div className={`flex-1 bg-background border rounded-lg overflow-hidden ${isAuthor ? "border-accent/30" : "border-border"}`}>
+                    <div className={`border-b pl-4 pr-1 py-1 flex items-center gap-1 ${isAuthor ? "border-accent/30 bg-accent-surface" : "border-border bg-surface"}`}>
+                        <span className="label-lg shrink-0">{actorName}</span>
                         {editedBy ? (
-                            <span className="body-xs flex-shrink-0 inline-flex items-center gap-1.5">
+                            <span className="body-xs shrink-0 inline-flex items-center gap-1.5">
                                 {formatCommentDate(event.created_at)}
-                                <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ backgroundColor: colors.textMuted }} />
+                                <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: colors.textMuted }} />
                                 redigeret af {editedBy}
                             </span>
                         ) : (
                             <>
-                                <span className="body-xs flex-shrink-0">kommenterede</span>
-                                <span className="body-xs flex-shrink-0">{formatCommentDate(event.created_at)}</span>
+                                <span className="body-xs shrink-0">kommenterede</span>
+                                <span className="body-xs shrink-0">{formatCommentDate(event.created_at)}</span>
                             </>
                         )}
 
-                        <div className="ml-auto flex min-h-7 min-w-7 items-center justify-end gap-1 flex-shrink-0">
+                        <div className="ml-auto flex min-h-7 min-w-7 items-center justify-end gap-1 shrink-0">
                             {isTaskOwner && (
-                                <OutlineBadge label="Ejer" tooltip={currentUserId === event.actor_id ? "Du er opgavens ejer" : "Opgavens ejer"} />
+                                <OutlineBadge label="Ejer" tooltip={isAuthor ? "Du er opgavens ejer" : "Opgavens ejer"} variant={isAuthor ? "accent" : "neutral"} />
                             )}
                             {isAssignee && !isTaskOwner && (
-                                <OutlineBadge label="Tildelt" tooltip={currentUserId === event.actor_id ? "Du er tildelt opgaven" : "Tildelt opgaven"} />
+                                <OutlineBadge label="Tildelt" tooltip={isAuthor ? "Du er tildelt opgaven" : "Tildelt opgaven"} variant={isAuthor ? "accent" : "neutral"} />
                             )}
                             {(canEdit || canDelete || canDownloadImages) && (
                                 <div>
