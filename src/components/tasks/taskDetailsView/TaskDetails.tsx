@@ -283,7 +283,8 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     }
 
     async function handleSaveTitle() {
-        if (!task || !titleDraft.trim() || titleSaveLoading) return;
+        if (!task || titleSaveLoading) return;
+        if (!titleDraft.trim()) { toast.error("Titel må ikke være tom"); return; }
         if (titleDraft.trim() === task.title) { setIsEditingTitle(false); return; }
         setTitleSaveLoading(true);
         try {
