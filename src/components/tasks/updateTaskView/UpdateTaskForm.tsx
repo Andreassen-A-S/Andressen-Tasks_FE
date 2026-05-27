@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { updateTask, getTaskAssignments } from "@/lib/api";
 import type { Task, UpdateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskUnit } from "@/types/task";
-import { Info, TriangleAlert } from "lucide-react";
 import { removeUndefined, toIsoDate, toDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "../createTask/BasicInfoCard";
 import AssignmentCard from "../createTask/AssignmentCard";
@@ -14,6 +13,7 @@ import ProjectPickerCard from "../createTask/ProjectPickerCard";
 import { TaskStatus } from "@/types/task";
 import { toast } from "sonner";
 import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
+import Banner from "@/components/common/Banner";
 
 interface UpdateTaskFormProps {
     formId: string;
@@ -145,44 +145,30 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
 
     return (
         <form id={formId} onSubmit={handleSubmit} className="flex flex-col h-full">
-            {/* Info Banner for Recurring Tasks */}
             {isRecurringInstance && (
-                <div className="mb-6 p-4 bg-info-surface border-l-4 border-link rounded-r-[12px]">
-                    <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 flex-shrink-0 text-link" />
-                        <div>
-                            <h4 className="h5">Gentagende opgave instans</h4>
-                            <p className="body-sm mt-1">
-                                Dette er en instans af en gentagende opgave. Ændringer påvirker kun denne specifikke instans.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <Banner
+                    variant="info"
+                    title="Gentagende opgave instans"
+                    className="mb-6"
+                >
+                    Dette er en instans af en gentagende opgave. Ændringer påvirker kun denne specifikke instans.
+                </Banner>
             )}
 
-            {/* Info Banner for Subtasks */}
             {isSubtask && (
-                <div className="mb-6 p-4 bg-accent-surface border-l-4 border-accent-mid rounded-r-[12px]">
-                    <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 flex-shrink-0 text-accent-mid" />
-                        <div>
-                            <h4 className="h5">Redigerer underopgave</h4>
-                            <p className="body-sm mt-1">
-                                Denne opgave er en underopgave af en større opgave.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <Banner
+                    variant="success"
+                    title="Redigerer underopgave"
+                    className="mb-6"
+                >
+                    Denne opgave er en underopgave af en større opgave.
+                </Banner>
             )}
 
-            {/* Error Message */}
             {error && (
-                <div className="mb-6 p-4 bg-danger-surface border-l-4 border-danger rounded-r-[12px]">
-                    <div className="flex items-start gap-3">
-                        <TriangleAlert className="w-5 h-5 flex-shrink-0 text-danger" />
-                        <p className="body-sm">{error}</p>
-                    </div>
-                </div>
+                <Banner variant="danger" className="mb-6">
+                    {error}
+                </Banner>
             )}
 
             {/* Scrollable Form Content */}

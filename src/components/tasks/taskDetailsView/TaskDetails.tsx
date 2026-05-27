@@ -37,6 +37,7 @@ import { fetchTaskDetailsData, taskQueryKeys, type TaskDetailsData } from "@/lib
 import PageChrome from "@/components/layout/PageChrome";
 import PageContainer from "@/components/layout/PageContainer";
 import { useAuth } from "@/hooks/useAuth";
+import Banner from "@/components/common/Banner";
 
 
 interface TaskDetailsProps {
@@ -475,6 +476,23 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                 <div className="flex flex-1 px-8 gap-8 min-w-0">
                     {/* Main content */}
                     <div className="flex-1 pt-6 min-w-0">
+                        <div className="mb-6 space-y-3">
+                            <Banner variant="default" title="Standard banner">
+                                Bruges til neutral information eller statusbeskeder.
+                            </Banner>
+                            <Banner variant="info" title="Info banner">
+                                Bruges til nyttig kontekst, tips eller forklaringer.
+                            </Banner>
+                            <Banner variant="success" title="Success banner">
+                                Bruges når en handling er gennemført.
+                            </Banner>
+                            <Banner variant="warning" title="Advarsel banner">
+                                Bruges når brugeren bør være opmærksom før næste handling.
+                            </Banner>
+                            <Banner variant="danger" title="Fejl banner">
+                                Bruges til fejl eller blokkerende problemer.
+                            </Banner>
+                        </div>
                         <TaskDescriptionCard
                             creator={creator}
                             creatorId={task.created_by}
