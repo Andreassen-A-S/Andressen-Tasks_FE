@@ -2,7 +2,7 @@
 
 import { createContext, useState, useEffect } from "react";
 import { User, UserRole } from "@/types/users";
-import { verifyToken } from "@/lib/api";
+import { verifyToken, getUser } from "@/lib/api";
 import { login as apiLogin } from "@/lib/api";
 
 export interface SavedAccount {
@@ -60,6 +60,7 @@ interface AuthContextType {
     logout: () => void;
     switchAccount: (account: SavedAccount) => void;
     setContextOrg: (orgId: string | null) => void;
+    updateCurrentUser: (updates: Partial<User>) => void;
 }
 
 interface AuthProviderProps {
@@ -91,9 +92,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     const response = await verifyToken(token);
 
                     if (response?.user?.user_id) {
+                        const freshUser = await getUser(response.user.user_id);
                         setIsAuthenticated(true);
-                        setUser(response.user);
-                        setUserRole(response.user.role);
+                        setUser(freshUser);
+                        setUserRole(freshUser.role);
                     } else {
                         throw new Error("Invalid user data");
                     }
@@ -171,6 +173,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setContextOrgId(null);
     };
 
+    const updateCurrentUser = (updates: Partial<User>) => {
+        setUser((prev) => {
+            if (!prev) return prev;
+            const updated = { ...prev, ...updates };
+            const accounts = loadSavedAccounts();
+            const token = localStorage.getItem("authToken") ?? "";
+            persistSavedAccounts(upsertAccount(accounts, { token, user: updated }));
+            setSavedAccounts(upsertAccount(accounts, { token, user: updated }));
+            return updated;
+        });
+    };
+
     const switchAccount = (account: SavedAccount) => {
         localStorage.setItem("authToken", account.token);
         localStorage.setItem("userRole", account.user.role);
@@ -196,6 +210,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             logout,
             switchAccount,
             setContextOrg,
+            updateCurrentUser,
         }}>
             {children}
         </AuthContext.Provider>

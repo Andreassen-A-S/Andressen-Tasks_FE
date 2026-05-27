@@ -58,3 +58,14 @@ export async function deleteUser(userId: string): Promise<void> {
   });
   if (!res.ok) throw new Error("Failed to delete user");
 }
+
+export async function prepareProfilePicture(userId: string, mimeType: string): Promise<{ upload_url: string; gcs_path: string }> {
+  const res = await fetch(`${API_URL}/users/${userId}/profile-picture/prepare`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ mime_type: mimeType }),
+  });
+  if (!res.ok) throw new Error("Failed to prepare profile picture upload");
+  const data = await res.json();
+  return data.data;
+}

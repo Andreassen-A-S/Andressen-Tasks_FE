@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { updateUser } from "@/lib/api/users";
+import { prepareProfilePicture, updateUser } from "@/lib/api/users";
+import { uploadToGcs } from "@/lib/api/attachments";
 import { getPositions } from "@/lib/api/positions";
 import { UpdateUserInput, User, UserStatus, isAdminRole } from "@/types/users";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,6 +13,16 @@ import TextInput from "@/components/common/forms/TextInput";
 import SelectField from "@/components/common/forms/SelectField";
 import Banner from "@/components/common/Banner";
 import { formatMissingRequiredFields } from "@/helpers/formValidation";
+import SingleAvatar from "@/components/common/label/SingleAvatar";
+import Button from "@/components/common/buttons/Button";
+import LogoCropModal from "@/components/organizations/LogoCropModal";
+import { ImageUp, X } from "lucide-react";
+
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+function revokeObjectUrl(url: string | null) {
+    if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+}
 
 interface UpdateEmployeeFormProps {
     formId: string;
@@ -40,6 +51,13 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         position_id: user.position_id || "",
         status: user.status || UserStatus.ACTIVE,
     });
+    const [pictureUrl, setPictureUrl] = useState<string | null>(user.profile_picture_url ?? null);
+    const [picturePreview, setPicturePreview] = useState<string | null>(user.profile_picture_url ?? null);
+    const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const [pictureLoading, setPictureLoading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const cropSrcRef = useRef<string | null>(null);
+    const picturePreviewRef = useRef<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
@@ -58,6 +76,35 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        e.target.value = "";
+        if (!file) return;
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+            toast.error("Kun JPEG, PNG og WebP er tilladt");
+            return;
+        }
+        const src = URL.createObjectURL(file);
+        setCropSrc((prev) => { revokeObjectUrl(prev); return src; });
+    }
+
+    async function handleCropConfirm(blob: Blob) {
+        const nextPreview = URL.createObjectURL(blob);
+        setCropSrc((prev) => { revokeObjectUrl(prev); return null; });
+        setPicturePreview((prev) => { revokeObjectUrl(prev); return nextPreview; });
+        setPictureLoading(true);
+        try {
+            const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, blob.type);
+            await uploadToGcs(upload_url, new File([blob], "profile.webp", { type: blob.type }));
+            setPictureUrl(gcs_path);
+        } catch {
+            toast.error("Billedupload fejlede. Prøv igen.");
+            setPicturePreview((prev) => { revokeObjectUrl(prev); return pictureUrl; });
+        } finally {
+            setPictureLoading(false);
+        }
+    }
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
@@ -70,9 +117,8 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 position_id: formData.position_id || null,
                 ...(canEditStatus ? { status: formData.status } : {}),
             };
-            if (formData.password) {
-                updates.password = formData.password;
-            }
+            if (formData.password) updates.password = formData.password;
+            if (pictureUrl !== user.profile_picture_url) updates.profile_picture_url = pictureUrl;
             const updatedUser = await updateUser(user.user_id, updates);
             toast.success("Medarbejder opdateret");
             onSuccess(updatedUser);
@@ -84,8 +130,18 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
     }
 
     useEffect(() => {
-        onLoadingChange?.(loading);
-    }, [loading, onLoadingChange]);
+        onLoadingChange?.(loading || pictureLoading);
+    }, [loading, pictureLoading, onLoadingChange]);
+
+    useEffect(() => {
+        cropSrcRef.current = cropSrc;
+        picturePreviewRef.current = picturePreview;
+    }, [cropSrc, picturePreview]);
+
+    useEffect(() => () => {
+        revokeObjectUrl(cropSrcRef.current);
+        revokeObjectUrl(picturePreviewRef.current);
+    }, []);
 
     useEffect(() => {
         if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
@@ -115,6 +171,53 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 </Banner>
             )}
             <div className="space-y-4">
+                <div>
+                    <label className="label-md block mb-2">Profilbillede</label>
+                    <div className="flex items-center gap-3">
+                        <SingleAvatar name={formData.name || user.email} size="lg" imageUrl={picturePreview} />
+                        <div className="flex flex-col gap-2">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                icon={<ImageUp className="w-4 h-4" />}
+                                loading={pictureLoading}
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                Upload billede
+                            </Button>
+                            {picturePreview && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    icon={<X className="w-4 h-4" />}
+                                    disabled={pictureLoading}
+                                    onClick={() => {
+                                        setPictureUrl(null);
+                                        setPicturePreview((prev) => { revokeObjectUrl(prev); return null; });
+                                    }}
+                                >
+                                    Fjern billede
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept={ALLOWED_IMAGE_TYPES.join(",")}
+                        onChange={handleFileChange}
+                        className="hidden"
+                    />
+                    {cropSrc && (
+                        <LogoCropModal
+                            imageSrc={cropSrc}
+                            onConfirm={handleCropConfirm}
+                            onClose={() => setCropSrc((prev) => { revokeObjectUrl(prev); return null; })}
+                        />
+                    )}
+                </div>
                 <div>
                     <label htmlFor="name" className="label-md block mb-2">Navn</label>
                     <TextInput

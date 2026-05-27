@@ -52,6 +52,7 @@ export interface UpdateUserInput {
   role?: UserRole;
   password?: string;
   status?: UserStatus;
+  profile_picture_url?: string | null;
 }
 
 export interface CreateUserInput {
