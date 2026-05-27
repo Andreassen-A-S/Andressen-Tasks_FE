@@ -148,13 +148,6 @@ export default function CreateTaskForm({
             return;
         }
 
-        setShowMissingRequiredBanner(false);
-
-        if (!projectId) {
-            setError("Vælg venligst et projekt.");
-            return;
-        }
-
         if (
             formData.goal_type === TaskGoalType.FIXED &&
             (formData.unit ?? TaskUnit.NONE) !== TaskUnit.NONE &&
