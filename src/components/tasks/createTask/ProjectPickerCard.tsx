@@ -18,17 +18,21 @@ export default function ProjectPickerCard({ projectId, onProjectChange }: Projec
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const loadProjects = useCallback(() => {
+  const loadProjects = useCallback(async () => {
     setLoading(true);
     setError(false);
-    getProjects()
-      .then(setProjects)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+    try {
+      const data = await getProjects();
+      setProjects(data);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    loadProjects();
+    void loadProjects();
   }, [loadProjects]);
 
   return (
@@ -42,7 +46,7 @@ export default function ProjectPickerCard({ projectId, onProjectChange }: Projec
           <Banner
             variant="warning"
             title="Projekter kunne ikke indlæses"
-            action={<Button variant="secondary" onClick={loadProjects}>Prøv igen</Button>}
+            action={<Button variant="secondary" onClick={() => void loadProjects()}>Prøv igen</Button>}
           >
             Kunne ikke hente projekter.
           </Banner>
