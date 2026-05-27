@@ -20,7 +20,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { login } = useAuth();
+    const { addAccount } = useAuth();
 
     function handleClose() {
         setEmail("");
@@ -35,9 +35,8 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
         try {
             setIsLoading(true);
             setError(null);
-            await login(email, password);
+            await addAccount(email, password);
             onSuccess();
-            window.location.href = "/";
         } catch {
             setError("Forkert email eller adgangskode. Prøv igen.");
         } finally {

@@ -56,6 +56,7 @@ interface AuthContextType {
     savedAccounts: SavedAccount[];
     contextOrgId: string | null;
     login: (email: string, password: string) => Promise<void>;
+    addAccount: (email: string, password: string) => Promise<void>;
     logout: () => void;
     switchAccount: (account: SavedAccount) => void;
     setContextOrg: (orgId: string | null) => void;
@@ -112,34 +113,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }, []);
 
     const login = async (email: string, password: string) => {
-        try {
-            setIsLoading(true);
+        const response = await apiLogin({ email, password });
 
-            const response = await apiLogin({ email, password });
-
-            if (!response.token) {
-                throw new Error("Backend did not return a token.");
-            }
-
-            if (!response.user) {
-                throw new Error("Backend did not return user data.");
-            }
-
-            localStorage.setItem("authToken", response.token);
-            localStorage.setItem("userRole", response.user.role);
-            localStorage.removeItem("orgContext");
-            setContextOrgId(null);
-
-            const updated = upsertAccount(loadSavedAccounts(), { token: response.token, user: response.user });
-            persistSavedAccounts(updated);
-            setSavedAccounts(updated);
-
-            setIsAuthenticated(true);
-            setUser(response.user);
-            setUserRole(response.user.role);
-        } finally {
-            setIsLoading(false);
+        if (!response.token) {
+            throw new Error("Backend did not return a token.");
         }
+
+        if (!response.user) {
+            throw new Error("Backend did not return user data.");
+        }
+
+        localStorage.setItem("authToken", response.token);
+        localStorage.setItem("userRole", response.user.role);
+        localStorage.removeItem("orgContext");
+        setContextOrgId(null);
+
+        const updated = upsertAccount(loadSavedAccounts(), { token: response.token, user: response.user });
+        persistSavedAccounts(updated);
+        setSavedAccounts(updated);
+
+        setIsAuthenticated(true);
+        setUser(response.user);
+        setUserRole(response.user.role);
+    };
+
+    const addAccount = async (email: string, password: string) => {
+        const response = await apiLogin({ email, password });
+
+        if (!response.token) throw new Error("Backend did not return a token.");
+        if (!response.user) throw new Error("Backend did not return user data.");
+
+        const updated = upsertAccount(loadSavedAccounts(), { token: response.token, user: response.user });
+        persistSavedAccounts(updated);
+        setSavedAccounts(updated);
+
+        localStorage.setItem("authToken", response.token);
+        localStorage.setItem("userRole", response.user.role);
+        localStorage.removeItem("orgContext");
+        window.location.href = "/";
     };
 
     const setContextOrg = (orgId: string | null) => {
@@ -181,6 +192,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             savedAccounts,
             contextOrgId,
             login,
+            addAccount,
             logout,
             switchAccount,
             setContextOrg,
