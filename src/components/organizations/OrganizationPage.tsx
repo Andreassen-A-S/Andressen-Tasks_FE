@@ -7,12 +7,12 @@ import { getOrganizations } from "@/lib/api/organizations";
 import PageHeader from "@/components/common/PageHeader";
 import Button from "@/components/common/buttons/Button";
 import TableSkeleton from "@/components/common/loading/TableSkeleton";
-import { colors } from "@/constants/colors";
 import { formatNumber } from "@/helpers/helpers";
 import OrganizationTable from "./OrganizationTable";
 import OrganizationCreateModal from "./OrganizationCreateModal";
 import { MESTERPLAN_ORG_ID } from "@/constants/org";
 import PageContainer from "@/components/layout/PageContainer";
+import Banner from "@/components/common/Banner";
 
 export default function OrganizationPage() {
     const queryClient = useQueryClient();
@@ -20,7 +20,7 @@ export default function OrganizationPage() {
     const [createLoading, setCreateLoading] = useState(false);
     const formId = "create-organization-form";
 
-    const { data: allOrganizations = [], isPending, isError } = useQuery({
+    const { data: allOrganizations = [], isPending, isError, refetch } = useQuery({
         queryKey: ["organizations"],
         queryFn: getOrganizations,
     });
@@ -52,9 +52,13 @@ export default function OrganizationPage() {
                 {isPending ? (
                     <TableSkeleton columns={5} rows={5} />
                 ) : isError ? (
-                    <div className="rounded-md border px-6 py-12 text-center" style={{ borderColor: colors.border }}>
-                        <p className="body-md" style={{ color: colors.textMuted }}>Kunne ikke hente organisationer. Prøv igen senere.</p>
-                    </div>
+                    <Banner
+                        variant="warning"
+                        title="Data kunne ikke indlæses"
+                        action={<Button variant="secondary" onClick={() => void refetch()}>Prøv igen</Button>}
+                    >
+                        Kunne ikke hente organisationer.
+                    </Banner>
                 ) : (
                     <OrganizationTable organizations={organizations} />
                 )}

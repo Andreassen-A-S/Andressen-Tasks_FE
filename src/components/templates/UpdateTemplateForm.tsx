@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { updateRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
@@ -12,7 +12,8 @@ import RecurringCard from "@/components/tasks/createTask/RecurringCard";
 import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
 import { UpdateRecurringTemplateInput } from "@/types/recuringTemplate";
 import { toast } from "sonner";
-import { colors } from "@/constants/colors";
+import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface UpdateTemplateFormProps {
     formId: string;
@@ -46,6 +47,16 @@ export default function UpdateTemplateForm({ formId, onLoadingChange, template, 
     const [projectId, setProjectId] = useState(template.project_id);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
+    const missingRequiredFields = useMemo(() => {
+        const fields: string[] = [];
+        if (!formData.title.trim()) fields.push("titel");
+        if (!formData.description.trim()) fields.push("beskrivelse");
+        if (!projectId) fields.push("projekt");
+        if (!recurringData.start_date) fields.push("startdato");
+        return fields;
+    }, [formData.description, formData.title, projectId, recurringData.start_date]);
+    const missingRequiredText = useMemo(() => formatMissingRequiredFields(missingRequiredFields), [missingRequiredFields]);
 
     useEffect(() => {
         onLoadingChange?.(loading);
@@ -78,8 +89,9 @@ export default function UpdateTemplateForm({ formId, onLoadingChange, template, 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!projectId) {
-            setError("Vælg venligst et projekt.");
+        if (missingRequiredFields.length > 0) {
+            setShowMissingRequiredBanner(true);
+            setError(null);
             return;
         }
 
@@ -93,6 +105,7 @@ export default function UpdateTemplateForm({ formId, onLoadingChange, template, 
         }
 
         setLoading(true);
+        setShowMissingRequiredBanner(false);
         setError(null);
 
         try {
@@ -128,19 +141,36 @@ export default function UpdateTemplateForm({ formId, onLoadingChange, template, 
 
 
 
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
+    }, [missingRequiredFields.length]);
+
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-            {/* Error Message */}
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex-1 overflow-y-auto">
+            <Banner
+                variant="info"
+                title="Du redigerer en gentagende opgaveskabelon"
+                className="mb-4"
+            >
+                Ændringer bruges på fremtidige opgaver, der oprettes fra skabelonen.
+            </Banner>
+
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner variant="warning" className="mb-4">
+                    Tilføj {missingRequiredText} før skabelonen kan gemmes.
+                </Banner>
+            )}
+
             {error && (
-                <div
-                    className="mb-4 rounded-md border px-4 py-3"
-                    style={{
-                        borderColor: colors.red,
-                        backgroundColor: colors.redLight,
-                    }}
-                >
-                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
-                </div>
+                <Banner variant="warning" className="mb-4">
+                    {error}
+                </Banner>
             )}
 
             {/* Scrollable Form Content */}

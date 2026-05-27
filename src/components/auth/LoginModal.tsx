@@ -7,6 +7,7 @@ import Modal from "@/components/modal/Modal";
 import { colors } from "@/constants/colors";
 import TextInput from "../common/forms/TextInput";
 import Button from "../common/buttons/Button";
+import Banner from "@/components/common/Banner";
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -80,9 +81,9 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
                 </div>
 
                 {error && (
-                    <div className="rounded-lg bg-danger-surface border border-danger-border px-4 py-3">
-                        <p className="body-sm text-danger">{error}</p>
-                    </div>
+                    <Banner variant="warning">
+                        {error}
+                    </Banner>
                 )}
                 <Button
                     variant="primary"

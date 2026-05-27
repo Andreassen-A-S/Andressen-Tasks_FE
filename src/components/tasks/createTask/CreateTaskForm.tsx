@@ -16,6 +16,7 @@ import SchedulingCard from "./SchedulingCard";
 import ProjectPickerCard from "./ProjectPickerCard";
 import { toast } from "sonner";
 import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface CreateTaskFormProps {
     formId: string;
@@ -66,8 +67,23 @@ export default function CreateTaskForm({
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
 
     const isSubtask = !!parentTaskId;
+    const missingRequiredFields = useMemo(() => {
+        const fields: string[] = [];
+        if (!formData.title.trim()) fields.push("titel");
+        if (!formData.description.trim()) fields.push("beskrivelse");
+        if (!isSubtask && !projectId) fields.push("projekt");
+        if (formData.assigned_users.length === 0) fields.push("ansvarlig");
+        if (!isRecurring && !formData.deadline) fields.push("deadline");
+        return fields;
+    }, [formData.assigned_users.length, formData.deadline, formData.description, formData.title, isRecurring, isSubtask, projectId]);
+
+    const missingRequiredText = useMemo(() => {
+        return formatMissingRequiredFields(missingRequiredFields);
+    }, [missingRequiredFields]);
+
     const submitLabel = useMemo(() => {
         if (creationMode === "individual" && formData.assigned_users.length >= 2) {
             return `Opret ${formData.assigned_users.length} Opgaver`;
@@ -84,6 +100,12 @@ export default function CreateTaskForm({
     useEffect(() => {
         onSubmitLabelChange?.(submitLabel);
     }, [onSubmitLabelChange, submitLabel]);
+
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) {
+            setShowMissingRequiredBanner(false);
+        }
+    }, [missingRequiredFields.length]);
 
     const handleGoalTypeChange = (checked: boolean) => {
         setFormData(prev => ({
@@ -111,8 +133,22 @@ export default function CreateTaskForm({
         setFormData(prev => ({ ...prev, start_date: date }));
     };
 
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (missingRequiredFields.length > 0) {
+            setShowMissingRequiredBanner(true);
+            setError(null);
+            return;
+        }
+
+        setShowMissingRequiredBanner(false);
 
         if (!projectId) {
             setError("Vælg venligst et projekt.");
@@ -211,7 +247,7 @@ export default function CreateTaskForm({
     }
 
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex flex-col h-full">
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex flex-col h-full">
             {isSubtask && (
                 <Banner
                     variant="info"
@@ -222,8 +258,18 @@ export default function CreateTaskForm({
                 </Banner>
             )}
 
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner
+                    variant="warning"
+                    title="Opgaven mangler oplysninger"
+                    className="mb-6"
+                >
+                    Tilføj {missingRequiredText} før opgaven kan oprettes.
+                </Banner>
+            )}
+
             {error && (
-                <Banner variant="danger" className="mb-6">
+                <Banner variant="warning" className="mb-6">
                     {error}
                 </Banner>
             )}

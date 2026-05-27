@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Info, TriangleAlert, X } from "lucide-react";
+import { CheckCircle2, GitBranch, Info, TriangleAlert, X } from "lucide-react";
 import type { ReactNode } from "react";
 import Button from "@/components/common/buttons/Button";
 
@@ -17,33 +17,34 @@ interface BannerProps {
     className?: string;
     id?: string;
     as?: "div" | "section";
+    icon?: ReactNode;
 }
 
 const variantClasses: Record<BannerVariant, { container: string; icon: string; iconNode: ReactNode }> = {
     default: {
-        container: "border-border bg-surface-subtle text-text-primary",
+        container: "border-border bg-surface-hover text-text-primary",
         icon: "text-text-muted",
-        iconNode: <Info className="w-4 h-4" />,
+        iconNode: <GitBranch className="w-5 h-5" />,
     },
     info: {
         container: "border-link bg-info-surface text-text-primary",
         icon: "text-link",
-        iconNode: <Info className="w-4 h-4" />,
+        iconNode: <Info className="w-5 h-5" />,
     },
     success: {
         container: "border-accent-mid bg-accent-surface text-text-primary",
         icon: "text-accent",
-        iconNode: <CheckCircle2 className="w-4 h-4" />,
+        iconNode: <CheckCircle2 className="w-5 h-5" />,
     },
     warning: {
-        container: "border-warning bg-warning-surface text-text-primary",
+        container: "border-[var(--warning-border)] bg-warning-surface text-text-primary",
         icon: "text-warning",
-        iconNode: <TriangleAlert className="w-4 h-4" />,
+        iconNode: <TriangleAlert className="w-5 h-5" />,
     },
     danger: {
         container: "border-danger bg-danger-surface text-text-primary",
         icon: "text-danger",
-        iconNode: <TriangleAlert className="w-4 h-4" />,
+        iconNode: <TriangleAlert className="w-5 h-5" />,
     },
 };
 
@@ -58,6 +59,7 @@ export default function Banner({
     className = "",
     id,
     as = "div",
+    icon,
 }: BannerProps) {
     const Component = as;
     const styles = variantClasses[variant];
@@ -69,28 +71,28 @@ export default function Banner({
             id={id}
             aria-labelledby={headingId}
             className={[
-                "rounded-lg border px-4 py-3",
+                "rounded-lg border px-5 py-2.5",
                 styles.container,
                 className,
             ].filter(Boolean).join(" ")}
         >
-            <div className="flex items-start gap-3">
-                <span className={`mt-0.5 shrink-0 ${styles.icon}`} aria-hidden="true">
-                    {styles.iconNode}
+            <div className="flex items-center gap-4">
+                <span className={`shrink-0 ${styles.icon}`} aria-hidden="true">
+                    {icon ?? styles.iconNode}
                 </span>
                 <div className="min-w-0 flex-1">
                     {title && (
-                        <p id={headingId} className="label-lg">
+                        <p id={headingId} className="h5">
                             {title}
                         </p>
                     )}
                     {body && (
-                        <div className={`${title ? "mt-1" : ""} body-sm`}>
+                        <div className="body-sm">
                             {body}
                         </div>
                     )}
                 </div>
-                {action && <div className="shrink-0">{action}</div>}
+                {action && <div className="-mr-2 shrink-0">{action}</div>}
                 {onDismiss && (
                     <Button
                         type="button"

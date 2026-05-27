@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { colors } from "@/constants/colors";
 import { Eye, EyeOff } from "lucide-react";
 import Button from "@/components/common/buttons/Button";
+import Banner from "@/components/common/Banner";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -104,9 +105,9 @@ export default function LoginPage() {
 
                         {/* Error */}
                         {error && (
-                            <div className="rounded-lg bg-danger-surface border border-danger-border px-4 py-3">
-                                <p className="body-sm text-danger">{error}</p>
-                            </div>
+                            <Banner variant="warning">
+                                {error}
+                            </Banner>
                         )}
 
                         {/* Submit */}

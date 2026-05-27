@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getProjects } from "@/lib/api";
 import type { Project } from "@/types/project";
 import SelectField from "@/components/common/forms/SelectField";
-import { colors } from "@/constants/colors";
 import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
+import Banner from "@/components/common/Banner";
+import Button from "@/components/common/buttons/Button";
 
 interface ProjectPickerCardProps {
   projectId: string;
@@ -16,6 +17,15 @@ export default function ProjectPickerCard({ projectId, onProjectChange }: Projec
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const loadProjects = useCallback(() => {
+    setLoading(true);
+    setError(false);
+    getProjects()
+      .then(setProjects)
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     getProjects()
@@ -32,7 +42,13 @@ export default function ProjectPickerCard({ projectId, onProjectChange }: Projec
           Projekt
         </label>
         {error ? (
-          <p className="body-sm" style={{ color: colors.red }}>Kunne ikke hente projekter. Prøv at genindlæse siden.</p>
+          <Banner
+            variant="warning"
+            title="Projekter kunne ikke indlæses"
+            action={<Button variant="secondary" onClick={loadProjects}>Prøv igen</Button>}
+          >
+            Kunne ikke hente projekter.
+          </Banner>
         ) : loading ? (
           <InlineLoadingState label="Indlæser projekter..." />
         ) : (

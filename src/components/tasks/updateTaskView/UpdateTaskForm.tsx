@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { updateTask, getTaskAssignments } from "@/lib/api";
 import type { Task, UpdateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskUnit } from "@/types/task";
@@ -14,6 +14,7 @@ import { TaskStatus } from "@/types/task";
 import { toast } from "sonner";
 import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
 import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface UpdateTaskFormProps {
     formId: string;
@@ -44,6 +45,16 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
     const [loading, setLoading] = useState(false);
     const [loadingAssignments, setLoadingAssignments] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
+    const missingRequiredFields = useMemo(() => {
+        const fields: string[] = [];
+        if (!formData.title?.trim()) fields.push("titel");
+        if (!formData.description?.trim()) fields.push("beskrivelse");
+        if (!isSubtask && !projectId) fields.push("projekt");
+        if (!formData.deadline) fields.push("deadline");
+        return fields;
+    }, [formData.deadline, formData.description, formData.title, isSubtask, projectId]);
+    const missingRequiredText = useMemo(() => formatMissingRequiredFields(missingRequiredFields), [missingRequiredFields]);
 
     // Load current assignments
     useEffect(() => {
@@ -66,6 +77,10 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
     useEffect(() => {
         onLoadingChange?.(loading);
     }, [loading, onLoadingChange]);
+
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
+    }, [missingRequiredFields.length]);
 
     // Centralized handler for goal type changes
     const handleGoalTypeChange = (checked: boolean) => {
@@ -102,8 +117,9 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!projectId) {
-            setError("Vælg venligst et projekt.");
+        if (missingRequiredFields.length > 0) {
+            setShowMissingRequiredBanner(true);
+            setError(null);
             return;
         }
 
@@ -117,6 +133,7 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
         }
 
         setLoading(true);
+        setShowMissingRequiredBanner(false);
         setError(null);
 
         try {
@@ -137,6 +154,12 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
         }
     }
 
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     if (loadingAssignments) {
         return (
             <InlineLoadingState label="Indlæser opgave data..." centered className="py-8" />
@@ -144,7 +167,7 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
     }
 
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex flex-col h-full">
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex flex-col h-full">
             {isRecurringInstance && (
                 <Banner
                     variant="info"
@@ -165,8 +188,14 @@ export default function UpdateTaskForm({ formId, onLoadingChange, task, onSucces
                 </Banner>
             )}
 
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner variant="warning" className="mb-6">
+                    Tilføj {missingRequiredText} før opgaven kan gemmes.
+                </Banner>
+            )}
+
             {error && (
-                <Banner variant="danger" className="mb-6">
+                <Banner variant="warning" className="mb-6">
                     {error}
                 </Banner>
             )}

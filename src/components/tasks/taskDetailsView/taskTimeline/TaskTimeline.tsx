@@ -12,6 +12,8 @@ import { getSubtaskInfo } from "@/helpers/helpers";
 import TaskComment from "../TaskComment";
 import TaskTimelineComment from "./TaskTimelineComment";
 import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
+import Banner from "@/components/common/Banner";
+import Button from "@/components/common/buttons/Button";
 
 function isCommentEvent(type: string) {
     return type === "COMMENT_CREATED" || type === "COMMENT_DELETED";
@@ -222,9 +224,13 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
 
     if (error) {
         return (
-            <div className="bg-danger-surface border border-border rounded-[12px] p-3 body-sm text-danger">
+            <Banner
+                variant="warning"
+                title="Aktivitet kunne ikke indlæses"
+                action={<Button variant="secondary" onClick={() => void refresh()}>Prøv igen</Button>}
+            >
                 {error}
-            </div>
+            </Banner>
         );
     }
 

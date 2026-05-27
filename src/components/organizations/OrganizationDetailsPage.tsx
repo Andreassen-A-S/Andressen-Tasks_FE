@@ -29,6 +29,7 @@ import UpdateOrganizationForm from "./UpdateOrganizationForm";
 import UpdateEmployeeForm from "@/components/employees/UpdateEmployeeForm";
 import { toast } from "sonner";
 import PageContainer from "@/components/layout/PageContainer";
+import Banner from "@/components/common/Banner";
 
 interface Props {
     paramsPromise: Promise<{ id: string }>;
@@ -58,7 +59,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
     const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const editFormId = "edit-org-details-form";
 
-    const { data: org, isLoading, isError } = useQuery<Organization>({
+    const { data: org, isLoading, isError, refetch } = useQuery<Organization>({
         queryKey: ["organizations", id],
         queryFn: () => getOrganization(id),
     });
@@ -143,7 +144,13 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
         return (
             <div className="min-h-screen">
                 <PageContainer className="my-6 px-8 pt-10">
-                    <p className="body-md" style={{ color: colors.textMuted }}>Kunne ikke hente organisation. Prøv igen.</p>
+                    <Banner
+                        variant="warning"
+                        title="Data kunne ikke indlæses"
+                        action={<Button variant="secondary" onClick={() => void refetch()}>Prøv igen</Button>}
+                    >
+                        Kunne ikke hente organisationen.
+                    </Banner>
                 </PageContainer>
             </div>
         );
