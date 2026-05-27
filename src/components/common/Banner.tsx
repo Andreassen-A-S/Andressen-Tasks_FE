@@ -18,6 +18,7 @@ interface BannerProps {
     id?: string;
     as?: "div" | "section";
     icon?: ReactNode;
+    role?: string;
 }
 
 const variantClasses: Record<BannerVariant, { container: string; icon: string; iconNode: ReactNode }> = {
@@ -60,15 +61,18 @@ export default function Banner({
     id,
     as = "div",
     icon,
+    role,
 }: BannerProps) {
     const Component = as;
     const styles = variantClasses[variant];
     const body = description ?? children;
     const headingId = id && title ? `${id}-title` : undefined;
+    const resolvedRole = role ?? (variant === "warning" || variant === "danger" ? "alert" : undefined);
 
     return (
         <Component
             id={id}
+            role={resolvedRole}
             aria-labelledby={headingId}
             className={[
                 "rounded-lg border px-5 py-2.5",
