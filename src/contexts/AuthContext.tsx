@@ -145,6 +145,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         const updated = upsertAccount(loadSavedAccounts(), { token: response.token, user: response.user });
         persistSavedAccounts(updated);
+        setSavedAccounts(updated);
 
         localStorage.setItem("authToken", response.token);
         localStorage.setItem("userRole", response.user.role);
