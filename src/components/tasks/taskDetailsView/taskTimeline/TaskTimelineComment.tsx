@@ -117,7 +117,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
         <>
             <div className="flex items-start gap-3">
                 {event.actor_id
-                    ? <UserCard userId={event.actor_id} name={actorName} actor={event.actor}><SingleAvatar name={actorName} size="sm" /></UserCard>
+                    ? <UserCard userId={event.actor_id} name={actorName} actor={event.actor}><SingleAvatar name={actorName} size="sm" imageUrl={event.actor?.profile_picture_url} /></UserCard>
                     : <SingleAvatar name={actorName} size="sm" />
                 }
                 <div className={`flex-1 bg-background border rounded-lg overflow-hidden ${isAuthor ? "border-accent/30" : "border-border"}`}>

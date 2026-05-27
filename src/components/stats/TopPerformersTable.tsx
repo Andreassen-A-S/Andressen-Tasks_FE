@@ -59,7 +59,7 @@ export default function TopPerformersTable({ data, periodLabel }: TopPerformersT
                     </td>
                     <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                            <SingleAvatar name={performer.name} size="md" />
+                            <SingleAvatar name={performer.name} size="md" imageUrl={performer.profile_picture_url} />
                             <div className="min-w-0">
                                 <p className="label-lg truncate" style={{ color: colors.textPrimary }}>{performer.name}</p>
                                 <p className="label-sm truncate" style={{ color: colors.textMuted }}>{performer.email}</p>

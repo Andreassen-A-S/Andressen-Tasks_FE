@@ -269,7 +269,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                             key={e.event_id}
                             className="relative z-10 pl-14 flex items-center gap-3"
                         >
-                            <SingleAvatar name={actorName} size="xs" className="border-2 border-background" />
+                            <SingleAvatar name={actorName} size="xs" className="border-2 border-background" imageUrl={e.actor?.profile_picture_url} />
                             <div className="flex-1">
                                 <div className="body-sm">
                                     <span className="font-semibold text-text-primary">{actorName}</span>{" "}
@@ -288,7 +288,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
             {!isArchived && (
                 <TaskComment
                     taskId={taskId}
-                    currentUser={{ name: currentUser?.name, email: currentUser?.email }}
+                    currentUser={{ name: currentUser?.name, email: currentUser?.email, profile_picture_url: currentUser?.profile_picture_url }}
                     onSubmit={handleSubmitComment}
                 />
             )}

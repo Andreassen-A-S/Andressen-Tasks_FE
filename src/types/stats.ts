@@ -46,6 +46,7 @@ export interface TopPerformer {
   email: string;
   completed_count: number;
   total_quantity: number;
+  profile_picture_url?: string | null;
 }
 
 export interface WorkloadUser {

@@ -263,7 +263,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                                     >
                                         <td className="px-6 py-3">
                                             <div className="flex items-center gap-4">
-                                                <SingleAvatar name={member.name} size="sm" />
+                                                <SingleAvatar name={member.name} size="sm" imageUrl={member.profile_picture_url} />
                                                 <span className="label-lg" style={{ color: colors.textPrimary }}>{member.name}</span>
                                             </div>
                                         </td>

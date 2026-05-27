@@ -86,7 +86,7 @@ export default function UserCard({ userId, name, actor, children }: UserCardProp
                         className="z-[9999] rounded-lg p-4 fade-in pr-10 min-w-[240px]"
                     >
                         {/* Line 1: Avatar */}
-                        <SingleAvatar name={displayName} size="lg" />
+                        <SingleAvatar name={displayName} size="lg" imageUrl={user?.profile_picture_url} />
 
                         {/* Line 2: Name + email */}
                         <div className="mt-2">

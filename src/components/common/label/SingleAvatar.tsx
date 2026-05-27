@@ -8,6 +8,7 @@ interface SingleAvatarProps {
     size?: "xxs" | "xs" | "sm" | "md" | "lg";
     className?: string;
     tooltip?: string;
+    imageUrl?: string | null;
 }
 
 export default function SingleAvatar({
@@ -15,6 +16,7 @@ export default function SingleAvatar({
     size = "md",
     className = "",
     tooltip,
+    imageUrl,
 }: SingleAvatarProps) {
     const sizeClasses = {
         xxs: "w-4 h-4 initials-xs rounded",
@@ -24,7 +26,12 @@ export default function SingleAvatar({
         lg: "w-[34px] h-[34px] initials-lg rounded-lg",
     };
 
-    const avatar = (
+    const avatar = imageUrl ? (
+        <div className={`${sizeClasses[size]} flex-shrink-0 overflow-hidden ${className}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+        </div>
+    ) : (
         <div
             className={`
                 ${sizeClasses[size]}

@@ -40,6 +40,7 @@ export interface User {
   status: UserStatus;
   organization_id: string;
   organization?: { name: string } | null;
+  profile_picture_url: string | null;
   created_at?: string;
   updated_at?: string;
 }

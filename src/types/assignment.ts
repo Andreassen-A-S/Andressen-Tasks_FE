@@ -13,6 +13,7 @@ export interface TaskAssignment {
     email: string;
     position_id: string | null;
     position: PositionSummary | null;
+    profile_picture_url?: string | null;
   };
   task: Task;
 }

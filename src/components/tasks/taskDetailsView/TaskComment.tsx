@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 interface TaskCommentProps {
   taskId: string;
-  currentUser: { name?: string; email?: string };
+  currentUser: { name?: string; email?: string; profile_picture_url?: string | null };
   onSubmit: (message: string, uploadTokens: string[]) => Promise<void>;
 }
 
@@ -138,7 +138,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
   return (
     <div className="mt-8">
       <div className="flex items-start gap-3">
-        <SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="sm" />
+        <SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="sm" imageUrl={currentUser.profile_picture_url} />
         <div className="flex-1">
           <div className="mb-2 mt-1">
             <h3 className="h4">Tilføj en kommentar</h3>
