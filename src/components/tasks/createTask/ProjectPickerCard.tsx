@@ -28,11 +28,8 @@ export default function ProjectPickerCard({ projectId, onProjectChange }: Projec
   }, []);
 
   useEffect(() => {
-    getProjects()
-      .then(setProjects)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
+    loadProjects();
+  }, [loadProjects]);
 
   return (
     <div className="space-y-4">

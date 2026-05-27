@@ -103,6 +103,11 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+        if (missingRequiredFields.length > 0) {
+            setShowMissingRequiredBanner(true);
+            setError(null);
+            return;
+        }
         setLoading(true);
         setError(null);
         try {
