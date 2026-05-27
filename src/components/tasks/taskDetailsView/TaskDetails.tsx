@@ -37,6 +37,8 @@ import { fetchTaskDetailsData, taskQueryKeys, type TaskDetailsData } from "@/lib
 import PageChrome from "@/components/layout/PageChrome";
 import PageContainer from "@/components/layout/PageContainer";
 import { useAuth } from "@/hooks/useAuth";
+import Banner from "@/components/common/Banner";
+import type { ProjectSummary } from "@/types/project";
 
 
 interface TaskDetailsProps {
@@ -49,6 +51,23 @@ interface TaskDetailsProps {
 const sc = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 
 const COLLAPSE_THRESHOLD = 80;
+
+function mergeTaskDetailTask(
+    current: TaskDetailsData | undefined,
+    updated: NonNullable<TaskDetailsData["task"]>,
+    project?: ProjectSummary
+): TaskDetailsData | undefined {
+    if (!current) return current;
+    return {
+        ...current,
+        task: {
+            ...current.task,
+            ...updated,
+            creator: updated.creator ?? current.task.creator,
+            project: project ?? updated.project ?? current.task.project,
+        },
+    };
+}
 
 const PRIORITY_OPTIONS = [
     { value: TaskPriority.HIGH, label: translatePriority(TaskPriority.HIGH), color: getPriorityAccentColors(TaskPriority.HIGH) },
@@ -111,7 +130,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     const [titleDraft, setTitleDraft] = useState("");
     const [titleSaveLoading, setTitleSaveLoading] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
-    const { data, isLoading, error } = useQuery({
+    const { data, isLoading, error, refetch } = useQuery({
         queryKey: taskQueryKeys.details(taskId),
         queryFn: () => fetchTaskDetailsData(taskId),
     });
@@ -182,7 +201,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         if (!task) return;
         try {
             const updated = await updateTask(task.task_id, { priority: value as TaskPriority });
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere prioritet");
@@ -195,16 +214,11 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
             const updated = await updateTask(task.task_id, { project_id: value });
             const selectedProject = projects.find((project) => project.project_id === value);
             queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => {
-                if (!current) return current;
-                return {
-                    ...current,
-                    task: {
-                        ...updated,
-                        project: selectedProject
-                            ? { name: selectedProject.name, color: selectedProject.color ?? null }
-                            : updated.project,
-                    },
-                };
+                return mergeTaskDetailTask(
+                    current,
+                    updated,
+                    selectedProject ? { name: selectedProject.name, color: selectedProject.color ?? null } : undefined
+                );
             });
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.projectsPage });
@@ -217,7 +231,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         if (!task) return;
         try {
             const updated = await updateTask(task.task_id, { status: value as TaskStatus });
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.statsPage });
         } catch {
@@ -230,7 +244,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         try {
             if (!isoDate) return;
             const updated = await updateTask(task.task_id, { start_date: isoDate + "T00:00:00.000Z" });
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere startdato");
@@ -242,7 +256,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         try {
             if (!isoDate) return;
             const updated = await updateTask(task.task_id, { deadline: isoDate + "T00:00:00.000Z" });
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere deadline");
@@ -265,7 +279,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         if (!task) return;
         try {
             const updated = await updateTask(task.task_id, input);
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere mål");
@@ -277,7 +291,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         if (!task) return;
         try {
             const updated = await updateTask(task.task_id, { description });
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere beskrivelse");
@@ -303,7 +317,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         setTitleSaveLoading(true);
         try {
             const updated = await updateTask(task.task_id, { title: titleDraft.trim() });
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, task: updated } : current);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
             setIsEditingTitle(false);
         } catch {
@@ -350,9 +364,14 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     if (error || !task) {
         const errorState = (
             <div className="h-full flex flex-col">
-                <div className="p-6 bg-danger-surface border-b border-danger">
-                    <span className="label-lg text-danger">{error instanceof Error ? error.message : error || "Opgave ikke fundet"}</span>
-                </div>
+                <Banner
+                    variant="warning"
+                    title="Data kunne ikke indlæses"
+                    className="m-6"
+                    action={<Button variant="secondary" onClick={() => void refetch()}>Prøv igen</Button>}
+                >
+                    {error instanceof Error ? error.message : error || "Opgave ikke fundet"}
+                </Banner>
             </div>
         );
         return fullPage ? <PageContainer size="task">{errorState}</PageContainer> : errorState;
@@ -362,17 +381,6 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
 
     return (
         <div ref={outerRef} className={`flex flex-col bg-background ${fullPage ? "w-full min-w-0" : "min-h-full"}`}>
-            {/* Archived banner */}
-            {isArchived && (
-                <div
-                    className="flex items-center gap-2 px-4 py-2"
-                    style={{ backgroundColor: colors.muted, borderBottom: `1px solid ${colors.border}`, color: colors.textSecondary }}
-                >
-                    <Archive className="w-4 h-4" />
-                    <span className="label-sm">Denne opgave er arkiveret og kan ikke redigeres</span>
-                </div>
-            )}
-
             <PageChrome
                 header={isScrolled ? (
                     <div className="sticky top-0 z-20 w-full border-b border-border bg-background">
@@ -381,78 +389,27 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                             disabled={!fullPage}
                             className="flex items-center justify-between gap-4 px-8 py-3"
                         >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <Badge variant="status" size="lg" value={task.status} />
-                            <div className="flex flex-col min-w-0">
-                                <div className="flex items-center gap-1 min-w-0">
-                                    <span className="h5 truncate">{task.title}</span>
-                                    {task.number > 0 && (
-                                        fullPage
-                                            ? <span className="font-normal shrink-0" style={{ color: colors.textMuted }}>#{task.number}</span>
-                                            : <Link href={`/tasks/${taskId}`} className="font-normal shrink-0 hover:no-underline underline" style={{ color: colors.textMuted }}>#{task.number}</Link>
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                                <Badge variant="status" size="lg" value={task.status} />
+                                <div className="flex flex-col min-w-0">
+                                    <div className="flex items-center gap-1 min-w-0">
+                                        <span className="h5 truncate">{task.title}</span>
+                                        {task.number > 0 && (
+                                            fullPage
+                                                ? <span className="font-normal shrink-0" style={{ color: colors.textMuted }}>#{task.number}</span>
+                                                : <Link href={`/tasks/${taskId}`} className="font-normal shrink-0 hover:no-underline underline" style={{ color: colors.textMuted }}>#{task.number}</Link>
+                                        )}
+                                    </div>
+                                    {(task.recurring_template_id || task.project?.name) && (
+                                        <div className="flex items-center gap-2">
+                                            {task.recurring_template_id && <RecurringBadge iconOnly size="sm" />}
+                                            {task.project?.name && <ProjectBadge size="sm" name={task.project.name} />}
+                                        </div>
                                     )}
                                 </div>
-                                {(task.recurring_template_id || task.project?.name) && (
-                                    <div className="flex items-center gap-2">
-                                        {task.recurring_template_id && <RecurringBadge iconOnly size="sm" />}
-                                        {task.project?.name && <ProjectBadge size="sm" name={task.project.name} />}
-                                    </div>
-                                )}
                             </div>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                            <Button variant="ghost" size="md" icon={linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} iconOnly onClick={handleCopyLink} tooltip={linkCopied ? "Kopieret!" : "Kopier link"} />
-                            <DropdownMenu
-                                trigger={<Button variant="ghost" size="md" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />}
-                                items={[
-                                    { label: isDownloading ? "Henter billeder..." : "Download billeder", icon: <ImageDown className="w-4 h-4" />, onClick: handleDownloadAllImages },
-                                    { label: "Slet", icon: <Trash2 className="w-4 h-4" />, onClick: () => setConfirmDeleteOpen(true), danger: true, dividerBefore: true },
-                                ]}
-                            />
-                            {!fullPage && <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />}
-                        </div>
-                        </PageContainer>
-                    </div>
-                ) : undefined}
-            >
-
-                <PageContainer size="task" disabled={!fullPage}>
-                {/* Header */}
-                <div className="px-8 pt-7 pb-5">
-                    {isEditingTitle ? (
-                        <div className="flex items-center gap-2 mb-3">
-                            <TextInput
-                                autoFocus
-                                value={titleDraft}
-                                onChange={(e) => setTitleDraft(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") void handleSaveTitle();
-                                    if (e.key === "Escape") handleCancelEditTitle();
-                                }}
-                            />
-                            <Button variant="secondary" size="md" onClick={handleCancelEditTitle} disabled={titleSaveLoading}>Annuller</Button>
-                            <Button variant="primary" size="md" kbd={<CornerDownLeft className="w-3.5 h-3.5" />} onClick={() => void handleSaveTitle()} loading={titleSaveLoading}>Gem</Button>
-                        </div>
-                    ) : (
-                        <div className="flex items-start justify-between mb-3">
-                            <h1 className="h1 wrap-break-word">
-                                {task.title}
-                                {task.number > 0 && (
-                                    fullPage
-                                        ? <span className="ml-2 font-normal" style={{ color: colors.textMuted }}>#{task.number}</span>
-                                        : <Link href={`/tasks/${taskId}`} className="ml-2 font-normal hover:no-underline underline" style={{ color: colors.textMuted }}>#{task.number}</Link>
-                                )}
-                            </h1>
                             <div className="flex items-center gap-1 shrink-0">
-                                {!isArchived && <Button variant="secondary" onClick={handleStartEditTitle}>Rediger</Button>}
-                                <Button
-                                    variant="ghost"
-                                    size="md"
-                                    icon={linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                    iconOnly
-                                    onClick={handleCopyLink}
-                                    tooltip={linkCopied ? "Kopieret!" : "Kopier link"}
-                                />
+                                <Button variant="ghost" size="md" icon={linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} iconOnly onClick={handleCopyLink} tooltip={linkCopied ? "Kopieret!" : "Kopier link"} />
                                 <DropdownMenu
                                     trigger={<Button variant="ghost" size="md" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />}
                                     items={[
@@ -462,225 +419,288 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                                 />
                                 {!fullPage && <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />}
                             </div>
+                        </PageContainer>
+                    </div>
+                ) : undefined}
+            >
+
+                <PageContainer size="task" disabled={!fullPage}>
+                    {/* Header */}
+                    <div className="px-8 pt-7 pb-5">
+                        {isEditingTitle ? (
+                            <div className="flex items-center gap-2 mb-3">
+                                <TextInput
+                                    autoFocus
+                                    value={titleDraft}
+                                    onChange={(e) => setTitleDraft(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") void handleSaveTitle();
+                                        if (e.key === "Escape") handleCancelEditTitle();
+                                    }}
+                                />
+                                <Button variant="secondary" size="md" onClick={handleCancelEditTitle} disabled={titleSaveLoading}>Annuller</Button>
+                                <Button variant="primary" size="md" kbd={<CornerDownLeft className="w-3.5 h-3.5" />} onClick={() => void handleSaveTitle()} loading={titleSaveLoading}>Gem</Button>
+                            </div>
+                        ) : (
+                            <div className="flex items-start justify-between mb-3">
+                                <h1 className="h1 wrap-break-word">
+                                    {task.title}
+                                    {task.number > 0 && (
+                                        fullPage
+                                            ? <span className="ml-2 font-normal" style={{ color: colors.textMuted }}>#{task.number}</span>
+                                            : <Link href={`/tasks/${taskId}`} className="ml-2 font-normal hover:no-underline underline" style={{ color: colors.textMuted }}>#{task.number}</Link>
+                                    )}
+                                </h1>
+                                <div className="flex items-center gap-1 shrink-0">
+                                    {!isArchived && <Button variant="secondary" onClick={handleStartEditTitle}>Rediger</Button>}
+                                    <Button
+                                        variant="ghost"
+                                        size="md"
+                                        icon={linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                        iconOnly
+                                        onClick={handleCopyLink}
+                                        tooltip={linkCopied ? "Kopieret!" : "Kopier link"}
+                                    />
+                                    <DropdownMenu
+                                        trigger={<Button variant="ghost" size="md" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />}
+                                        items={[
+                                            { label: isDownloading ? "Henter billeder..." : "Download billeder", icon: <ImageDown className="w-4 h-4" />, onClick: handleDownloadAllImages },
+                                            { label: "Slet", icon: <Trash2 className="w-4 h-4" />, onClick: () => setConfirmDeleteOpen(true), danger: true, dividerBefore: true },
+                                        ]}
+                                    />
+                                    {!fullPage && <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} aria-label="Luk" tooltip="Luk" />}
+                                </div>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <Badge variant="status" value={task.status} size="lg" />
+                            {task.recurring_template_id && <RecurringBadge size="lg" />}
+                            {task.project?.name && <ProjectBadge name={task.project.name} size="md" />}
+                        </div>
+                    </div>
+                    <div className="mx-8" style={{ borderTop: `1px solid ${colors.border}` }} />
+
+                    {isArchived && (
+                        <div className="px-8 pt-6">
+                            <Banner
+                                variant="default"
+                                icon={<Archive className="w-5 h-5" />}
+                                title="Denne opgave er arkiveret"
+                            >
+                                Arkiverede opgaver kan ikke redigeres.
+                            </Banner>
                         </div>
                     )}
-                    <div className="flex items-center gap-3 flex-wrap">
-                        <Badge variant="status" value={task.status} size="lg" />
-                        {task.recurring_template_id && <RecurringBadge size="lg" />}
-                        {task.project?.name && <ProjectBadge name={task.project.name} size="md" />}
-                    </div>
-                </div>
-                <div className="mx-8" style={{ borderTop: `1px solid ${colors.border}` }} />
 
-                <div className="flex flex-1 px-8 gap-8 min-w-0">
-                    {/* Main content */}
-                    <div className="flex-1 pt-6 min-w-0">
-                        <TaskDescriptionCard
-                            creator={creator}
-                            creatorId={task.created_by}
-                            createdAt={task.created_at}
-                            description={task.description}
-                            showSubtaskButton={task.parent_task_id == null}
-                            onAddSubtask={() => setShowSubtaskModal(true)}
-                            isArchived={isArchived}
-                            isAuthor={currentUser?.user_id === task.created_by}
-                            onSaveDescription={handleDescriptionSave}
-                        />
-                        <TaskTimeline taskId={task.task_id} creatorId={task.created_by} assigneeIds={assignments.map((a) => a.user_id)} isArchived={isArchived} />
-                        <div className="h-12" />
-                    </div>
+                    <div className="flex flex-1 px-8 gap-8 min-w-0">
+                        {/* Main content */}
+                        <div className="flex-1 pt-6 min-w-0">
+                            <TaskDescriptionCard
+                                creator={creator}
+                                creatorId={task.created_by}
+                                createdAt={task.created_at}
+                                description={task.description}
+                                showSubtaskButton={task.parent_task_id == null}
+                                onAddSubtask={() => setShowSubtaskModal(true)}
+                                isArchived={isArchived}
+                                isAuthor={currentUser?.user_id === task.created_by}
+                                onSaveDescription={handleDescriptionSave}
+                            />
+                            <TaskTimeline taskId={task.task_id} creatorId={task.created_by} assigneeIds={assignments.map((a) => a.user_id)} isArchived={isArchived} />
+                            <div className="h-12" />
+                        </div>
 
-                    {/* Sidebar */}
-                    <div className="w-70 py-6 self-start" style={{ position: "sticky", top: isScrolled ? 64 : 16, transition: "top 150ms ease" }}>
-                        <div>
+                        {/* Sidebar */}
+                        <div className="w-70 py-6 self-start" style={{ position: "sticky", top: isScrolled ? 64 : 16, transition: "top 150ms ease" }}>
                             <div>
+                                <div>
 
-                                {/* Status */}
-                                <DetailsSectionHeader
-                                    label="Status"
-                                    disabled={isArchived}
-                                    isOpen={openPicker?.key === "status"}
-                                    onGearClick={(button) => togglePicker("status", button)}
-                                    onClose={closePicker}
-                                >
-                                    <Badge variant="status" value={task.status} />
-                                </DetailsSectionHeader>
+                                    {/* Status */}
+                                    <DetailsSectionHeader
+                                        label="Status"
+                                        disabled={isArchived}
+                                        isOpen={openPicker?.key === "status"}
+                                        onGearClick={(button) => togglePicker("status", button)}
+                                        onClose={closePicker}
+                                    >
+                                        <Badge variant="status" value={task.status} />
+                                    </DetailsSectionHeader>
 
-                                <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
+                                    <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
 
-                                {/* Project */}
-                                <DetailsSectionHeader
-                                    label="Projekt"
-                                    disabled={isArchived}
-                                    isOpen={openPicker?.key === "project"}
-                                    onGearClick={(button) => togglePicker("project", button)}
-                                    onClose={closePicker}
-                                    emptyText="Intet projekt"
-                                >
-                                    {task.project?.name ? <ProjectBadge name={task.project.name} /> : undefined}
-                                </DetailsSectionHeader>
+                                    {/* Project */}
+                                    <DetailsSectionHeader
+                                        label="Projekt"
+                                        disabled={isArchived}
+                                        isOpen={openPicker?.key === "project"}
+                                        onGearClick={(button) => togglePicker("project", button)}
+                                        onClose={closePicker}
+                                        emptyText="Intet projekt"
+                                    >
+                                        {task.project?.name ? <ProjectBadge name={task.project.name} /> : undefined}
+                                    </DetailsSectionHeader>
 
-                                <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
+                                    <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
 
-                                {/* Priority */}
-                                <DetailsSectionHeader
-                                    label="Prioritet"
-                                    disabled={isArchived}
-                                    isOpen={openPicker?.key === "priority"}
-                                    onGearClick={(button) => togglePicker("priority", button)}
-                                    onClose={closePicker}
-                                    emptyText="Ingen prioritet"
-                                >
-                                    {task.priority != null ? <Badge variant="priority" value={task.priority} /> : undefined}
-                                </DetailsSectionHeader>
+                                    {/* Priority */}
+                                    <DetailsSectionHeader
+                                        label="Prioritet"
+                                        disabled={isArchived}
+                                        isOpen={openPicker?.key === "priority"}
+                                        onGearClick={(button) => togglePicker("priority", button)}
+                                        onClose={closePicker}
+                                        emptyText="Ingen prioritet"
+                                    >
+                                        {task.priority != null ? <Badge variant="priority" value={task.priority} /> : undefined}
+                                    </DetailsSectionHeader>
 
-                                <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
+                                    <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
 
-                                {/* Assignees */}
-                                <DetailsSectionHeader
-                                    label="Tildelt til"
-                                    disabled={isArchived}
-                                    isOpen={openPicker?.key === "assignee"}
-                                    onGearClick={(button) => togglePicker("assignee", button)}
-                                    onClose={closePicker}
-                                    emptyText="Ingen tildelt"
-                                >
-                                    {assignments.length > 0 ? (
-                                        <ul className="space-y-2">
-                                            {assignments.map((a) => (
-                                                <li key={a.user.user_id} className="flex items-center gap-2">
-                                                    <SingleAvatar name={a.user.name} size="sm" />
-                                                    <div>
-                                                        <span className="label-md block">{a.user.name}</span>
-                                                        {a.user.position?.name && <span className="body-xs block">{a.user.position.name}</span>}
+                                    {/* Assignees */}
+                                    <DetailsSectionHeader
+                                        label="Tildelt til"
+                                        disabled={isArchived}
+                                        isOpen={openPicker?.key === "assignee"}
+                                        onGearClick={(button) => togglePicker("assignee", button)}
+                                        onClose={closePicker}
+                                        emptyText="Ingen tildelt"
+                                    >
+                                        {assignments.length > 0 ? (
+                                            <ul className="space-y-2">
+                                                {assignments.map((a) => (
+                                                    <li key={a.user.user_id} className="flex items-center gap-2">
+                                                        <SingleAvatar name={a.user.name} size="sm" />
+                                                        <div>
+                                                            <span className="label-md block">{a.user.name}</span>
+                                                            {a.user.position?.name && <span className="body-xs block">{a.user.position.name}</span>}
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : undefined}
+                                    </DetailsSectionHeader>
+
+                                    <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
+
+                                    {/* Start date */}
+                                    <DetailsSectionHeader
+                                        label="Startdato"
+                                        disabled={isArchived}
+                                        isOpen={openPicker?.key === "startDate"}
+                                        onGearClick={(button) => togglePicker("startDate", button)}
+                                        onClose={closePicker}
+                                        emptyText="Ingen startdato"
+                                    >
+                                        {task.start_date ? (
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-4 h-4" style={{ color: colors.textMuted }} />
+                                                <span className="body-sm">{formatDate(task.start_date)}</span>
+                                            </div>
+                                        ) : undefined}
+                                    </DetailsSectionHeader>
+
+                                    <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
+
+                                    {/* Deadline */}
+                                    <DetailsSectionHeader
+                                        label="Deadline"
+                                        disabled={isArchived}
+                                        isOpen={openPicker?.key === "deadline"}
+                                        onGearClick={(button) => togglePicker("deadline", button)}
+                                        onClose={closePicker}
+                                        emptyText="Ingen deadline"
+                                    >
+                                        {task.deadline ? (
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="w-4 h-4" style={{ color: colors.textMuted }} />
+                                                <span className="body-sm">{formatDate(task.deadline)}</span>
+                                            </div>
+                                        ) : undefined}
+                                    </DetailsSectionHeader>
+
+                                    {/* Goal */}
+                                    <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
+                                    <DetailsSectionHeader
+                                        label="Mål"
+                                        disabled={isArchived}
+                                        isOpen={openPicker?.key === "goal"}
+                                        onGearClick={(button) => togglePicker("goal", button)}
+                                        onClose={closePicker}
+                                        emptyText="Intet mål"
+                                    >
+                                        {(() => {
+                                            const targetQuantity = task.target_quantity;
+                                            if (task.goal_type !== "FIXED" || targetQuantity == null || targetQuantity <= 0) {
+                                                return undefined;
+                                            }
+
+                                            const currentQuantity = task.current_quantity ?? 0;
+                                            const progressPercent = Math.max(0, Math.min(100, (currentQuantity / targetQuantity) * 100));
+
+                                            return (
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between">
+                                                        <span className="body-xs">Fremskridt</span>
+                                                        <span className="label-md">
+                                                            {formatNumber(currentQuantity)} / {formatNumber(targetQuantity)}
+                                                            {task.unit ? ` ${translateTaskUnit(task.unit)}` : ""}
+                                                        </span>
                                                     </div>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : undefined}
-                                </DetailsSectionHeader>
-
-                                <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
-
-                                {/* Start date */}
-                                <DetailsSectionHeader
-                                    label="Startdato"
-                                    disabled={isArchived}
-                                    isOpen={openPicker?.key === "startDate"}
-                                    onGearClick={(button) => togglePicker("startDate", button)}
-                                    onClose={closePicker}
-                                    emptyText="Ingen startdato"
-                                >
-                                    {task.start_date ? (
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className="w-4 h-4" style={{ color: colors.textMuted }} />
-                                            <span className="body-sm">{formatDate(task.start_date)}</span>
-                                        </div>
-                                    ) : undefined}
-                                </DetailsSectionHeader>
-
-                                <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
-
-                                {/* Deadline */}
-                                <DetailsSectionHeader
-                                    label="Deadline"
-                                    disabled={isArchived}
-                                    isOpen={openPicker?.key === "deadline"}
-                                    onGearClick={(button) => togglePicker("deadline", button)}
-                                    onClose={closePicker}
-                                    emptyText="Ingen deadline"
-                                >
-                                    {task.deadline ? (
-                                        <div className="flex items-center gap-2">
-                                            <Clock className="w-4 h-4" style={{ color: colors.textMuted }} />
-                                            <span className="body-sm">{formatDate(task.deadline)}</span>
-                                        </div>
-                                    ) : undefined}
-                                </DetailsSectionHeader>
-
-                                {/* Goal */}
-                                <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
-                                <DetailsSectionHeader
-                                    label="Mål"
-                                    disabled={isArchived}
-                                    isOpen={openPicker?.key === "goal"}
-                                    onGearClick={(button) => togglePicker("goal", button)}
-                                    onClose={closePicker}
-                                    emptyText="Intet mål"
-                                >
-                                    {(() => {
-                                        const targetQuantity = task.target_quantity;
-                                        if (task.goal_type !== "FIXED" || targetQuantity == null || targetQuantity <= 0) {
-                                            return undefined;
-                                        }
-
-                                        const currentQuantity = task.current_quantity ?? 0;
-                                        const progressPercent = Math.max(0, Math.min(100, (currentQuantity / targetQuantity) * 100));
-
-                                        return (
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between">
-                                                    <span className="body-xs">Fremskridt</span>
-                                                    <span className="label-md">
-                                                        {formatNumber(currentQuantity)} / {formatNumber(targetQuantity)}
-                                                        {task.unit ? ` ${translateTaskUnit(task.unit)}` : ""}
+                                                    <div className="w-full rounded-full h-1.5" style={{ backgroundColor: colors.border }}>
+                                                        <div
+                                                            className="h-1.5 rounded-full transition-all"
+                                                            style={{
+                                                                width: `${progressPercent}%`,
+                                                                backgroundColor: colors.green,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <span className="caption" style={{ display: "block", textAlign: "right" }}>
+                                                        {Math.round(progressPercent)}% fuldført
                                                     </span>
                                                 </div>
-                                                <div className="w-full rounded-full h-1.5" style={{ backgroundColor: colors.border }}>
-                                                    <div
-                                                        className="h-1.5 rounded-full transition-all"
-                                                        style={{
-                                                            width: `${progressPercent}%`,
-                                                            backgroundColor: colors.green,
-                                                        }}
-                                                    />
-                                                </div>
-                                                <span className="caption" style={{ display: "block", textAlign: "right" }}>
-                                                    {Math.round(progressPercent)}% fuldført
+                                            );
+                                        })()}
+                                    </DetailsSectionHeader>
+
+                                    <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
+
+                                    {/* Metadata */}
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between">
+                                            <span className="caption">Oprettet</span>
+                                            <span className="label-sm" style={{ color: colors.textPrimary }}>{formatDateTime(task.created_at)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="caption">Sidst opdateret</span>
+                                            <span className="label-sm" style={{ color: colors.textPrimary }}>{formatDateTime(task.updated_at)}</span>
+                                        </div>
+                                        {task.completed_at && (
+                                            <div className="flex justify-between gap-3">
+                                                <span className="caption">Fuldført</span>
+                                                <span className="label-sm text-right" style={{ color: colors.textPrimary }}>
+                                                    {formatDateTime(task.completed_at)}
                                                 </span>
                                             </div>
-                                        );
-                                    })()}
-                                </DetailsSectionHeader>
-
-                                <div style={{ borderTop: `1px solid ${colors.border}`, margin: "12px 0" }} />
-
-                                {/* Metadata */}
-                                <div className="space-y-2">
-                                    <div className="flex justify-between">
-                                        <span className="caption">Oprettet</span>
-                                        <span className="label-sm" style={{ color: colors.textPrimary }}>{formatDateTime(task.created_at)}</span>
+                                        )}
+                                        {task.parent_task_id && (
+                                            <div className="flex justify-between">
+                                                <span className="caption">Underopgave af</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleOpenParentTask}
+                                                    className="link cursor-pointer"
+                                                    style={{ color: colors.textPrimary }}
+                                                >
+                                                    #{task.parent_task_id.slice(0, 8)}
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span className="caption">Sidst opdateret</span>
-                                        <span className="label-sm" style={{ color: colors.textPrimary }}>{formatDateTime(task.updated_at)}</span>
-                                    </div>
-                                    {task.completed_at && (
-                                        <div className="flex justify-between gap-3">
-                                            <span className="caption">Fuldført</span>
-                                            <span className="label-sm text-right" style={{ color: colors.textPrimary }}>
-                                                {formatDateTime(task.completed_at)}
-                                            </span>
-                                        </div>
-                                    )}
-                                    {task.parent_task_id && (
-                                        <div className="flex justify-between">
-                                            <span className="caption">Underopgave af</span>
-                                            <button
-                                                type="button"
-                                                onClick={handleOpenParentTask}
-                                                className="link cursor-pointer"
-                                                style={{ color: colors.textPrimary }}
-                                            >
-                                                #{task.parent_task_id.slice(0, 8)}
-                                            </button>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 </PageContainer>
             </PageChrome>
 

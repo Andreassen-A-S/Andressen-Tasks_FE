@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { updateUser } from "@/lib/api/users";
 import { getPositions } from "@/lib/api/positions";
@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
 import SelectField from "@/components/common/forms/SelectField";
+import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface UpdateEmployeeFormProps {
     formId: string;
@@ -40,6 +42,16 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
+
+    const missingRequiredFields = useMemo(() => {
+        const fields: string[] = [];
+        if (!formData.name.trim()) fields.push("navn");
+        if (!formData.email.trim()) fields.push("email");
+        return fields;
+    }, [formData.email, formData.name]);
+
+    const missingRequiredText = useMemo(() => formatMissingRequiredFields(missingRequiredFields), [missingRequiredFields]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -75,19 +87,32 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         onLoadingChange?.(loading);
     }, [loading, onLoadingChange]);
 
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
+    }, [missingRequiredFields.length]);
+
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-6">
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex-1 overflow-y-auto space-y-6">
             <p className="body-sm" style={{ color: colors.textSecondary }}>
                 Opdater medarbejderens oplysninger, rolle og stilling.
             </p>
 
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner variant="warning">
+                    Tilføj {missingRequiredText} før medarbejderen kan gemmes.
+                </Banner>
+            )}
+
             {error && (
-                <div
-                    className="rounded-md border p-3"
-                    style={{ backgroundColor: colors.redLight, borderColor: colors.redBorder }}
-                >
-                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
-                </div>
+                <Banner variant="warning">
+                    {error}
+                </Banner>
             )}
             <div className="space-y-4">
                 <div>

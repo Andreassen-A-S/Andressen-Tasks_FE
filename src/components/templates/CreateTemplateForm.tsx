@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate, RecurrenceFrequency } from "@/types/recuringTemplate";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
@@ -11,7 +11,8 @@ import GoalSection from "@/components/tasks/createTask/GoalCard";
 import RecurringCard from "@/components/tasks/createTask/RecurringCard";
 import ProjectPickerCard from "@/components/tasks/createTask/ProjectPickerCard";
 import { toast } from "sonner";
-import { colors } from "@/constants/colors";
+import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface CreateTemplateFormProps {
     formId: string;
@@ -43,6 +44,16 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
     const [projectId, setProjectId] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
+    const missingRequiredFields = useMemo(() => {
+        const fields: string[] = [];
+        if (!formData.title.trim()) fields.push("titel");
+        if (!formData.description.trim()) fields.push("beskrivelse");
+        if (!projectId) fields.push("projekt");
+        if (!recurringData.start_date) fields.push("startdato");
+        return fields;
+    }, [formData.description, formData.title, projectId, recurringData.start_date]);
+    const missingRequiredText = useMemo(() => formatMissingRequiredFields(missingRequiredFields), [missingRequiredFields]);
 
     useEffect(() => {
         onLoadingChange?.(loading);
@@ -73,8 +84,9 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!projectId) {
-            setError("Vælg venligst et projekt.");
+        if (missingRequiredFields.length > 0) {
+            setShowMissingRequiredBanner(true);
+            setError(null);
             return;
         }
 
@@ -88,6 +100,7 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
         }
 
         setLoading(true);
+        setShowMissingRequiredBanner(false);
         setError(null);
 
         try {
@@ -120,19 +133,28 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
         }
     }
 
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
+    }, [missingRequiredFields.length]);
+
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-            {/* Error Message */}
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex-1 overflow-y-auto">
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner variant="warning" className="mb-4">
+                    Tilføj {missingRequiredText} før skabelonen kan oprettes.
+                </Banner>
+            )}
+
             {error && (
-                <div
-                    className="rounded-md border px-4 py-3"
-                    style={{
-                        borderColor: colors.red,
-                        backgroundColor: colors.redLight,
-                    }}
-                >
-                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
-                </div>
+                <Banner variant="warning" className="mb-4">
+                    {error}
+                </Banner>
             )}
 
             {/* Scrollable Form Content */}

@@ -1,4 +1,6 @@
 import PageContainer from "@/components/layout/PageContainer";
+import Banner from "@/components/common/Banner";
+import Button from "@/components/common/buttons/Button";
 
 interface StatsErrorStateProps {
     error?: string;
@@ -9,24 +11,16 @@ export default function StatsErrorState({ error, onRetry }: StatsErrorStateProps
     return (
         <div className="min-h-screen bg-surface-page">
             <PageContainer className="my-6 px-8 pt-10">
-                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center">
-                    <div className="h2 text-red-600 mb-2">
-                        {error ? "Kunne ikke hente statistik" : "Ingen statistik tilgængelig"}
-                    </div>
-                    {error ? (
-                        <>
-                            <p className="body-md text-red-700 mb-4">{error}</p>
-                            <button
-                                onClick={onRetry}
-                                className="btn-lg px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                            >
-                                Prøv igen
-                            </button>
-                        </>
-                    ) : (
-                        <p className="body-md text-text-muted">Ingen statistik tilgængelig</p>
-                    )}
-                </div>
+                {error ? (
+                    <Banner
+                        variant="warning"
+                        title="Kunne ikke hente statistik"
+                        description={error}
+                        action={<Button variant="secondary" onClick={onRetry}>Prøv igen</Button>}
+                    />
+                ) : (
+                    <p className="body-md text-text-muted text-center">Ingen statistik tilgængelig</p>
+                )}
             </PageContainer>
         </div>
     );

@@ -20,7 +20,7 @@ interface DashboardColumnProps {
 const variantAccent: Record<ColumnVariant, string> = {
     upcoming: colors.textMuted,
     active: colors.green,
-    overdue: colors.red,
+    overdue: colors.yellow,
     done: colors.greenMid,
 };
 
@@ -42,7 +42,7 @@ export default function DashboardColumn({ title, tasks, projectMap, assignmentMa
                 <Pill size="sm" className="ml-auto">{formatNumber(tasks.length)}</Pill>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-2.5" style={{ backgroundColor: variant === "overdue" ? colors.redLight : colors.eggWhite }}>
+            <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-2.5" style={{ backgroundColor: variant === "overdue" ? colors.yellowLight : colors.eggWhite }}>
                 {tasks.length === 0 ? (
                     <div className="flex items-center justify-center py-16">
                         <p className="body-sm" style={{ color: colors.textMuted }}>Ingen opgaver</p>

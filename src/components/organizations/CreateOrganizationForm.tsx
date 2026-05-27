@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createOrganization } from "@/lib/api/organizations";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
+import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface CreateOrganizationFormProps {
     formId: string;
@@ -25,6 +27,14 @@ export default function CreateOrganizationForm({ formId, onSuccess, onLoadingCha
     const [slugEdited, setSlugEdited] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
+    const missingRequiredFields = useMemo(() => {
+        const fields: string[] = [];
+        if (!formData.name.trim()) fields.push("navn");
+        if (!formData.slug.trim()) fields.push("slug");
+        return fields;
+    }, [formData.name, formData.slug]);
+    const missingRequiredText = useMemo(() => formatMissingRequiredFields(missingRequiredFields), [missingRequiredFields]);
 
     function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
         const name = e.target.value;
@@ -58,12 +68,28 @@ export default function CreateOrganizationForm({ formId, onSuccess, onLoadingCha
         onLoadingChange?.(loading);
     }, [loading, onLoadingChange]);
 
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
+    }, [missingRequiredFields.length]);
+
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-6">
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex-1 overflow-y-auto space-y-6">
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner variant="warning">
+                    Tilføj {missingRequiredText} før organisationen kan oprettes.
+                </Banner>
+            )}
+
             {error && (
-                <div className="p-4 border-l-4 rounded-r-lg" style={{ backgroundColor: colors.redLight, borderLeftColor: colors.red }}>
-                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
-                </div>
+                <Banner variant="warning">
+                    {error}
+                </Banner>
             )}
             <div className="space-y-4">
                 <div className="space-y-2">

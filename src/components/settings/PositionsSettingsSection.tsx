@@ -13,6 +13,7 @@ import TextInput from "@/components/common/forms/TextInput";
 import Button from "@/components/common/buttons/Button";
 import Modal from "@/components/modal/Modal";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import Banner from "@/components/common/Banner";
 
 export default function PositionsSettingsSection() {
     const queryClient = useQueryClient();
@@ -25,7 +26,7 @@ export default function PositionsSettingsSection() {
     const [confirmTarget, setConfirmTarget] = useState<Position | null>(null);
     const [deleting, setDeleting] = useState(false);
 
-    const { data: positions = [], isLoading, isError } = useQuery({
+    const { data: positions = [], isLoading, isError, refetch } = useQuery({
         queryKey: ["positions", contextOrgId ?? "platform"],
         queryFn: getPositions,
     });
@@ -92,9 +93,13 @@ export default function PositionsSettingsSection() {
                             ))}
                         </div>
                     ) : isError ? (
-                        <p className="body-sm" style={{ color: colors.red }}>
-                            Kunne ikke indlæse stillinger. Prøv at genindlæse siden.
-                        </p>
+                        <Banner
+                            variant="warning"
+                            title="Stillinger kunne ikke indlæses"
+                            action={<Button variant="secondary" onClick={() => void refetch()}>Prøv igen</Button>}
+                        >
+                            Kunne ikke indlæse stillinger.
+                        </Banner>
                     ) : positions.length === 0 ? (
                         <p className="body-sm" style={{ color: colors.textMuted }}>
                             Ingen stillinger oprettet endnu.

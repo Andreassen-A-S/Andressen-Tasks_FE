@@ -47,8 +47,8 @@ export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverview
             label: "Overskredne",
             value: overdue,
             icon: <TriangleAlert className="h-3.5 w-3.5" />,
-            color: colors.red,
-            background: colors.redLight,
+            color: colors.yellow,
+            background: colors.yellowLight,
         },
     ];
 
@@ -56,7 +56,7 @@ export default function StatsOverviewPanel({ stats, periodLabel }: StatsOverview
         { label: "Fuldført", value: completed, color: colors.green },
         { label: "Oprettet", value: created, color: colors.blue },
         { label: "Aktive", value: active, color: colors.charcoal },
-        { label: "Overskredne", value: overdue, color: colors.red },
+        { label: "Overskredne", value: overdue, color: colors.yellow },
     ].filter(segment => segment.value > 0);
 
     return (

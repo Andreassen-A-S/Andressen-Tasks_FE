@@ -13,6 +13,8 @@ import Modal from "@/components/modal/Modal";
 import { colors } from "@/constants/colors";
 import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
 import Link from "next/link";
+import Banner from "@/components/common/Banner";
+import Button from "@/components/common/buttons/Button";
 
 interface ViewTemplateProps {
     template: RecurringTemplate;
@@ -75,15 +77,13 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                 {loading ? (
                     <InlineLoadingState label="Indlæser instanser..." centered className="py-12" />
                 ) : error ? (
-                    <div
-                        className="rounded-md border px-4 py-3"
-                        style={{
-                            borderColor: colors.red,
-                            backgroundColor: colors.redLight,
-                        }}
+                    <Banner
+                        variant="warning"
+                        title="Instanser kunne ikke indlæses"
+                        action={<Button variant="secondary" onClick={() => void loadInstances()}>Prøv igen</Button>}
                     >
-                        <p className="body-sm" style={{ color: colors.red }}>{error}</p>
-                    </div>
+                        {error}
+                    </Banner>
                 ) : instances.length === 0 ? (
                     <div className="text-center py-12">
                         <p className="body-sm" style={{ color: colors.textMuted }}>Ingen instanser fundet</p>

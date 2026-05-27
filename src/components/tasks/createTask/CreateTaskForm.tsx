@@ -5,7 +5,6 @@ import { createSubtask, createTask } from "@/lib/api";
 import type { Task, CreateTaskInput } from "@/types/task";
 import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
-import { Info, TriangleAlert } from "lucide-react";
 import { toIsoDate, toDateKey } from "@/helpers/helpers";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
 import BasicInfoSection from "./BasicInfoCard";
@@ -16,6 +15,8 @@ import GoalSection from "./GoalCard";
 import SchedulingCard from "./SchedulingCard";
 import ProjectPickerCard from "./ProjectPickerCard";
 import { toast } from "sonner";
+import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface CreateTaskFormProps {
     formId: string;
@@ -66,8 +67,23 @@ export default function CreateTaskForm({
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
 
     const isSubtask = !!parentTaskId;
+    const missingRequiredFields = useMemo(() => {
+        const fields: string[] = [];
+        if (!formData.title.trim()) fields.push("titel");
+        if (!formData.description.trim()) fields.push("beskrivelse");
+        if (!isSubtask && !projectId) fields.push("projekt");
+        if (formData.assigned_users.length === 0) fields.push("ansvarlig");
+        if (!isRecurring && !formData.deadline) fields.push("deadline");
+        return fields;
+    }, [formData.assigned_users.length, formData.deadline, formData.description, formData.title, isRecurring, isSubtask, projectId]);
+
+    const missingRequiredText = useMemo(() => {
+        return formatMissingRequiredFields(missingRequiredFields);
+    }, [missingRequiredFields]);
+
     const submitLabel = useMemo(() => {
         if (creationMode === "individual" && formData.assigned_users.length >= 2) {
             return `Opret ${formData.assigned_users.length} Opgaver`;
@@ -84,6 +100,12 @@ export default function CreateTaskForm({
     useEffect(() => {
         onSubmitLabelChange?.(submitLabel);
     }, [onSubmitLabelChange, submitLabel]);
+
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) {
+            setShowMissingRequiredBanner(false);
+        }
+    }, [missingRequiredFields.length]);
 
     const handleGoalTypeChange = (checked: boolean) => {
         setFormData(prev => ({
@@ -111,11 +133,18 @@ export default function CreateTaskForm({
         setFormData(prev => ({ ...prev, start_date: date }));
     };
 
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!projectId) {
-            setError("Vælg venligst et projekt.");
+        if (missingRequiredFields.length > 0) {
+            setShowMissingRequiredBanner(true);
+            setError(null);
             return;
         }
 
@@ -211,30 +240,31 @@ export default function CreateTaskForm({
     }
 
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex flex-col h-full">
-            {/* Info Banner for Subtasks */}
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex flex-col h-full">
             {isSubtask && (
-                <div className="mb-6 p-4 bg-info-surface border-l-4 border-link rounded-r-lg">
-                    <div className="flex items-start gap-3">
-                        <Info className="w-5 h-5 flex-shrink-0 text-link" />
-                        <div>
-                            <h4 className="h5">Opretter underopgave</h4>
-                            <p className="body-sm mt-1">
-                                Husk at angive brugertildelinger og enhed for denne underopgave nedenfor.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <Banner
+                    variant="info"
+                    title="Opretter underopgave"
+                    className="mb-6"
+                >
+                    Husk at angive brugertildelinger og enhed for denne underopgave nedenfor.
+                </Banner>
             )}
 
-            {/* Error Message */}
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner
+                    variant="warning"
+                    title="Opgaven mangler oplysninger"
+                    className="mb-6"
+                >
+                    Tilføj {missingRequiredText} før opgaven kan oprettes.
+                </Banner>
+            )}
+
             {error && (
-                <div className="mb-6 p-4 bg-danger-surface border-l-4 border-danger rounded-r-lg">
-                    <div className="flex items-start gap-3">
-                        <TriangleAlert className="w-5 h-5 flex-shrink-0 text-danger" />
-                        <p className="body-sm">{error}</p>
-                    </div>
-                </div>
+                <Banner variant="warning" className="mb-6">
+                    {error}
+                </Banner>
             )}
 
             {/* Scrollable Form Content */}

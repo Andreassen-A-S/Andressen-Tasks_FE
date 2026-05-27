@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { updateOrganization, prepareOrgLogo } from "@/lib/api/organizations";
 import { uploadToGcs } from "@/lib/api/attachments";
 import type { Organization } from "@/types/organization";
@@ -12,6 +12,8 @@ import LogoCropModal from "./LogoCropModal";
 import { Building2, ImageUp, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/users";
+import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface UpdateOrganizationFormProps {
     formId: string;
@@ -39,6 +41,7 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
     const [logoLoading, setLogoLoading] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cropSrcRef = useRef<string | null>(null);
     const logoPreviewRef = useRef<string | null>(null);
@@ -47,6 +50,15 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
+
+    const missingRequiredFields = useMemo(() => {
+        const fields: string[] = [];
+        if (!formData.name.trim()) fields.push("navn");
+        if (isSuperAdmin && !formData.slug.trim()) fields.push("slug");
+        return fields;
+    }, [formData.name, formData.slug, isSuperAdmin]);
+
+    const missingRequiredText = useMemo(() => formatMissingRequiredFields(missingRequiredFields), [missingRequiredFields]);
 
     function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
@@ -91,6 +103,11 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+        if (missingRequiredFields.length > 0) {
+            setShowMissingRequiredBanner(true);
+            setError(null);
+            return;
+        }
         setLoading(true);
         setError(null);
         try {
@@ -123,12 +140,28 @@ export default function UpdateOrganizationForm({ formId, organization, onSuccess
         revokeObjectUrl(logoPreviewRef.current);
     }, []);
 
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
+    }, [missingRequiredFields.length]);
+
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-4">
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex-1 overflow-y-auto space-y-4">
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner variant="warning">
+                    Tilføj {missingRequiredText} før organisationen kan gemmes.
+                </Banner>
+            )}
+
             {error && (
-                <div className="p-4 border-l-4 rounded-r-lg" style={{ backgroundColor: colors.redLight, borderLeftColor: colors.red }}>
-                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
-                </div>
+                <Banner variant="warning">
+                    {error}
+                </Banner>
             )}
 
             <div className="space-y-2">

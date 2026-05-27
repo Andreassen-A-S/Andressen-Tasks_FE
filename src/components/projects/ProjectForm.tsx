@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CreateProjectInput, Project } from "@/types/project";
-import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
 import TextArea from "@/components/common/forms/TextArea";
 import ColorInput from "@/components/common/forms/ColorInput";
+import Banner from "@/components/common/Banner";
+import { formatMissingRequiredFields } from "@/helpers/formValidation";
 
 interface ProjectFormProps {
     formId: string;
@@ -20,6 +21,9 @@ export default function ProjectForm({ formId, onLoadingChange, initial, onSubmit
     const [color, setColor] = useState(initial?.color ?? "#1B1D22");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
+    const missingRequiredFields = useMemo(() => (!name.trim() ? ["navn"] : []), [name]);
+    const missingRequiredText = useMemo(() => formatMissingRequiredFields(missingRequiredFields), [missingRequiredFields]);
 
     useEffect(() => {
         onLoadingChange?.(loading);
@@ -28,9 +32,11 @@ export default function ProjectForm({ formId, onLoadingChange, initial, onSubmit
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (!name.trim()) {
-            setError("Navn er påkrævet");
+            setShowMissingRequiredBanner(true);
+            setError(null);
             return;
         }
+        setShowMissingRequiredBanner(false);
         setLoading(true);
         setError(null);
         try {
@@ -42,18 +48,28 @@ export default function ProjectForm({ formId, onLoadingChange, initial, onSubmit
         }
     }
 
+    useEffect(() => {
+        if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
+    }, [missingRequiredFields.length]);
+
+    function handleInvalidCapture() {
+        if (missingRequiredFields.length === 0) return;
+        setShowMissingRequiredBanner(true);
+        setError(null);
+    }
+
     return (
-        <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form id={formId} onSubmit={handleSubmit} onInvalidCapture={handleInvalidCapture} className="flex flex-col gap-5">
+            {showMissingRequiredBanner && missingRequiredFields.length > 0 && (
+                <Banner variant="warning">
+                    Tilføj {missingRequiredText} før projektet kan gemmes.
+                </Banner>
+            )}
+
             {error && (
-                <div
-                    className="rounded-md border px-4 py-3"
-                    style={{
-                        borderColor: colors.red,
-                        backgroundColor: colors.redLight,
-                    }}
-                >
-                    <p className="body-sm" style={{ color: colors.red }}>{error}</p>
-                </div>
+                <Banner variant="warning">
+                    {error}
+                </Banner>
             )}
 
             <div>
