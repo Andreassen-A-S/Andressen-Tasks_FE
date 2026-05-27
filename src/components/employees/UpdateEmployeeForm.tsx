@@ -174,7 +174,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 <div>
                     <label className="label-md block mb-2">Profilbillede</label>
                     <div className="flex items-center gap-3">
-                        <SingleAvatar name={formData.name || user.email} size="lg" imageUrl={picturePreview} />
+                        <SingleAvatar name={formData.name || user.email} size="xxl" border imageUrl={picturePreview} />
                         <div className="flex flex-col gap-2">
                             <Button
                                 type="button"

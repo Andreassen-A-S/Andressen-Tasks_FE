@@ -288,7 +288,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
             {!isArchived && (
                 <TaskComment
                     taskId={taskId}
-                    currentUser={{ name: currentUser?.name, email: currentUser?.email, profile_picture_url: currentUser?.profile_picture_url }}
+                    currentUser={{ user_id: currentUser?.user_id, name: currentUser?.name, email: currentUser?.email, profile_picture_url: currentUser?.profile_picture_url }}
                     onSubmit={handleSubmitComment}
                 />
             )}

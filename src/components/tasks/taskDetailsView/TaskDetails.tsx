@@ -569,7 +569,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                                             <ul className="space-y-2">
                                                 {assignments.map((a) => (
                                                     <li key={a.user.user_id} className="flex items-center gap-2">
-                                                        <SingleAvatar name={a.user.name} size="sm" imageUrl={a.user.profile_picture_url} />
+                                                        <SingleAvatar name={a.user.name} size="sm" border imageUrl={a.user.profile_picture_url} />
                                                         <div>
                                                             <span className="label-md block">{a.user.name}</span>
                                                             {a.user.position?.name && <span className="body-xs block">{a.user.position.name}</span>}

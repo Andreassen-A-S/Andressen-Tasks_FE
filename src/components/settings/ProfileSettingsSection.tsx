@@ -78,7 +78,7 @@ export default function ProfileSettingsSection({ user }: { user: User }) {
         >
             <div className="rounded-lg border px-4 py-4" style={{ borderColor: colors.border, backgroundColor: colors.white }}>
                 <div className="flex items-center gap-4">
-                    <SingleAvatar name={user.name || user.email} size="lg" imageUrl={preview} />
+                    <SingleAvatar name={user.name || user.email} size="xxl" border imageUrl={preview} />
                     <div className="flex flex-col gap-2">
                         <Button
                             type="button"

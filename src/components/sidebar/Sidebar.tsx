@@ -37,7 +37,7 @@ function UserPanelTrigger({ name, role, organizationId, imageUrl }: { name: stri
     const isOpen = useContext(DropdownOpenContext);
     return (
         <div className={`flex items-center gap-3 w-full p-4 transition-colors cursor-pointer ${isOpen ? "bg-[var(--sidebar-hover)]" : "hover:bg-[var(--sidebar-hover)]"}`}>
-            <SingleAvatar name={name} size="lg" imageUrl={imageUrl} />
+            <SingleAvatar name={name} size="lg" border imageUrl={imageUrl} />
             <div className="min-w-0 flex-1 text-left">
                 <div className="flex items-center gap-1.5">
                     <p className="nav-item-active text-white truncate">{name}</p>
