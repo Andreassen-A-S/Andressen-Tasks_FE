@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { prepareProfilePicture, updateUser } from "@/lib/api/users";
 import { uploadToGcs } from "@/lib/api/attachments";
@@ -21,10 +21,23 @@ function revokeObjectUrl(url: string | null) {
 
 export default function ProfileSettingsSection({ user }: { user: User }) {
     const { updateCurrentUser } = useAuth();
+    const [savedUrl, setSavedUrl] = useState<string | null>(user.profile_picture_url ?? null);
     const [preview, setPreview] = useState<string | null>(user.profile_picture_url ?? null);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cropSrcRef = useRef<string | null>(null);
+    const previewRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        cropSrcRef.current = cropSrc;
+        previewRef.current = preview;
+    }, [cropSrc, preview]);
+
+    useEffect(() => () => {
+        revokeObjectUrl(cropSrcRef.current);
+        revokeObjectUrl(previewRef.current);
+    }, []);
 
     function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
@@ -47,11 +60,12 @@ export default function ProfileSettingsSection({ user }: { user: User }) {
             const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, blob.type, blob.size);
             await uploadToGcs(upload_url, new File([blob], "profile.webp", { type: blob.type }));
             const updated = await updateUser(user.user_id, { profile_picture_url: gcs_path });
+            setSavedUrl(updated.profile_picture_url ?? null);
             updateCurrentUser({ profile_picture_url: updated.profile_picture_url });
             toast.success("Profilbillede opdateret");
         } catch {
             toast.error("Upload fejlede. Prøv igen.");
-            setPreview((prev) => { revokeObjectUrl(prev); return user.profile_picture_url ?? null; });
+            setPreview((prev) => { revokeObjectUrl(prev); return savedUrl; });
         } finally {
             setLoading(false);
         }
@@ -61,6 +75,7 @@ export default function ProfileSettingsSection({ user }: { user: User }) {
         setLoading(true);
         try {
             await updateUser(user.user_id, { profile_picture_url: null });
+            setSavedUrl(null);
             updateCurrentUser({ profile_picture_url: null });
             setPreview((prev) => { revokeObjectUrl(prev); return null; });
             toast.success("Profilbillede fjernet");
