@@ -28,11 +28,12 @@ interface UpdateEmployeeFormProps {
     formId: string;
     user: User;
     onSuccess: (user: User) => void;
+    onPictureChange?: (user: User) => void;
     onLoadingChange?: (loading: boolean) => void;
 }
 
-export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingChange }: UpdateEmployeeFormProps) {
-    const { userRole, contextOrgId } = useAuth();
+export default function UpdateEmployeeForm({ formId, user, onSuccess, onPictureChange, onLoadingChange }: UpdateEmployeeFormProps) {
+    const { userRole, contextOrgId, user: currentUser, updateCurrentUser } = useAuth();
     const canEditStatus = isAdminRole(userRole);
 
     const { data: allPositions = [], isLoading: positionsLoading, isError: positionsError } = useQuery({
@@ -98,6 +99,8 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
             await uploadToGcs(upload_url, new File([blob], "profile.webp", { type: blob.type }));
             const updatedUser = await updateUser(user.user_id, { profile_picture_url: gcs_path });
             setPictureUrl(updatedUser.profile_picture_url ?? null);
+            if (currentUser?.user_id === user.user_id) updateCurrentUser({ profile_picture_url: updatedUser.profile_picture_url });
+            onPictureChange?.(updatedUser);
             toast.success("Profilbillede opdateret");
         } catch {
             toast.error("Billedupload fejlede. Prøv igen.");
@@ -197,9 +200,11 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                                     onClick={async () => {
                                         setPictureLoading(true);
                                         try {
-                                            await updateUser(user.user_id, { profile_picture_url: null });
+                                            const updatedUser = await updateUser(user.user_id, { profile_picture_url: null });
                                             setPictureUrl(null);
                                             setPicturePreview((prev) => { revokeObjectUrl(prev); return null; });
+                                            if (currentUser?.user_id === user.user_id) updateCurrentUser({ profile_picture_url: null });
+                                            onPictureChange?.(updatedUser);
                                             toast.success("Profilbillede fjernet");
                                         } catch {
                                             toast.error("Kunne ikke fjerne profilbillede. Prøv igen.");

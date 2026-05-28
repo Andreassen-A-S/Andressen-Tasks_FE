@@ -179,6 +179,7 @@ export default function EmployeeTable({
                         user={selectedEmployee}
                         onLoadingChange={setEditLoading}
                         onSuccess={handleEditSuccess}
+                        onPictureChange={onEmployeeUpdate}
                     />
                 )}
             </Modal>
