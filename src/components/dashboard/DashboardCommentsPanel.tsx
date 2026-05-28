@@ -131,7 +131,7 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                             >
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <SingleAvatar name={comment.author.name} size="xs" />
+                                        <SingleAvatar name={comment.author.name} size="xs" border imageUrl={comment.author.profile_picture_url} />
                                         <span className="label-sm truncate" style={{ color: colors.textPrimary }}>
                                             {comment.author.name}
                                         </span>

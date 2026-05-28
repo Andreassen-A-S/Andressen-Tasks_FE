@@ -1,12 +1,14 @@
 "use client";
 
-import { getInitials, getAvatarColor, formatNumber } from "@/helpers/helpers";
-import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
+import { formatNumber } from "@/helpers/helpers";
+import SingleAvatar from "@/components/common/label/SingleAvatar";
+import MultiUserCard from "@/components/common/MultiUserCard";
 
 export interface AvatarUser {
     id: string;
     name: string;
     position?: string;
+    profile_picture_url?: string | null;
 }
 
 interface TaskAssignedUsersProps {
@@ -14,6 +16,7 @@ interface TaskAssignedUsersProps {
     loading?: boolean;
     className?: string;
     size?: "sm" | "md";
+    ringColor?: string;
 }
 
 export default function TaskAssignedUsers({
@@ -21,30 +24,17 @@ export default function TaskAssignedUsers({
     loading = false,
     className = "",
     size = "md",
+    ringColor = "ring-surface",
 }: TaskAssignedUsersProps) {
-    const sizeClasses = {
-        sm: {
-            skeleton: "w-6 h-6 rounded-md",
-            stack: "-space-x-1.5",
-            avatar: "w-6 h-6 rounded-md initials-sm border-2 border-surface",
-            more: "w-6 h-6 rounded-md initials-sm border-2 border-surface",
-            tooltipAvatar: "w-5 h-5 rounded-md initials-sm",
-        },
-        md: {
-            skeleton: "w-8 h-8 rounded-lg",
-            stack: "-space-x-1.75",
-            avatar: "w-8 h-8 rounded-lg initials-md border-2 border-surface",
-            more: "w-8 h-8 rounded-lg initials-lg border-2 border-surface",
-            tooltipAvatar: "w-6 h-6 rounded-lg initials-md",
-        },
-    } as const;
-
-    const currentSize = sizeClasses[size];
+    const avatarSize = size === "sm" ? "xs" : "sm";
+    const stackSpacing = size === "sm" ? "-space-x-1.5" : "-space-x-1.75";
+    const moreSize = size === "sm" ? "w-7 h-7 initials-sm" : "w-9 h-9 initials-md";
+    const skeletonSize = size === "sm" ? "w-7 h-7" : "w-9 h-9";
 
     if (loading) {
         return (
             <div className={`flex items-center ${className}`}>
-                <div className={`${currentSize.skeleton} bg-border animate-pulse`} />
+                <div className={`${skeletonSize} rounded-full bg-border animate-pulse`} />
             </div>
         );
     }
@@ -57,50 +47,30 @@ export default function TaskAssignedUsers({
     const visible = users.slice(0, maxVisible);
     const remaining = users.length - maxVisible;
 
-    const trigger = (
-        <div className={`flex items-center cursor-pointer ${className}`}>
-            <div className={`flex ${currentSize.stack}`}>
-                {visible.map((u, i) => (
-                    <div
-                        key={u.id}
-                        className={`${currentSize.avatar} flex items-center justify-center relative ${getAvatarColor(u.name)}`}
-                        style={{ zIndex: visible.length - i }}
-                    >
-                        {getInitials(u.name)}
-                    </div>
-                ))}
-                {remaining > 0 && (
-                    <div className={`${currentSize.more} bg-nav-inactive flex items-center justify-center`} style={{ zIndex: 0 }}>
-                        +{formatNumber(remaining)}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-
     return (
-        <FloatingTooltip
-            content={
-                <div className="space-y-1">
-                    {users.map((u) => (
-                        <div key={u.id} className="flex items-center gap-2">
-                            <div className={`${currentSize.tooltipAvatar} flex items-center justify-center ${getAvatarColor(u.name)}`}>
-                                {getInitials(u.name)}
-                            </div>
-                            <div>
-                                <div className="h5">{u.name}</div>
-                                <div className="body-xs text-text-secondary">{u.position}</div>
-                            </div>
+        <MultiUserCard users={users}>
+            <div className={`flex items-center cursor-pointer ${className}`}>
+                <div className={`flex ${stackSpacing}`}>
+                    {visible.map((u, i) => (
+                        <div key={u.id} style={{ zIndex: visible.length - i }}>
+                            <SingleAvatar
+                                name={u.name}
+                                size={avatarSize}
+                                imageUrl={u.profile_picture_url}
+                                className={`ring-2 ${ringColor}`}
+                            />
                         </div>
                     ))}
+                    {remaining > 0 && (
+                        <div
+                            className={`${moreSize} rounded-full ring-2 ${ringColor} bg-nav-inactive flex items-center justify-center`}
+                            style={{ zIndex: 0 }}
+                        >
+                            +{formatNumber(remaining)}
+                        </div>
+                    )}
                 </div>
-            }
-            placement="bottom-start"
-            offsetPx={8}
-            variant="card"
-            className="min-w-max"
-        >
-            {trigger}
-        </FloatingTooltip>
+            </div>
+        </MultiUserCard>
     );
 }

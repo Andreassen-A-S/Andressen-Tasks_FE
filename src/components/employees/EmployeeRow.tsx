@@ -21,7 +21,7 @@ export default function EmployeeRow({ employee, onEdit, onDelete }: EmployeeRowP
         >
             <td className="px-6 py-3">
                 <div className="flex items-center gap-4">
-                    <SingleAvatar name={employee.name} size="sm" />
+                    <SingleAvatar name={employee.name} size="md" border imageUrl={employee.profile_picture_url} />
                     <div>
                         <div className="label-lg" style={{ color: colors.textPrimary }}>{employee.name}</div>
                         <div className="mono-xs" style={{ color: colors.textMuted }}>ID: {employee.user_id.slice(0, 8)}...</div>

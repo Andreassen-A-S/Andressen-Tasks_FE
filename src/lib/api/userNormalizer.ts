@@ -10,6 +10,7 @@ type ApiUser = {
   position_id?: string | null;
   position?: PositionSummary | null;
   status?: User["status"];
+  profile_picture_url?: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -25,6 +26,7 @@ export function normalizeUser(user: ApiUser): User {
     organization_id: user.organization_id,
     organization: user.organization ?? null,
     status: user.status ?? UserStatus.ACTIVE,
+    profile_picture_url: user.profile_picture_url ?? null,
     created_at: user.created_at,
     updated_at: user.updated_at,
   };

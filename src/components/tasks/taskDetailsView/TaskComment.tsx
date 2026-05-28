@@ -9,10 +9,11 @@ import { getFileExtension, formatNumber } from "@/helpers/helpers";
 import { AllowedMimeType, ALLOWED_MIME_TYPE_VALUES, MAX_ATTACHMENTS, MAX_FILE_SIZE, type PendingAttachment } from "@/types/attachment";
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
+import UserCard from "@/components/common/UserCard";
 
 interface TaskCommentProps {
   taskId: string;
-  currentUser: { name?: string; email?: string };
+  currentUser: { user_id?: string; name?: string; email?: string; profile_picture_url?: string | null };
   onSubmit: (message: string, uploadTokens: string[]) => Promise<void>;
 }
 
@@ -138,7 +139,11 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
   return (
     <div className="mt-8">
       <div className="flex items-start gap-3">
-        <SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="sm" />
+        {currentUser.user_id
+            ? <UserCard userId={currentUser.user_id} name={currentUser.name || currentUser.email || "Ukendt bruger"}><SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="md" border imageUrl={currentUser.profile_picture_url} /></UserCard>
+            : <SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="md" border imageUrl={currentUser.profile_picture_url} />
+        }
+
         <div className="flex-1">
           <div className="mb-2 mt-1">
             <h3 className="h4">Tilføj en kommentar</h3>

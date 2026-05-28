@@ -50,6 +50,7 @@ export interface TaskEvent {
     role?: UserRole | null;
     position_id?: string | null;
     position?: PositionSummary | null;
+    profile_picture_url?: string | null;
   } | null;
 
   comment?: {

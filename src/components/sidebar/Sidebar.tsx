@@ -33,11 +33,11 @@ function OrgAvatar({ name, logoUrl }: { name: string; logoUrl?: string | null })
     return <SingleAvatar name={name} size="xxs" />;
 }
 
-function UserPanelTrigger({ name, role, organizationId }: { name: string; role: string; organizationId: string | null }) {
+function UserPanelTrigger({ name, role, organizationId, imageUrl }: { name: string; role: string; organizationId: string | null; imageUrl?: string | null }) {
     const isOpen = useContext(DropdownOpenContext);
     return (
         <div className={`flex items-center gap-3 w-full p-4 transition-colors cursor-pointer ${isOpen ? "bg-[var(--sidebar-hover)]" : "hover:bg-[var(--sidebar-hover)]"}`}>
-            <SingleAvatar name={name} size="lg" />
+            <SingleAvatar name={name} size="lg" border imageUrl={imageUrl} />
             <div className="min-w-0 flex-1 text-left">
                 <div className="flex items-center gap-1.5">
                     <p className="nav-item-active text-white truncate">{name}</p>
@@ -248,6 +248,7 @@ export default function Sidebar() {
                                     name={user?.name || "Unknown User"}
                                     role={userRole ? getUserRoleLabel(userRole) : "Bruger"}
                                     organizationId={user?.organization_id ?? null}
+                                    imageUrl={user?.profile_picture_url}
                                 />
                             }
                             items={[
@@ -260,7 +261,7 @@ export default function Sidebar() {
                                     subItems: [
                                         ...savedAccounts.map((account) => ({
                                             label: account.user.name,
-                                            icon: <SingleAvatar name={account.user.name} size="xxs" />,
+                                            icon: <SingleAvatar name={account.user.name} size="xxs" imageUrl={account.user.profile_picture_url} />,
                                             badge: account.user.organization_id === MESTERPLAN_ORG_ID ? <StaffBadge /> : undefined,
                                             checked: account.user.user_id === user?.user_id,
                                             onClick: account.user.user_id === user?.user_id

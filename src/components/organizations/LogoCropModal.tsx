@@ -10,6 +10,8 @@ interface LogoCropModalProps {
     imageSrc: string;
     onConfirm: (blob: Blob) => void;
     onClose: () => void;
+    title?: string;
+    round?: boolean;
 }
 
 const OUTPUT_SIZE = 512;
@@ -37,7 +39,7 @@ async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> 
     });
 }
 
-export default function LogoCropModal({ imageSrc, onConfirm, onClose }: LogoCropModalProps) {
+export default function LogoCropModal({ imageSrc, onConfirm, onClose, title = "Tilpas logo", round = false }: LogoCropModalProps) {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedArea, setCroppedArea] = useState<Area | null>(null);
@@ -62,7 +64,7 @@ export default function LogoCropModal({ imageSrc, onConfirm, onClose }: LogoCrop
         <Modal
             isOpen
             onClose={onClose}
-            title="Tilpas logo"
+            title={title}
             maxWidth="sm"
             footer={
                 <div className="flex justify-end gap-2">
@@ -79,6 +81,7 @@ export default function LogoCropModal({ imageSrc, onConfirm, onClose }: LogoCrop
                         zoom={zoom}
                         minZoom={0.3}
                         aspect={1}
+                        cropShape={round ? "round" : "rect"}
                         onCropChange={setCrop}
                         onZoomChange={setZoom}
                         onCropComplete={onCropComplete}

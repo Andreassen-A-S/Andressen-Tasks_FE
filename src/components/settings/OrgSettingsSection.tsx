@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, ImageUp, X } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { getOrganization, updateOrganization, prepareOrgLogo } from "@/lib/api/organizations";
 import { uploadToGcs } from "@/lib/api/attachments";
@@ -10,11 +10,10 @@ import type { User } from "@/types/users";
 import type { Organization } from "@/types/organization";
 import TextInput from "@/components/common/forms/TextInput";
 import Button from "@/components/common/buttons/Button";
+import LogoEditor from "@/components/common/LogoEditor";
 import LogoCropModal from "@/components/organizations/LogoCropModal";
 import SettingsSection from "./SettingsSection";
 import { useAuth } from "@/hooks/useAuth";
-
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function revokeObjectUrl(url: string | null) {
     if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
@@ -46,7 +45,6 @@ export default function OrgSettingsSection({ user }: { user: User }) {
 
 function OrgForm({ org }: { org: Organization }) {
     const queryClient = useQueryClient();
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [name, setName] = useState(org.name);
     const [logoUrl, setLogoUrl] = useState<string | null>(org.logo_url ?? null);
@@ -73,14 +71,7 @@ function OrgForm({ org }: { org: Organization }) {
         revokeObjectUrl(logoPreviewRef.current);
     }, []);
 
-    function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0];
-        e.target.value = "";
-        if (!file) return;
-        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-            toast.error("Kun JPEG, PNG og WebP er tilladt");
-            return;
-        }
+    function handleFileSelected(file: File) {
         const nextCropSrc = URL.createObjectURL(file);
         setCropSrc((previous) => {
             revokeObjectUrl(previous);
@@ -141,51 +132,11 @@ function OrgForm({ org }: { org: Organization }) {
             {/* Logo */}
             <div className="rounded-lg border border-border bg-surface px-4 py-4">
                 <p className="label-lg mb-3">Logo</p>
-                <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl border border-border overflow-hidden flex items-center justify-center flex-shrink-0 bg-surface-subtle">
-                        {logoPreview ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
-                        ) : (
-                            <Building2 className="w-6 h-6 text-text-muted" />
-                        )}
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            icon={<ImageUp className="w-4 h-4" />}
-                            loading={logoLoading}
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            Skift logo
-                        </Button>
-                        {logoUrl && (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                icon={<X className="w-4 h-4" />}
-                                onClick={() => {
-                                    setLogoUrl(null);
-                                    setLogoPreview((previous) => {
-                                        revokeObjectUrl(previous);
-                                        return null;
-                                    });
-                                }}
-                            >
-                                Fjern logo
-                            </Button>
-                        )}
-                    </div>
-                </div>
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={ALLOWED_IMAGE_TYPES.join(",")}
-                    onChange={handleFileChange}
-                    className="hidden"
+                <LogoEditor
+                    imageUrl={logoPreview}
+                    loading={logoLoading}
+                    placeholder={<Building2 className="w-6 h-6 text-text-muted" />}
+                    onFileSelected={handleFileSelected}
                 />
             </div>
 

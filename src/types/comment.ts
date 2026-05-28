@@ -5,7 +5,7 @@ export interface TaskComment {
   message: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
-  author: { user_id: string; name: string; email: string };
+  author: { user_id: string; name: string; email: string; profile_picture_url?: string | null };
 }
 
 export interface CreateCommentRequest {

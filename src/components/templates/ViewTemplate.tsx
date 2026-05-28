@@ -126,7 +126,7 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                                                     <Clock className="w-3.5 h-3.5" />
                                                     <span>Deadline: {formatRelativeDate(instance.deadline)}</span>
                                                 </span>
-                                                <TaskAssignedUsers users={assignments.map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position?.name }))} size="sm" className="min-h-6" />
+                                                <TaskAssignedUsers users={assignments.map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position?.name, profile_picture_url: a.user.profile_picture_url }))} size="sm" className="min-h-6" />
                                             </div>
                                         </div>
                                         <div className="w-28 shrink-0 text-right">

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { updateUser } from "@/lib/api/users";
+import { prepareProfilePicture, updateUser } from "@/lib/api/users";
+import { uploadToGcs } from "@/lib/api/attachments";
 import { getPositions } from "@/lib/api/positions";
 import { UpdateUserInput, User, UserStatus, isAdminRole } from "@/types/users";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,16 +13,23 @@ import TextInput from "@/components/common/forms/TextInput";
 import SelectField from "@/components/common/forms/SelectField";
 import Banner from "@/components/common/Banner";
 import { formatMissingRequiredFields } from "@/helpers/formValidation";
+import ImageEditor from "@/components/common/ImageEditor";
+import LogoCropModal from "@/components/organizations/LogoCropModal";
+
+function revokeObjectUrl(url: string | null) {
+    if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+}
 
 interface UpdateEmployeeFormProps {
     formId: string;
     user: User;
     onSuccess: (user: User) => void;
+    onPictureChange?: (user: User) => void;
     onLoadingChange?: (loading: boolean) => void;
 }
 
-export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingChange }: UpdateEmployeeFormProps) {
-    const { userRole, contextOrgId } = useAuth();
+export default function UpdateEmployeeForm({ formId, user, onSuccess, onPictureChange, onLoadingChange }: UpdateEmployeeFormProps) {
+    const { userRole, contextOrgId, user: currentUser, updateCurrentUser } = useAuth();
     const canEditStatus = isAdminRole(userRole);
 
     const { data: allPositions = [], isLoading: positionsLoading, isError: positionsError } = useQuery({
@@ -40,6 +48,12 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         position_id: user.position_id || "",
         status: user.status || UserStatus.ACTIVE,
     });
+    const [pictureUrl, setPictureUrl] = useState<string | null>(user.profile_picture_url ?? null);
+    const [picturePreview, setPicturePreview] = useState<string | null>(user.profile_picture_url ?? null);
+    const [pictureLoading, setPictureLoading] = useState(false);
+    const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const cropSrcRef = useRef<string | null>(null);
+    const picturePreviewRef = useRef<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
@@ -58,6 +72,32 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    function handleFileSelected(file: File) {
+        const src = URL.createObjectURL(file);
+        setCropSrc((prev) => { revokeObjectUrl(prev); return src; });
+    }
+
+    async function handleCropConfirm(blob: Blob) {
+        const nextPreview = URL.createObjectURL(blob);
+        setCropSrc((prev) => { revokeObjectUrl(prev); return null; });
+        setPicturePreview((prev) => { revokeObjectUrl(prev); return nextPreview; });
+        setPictureLoading(true);
+        try {
+            const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, blob.type, blob.size);
+            await uploadToGcs(upload_url, new File([blob], "profile.webp", { type: blob.type }));
+            const updatedUser = await updateUser(user.user_id, { profile_picture_url: gcs_path });
+            setPictureUrl(updatedUser.profile_picture_url ?? null);
+            if (currentUser?.user_id === user.user_id) updateCurrentUser({ profile_picture_url: updatedUser.profile_picture_url });
+            onPictureChange?.(updatedUser);
+            toast.success("Profilbillede opdateret");
+        } catch {
+            toast.error("Billedupload fejlede. Prøv igen.");
+            setPicturePreview((prev) => { revokeObjectUrl(prev); return pictureUrl; });
+        } finally {
+            setPictureLoading(false);
+        }
+    }
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
@@ -70,9 +110,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 position_id: formData.position_id || null,
                 ...(canEditStatus ? { status: formData.status } : {}),
             };
-            if (formData.password) {
-                updates.password = formData.password;
-            }
+            if (formData.password) updates.password = formData.password;
             const updatedUser = await updateUser(user.user_id, updates);
             toast.success("Medarbejder opdateret");
             onSuccess(updatedUser);
@@ -83,9 +121,35 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         }
     }
 
+    async function handleRemovePicture() {
+        setPictureLoading(true);
+        try {
+            const updatedUser = await updateUser(user.user_id, { profile_picture_url: null });
+            setPictureUrl(null);
+            setPicturePreview((prev) => { revokeObjectUrl(prev); return null; });
+            if (currentUser?.user_id === user.user_id) updateCurrentUser({ profile_picture_url: null });
+            onPictureChange?.(updatedUser);
+            toast.success("Profilbillede fjernet");
+        } catch {
+            toast.error("Kunne ikke fjerne profilbillede. Prøv igen.");
+        } finally {
+            setPictureLoading(false);
+        }
+    }
+
     useEffect(() => {
-        onLoadingChange?.(loading);
-    }, [loading, onLoadingChange]);
+        onLoadingChange?.(loading || pictureLoading);
+    }, [loading, pictureLoading, onLoadingChange]);
+
+    useEffect(() => {
+        cropSrcRef.current = cropSrc;
+        picturePreviewRef.current = picturePreview;
+    }, [cropSrc, picturePreview]);
+
+    useEffect(() => () => {
+        revokeObjectUrl(cropSrcRef.current);
+        revokeObjectUrl(picturePreviewRef.current);
+    }, []);
 
     useEffect(() => {
         if (missingRequiredFields.length === 0) setShowMissingRequiredBanner(false);
@@ -115,6 +179,25 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 </Banner>
             )}
             <div className="space-y-4">
+                <div>
+                    <label className="label-md block mb-2">Profilbillede</label>
+                    <ImageEditor
+                        imageUrl={picturePreview}
+                        loading={pictureLoading}
+                        name={formData.name || user.email}
+                        onFileSelected={handleFileSelected}
+                        onRemove={handleRemovePicture}
+                    />
+                    {cropSrc && (
+                        <LogoCropModal
+                            imageSrc={cropSrc}
+                            onConfirm={handleCropConfirm}
+                            onClose={() => setCropSrc((prev) => { revokeObjectUrl(prev); return null; })}
+                            title="Tilpas profilbillede"
+                            round
+                        />
+                    )}
+                </div>
                 <div>
                     <label htmlFor="name" className="label-md block mb-2">Navn</label>
                     <TextInput

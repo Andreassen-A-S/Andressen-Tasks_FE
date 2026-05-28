@@ -40,7 +40,7 @@ export interface Task {
   project_id: string;
   project?: ProjectSummary;
   created_by: string;
-  creator?: { name: string | null; role: UserRole } | null;
+  creator?: { name: string | null; role: UserRole; profile_picture_url?: string | null } | null;
   title: string;
   description: string;
   priority: TaskPriority;
