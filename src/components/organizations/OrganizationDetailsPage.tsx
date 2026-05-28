@@ -199,7 +199,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-1 flex-shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
                             <Button
                                 variant="ghost"
                                 size="md"
@@ -313,7 +313,7 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
                     </div>
 
                     {/* Sidebar */}
-                    <div className="w-64 flex-shrink-0 py-2">
+                    <div className="w-64 shrink-0 py-2">
                         <DetailsSectionHeader label="Org status" onGearClick={() => { }} disabled>
                             <Pill color={orgStatusColor[org.status]} size="md" bordered>
                                 {organizationStatusLabels[org.status]}
@@ -341,7 +341,8 @@ export default function OrganizationDetailsPage({ paramsPromise }: Props) {
 
                         <DetailsSectionHeader label="Medarbejdere" onGearClick={() => { }} disabled>
                             <TaskAssignedUsers
-                                users={members.map((m) => ({ id: m.user_id, name: m.name, position: m.position?.name }))}
+                                ringColor="ring-background"
+                                users={members.map((m) => ({ id: m.user_id, name: m.name, position: m.position?.name, profile_picture_url: m.profile_picture_url }))}
                             />
                         </DetailsSectionHeader>
 

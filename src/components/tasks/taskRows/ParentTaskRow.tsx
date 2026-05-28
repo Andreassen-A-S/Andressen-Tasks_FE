@@ -28,6 +28,7 @@ export default function ParentTaskRow({
     onTaskClick,
 }: ParentTaskRowProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const isRecurring = !!task.recurring_template_id;
 
     const hasSubtasks = subtasks.length > 0;
@@ -56,8 +57,8 @@ export default function ParentTaskRow({
             {/* Task Row */}
             <tr
                 className="bg-surface transition-colors"
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.whiteHover)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.white)}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.whiteHover; setIsHovered(true); }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.white; setIsHovered(false); }}
             >
                 <td className="w-10 align-top relative">
                     {hasSubtasks && (
@@ -135,8 +136,10 @@ export default function ParentTaskRow({
 
                 <td className="px-6 py-3 align-middle">
                     <TaskAssignedUsers
-                        users={(taskAssignments[task.task_id] || []).map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position?.name }))}
+                        size="sm"
+                        users={(taskAssignments[task.task_id] || []).map((a) => ({ id: a.assignment_id, name: a.user.name, position: a.user.position?.name, profile_picture_url: a.user.profile_picture_url }))}
                         loading={!taskAssignments[task.task_id]}
+                        ringColor={isHovered ? "ring-surface-hover" : "ring-surface"}
                     />
                 </td>
 
