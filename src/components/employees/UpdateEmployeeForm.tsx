@@ -53,8 +53,8 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
     });
     const [pictureUrl, setPictureUrl] = useState<string | null>(user.profile_picture_url ?? null);
     const [picturePreview, setPicturePreview] = useState<string | null>(user.profile_picture_url ?? null);
+    const [pendingBlob, setPendingBlob] = useState<Blob | null>(null);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
-    const [pictureLoading, setPictureLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cropSrcRef = useRef<string | null>(null);
     const picturePreviewRef = useRef<string | null>(null);
@@ -88,21 +88,11 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         setCropSrc((prev) => { revokeObjectUrl(prev); return src; });
     }
 
-    async function handleCropConfirm(blob: Blob) {
+    function handleCropConfirm(blob: Blob) {
         const nextPreview = URL.createObjectURL(blob);
         setCropSrc((prev) => { revokeObjectUrl(prev); return null; });
         setPicturePreview((prev) => { revokeObjectUrl(prev); return nextPreview; });
-        setPictureLoading(true);
-        try {
-            const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, blob.type);
-            await uploadToGcs(upload_url, new File([blob], "profile.webp", { type: blob.type }));
-            setPictureUrl(gcs_path);
-        } catch {
-            toast.error("Billedupload fejlede. Prøv igen.");
-            setPicturePreview((prev) => { revokeObjectUrl(prev); return pictureUrl; });
-        } finally {
-            setPictureLoading(false);
-        }
+        setPendingBlob(blob);
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -110,6 +100,12 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         setLoading(true);
         setError(null);
         try {
+            let resolvedPictureUrl = pictureUrl;
+            if (pendingBlob) {
+                const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, pendingBlob.type);
+                await uploadToGcs(upload_url, new File([pendingBlob], "profile.webp", { type: pendingBlob.type }));
+                resolvedPictureUrl = gcs_path;
+            }
             const updates: UpdateUserInput = {
                 name: formData.name,
                 email: formData.email,
@@ -118,7 +114,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 ...(canEditStatus ? { status: formData.status } : {}),
             };
             if (formData.password) updates.password = formData.password;
-            if (pictureUrl !== user.profile_picture_url) updates.profile_picture_url = pictureUrl;
+            if (resolvedPictureUrl !== user.profile_picture_url) updates.profile_picture_url = resolvedPictureUrl;
             const updatedUser = await updateUser(user.user_id, updates);
             toast.success("Medarbejder opdateret");
             onSuccess(updatedUser);
@@ -130,8 +126,8 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
     }
 
     useEffect(() => {
-        onLoadingChange?.(loading || pictureLoading);
-    }, [loading, pictureLoading, onLoadingChange]);
+        onLoadingChange?.(loading);
+    }, [loading, onLoadingChange]);
 
     useEffect(() => {
         cropSrcRef.current = cropSrc;
@@ -181,7 +177,6 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                                 variant="secondary"
                                 size="sm"
                                 icon={<ImageUp className="w-4 h-4" />}
-                                loading={pictureLoading}
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 Upload billede
@@ -192,9 +187,9 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                                     variant="ghost"
                                     size="sm"
                                     icon={<X className="w-4 h-4" />}
-                                    disabled={pictureLoading}
                                     onClick={() => {
                                         setPictureUrl(null);
+                                        setPendingBlob(null);
                                         setPicturePreview((prev) => { revokeObjectUrl(prev); return null; });
                                     }}
                                 >
@@ -215,6 +210,8 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                             imageSrc={cropSrc}
                             onConfirm={handleCropConfirm}
                             onClose={() => setCropSrc((prev) => { revokeObjectUrl(prev); return null; })}
+                            title="Tilpas profilbillede"
+                            round
                         />
                     )}
                 </div>

@@ -119,6 +119,8 @@ export default function ProfileSettingsSection({ user }: { user: User }) {
                     imageSrc={cropSrc}
                     onConfirm={handleCropConfirm}
                     onClose={() => setCropSrc((prev) => { revokeObjectUrl(prev); return null; })}
+                    title="Tilpas profilbillede"
+                    round
                 />
             )}
         </SettingsSection>

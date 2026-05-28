@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getInitials, getAvatarColor } from "@/helpers/helpers";
 import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 
@@ -21,8 +21,8 @@ export default function SingleAvatar({
     imageUrl,
     border,
 }: SingleAvatarProps) {
-    const [imgError, setImgError] = useState(false);
-    useEffect(() => { setImgError(false); }, [imageUrl]);
+    const [failedUrl, setFailedUrl] = useState<string | null>(null);
+    const showImage = !!imageUrl && failedUrl !== imageUrl;
     const borderClass = border ? "ring-1 ring-border" : "";
     const sizeClasses = {
         xxs: "w-5 h-5 initials-xs rounded",
@@ -33,10 +33,10 @@ export default function SingleAvatar({
         xxl: "w-16 h-16 initials-lg rounded-full",
     };
 
-    const avatar = imageUrl && !imgError ? (
+    const avatar = showImage ? (
         <div className={`${sizeClasses[size]} shrink-0 overflow-hidden ${borderClass} ${className}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageUrl} alt={name} className="w-full h-full object-cover" onError={() => setImgError(true)} />
+            <img src={imageUrl!} alt={name} className="w-full h-full object-cover" onError={() => setFailedUrl(imageUrl!)} />
         </div>
     ) : (
         <div
