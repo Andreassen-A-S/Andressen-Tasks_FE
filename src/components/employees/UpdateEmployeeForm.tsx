@@ -53,7 +53,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
     });
     const [pictureUrl, setPictureUrl] = useState<string | null>(user.profile_picture_url ?? null);
     const [picturePreview, setPicturePreview] = useState<string | null>(user.profile_picture_url ?? null);
-    const [pendingBlob, setPendingBlob] = useState<Blob | null>(null);
+    const [pictureLoading, setPictureLoading] = useState(false);
     const [cropSrc, setCropSrc] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cropSrcRef = useRef<string | null>(null);
@@ -88,11 +88,23 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         setCropSrc((prev) => { revokeObjectUrl(prev); return src; });
     }
 
-    function handleCropConfirm(blob: Blob) {
+    async function handleCropConfirm(blob: Blob) {
         const nextPreview = URL.createObjectURL(blob);
         setCropSrc((prev) => { revokeObjectUrl(prev); return null; });
         setPicturePreview((prev) => { revokeObjectUrl(prev); return nextPreview; });
-        setPendingBlob(blob);
+        setPictureLoading(true);
+        try {
+            const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, blob.type, blob.size);
+            await uploadToGcs(upload_url, new File([blob], "profile.webp", { type: blob.type }));
+            const updatedUser = await updateUser(user.user_id, { profile_picture_url: gcs_path });
+            setPictureUrl(updatedUser.profile_picture_url ?? null);
+            toast.success("Profilbillede opdateret");
+        } catch {
+            toast.error("Billedupload fejlede. Prøv igen.");
+            setPicturePreview((prev) => { revokeObjectUrl(prev); return pictureUrl; });
+        } finally {
+            setPictureLoading(false);
+        }
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -100,12 +112,6 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
         setLoading(true);
         setError(null);
         try {
-            let resolvedPictureUrl = pictureUrl;
-            if (pendingBlob) {
-                const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, pendingBlob.type);
-                await uploadToGcs(upload_url, new File([pendingBlob], "profile.webp", { type: pendingBlob.type }));
-                resolvedPictureUrl = gcs_path;
-            }
             const updates: UpdateUserInput = {
                 name: formData.name,
                 email: formData.email,
@@ -114,7 +120,6 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                 ...(canEditStatus ? { status: formData.status } : {}),
             };
             if (formData.password) updates.password = formData.password;
-            if (resolvedPictureUrl !== user.profile_picture_url) updates.profile_picture_url = resolvedPictureUrl;
             const updatedUser = await updateUser(user.user_id, updates);
             toast.success("Medarbejder opdateret");
             onSuccess(updatedUser);
@@ -126,8 +131,8 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
     }
 
     useEffect(() => {
-        onLoadingChange?.(loading);
-    }, [loading, onLoadingChange]);
+        onLoadingChange?.(loading || pictureLoading);
+    }, [loading, pictureLoading, onLoadingChange]);
 
     useEffect(() => {
         cropSrcRef.current = cropSrc;
@@ -177,6 +182,7 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                                 variant="secondary"
                                 size="sm"
                                 icon={<ImageUp className="w-4 h-4" />}
+                                loading={pictureLoading}
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 Upload billede
@@ -187,10 +193,19 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onLoadingC
                                     variant="ghost"
                                     size="sm"
                                     icon={<X className="w-4 h-4" />}
-                                    onClick={() => {
-                                        setPictureUrl(null);
-                                        setPendingBlob(null);
-                                        setPicturePreview((prev) => { revokeObjectUrl(prev); return null; });
+                                    disabled={pictureLoading}
+                                    onClick={async () => {
+                                        setPictureLoading(true);
+                                        try {
+                                            await updateUser(user.user_id, { profile_picture_url: null });
+                                            setPictureUrl(null);
+                                            setPicturePreview((prev) => { revokeObjectUrl(prev); return null; });
+                                            toast.success("Profilbillede fjernet");
+                                        } catch {
+                                            toast.error("Kunne ikke fjerne profilbillede. Prøv igen.");
+                                        } finally {
+                                            setPictureLoading(false);
+                                        }
                                     }}
                                 >
                                     Fjern billede
