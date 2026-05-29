@@ -2,7 +2,7 @@ import Badge from "@/components/common/label/Badge";
 import TaskAssignedUsers from "@/components/common/label/TaskAssignedUsers";
 import { formatCommentDate, formatRelativeDate, translateTaskUnit, formatNumber } from "@/helpers/helpers";
 import { colors } from "@/constants/colors";
-import { TaskGoalType, type Task } from "@/types/task";
+import { type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
 import { Target, Repeat } from "lucide-react";
 
@@ -34,13 +34,11 @@ export default function SubTaskRow({
 }: SubTaskRowProps) {
     const isRecurring = !!subtask.recurring_template_id;
 
-    const hasQuantityProgress =
-        (subtask.current_quantity != null || subtask.target_quantity != null) &&
-        subtask.goal_type === TaskGoalType.FIXED;
+    const hasQuantityProgress = subtask.goal != null;
 
-    const progressUnit = translateTaskUnit(subtask.unit);
-    const quantitySummary = subtask.target_quantity != null
-        ? `${formatNumber(subtask.current_quantity ?? 0)}/${formatNumber(subtask.target_quantity)}${progressUnit ? ` ${progressUnit}` : ""}`
+    const progressUnit = translateTaskUnit(subtask.goal?.unit);
+    const quantitySummary = subtask.goal != null
+        ? `${formatNumber(subtask.goal.current_quantity)}/${formatNumber(subtask.goal.target_quantity)}${progressUnit ? ` ${progressUnit}` : ""}`
         : null;
     const updatedLabel = formatCommentDate(subtask.updated_at);
 

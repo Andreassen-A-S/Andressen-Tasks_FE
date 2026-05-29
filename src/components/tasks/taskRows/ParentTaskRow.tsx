@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { TaskGoalType, type Task } from "@/types/task";
+import { type Task } from "@/types/task";
 import type { TaskAssignment } from "@/types/assignment";
 import { formatCommentDate, formatRelativeDate, translateTaskUnit, formatNumber } from "@/helpers/helpers";
 import { colors } from "@/constants/colors";
@@ -40,14 +40,11 @@ export default function ParentTaskRow({
         }
         : null;
 
-    const hasQuantityProgress =
-        !hasSubtasks &&
-        (task.current_quantity != null || task.target_quantity != null) &&
-        task.goal_type === TaskGoalType.FIXED;
+    const hasQuantityProgress = !hasSubtasks && task.goal != null;
 
-    const progressUnit = translateTaskUnit(task.unit);
-    const quantitySummary = task.target_quantity != null
-        ? `${formatNumber(task.current_quantity ?? 0)}/${formatNumber(task.target_quantity)}${progressUnit ? ` ${progressUnit}` : ""}`
+    const progressUnit = translateTaskUnit(task.goal?.unit);
+    const quantitySummary = task.goal != null
+        ? `${formatNumber(task.goal.current_quantity)}/${formatNumber(task.goal.target_quantity)}${progressUnit ? ` ${progressUnit}` : ""}`
         : null;
     const updatedLabel = formatCommentDate(task.updated_at);
     const hasDetailSegment = hasSubtasks || hasQuantityProgress;

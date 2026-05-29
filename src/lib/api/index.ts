@@ -4,6 +4,7 @@ export * from "./users";
 export * from "./assignments";
 export * from "./auth";
 export * from "./comments";
+export * from "./goals";
 export * from "./stats";
 export * from "./recurringTemplates";
 export * from "./projects";

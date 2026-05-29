@@ -4,8 +4,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { updateTask, getTaskAssignments } from "@/lib/api";
-import { TaskStatus, TaskPriority, TaskGoalType, TaskUnit } from "@/types/task";
+import { updateTask, getTaskAssignments, setGoal, removeGoal } from "@/lib/api";
+import { TaskStatus, TaskPriority, TaskUnit } from "@/types/task";
 import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit, formatNumber, downloadImages } from "@/helpers/helpers";
 
 
@@ -270,20 +270,33 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     }
 
 
-    async function handleGoalSave(input: {
-        goal_type: TaskGoalType;
-        unit?: TaskUnit;
-        target_quantity?: number | null;
-        current_quantity?: number | null;
-    }) {
+    async function handleGoalSave(input: { target_quantity: number; unit: TaskUnit; current_quantity?: number }) {
         if (!task) return;
         try {
-            const updated = await updateTask(task.task_id, input);
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
+            const goal = await setGoal(task.task_id, input);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => {
+                if (!current) return current;
+                return { ...current, task: { ...current.task, goal } };
+            });
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere mål");
             throw new Error("goal-update-failed");
+        }
+    }
+
+    async function handleGoalRemove() {
+        if (!task) return;
+        try {
+            await removeGoal(task.task_id);
+            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => {
+                if (!current) return current;
+                return { ...current, task: { ...current.task, goal: null } };
+            });
+            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+        } catch {
+            toast.error("Kunne ikke fjerne mål");
+            throw new Error("goal-remove-failed");
         }
     }
 
@@ -629,12 +642,11 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                                         emptyText="Intet mål"
                                     >
                                         {(() => {
-                                            const targetQuantity = task.target_quantity;
-                                            if (task.goal_type !== "FIXED" || targetQuantity == null || targetQuantity <= 0) {
-                                                return undefined;
-                                            }
+                                            const goal = task.goal;
+                                            if (!goal) return undefined;
 
-                                            const currentQuantity = task.current_quantity ?? 0;
+                                            const currentQuantity = goal.current_quantity;
+                                            const targetQuantity = goal.target_quantity;
                                             const progressPercent = Math.max(0, Math.min(100, (currentQuantity / targetQuantity) * 100));
 
                                             return (
@@ -643,7 +655,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                                                         <span className="body-xs">Fremskridt</span>
                                                         <span className="label-md">
                                                             {formatNumber(currentQuantity)} / {formatNumber(targetQuantity)}
-                                                            {task.unit ? ` ${translateTaskUnit(task.unit)}` : ""}
+                                                            {goal.unit ? ` ${translateTaskUnit(goal.unit)}` : ""}
                                                         </span>
                                                     </div>
                                                     <div className="w-full rounded-full h-1.5" style={{ backgroundColor: colors.border }}>
@@ -777,11 +789,11 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                 open={openPicker?.key === "goal"}
                 triggerEl={openPicker?.key === "goal" ? openPicker.triggerEl : null}
                 onClose={closePicker}
-                goalType={task.goal_type}
-                unit={task.unit}
-                targetQuantity={task.target_quantity}
-                currentQuantity={task.current_quantity}
+                unit={task.goal?.unit}
+                targetQuantity={task.goal?.target_quantity}
+                currentQuantity={task.goal?.current_quantity}
                 onSave={handleGoalSave}
+                onRemove={handleGoalRemove}
             />
 
             {/* Add Subtask Modal */}

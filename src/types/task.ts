@@ -34,6 +34,16 @@ export enum TaskGoalType {
   FIXED = "FIXED",
 }
 
+export interface TaskGoal {
+  goal_id: string;
+  task_id: string;
+  target_quantity: number;
+  current_quantity: number;
+  unit: TaskUnit;
+  removed_at: string | null;
+  created_at: string;
+}
+
 export interface Task {
   task_id: string;
   number: number;
@@ -50,10 +60,7 @@ export interface Task {
   updated_at: string;
   parent_task_id?: string | null;
   start_date: string;
-  unit?: TaskUnit;
-  goal_type?: TaskGoalType | null;
-  target_quantity?: number | null;
-  current_quantity?: number | null;
+  goal?: TaskGoal | null;
   recurring_template_id?: string;
   occurrence_date?: string;
   completed_at?: string | null;
@@ -70,10 +77,7 @@ export interface CreateTaskInput {
   assigned_users: string[];
   parent_task_id?: string | null;
   start_date: string;
-  unit?: TaskUnit;
-  goal_type?: TaskGoalType;
-  target_quantity?: number;
-  current_quantity?: number;
+  goal?: { target_quantity: number; unit: TaskUnit; current_quantity?: number };
 }
 
 export interface UpdateTaskInput {
@@ -85,10 +89,6 @@ export interface UpdateTaskInput {
   project_id?: string;
   assigned_users?: string[];
   start_date?: string;
-  unit?: TaskUnit;
-  goal_type?: TaskGoalType;
-  target_quantity?: number | null;
-  current_quantity?: number | null;
   recurring_template_id?: string;
   occurrence_date?: string;
 }
