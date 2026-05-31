@@ -99,7 +99,7 @@ export default function TaskDescriptionCard({
                                     name: creatorName,
                                     imageUrl: creator?.profile_picture_url,
                                     timeLabel: formatCommentDate(createdAt),
-                                    afterText: (descriptionEdits[0]?.before_json as Record<string, unknown> | null)?.description as string | undefined,
+                                    afterText: ([...descriptionEdits].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())[0]?.before_json as Record<string, unknown> | null)?.description as string | undefined,
                                 }}
                             />
                         )}
