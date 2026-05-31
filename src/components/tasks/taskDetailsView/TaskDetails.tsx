@@ -154,6 +154,10 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     const allUsers = data?.allUsers ?? [];
     const projects = data?.projects ?? [];
 
+    function refreshTaskEvents(taskId: string) {
+        void queryClient.invalidateQueries({ queryKey: taskQueryKeys.events(taskId) });
+    }
+
     function closePicker() {
         const pending = pendingAssigneesRef.current;
         pendingAssigneesRef.current = null;
@@ -164,6 +168,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                     await updateTask(task.task_id, { assigned_users: pending });
                     const updated = await getTaskAssignments(task.task_id);
                     queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => current ? { ...current, assignments: updated } : current);
+                    refreshTaskEvents(task.task_id);
                     queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
                 } catch {
                     toast.error("Kunne ikke opdatere tildelte brugere");
@@ -202,6 +207,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         try {
             const updated = await updateTask(task.task_id, { priority: value as TaskPriority });
             queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
+            refreshTaskEvents(task.task_id);
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere prioritet");
@@ -220,6 +226,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                     selectedProject ? { name: selectedProject.name, color: selectedProject.color ?? null } : undefined
                 );
             });
+            refreshTaskEvents(task.task_id);
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.projectsPage });
         } catch {
@@ -232,6 +239,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         try {
             const updated = await updateTask(task.task_id, { status: value as TaskStatus });
             queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
+            refreshTaskEvents(task.task_id);
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.statsPage });
         } catch {
@@ -245,6 +253,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
             if (!isoDate) return;
             const updated = await updateTask(task.task_id, { start_date: isoDate + "T00:00:00.000Z" });
             queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
+            refreshTaskEvents(task.task_id);
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere startdato");
@@ -257,6 +266,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
             if (!isoDate) return;
             const updated = await updateTask(task.task_id, { deadline: isoDate + "T00:00:00.000Z" });
             queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
+            refreshTaskEvents(task.task_id);
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere deadline");
@@ -287,6 +297,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                         if (!current) return current;
                         return { ...current, task: { ...current.task, goal: { ...existingGoal, current_quantity: input.current_quantity ?? 0 } } };
                     });
+                    refreshTaskEvents(task.task_id);
                     queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
                 }
             } else {
@@ -295,6 +306,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                     if (!current) return current;
                     return { ...current, task: { ...current.task, goal } };
                 });
+                refreshTaskEvents(task.task_id);
                 queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
             }
         } catch {
@@ -311,6 +323,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                 if (!current) return current;
                 return { ...current, task: { ...current.task, goal: null } };
             });
+            refreshTaskEvents(task.task_id);
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke fjerne mål");
@@ -323,6 +336,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         try {
             const updated = await updateTask(task.task_id, { description });
             queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
+            refreshTaskEvents(task.task_id);
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
         } catch {
             toast.error("Kunne ikke opdatere beskrivelse");
@@ -349,6 +363,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
         try {
             const updated = await updateTask(task.task_id, { title: titleDraft.trim() });
             queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => mergeTaskDetailTask(current, updated));
+            refreshTaskEvents(task.task_id);
             queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
             setIsEditingTitle(false);
         } catch {
@@ -527,6 +542,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                         {/* Main content */}
                         <div className="flex-1 pt-6 min-w-0">
                             <TaskDescriptionCard
+                                taskId={task.task_id}
                                 creator={creator}
                                 creatorId={task.created_by}
                                 createdAt={task.created_at}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useContext } from "react";
-import { getTaskEvents, createComment, deleteComment } from "@/lib/api";
+import { useContext } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createComment, deleteComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AuthContext } from "@/contexts/AuthContext";
 import { isAdminRole } from "@/types/users";
@@ -16,6 +17,7 @@ import TaskTimelineComment from "./TaskTimelineComment";
 import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
 import Banner from "@/components/common/Banner";
 import Button from "@/components/common/buttons/Button";
+import { fetchTaskEvents, taskQueryKeys } from "@/lib/queries/tasks";
 
 function isCommentEvent(type: string) {
     return type === "COMMENT_CREATED" || type === "COMMENT_DELETED";
@@ -24,34 +26,26 @@ function isCommentEvent(type: string) {
 export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isArchived = false }: { taskId: string; creatorId?: string; assigneeIds?: string[]; isArchived?: boolean }) {
     const auth = useContext(AuthContext);
     const currentUser = auth?.user;
+    const queryClient = useQueryClient();
 
-    const [events, setEvents] = useState<TaskEvent[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const {
+        data: events = [],
+        isLoading,
+        error,
+        refetch,
+    } = useQuery({
+        queryKey: taskQueryKeys.events(taskId),
+        queryFn: () => fetchTaskEvents(taskId),
+    });
 
-    async function refresh(silent = false) {
-        if (!silent) setLoading(true);
-        setError(null);
-        try {
-            const data = await getTaskEvents(taskId);
-            setEvents(data);
-        } catch {
-            setError("Kunne ikke hente aktivitet");
-        } finally {
-            if (!silent) setLoading(false);
-        }
+    async function refresh() {
+        await queryClient.invalidateQueries({ queryKey: taskQueryKeys.events(taskId) });
     }
-
-    useEffect(() => {
-        if (!taskId) return;
-        refresh();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [taskId]);
 
     async function handleDeleteComment(commentId: string) {
         try {
             await deleteComment(commentId);
-            await refresh(true);
+            await refresh();
             toast.success("Kommentar slettet");
         } catch {
             toast.error("Kunne ikke slette kommentar. Prøv igen.");
@@ -59,7 +53,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
     }
 
     async function handleUpdateComment() {
-        await refresh(true);
+        await refresh();
     }
 
     async function handleSubmitComment(message: string, uploadTokens: string[]) {
@@ -69,20 +63,21 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                 message: message || undefined,
                 upload_tokens: uploadTokens.length ? uploadTokens : undefined,
             });
-            await refresh(true);
+            await refresh();
         } catch {
             throw new Error("Kunne ikke tilføje kommentar. Prøv igen.");
         }
     }
 
-    const editedByMap = new Map<string, string>();
+    const editHistoryMap = new Map<string, TaskEvent[]>();
     for (const e of events) {
         if (e.type === "COMMENT_UPDATED" && e.comment_id) {
-            editedByMap.set(e.comment_id, e.actor?.name || e.actor?.email || "Ukendt bruger");
+            const existing = editHistoryMap.get(e.comment_id) ?? [];
+            editHistoryMap.set(e.comment_id, [...existing, e]);
         }
     }
 
-    if (loading) {
+    if (isLoading) {
         return (
             <InlineLoadingState centered className="py-6" />
         );
@@ -93,9 +88,9 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
             <Banner
                 variant="warning"
                 title="Aktivitet kunne ikke indlæses"
-                action={<Button variant="secondary" onClick={() => void refresh()}>Prøv igen</Button>}
+                action={<Button variant="secondary" onClick={() => void refetch()}>Prøv igen</Button>}
             >
-                {error}
+                {error instanceof Error ? error.message : "Kunne ikke hente aktivitet"}
             </Banner>
         );
     }
@@ -126,7 +121,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                                     isTaskOwner={!!creatorId && e.actor_id === creatorId}
                                     isAssignee={assigneeIds.includes(e.actor_id ?? "")}
                                     isArchived={isArchived}
-                                    editedBy={commentId ? editedByMap.get(commentId) : undefined}
+                                    editHistory={commentId ? editHistoryMap.get(commentId) : undefined}
                                     onDelete={handleDeleteComment}
                                     onUpdate={handleUpdateComment}
                                 />
