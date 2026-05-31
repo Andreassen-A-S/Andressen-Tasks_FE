@@ -174,14 +174,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     const updateCurrentUser = (updates: Partial<User>) => {
-        if (!user) return;
-        const updated = { ...user, ...updates };
+        let updated: User | null = null;
+        setUser((prev) => {
+            if (!prev) return prev;
+            updated = { ...prev, ...updates };
+            return updated;
+        });
+        if (!updated) return;
         const accounts = loadSavedAccounts();
         const token = localStorage.getItem("authToken") ?? "";
         const upserted = upsertAccount(accounts, { token, user: updated });
         persistSavedAccounts(upserted);
         setSavedAccounts(upserted);
-        setUser(updated);
     };
 
     const switchAccount = (account: SavedAccount) => {
