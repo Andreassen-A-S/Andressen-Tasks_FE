@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createSubtask, createTask } from "@/lib/api";
 import type { Task, CreateTaskInput } from "@/types/task";
-import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
+import { TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
 import { toIsoDate, toDateKey } from "@/helpers/helpers";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
@@ -169,9 +169,9 @@ export default function CreateTaskForm({
                     title: formData.title,
                     description: formData.description || undefined,
                     priority: formData.priority,
-                    unit: goalEnabled ? goalUnit : TaskUnit.NONE,
-                    target_quantity: goalEnabled && goalTarget != null ? goalTarget : undefined,
-                    goal_type: goalEnabled ? TaskGoalType.FIXED : TaskGoalType.OPEN,
+                    goal: goalEnabled
+                        ? { target_quantity: goalTarget ?? (goalUnit === TaskUnit.NONE ? 100 : 0), unit: goalUnit, current_quantity: goalCurrent }
+                        : undefined,
                     frequency: recurringData.frequency,
                     interval: recurringData.interval,
                     days_of_week: recurringData.days_of_week.length > 0 ? recurringData.days_of_week : undefined,
