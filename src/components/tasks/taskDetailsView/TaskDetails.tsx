@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { updateTask, getTaskAssignments, setGoal, removeGoal } from "@/lib/api";
+import { updateTask, getTaskAssignments, setGoal, removeGoal, addTaskProgress } from "@/lib/api";
 import { TaskStatus, TaskPriority, TaskUnit } from "@/types/task";
 import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit, formatNumber, downloadImages } from "@/helpers/helpers";
 
@@ -273,12 +273,30 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
     async function handleGoalSave(input: { target_quantity: number; unit: TaskUnit; current_quantity?: number }) {
         if (!task) return;
         try {
-            const goal = await setGoal(task.task_id, input);
-            queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => {
-                if (!current) return current;
-                return { ...current, task: { ...current.task, goal } };
-            });
-            queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+            const existingGoal = task.goal;
+            const onlyProgressChanged =
+                existingGoal &&
+                input.target_quantity === existingGoal.target_quantity &&
+                input.unit === existingGoal.unit;
+
+            if (onlyProgressChanged) {
+                const delta = (input.current_quantity ?? 0) - (existingGoal.current_quantity ?? 0);
+                if (delta !== 0) {
+                    await addTaskProgress(task.task_id, { quantity_done: delta, unit: input.unit });
+                    queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => {
+                        if (!current) return current;
+                        return { ...current, task: { ...current.task, goal: { ...existingGoal, current_quantity: input.current_quantity ?? 0 } } };
+                    });
+                    queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+                }
+            } else {
+                const goal = await setGoal(task.task_id, input);
+                queryClient.setQueryData<TaskDetailsData>(taskQueryKeys.details(task.task_id), (current) => {
+                    if (!current) return current;
+                    return { ...current, task: { ...current.task, goal } };
+                });
+                queryClient.invalidateQueries({ queryKey: adminQueryKeys.tasksPage });
+            }
         } catch {
             toast.error("Kunne ikke opdatere mål");
             throw new Error("goal-update-failed");
