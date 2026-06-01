@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createSubtask, createTask } from "@/lib/api";
 import type { Task, CreateTaskInput } from "@/types/task";
-import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
+import { TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { useAuth } from "@/hooks/useAuth";
 import { toIsoDate, toDateKey } from "@/helpers/helpers";
 import { RecurrenceFrequency } from "@/types/recuringTemplate";
@@ -39,7 +39,7 @@ export default function CreateTaskForm({
 }: CreateTaskFormProps) {
     const { user } = useAuth();
     const [projectId, setProjectId] = useState(parentProjectId ?? "");
-    const [formData, setFormData] = useState<Omit<CreateTaskInput, "project_id">>({
+    const [formData, setFormData] = useState<Omit<CreateTaskInput, "project_id" | "goal">>({
         parent_task_id: parentTaskId || undefined,
         title: "",
         description: "",
@@ -49,11 +49,11 @@ export default function CreateTaskForm({
         created_by: user?.user_id || "",
         assigned_users: [],
         start_date: toDateKey(new Date()),
-        unit: undefined,
-        goal_type: TaskGoalType.OPEN,
-        target_quantity: undefined,
-        current_quantity: undefined,
     });
+    const [goalEnabled, setGoalEnabled] = useState(false);
+    const [goalUnit, setGoalUnit] = useState<TaskUnit>(TaskUnit.NONE);
+    const [goalTarget, setGoalTarget] = useState<number | undefined>(undefined);
+    const [goalCurrent, setGoalCurrent] = useState<number | undefined>(undefined);
 
     const [creationMode, setCreationMode] = useState<CreationMode>("combined");
     const [isRecurring, setIsRecurring] = useState(false);
@@ -108,17 +108,18 @@ export default function CreateTaskForm({
     }, [missingRequiredFields.length]);
 
     const handleGoalTypeChange = (checked: boolean) => {
-        setFormData(prev => ({
-            ...prev,
-            goal_type: checked ? TaskGoalType.FIXED : TaskGoalType.OPEN,
-            target_quantity: checked ? prev.target_quantity : undefined,
-            unit: checked ? prev.unit : undefined,
-            current_quantity: checked ? prev.current_quantity : undefined,
-        }));
+        setGoalEnabled(checked);
+        if (!checked) {
+            setGoalUnit(TaskUnit.NONE);
+            setGoalTarget(undefined);
+            setGoalCurrent(undefined);
+        }
     };
 
     const handleGoalFieldChange = (field: string, value: number | TaskUnit | undefined) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        if (field === "unit") setGoalUnit(value as TaskUnit ?? TaskUnit.NONE);
+        else if (field === "target_quantity") setGoalTarget(value as number | undefined);
+        else if (field === "current_quantity") setGoalCurrent(value as number | undefined);
     };
 
     const handleBasicInfoFieldChange = (field: string, value: string | TaskPriority | TaskStatus | undefined) => {
@@ -149,9 +150,9 @@ export default function CreateTaskForm({
         }
 
         if (
-            formData.goal_type === TaskGoalType.FIXED &&
-            (formData.unit ?? TaskUnit.NONE) !== TaskUnit.NONE &&
-            (formData.target_quantity == null || formData.target_quantity <= 0)
+            goalEnabled &&
+            goalUnit !== TaskUnit.NONE &&
+            (goalTarget == null || goalTarget <= 0)
         ) {
             setError("Mål skal være et tal større end 0.");
             return;
@@ -168,9 +169,9 @@ export default function CreateTaskForm({
                     title: formData.title,
                     description: formData.description || undefined,
                     priority: formData.priority,
-                    unit: formData.unit || TaskUnit.NONE,
-                    target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
-                    goal_type: formData.goal_type || TaskGoalType.OPEN,
+                    goal: goalEnabled
+                        ? { target_quantity: goalTarget ?? (goalUnit === TaskUnit.NONE ? 100 : 0), unit: goalUnit, current_quantity: goalCurrent }
+                        : undefined,
                     frequency: recurringData.frequency,
                     interval: recurringData.interval,
                     days_of_week: recurringData.days_of_week.length > 0 ? recurringData.days_of_week : undefined,
@@ -196,10 +197,9 @@ export default function CreateTaskForm({
                 created_by: formData.created_by,
                 project_id: projectId,
                 start_date: toIsoDate(formData.start_date || toDateKey(new Date())),
-                unit: formData.unit,
-                goal_type: formData.goal_type || TaskGoalType.OPEN,
-                target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
-                current_quantity: formData.current_quantity,
+                goal: goalEnabled
+                    ? { target_quantity: goalTarget ?? (goalUnit === TaskUnit.NONE ? 100 : 0), unit: goalUnit, current_quantity: goalCurrent }
+                    : undefined,
             };
 
             const shouldCreateIndividual =
@@ -299,10 +299,10 @@ export default function CreateTaskForm({
                     {/* Advanced Options - Goal Section */}
                     {!isSubtask && (
                         <GoalSection
-                            goalType={formData.goal_type}
-                            targetQuantity={formData.target_quantity}
-                            unit={formData.unit}
-                            currentQuantity={formData.current_quantity}
+                            goalEnabled={goalEnabled}
+                            targetQuantity={goalTarget}
+                            unit={goalUnit}
+                            currentQuantity={goalCurrent}
                             onGoalTypeChange={handleGoalTypeChange}
                             onFieldChange={handleGoalFieldChange}
                         />

@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import SingleAvatar from "../../common/label/SingleAvatar";
 import UserCard from "@/components/common/UserCard";
 import { UserRole } from "@/types/users";
-import { formatRelativeDate } from "@/helpers/helpers";
+import { formatRelativeDate, formatCommentDate } from "@/helpers/helpers";
 import Button from "@/components/common/buttons/Button";
 import { colors } from "@/constants/colors";
 import DropdownMenu from "@/components/common/DropdownMenu";
 import { Ellipsis, Pencil } from "lucide-react";
+import EditHistoryPopover from "@/components/common/EditHistoryPopover";
+import { fetchTaskEvents, taskQueryKeys } from "@/lib/queries/tasks";
 
 interface TaskDescriptionCardProps {
+    taskId: string;
     creator: { name: string | null; role: UserRole; profile_picture_url?: string | null } | null;
     creatorId?: string;
     createdAt: string;
@@ -21,6 +25,7 @@ interface TaskDescriptionCardProps {
 }
 
 export default function TaskDescriptionCard({
+    taskId,
     creator,
     creatorId,
     createdAt,
@@ -33,6 +38,12 @@ export default function TaskDescriptionCard({
 }: TaskDescriptionCardProps) {
     const creatorName = creator?.name ?? "Ukendt";
     const [isEditing, setIsEditing] = useState(false);
+
+    const { data: descriptionEdits } = useQuery({
+        queryKey: taskQueryKeys.events(taskId),
+        queryFn: () => fetchTaskEvents(taskId),
+        select: (events) => events.filter((e) => e.type === "TASK_DESCRIPTION_CHANGED"),
+    });
     const [draftDescription, setDraftDescription] = useState(description ?? "");
     const [isSaving, setIsSaving] = useState(false);
 
@@ -71,25 +82,43 @@ export default function TaskDescriptionCard({
                     <div className="flex items-center gap-1 min-w-0">
                         <span className="label-lg">{creatorName}</span>
                         <span className="body-xs">åbnet</span>
-                        <span className="body-xs">
-                            {formatRelativeDate(createdAt)}
-                        </span>
+                        <span className="body-xs">{formatRelativeDate(createdAt)}</span>
                     </div>
-                    <div className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center">
-                        {!isArchived && onSaveDescription && !isEditing && (
-                            <DropdownMenu
-                                trigger={
-                                    <Button variant="ghost" size="sm" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />
-                                }
-                                items={[
-                                    {
-                                        label: "Rediger",
-                                        icon: <Pencil className="w-4 h-4" />,
-                                        onClick: () => setIsEditing(true),
-                                    },
-                                ]}
+                    <div className="ml-auto flex items-center">
+
+                        {descriptionEdits && descriptionEdits.length > 0 && (
+                            <EditHistoryPopover
+                                edits={[...descriptionEdits].reverse().map((e) => ({
+                                    name: e.actor?.name ?? e.actor?.email ?? "Ukendt bruger",
+                                    imageUrl: e.actor?.profile_picture_url,
+                                    timeLabel: formatCommentDate(e.created_at),
+                                    beforeText: (e.before_json as Record<string, unknown> | null)?.description as string | undefined,
+                                    afterText: (e.after_json as Record<string, unknown> | null)?.description as string | undefined,
+                                }))}
+                                created={{
+                                    name: creatorName,
+                                    imageUrl: creator?.profile_picture_url,
+                                    timeLabel: formatCommentDate(createdAt),
+                                    afterText: ([...descriptionEdits].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())[0]?.before_json as Record<string, unknown> | null)?.description as string | undefined,
+                                }}
                             />
                         )}
+                        <div className="h-7 w-7 shrink-0 items-center justify-center">
+                            {!isArchived && onSaveDescription && !isEditing && (
+                                <DropdownMenu
+                                    trigger={
+                                        <Button variant="ghost" size="sm" icon={<Ellipsis className="w-4 h-4" />} iconOnly tooltip="Mere" />
+                                    }
+                                    items={[
+                                        {
+                                            label: "Rediger",
+                                            icon: <Pencil className="w-4 h-4" />,
+                                            onClick: () => setIsEditing(true),
+                                        },
+                                    ]}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
 

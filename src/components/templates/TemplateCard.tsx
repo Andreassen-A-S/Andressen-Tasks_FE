@@ -104,11 +104,11 @@ export default function TemplateCard({
                     </div>
                 )}
 
-                {template.goal_type === 'FIXED' && template.target_quantity && (
+                {template.goal && (
                     <div className="flex items-center justify-between py-3" style={{ borderTop: `1px solid ${colors.muted}` }}>
                         <span className="body-sm" style={{ color: colors.textSecondary }}>Mål</span>
                         <span className="label-md" style={{ color: colors.textPrimary }}>
-                            {formatNumber(template.target_quantity)} {template.unit !== 'NONE' && template.unit?.toLowerCase()}
+                            {formatNumber(template.goal.target_quantity)} {template.goal.unit !== 'NONE' && template.goal.unit.toLowerCase()}
                         </span>
                     </div>
                 )}

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createRecurringTemplate } from "@/lib/api";
 import { RecurringTemplate, RecurrenceFrequency } from "@/types/recuringTemplate";
-import { TaskGoalType, TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
+import { TaskPriority, TaskStatus, TaskUnit } from "@/types/task";
 import { toIsoDate, toDateKey } from "@/helpers/helpers";
 import BasicInfoSection from "@/components/tasks/createTask/BasicInfoCard";
 import AssignmentCard from "@/components/tasks/createTask/AssignmentCard";
@@ -26,8 +26,8 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
         description: "",
         priority: TaskPriority.MEDIUM,
         assigned_users: [] as string[],
+        goal_enabled: false,
         unit: undefined as TaskUnit | undefined,
-        goal_type: TaskGoalType.OPEN,
         target_quantity: undefined as number | undefined,
         current_quantity: undefined as number | undefined,
     });
@@ -62,7 +62,7 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
     const handleGoalTypeChange = (checked: boolean) => {
         setFormData(prev => ({
             ...prev,
-            goal_type: checked ? TaskGoalType.FIXED : TaskGoalType.OPEN,
+            goal_enabled: checked,
             target_quantity: checked ? prev.target_quantity : undefined,
             unit: checked ? prev.unit : undefined,
             current_quantity: checked ? prev.current_quantity : undefined,
@@ -91,7 +91,7 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
         }
 
         if (
-            formData.goal_type === TaskGoalType.FIXED &&
+            formData.goal_enabled &&
             (formData.unit ?? TaskUnit.NONE) !== TaskUnit.NONE &&
             (formData.target_quantity == null || formData.target_quantity <= 0)
         ) {
@@ -108,9 +108,13 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
                 title: formData.title,
                 description: formData.description || undefined,
                 priority: formData.priority,
-                unit: formData.unit || TaskUnit.NONE,
-                target_quantity: formData.target_quantity == null ? undefined : formData.target_quantity,
-                goal_type: formData.goal_type || TaskGoalType.OPEN,
+                goal: formData.goal_enabled
+                    ? {
+                        target_quantity: formData.target_quantity ?? ((formData.unit ?? TaskUnit.NONE) === TaskUnit.NONE ? 100 : 0),
+                        unit: formData.unit ?? TaskUnit.NONE,
+                        current_quantity: formData.current_quantity,
+                    }
+                    : undefined,
                 frequency: recurringData.frequency,
                 interval: recurringData.interval,
                 days_of_week: recurringData.days_of_week.length > 0 ? recurringData.days_of_week : undefined,
@@ -185,7 +189,7 @@ export default function CreateTemplateForm({ formId, onLoadingChange, onSuccess 
 
                     {/* Goal */}
                     <GoalSection
-                        goalType={formData.goal_type}
+                        goalEnabled={formData.goal_enabled}
                         targetQuantity={formData.target_quantity}
                         unit={formData.unit}
                         currentQuantity={formData.current_quantity}

@@ -16,6 +16,7 @@ import ConfirmModal from "@/components/common/ConfirmModal";
 import FileAttachmentCard from "../FileAttachmentCard";
 import CommentEditForm from "./CommentEditForm";
 import LinkedText from "@/components/common/LinkedText";
+import EditHistoryPopover from "@/components/common/EditHistoryPopover";
 
 type Props = {
     event: TaskEvent;
@@ -25,7 +26,7 @@ type Props = {
     isTaskOwner?: boolean;
     isAssignee?: boolean;
     isArchived?: boolean;
-    editedBy?: string;
+    editHistory?: TaskEvent[];
     onDelete?: (commentId: string) => Promise<void>;
     onUpdate?: () => Promise<void>;
 };
@@ -70,7 +71,7 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editedBy, onDelete, onUpdate }: Props) {
+export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editHistory, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -123,20 +124,27 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                 <div className={`flex-1 bg-background border rounded-lg overflow-hidden ${isAuthor ? "border-accent/30" : "border-border"}`}>
                     <div className={`border-b pl-4 pr-1 py-1 flex items-center gap-1 ${isAuthor ? "border-accent/30 bg-accent-surface" : "border-border bg-surface"}`}>
                         <span className="label-lg shrink-0">{actorName}</span>
-                        {editedBy ? (
-                            <span className="body-xs shrink-0 inline-flex items-center gap-1.5">
-                                {formatCommentDate(event.created_at)}
-                                <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: colors.textMuted }} />
-                                redigeret af {editedBy}
-                            </span>
-                        ) : (
-                            <>
-                                <span className="body-xs shrink-0">kommenterede</span>
-                                <span className="body-xs shrink-0">{formatCommentDate(event.created_at)}</span>
-                            </>
-                        )}
+                        <span className="body-xs shrink-0">kommenterede</span>
+                        <span className="body-xs shrink-0">{formatCommentDate(event.created_at)}</span>
 
-                        <div className="ml-auto flex min-h-7 min-w-7 items-center justify-end gap-1 shrink-0">
+                        <div className="ml-auto flex min-h-7 items-center justify-end gap-1 shrink-0">
+                            {editHistory && editHistory.length > 0 && (
+                                <EditHistoryPopover
+                                    edits={[...editHistory].reverse().map((e) => ({
+                                        name: e.actor?.name ?? e.actor?.email ?? "Ukendt bruger",
+                                        imageUrl: e.actor?.profile_picture_url,
+                                        timeLabel: formatCommentDate(e.created_at),
+                                        beforeText: (e.before_json as Record<string, unknown> | null)?.message as string | undefined,
+                                        afterText: (e.after_json as Record<string, unknown> | null)?.message as string | undefined,
+                                    }))}
+                                    created={{
+                                        name: actorName,
+                                        imageUrl: event.actor?.profile_picture_url,
+                                        timeLabel: formatCommentDate(event.created_at),
+                                        afterText: (editHistory[0]?.before_json as Record<string, unknown> | null)?.message as string | undefined,
+                                    }}
+                                />
+                            )}
                             {isTaskOwner && (
                                 <OutlineBadge label="Ejer" tooltip={isAuthor ? "Du er opgavens ejer" : "Opgavens ejer"} variant={isAuthor ? "accent" : "neutral"} />
                             )}

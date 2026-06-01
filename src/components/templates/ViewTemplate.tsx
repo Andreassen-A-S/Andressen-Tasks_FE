@@ -96,9 +96,9 @@ export default function ViewTemplate({ template, onClose }: ViewTemplateProps) {
                         {instances.map((instance, index) => (
                             (() => {
                                 const assignments = instanceAssignments[instance.task_id] ?? [];
-                                const targetQuantity = instance.target_quantity;
-                                const currentQuantity = instance.current_quantity ?? 0;
-                                const goalProgress = instance.goal_type === "FIXED" && typeof targetQuantity === "number" && targetQuantity > 0
+                                const targetQuantity = instance.goal?.target_quantity;
+                                const currentQuantity = instance.goal?.current_quantity ?? 0;
+                                const goalProgress = instance.goal && typeof targetQuantity === "number" && targetQuantity > 0
                                     ? {
                                         targetQuantity,
                                         percent: Math.max(0, Math.min(100, Math.round((currentQuantity / targetQuantity) * 100))),

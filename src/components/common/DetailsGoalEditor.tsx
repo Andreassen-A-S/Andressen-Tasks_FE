@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { colors } from "@/constants/colors";
 import Button from "@/components/common/buttons/Button";
-import { TaskGoalType, TaskUnit } from "@/types/task";
+import { TaskUnit } from "@/types/task";
 import {
   useFloating,
   autoUpdate,
@@ -21,16 +21,11 @@ interface Props {
   open: boolean;
   triggerEl: HTMLElement | null;
   onClose: () => void;
-  goalType?: TaskGoalType | null;
   unit?: TaskUnit;
   targetQuantity?: number | null;
   currentQuantity?: number | null;
-  onSave: (input: {
-    goal_type: TaskGoalType;
-    unit?: TaskUnit;
-    target_quantity?: number | null;
-    current_quantity?: number | null;
-  }) => Promise<void> | void;
+  onSave: (input: { target_quantity: number; unit: TaskUnit; current_quantity?: number }) => Promise<void>;
+  onRemove: () => Promise<void>;
 }
 
 const SHEET_WIDTH = 328;
@@ -48,11 +43,11 @@ export default function DetailsGoalEditor({
   open,
   triggerEl,
   onClose,
-  goalType,
   unit,
   targetQuantity,
   currentQuantity,
   onSave,
+  onRemove,
 }: Props) {
   const [draftUnit, setDraftUnit] = useState<TaskUnit>(unit ?? TaskUnit.NONE);
   const [targetRaw, setTargetRaw] = useState<string>("");
@@ -94,7 +89,7 @@ export default function DetailsGoalEditor({
     if (!open) return;
     const nextUnit = unit ?? TaskUnit.NONE;
     const initTarget = targetQuantity ?? (nextUnit === TaskUnit.NONE ? 100 : null);
-    const initCurrent = goalType === TaskGoalType.FIXED ? (currentQuantity ?? null) : null;
+    const initCurrent = currentQuantity ?? null;
 
     setDraftUnit(nextUnit);
     setTargetRaw(initTarget != null ? formatNumber(initTarget) : "");
@@ -103,7 +98,7 @@ export default function DetailsGoalEditor({
     setCurrentValue(initCurrent ?? 0);
     setInputError(null);
     setTimeout(() => currentInputRef.current?.focus(), 50);
-  }, [open, goalType, unit, targetQuantity, currentQuantity]);
+  }, [open, unit, targetQuantity, currentQuantity]);
 
   if (!open) return null;
 
@@ -143,7 +138,6 @@ export default function DetailsGoalEditor({
     setIsSaving(true);
     try {
       await onSave({
-        goal_type: TaskGoalType.FIXED,
         unit: draftUnit,
         target_quantity: isPercent ? 100 : targetValue!,
         current_quantity: currentValue ?? 0,
@@ -154,15 +148,10 @@ export default function DetailsGoalEditor({
     }
   }
 
-  async function handleClear() {
+  async function handleRemove() {
     setIsSaving(true);
     try {
-      await onSave({
-        goal_type: TaskGoalType.OPEN,
-        unit: undefined,
-        target_quantity: undefined,
-        current_quantity: undefined,
-      });
+      await onRemove();
       onClose();
     } finally {
       setIsSaving(false);
@@ -213,7 +202,7 @@ export default function DetailsGoalEditor({
               />
             </label>
 
-            <span className="pb-2 flex-shrink-0" style={{ color: colors.textMuted }}>
+            <span className="pb-3 flex-shrink-0" style={{ color: colors.textMuted }}>
               <ArrowRight className="w-3 h-3" />
             </span>
 
@@ -281,7 +270,7 @@ export default function DetailsGoalEditor({
         </div>
 
         <div className="flex justify-end gap-2 px-3 pb-3">
-          <Button variant="ghost" size="sm" onClick={handleClear} disabled={isSaving}>Ryd</Button>
+          <Button variant="ghost" size="sm" onClick={handleRemove} disabled={isSaving}>Ryd</Button>
           <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>
             {isSaving ? "Gemmer..." : "Gem"}
           </Button>

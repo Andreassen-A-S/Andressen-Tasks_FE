@@ -1,9 +1,9 @@
-import { TaskUnit, TaskGoalType } from "@/types/task";
+import { TaskUnit } from "@/types/task";
 import SelectField from "@/components/common/forms/SelectField";
 import TextInput from "@/components/common/forms/TextInput";
 
 interface GoalSectionProps {
-    goalType: TaskGoalType | undefined;
+    goalEnabled: boolean;
     targetQuantity: number | undefined;
     unit: TaskUnit | undefined;
     currentQuantity: number | undefined;
@@ -14,14 +14,14 @@ interface GoalSectionProps {
 const MIN_TARGET_QUANTITY = 0;
 
 export default function GoalSection({
-    goalType,
+    goalEnabled,
     targetQuantity,
     unit,
     currentQuantity,
     onGoalTypeChange,
     onFieldChange,
 }: GoalSectionProps) {
-    const isFixed = goalType === TaskGoalType.FIXED;
+    const isFixed = goalEnabled;
     const isPercent = !unit || unit === TaskUnit.NONE;
 
     return (

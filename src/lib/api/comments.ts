@@ -4,7 +4,7 @@ import {
   TaskComment,
   UpdateCommentRequest,
 } from "@/types/comment";
-import { CreateTaskEventInput, TaskEvent } from "@/types/taskEvent";
+import { TaskEvent } from "@/types/taskEvent";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -76,19 +76,6 @@ export async function getTaskEvents(taskId: string): Promise<TaskEvent[]> {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch task events");
-  const data = await res.json();
-  return data.data;
-}
-
-export async function createTaskEvent(
-  taskEvent: CreateTaskEventInput,
-): Promise<TaskEvent> {
-  const res = await fetch(`${API_URL}/task-events`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(taskEvent),
-  });
-  if (!res.ok) throw new Error("Failed to create task event");
   const data = await res.json();
   return data.data;
 }

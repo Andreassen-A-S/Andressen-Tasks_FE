@@ -1,4 +1,4 @@
-import { TaskGoalType, TaskPriority, TaskUnit } from "@/types/task";
+import { TaskGoal, TaskPriority, TaskUnit } from "@/types/task";
 import { User } from "./users";
 
 export enum RecurrenceFrequency {
@@ -20,9 +20,7 @@ export interface RecurringTemplate {
   title: string;
   description?: string | null;
   priority: TaskPriority;
-  unit: TaskUnit;
-  target_quantity?: number | null;
-  goal_type: TaskGoalType;
+  goal?: TaskGoal | null;
   frequency: RecurrenceFrequency;
   interval: number;
   days_of_week?: number[] | null;
@@ -42,9 +40,7 @@ export interface CreateRecurringTemplateInput {
   description?: string;
   project_id: string;
   priority?: TaskPriority;
-  unit?: TaskUnit;
-  target_quantity?: number;
-  goal_type?: TaskGoalType;
+  goal?: { target_quantity: number; unit: TaskUnit; current_quantity?: number } | null;
   frequency: RecurrenceFrequency;
   interval?: number;
   days_of_week?: number[];
@@ -59,9 +55,7 @@ export interface UpdateRecurringTemplateInput {
   description?: string;
   project_id?: string;
   priority?: TaskPriority;
-  unit?: TaskUnit;
-  target_quantity?: number;
-  goal_type?: TaskGoalType;
+  goal?: { target_quantity: number; unit: TaskUnit; current_quantity?: number } | null;
   frequency?: RecurrenceFrequency;
   interval?: number;
   days_of_week?: number[];

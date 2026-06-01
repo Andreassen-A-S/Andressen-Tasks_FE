@@ -6,7 +6,7 @@ import FloatingTooltip from "@/components/common/tooltip/FloatingTooltip";
 
 interface SingleAvatarProps {
     name: string;
-    size?: "xxs" | "xs" | "sm" | "md" | "lg" | "xxl" | "3xl";
+    size?: "3xs" | "xxs" | "xs" | "sm" | "md" | "lg" | "xxl" | "3xl";
     className?: string;
     tooltip?: string;
     imageUrl?: string | null;
@@ -25,7 +25,8 @@ export default function SingleAvatar({
     const showImage = !!imageUrl && failedUrl !== imageUrl;
     const borderClass = border ? "ring-1 ring-border" : "";
     const sizeClasses = {
-        xxs: "w-5 h-5 initials-xs rounded",
+        "3xs": "w-5 h-5 initials-xs rounded-full",
+        xxs: "w-6 h-6 initials-xs rounded-full",
         xs: "w-7 h-7 initials-sm rounded-full",
         sm: "w-9 h-9 text-[12px] initials-md rounded-full",
         md: "w-10 h-10 initials-md rounded-full",
