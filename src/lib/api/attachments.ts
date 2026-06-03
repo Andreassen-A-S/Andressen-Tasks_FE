@@ -1,4 +1,4 @@
-import { getAuthHeaders } from "@/helpers/helpers";
+import { apiFetch } from "./apiClient";
 import type { AllowedMimeType, TaskAttachment } from "@/types/attachment";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -12,9 +12,8 @@ export async function prepareAttachments(
   taskId: string,
   files: { file_name: string; mime_type: AllowedMimeType; file_size: number }[],
 ): Promise<PreparedAttachment[]> {
-  const res = await fetch(`${API_URL}/attachments/prepare`, {
+  const res = await apiFetch(`${API_URL}/attachments/prepare`, {
     method: "POST",
-    headers: getAuthHeaders(),
     body: JSON.stringify({ task_id: taskId, files }),
   });
   if (!res.ok) {
@@ -26,9 +25,7 @@ export async function prepareAttachments(
 }
 
 export async function getTaskAttachments(taskId: string): Promise<TaskAttachment[]> {
-  const res = await fetch(`${API_URL}/attachments/task/${taskId}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiFetch(`${API_URL}/attachments/task/${taskId}`);
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? "Failed to fetch attachments");
@@ -41,6 +38,7 @@ export async function uploadToGcs(
   uploadUrl: string,
   file: File,
 ): Promise<void> {
+  // Direct GCS upload — intentionally uses raw fetch, not apiFetch (not our API)
   const res = await fetch(uploadUrl, {
     method: "PUT",
     body: file,

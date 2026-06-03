@@ -1,4 +1,4 @@
-import { getAuthHeaders } from "@/helpers/helpers";
+import { apiFetch } from "./apiClient";
 import {
   CreateCommentRequest,
   TaskComment,
@@ -10,9 +10,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Comment API functions
 export async function getTaskComments(taskId: string): Promise<TaskComment[]> {
-  const response = await fetch(`${API_URL}/comments/task/${taskId}`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}/comments/task/${taskId}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch comments");
@@ -26,9 +24,8 @@ export async function createComment(
   taskId: string,
   data: CreateCommentRequest,
 ): Promise<TaskComment> {
-  const response = await fetch(`${API_URL}/comments/task/${taskId}`, {
+  const response = await apiFetch(`${API_URL}/comments/task/${taskId}`, {
     method: "POST",
-    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -44,9 +41,8 @@ export async function updateComment(
   commentId: string,
   data: UpdateCommentRequest,
 ): Promise<TaskComment> {
-  const response = await fetch(`${API_URL}/comments/${commentId}`, {
+  const response = await apiFetch(`${API_URL}/comments/${commentId}`, {
     method: "PATCH",
-    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -59,9 +55,8 @@ export async function updateComment(
 }
 
 export async function deleteComment(commentId: string): Promise<void> {
-  const response = await fetch(`${API_URL}/comments/${commentId}`, {
+  const response = await apiFetch(`${API_URL}/comments/${commentId}`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -72,9 +67,7 @@ export async function deleteComment(commentId: string): Promise<void> {
 // Event logging API function can be added here as needed
 
 export async function getTaskEvents(taskId: string): Promise<TaskEvent[]> {
-  const res = await fetch(`${API_URL}/task-events/${taskId}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiFetch(`${API_URL}/task-events/${taskId}`);
   if (!res.ok) throw new Error("Failed to fetch task events");
   const data = await res.json();
   return data.data;

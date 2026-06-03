@@ -8,6 +8,7 @@ import { useTheme, type Theme } from "@/hooks/useTheme";
 import OrgSettingsSection from "./OrgSettingsSection";
 import PositionsSettingsSection from "./PositionsSettingsSection";
 import ProfileSettingsSection from "./ProfileSettingsSection";
+import SessionsSettingsSection from "./SessionsSettingsSection";
 import { useAuth } from "@/hooks/useAuth";
 
 const THEMES: { value: Theme; label: string; description: string }[] = [
@@ -27,6 +28,8 @@ export default function ApplicationSettingsPanel({ user }: { user: User }) {
     return (
         <div className="space-y-2">
             <ProfileSettingsSection user={user} />
+
+            <SessionsSettingsSection />
 
             {isAdmin && hasOrg && (
                 <OrgSettingsSection user={user} />

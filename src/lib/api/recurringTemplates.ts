@@ -1,4 +1,4 @@
-import { getAuthHeaders } from "@/helpers/helpers";
+import { apiFetch } from "./apiClient";
 import {
   CreateRecurringTemplateInput,
   UpdateRecurringTemplateInput,
@@ -14,9 +14,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
  * Get all recurring templates
  */
 export async function getRecurringTemplates(): Promise<RecurringTemplate[]> {
-  const res = await fetch(`${API_URL}/recurring-templates`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiFetch(`${API_URL}/recurring-templates`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch recurring templates");
@@ -32,9 +30,7 @@ export async function getRecurringTemplates(): Promise<RecurringTemplate[]> {
 export async function getRecurringTemplate(
   templateId: string,
 ): Promise<RecurringTemplate> {
-  const res = await fetch(`${API_URL}/recurring-templates/${templateId}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiFetch(`${API_URL}/recurring-templates/${templateId}`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch recurring template");
@@ -50,9 +46,8 @@ export async function getRecurringTemplate(
 export async function createRecurringTemplate(
   data: CreateRecurringTemplateInput,
 ): Promise<RecurringTemplate> {
-  const res = await fetch(`${API_URL}/recurring-templates`, {
+  const res = await apiFetch(`${API_URL}/recurring-templates`, {
     method: "POST",
-    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -72,9 +67,8 @@ export async function updateRecurringTemplate(
   templateId: string,
   updates: UpdateRecurringTemplateInput,
 ): Promise<RecurringTemplate> {
-  const res = await fetch(`${API_URL}/recurring-templates/${templateId}`, {
+  const res = await apiFetch(`${API_URL}/recurring-templates/${templateId}`, {
     method: "PATCH",
-    headers: getAuthHeaders(),
     body: JSON.stringify(updates),
   });
 
@@ -93,9 +87,8 @@ export async function updateRecurringTemplate(
 export async function deleteRecurringTemplate(
   templateId: string,
 ): Promise<void> {
-  const res = await fetch(`${API_URL}/recurring-templates/${templateId}`, {
+  const res = await apiFetch(`${API_URL}/recurring-templates/${templateId}`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
   });
 
   if (!res.ok) {
@@ -109,12 +102,9 @@ export async function deleteRecurringTemplate(
 export async function deactivateTemplate(
   templateId: string,
 ): Promise<RecurringTemplate> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${API_URL}/recurring-templates/${templateId}/deactivate`,
-    {
-      method: "POST",
-      headers: getAuthHeaders(),
-    },
+    { method: "POST" },
   );
 
   if (!res.ok) {
@@ -131,12 +121,9 @@ export async function deactivateTemplate(
 export async function reactivateTemplate(
   templateId: string,
 ): Promise<RecurringTemplate> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${API_URL}/recurring-templates/${templateId}/reactivate`,
-    {
-      method: "POST",
-      headers: getAuthHeaders(),
-    },
+    { method: "POST" },
   );
 
   if (!res.ok) {
@@ -153,11 +140,8 @@ export async function reactivateTemplate(
 export async function getTemplateInstances(
   templateId: string,
 ): Promise<Task[]> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${API_URL}/recurring-templates/${templateId}/instances`,
-    {
-      headers: getAuthHeaders(),
-    },
   );
 
   if (!res.ok) {

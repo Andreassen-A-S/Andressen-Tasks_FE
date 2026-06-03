@@ -2,11 +2,13 @@
 
 import { createContext, useState, useEffect } from "react";
 import { User, UserRole } from "@/types/users";
-import { verifyToken, getUser } from "@/lib/api";
-import { login as apiLogin } from "@/lib/api";
+import { login as apiLogin, refreshSession, switchAccount as apiSwitchAccount } from "@/lib/api";
+import { setAuthToken } from "@/helpers/helpers";
+import { registerUnauthorizedHandler } from "@/lib/api/apiClient";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export interface SavedAccount {
-    token: string;
     user: User;
 }
 
@@ -38,16 +40,6 @@ function getStoredOrgContext(): string | null {
     }
 }
 
-function upsertAccount(accounts: SavedAccount[], account: SavedAccount): SavedAccount[] {
-    const idx = accounts.findIndex((a) => a.user.user_id === account.user.user_id);
-    if (idx >= 0) {
-        const updated = [...accounts];
-        updated[idx] = account;
-        return updated;
-    }
-    return [...accounts, account];
-}
-
 interface AuthContextType {
     isAuthenticated: boolean;
     userRole: UserRole | null;
@@ -57,8 +49,8 @@ interface AuthContextType {
     contextOrgId: string | null;
     login: (email: string, password: string) => Promise<void>;
     addAccount: (email: string, password: string) => Promise<void>;
-    logout: () => void;
-    switchAccount: (account: SavedAccount) => void;
+    logout: () => Promise<void>;
+    switchAccount: (account: SavedAccount) => Promise<void>;
     setContextOrg: (orgId: string | null) => void;
     updateCurrentUser: (updates: Partial<User>) => void;
 }
@@ -78,34 +70,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [contextOrgId, setContextOrgId] = useState<string | null>(getStoredOrgContext);
 
     useEffect(() => {
+        registerUnauthorizedHandler(() => {
+            setAuthToken(null);
+            setIsAuthenticated(false);
+            setUser(null);
+            setUserRole(null);
+            window.location.href = "/login";
+        });
+
         const initializeAuth = async () => {
-            if (typeof window === 'undefined') {
+            if (typeof window === "undefined") {
                 setIsLoading(false);
                 return;
             }
 
-            const token = localStorage.getItem("authToken");
+            // Show stale account summaries instantly while waiting for server
             setSavedAccounts(loadSavedAccounts());
 
-            if (token) {
-                try {
-                    const response = await verifyToken(token);
-
-                    if (response?.user?.user_id) {
-                        const freshUser = await getUser(response.user.user_id);
-                        setIsAuthenticated(true);
-                        setUser(freshUser);
-                        setUserRole(freshUser.role);
-                    } else {
-                        throw new Error("Invalid user data");
-                    }
-                } catch {
-                    localStorage.removeItem("authToken");
-                    localStorage.removeItem("userRole");
-                    setIsAuthenticated(false);
-                    setUser(null);
-                    setUserRole(null);
-                }
+            try {
+                const response = await refreshSession();
+                setAuthToken(response.token);
+                setIsAuthenticated(true);
+                setUser(response.user);
+                setUserRole(response.user.role);
+                // Server is authoritative for which accounts are in this session
+                const accounts = response.savedAccounts.map((u) => ({ user: u }));
+                persistSavedAccounts(accounts);
+                setSavedAccounts(accounts);
+            } catch {
+                setAuthToken(null);
+                setIsAuthenticated(false);
+                setUser(null);
+                setUserRole(null);
             }
 
             setIsLoading(false);
@@ -117,22 +113,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const login = async (email: string, password: string) => {
         const response = await apiLogin({ email, password });
 
-        if (!response.token) {
-            throw new Error("Backend did not return a token.");
-        }
+        if (!response.token) throw new Error("Backend did not return a token.");
+        if (!response.user) throw new Error("Backend did not return user data.");
 
-        if (!response.user) {
-            throw new Error("Backend did not return user data.");
-        }
-
-        localStorage.setItem("authToken", response.token);
-        localStorage.setItem("userRole", response.user.role);
+        setAuthToken(response.token);
         localStorage.removeItem("orgContext");
         setContextOrgId(null);
 
-        const updated = upsertAccount(loadSavedAccounts(), { token: response.token, user: response.user });
-        persistSavedAccounts(updated);
-        setSavedAccounts(updated);
+        const accounts = response.savedAccounts.map((u) => ({ user: u }));
+        persistSavedAccounts(accounts);
+        setSavedAccounts(accounts);
 
         setIsAuthenticated(true);
         setUser(response.user);
@@ -145,12 +135,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (!response.token) throw new Error("Backend did not return a token.");
         if (!response.user) throw new Error("Backend did not return user data.");
 
-        const updated = upsertAccount(loadSavedAccounts(), { token: response.token, user: response.user });
-        persistSavedAccounts(updated);
-        setSavedAccounts(updated);
+        const accounts = response.savedAccounts.map((u) => ({ user: u }));
+        persistSavedAccounts(accounts);
+        setSavedAccounts(accounts);
 
-        localStorage.setItem("authToken", response.token);
-        localStorage.setItem("userRole", response.user.role);
+        setAuthToken(response.token);
         localStorage.removeItem("orgContext");
         window.location.href = "/";
     };
@@ -161,9 +150,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setContextOrgId(orgId);
     };
 
-    const logout = () => {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("userRole");
+    const logout = async () => {
+        await fetch(`${API_URL}/auth/logout`, {
+            method: "POST",
+            credentials: "include",
+        }).catch(() => {});
+        setAuthToken(null);
         localStorage.removeItem("orgContext");
         localStorage.removeItem(SAVED_ACCOUNTS_KEY);
         setIsAuthenticated(false);
@@ -182,20 +174,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
         if (!updated) return;
         const accounts = loadSavedAccounts();
-        const token = localStorage.getItem("authToken") ?? "";
-        const upserted = upsertAccount(accounts, { token, user: updated });
+        const idx = accounts.findIndex((a) => a.user.user_id === (updated as User).user_id);
+        if (idx < 0) return;
+        const upserted = [...accounts];
+        upserted[idx] = { user: updated };
         persistSavedAccounts(upserted);
         setSavedAccounts(upserted);
     };
 
-    const switchAccount = (account: SavedAccount) => {
-        localStorage.setItem("authToken", account.token);
-        localStorage.setItem("userRole", account.user.role);
+    const switchAccount = async (account: SavedAccount) => {
+        const result = await apiSwitchAccount(account.user.user_id);
+        // Server returns updated savedAccounts with all session accounts
+        const accounts = result.savedAccounts.map((u) => ({ user: u }));
+        persistSavedAccounts(accounts);
+        setSavedAccounts(accounts);
+
+        setAuthToken(result.token);
         localStorage.removeItem("orgContext");
         setContextOrgId(null);
         setIsAuthenticated(true);
-        setUser(account.user);
-        setUserRole(account.user.role);
+        setUser(result.user);
+        setUserRole(result.user.role);
         // Full reload ensures query cache, route state, and all server components reset cleanly
         window.location.href = "/";
     };

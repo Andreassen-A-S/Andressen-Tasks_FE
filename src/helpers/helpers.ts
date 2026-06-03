@@ -231,14 +231,16 @@ export function getAvatarColor(name: string): string {
   return colors[hash % colors.length];
 }
 
+// In-memory access token — never written to localStorage
+let _authToken: string | null = null;
+export function setAuthToken(token: string | null) { _authToken = token; }
+
 export function getAuthHeaders(): HeadersInit {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
   const orgContext =
     typeof window !== "undefined" ? localStorage.getItem("orgContext") : null;
   return {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(_authToken && { Authorization: `Bearer ${_authToken}` }),
     ...(orgContext && { "X-Org-Context": orgContext }),
   };
 }

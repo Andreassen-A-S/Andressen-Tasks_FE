@@ -128,7 +128,7 @@ export default function Button({
   return (
     <FloatingTooltip
       content={tooltip}
-      placement="bottom"
+      placement="top"
       variant="bare"
       disabled={dropdownOpen}
       triggerClassName={!iconOnly && fullWidth ? "w-full" : ""}
