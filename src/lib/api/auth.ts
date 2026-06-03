@@ -58,9 +58,8 @@ export async function revokeAllSessions(): Promise<void> {
   if (!res.ok) throw new Error("Failed to revoke all sessions");
 }
 
-export async function revokeSession(id: string, type: "browser" | "mobile"): Promise<void> {
-  const segment = type === "browser" ? "browser" : "mobile";
-  const res = await apiFetch(`${API_URL}/auth/sessions/${segment}/${id}`, {
+export async function revokeSession(id: string): Promise<void> {
+  const res = await apiFetch(`${API_URL}/auth/sessions/${id}`, {
     method: "DELETE",
     credentials: "include",
   });

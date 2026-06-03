@@ -85,7 +85,7 @@ export default function SessionsSettingsSection() {
     });
 
     const { mutate: revoke } = useMutation({
-        mutationFn: (session: ActiveSession) => revokeSession(session.id, session.type),
+        mutationFn: (session: ActiveSession) => revokeSession(session.id),
         onMutate: (session) => setRevokingId(session.id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["auth-sessions"] });
