@@ -83,9 +83,9 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onPictureC
         setPicturePreview((prev) => { revokeObjectUrl(prev); return nextPreview; });
         setPictureLoading(true);
         try {
-            const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, blob.type, blob.size);
+            const { upload_url, public_url } = await prepareProfilePicture(user.user_id, blob.type, blob.size);
             await uploadToGcs(upload_url, new File([blob], "profile.webp", { type: blob.type }));
-            const updatedUser = await updateUser(user.user_id, { profile_picture_url: gcs_path });
+            const updatedUser = await updateUser(user.user_id, { profile_picture_url: public_url });
             setPictureUrl(updatedUser.profile_picture_url ?? null);
             if (currentUser?.user_id === user.user_id) updateCurrentUser({ profile_picture_url: updatedUser.profile_picture_url });
             onPictureChange?.(updatedUser);

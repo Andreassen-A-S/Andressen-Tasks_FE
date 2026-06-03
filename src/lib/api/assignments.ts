@@ -1,4 +1,4 @@
-import { getAuthHeaders } from "@/helpers/helpers";
+import { apiFetch } from "./apiClient";
 import { TaskAssignment, TaskAssignmentResponse } from "@/types/assignment";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -6,9 +6,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export async function getTaskAssignments(
   taskId: string,
 ): Promise<TaskAssignment[]> {
-  const response = await fetch(`${API_URL}/assignments?taskId=${taskId}`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}/assignments?taskId=${taskId}`);
   if (!response.ok) {
     throw new Error("Failed to fetch task assignments");
   }
@@ -17,9 +15,7 @@ export async function getTaskAssignments(
 }
 
 export async function getAllAssignments(): Promise<TaskAssignment[]> {
-  const response = await fetch(`${API_URL}/assignments`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}/assignments`);
   if (!response.ok) {
     throw new Error("Failed to fetch assignments");
   }
@@ -30,9 +26,7 @@ export async function getAllAssignments(): Promise<TaskAssignment[]> {
 export async function getUserAssignments(
   userId: string,
 ): Promise<TaskAssignment[]> {
-  const response = await fetch(`${API_URL}/assignments?userId=${userId}`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiFetch(`${API_URL}/assignments?userId=${userId}`);
   if (!response.ok) {
     throw new Error("Failed to fetch user assignments");
   }

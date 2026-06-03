@@ -102,7 +102,7 @@ export default function Modal({
                         <span className={"h5"} id="modal-title">
                             {title}
                         </span>
-                        <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} tooltip="Luk panel" className="-mr-1" aria-label="Luk" />
+                        <Button variant="ghost" size="md" icon={<X className="w-4 h-4" />} iconOnly onClick={onClose} tooltip="Luk" className="-mr-1" aria-label="Luk" />
                     </div>
                     <div className={"p-4"}>
                         {children}

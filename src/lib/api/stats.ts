@@ -1,4 +1,4 @@
-import { getAuthHeaders } from "@/helpers/helpers";
+import { apiFetch } from "./apiClient";
 import {
   DashboardStats,
   TopPerformer,
@@ -13,9 +13,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
  * This is the recommended method for loading the dashboard
  */
 export async function getDashboardStats(days = 30): Promise<DashboardStats> {
-  const res = await fetch(`${API_URL}/stats/dashboard?days=${days}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiFetch(`${API_URL}/stats/dashboard?days=${days}`);
 
   if (!res.ok) {
     const error = await res
@@ -34,9 +32,7 @@ export async function getDashboardStats(days = 30): Promise<DashboardStats> {
 export async function getTopPerformers(
   limit: number = 5,
 ): Promise<TopPerformer[]> {
-  const res = await fetch(`${API_URL}/stats/top-performers?limit=${limit}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiFetch(`${API_URL}/stats/top-performers?limit=${limit}`);
 
   if (!res.ok) {
     const error = await res
@@ -55,9 +51,7 @@ export async function getTopPerformers(
 export async function getTaskTrends(
   days: number = 7,
 ): Promise<TrendDataPoint[]> {
-  const res = await fetch(`${API_URL}/stats/trends?days=${days}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiFetch(`${API_URL}/stats/trends?days=${days}`);
 
   if (!res.ok) {
     const error = await res
@@ -74,9 +68,7 @@ export async function getTaskTrends(
  * Get current user's statistics
  */
 export async function getMyStats(): Promise<UserStats> {
-  const res = await fetch(`${API_URL}/stats/me`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiFetch(`${API_URL}/stats/me`);
 
   if (!res.ok) {
     const error = await res
