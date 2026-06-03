@@ -44,9 +44,9 @@ export default function ProfileSettingsSection({ user }: { user: User }) {
         setPreview((prev) => { revokeObjectUrl(prev); return nextPreview; });
         setLoading(true);
         try {
-            const { upload_url, public_url } = await prepareProfilePicture(user.user_id, blob.type, blob.size);
+            const { upload_url, gcs_path } = await prepareProfilePicture(user.user_id, blob.type, blob.size);
             await uploadToGcs(upload_url, new File([blob], "profile.webp", { type: blob.type }));
-            const updated = await updateUser(user.user_id, { profile_picture_url: public_url });
+            const updated = await updateUser(user.user_id, { profile_picture_url: gcs_path });
             setSavedUrl(updated.profile_picture_url ?? null);
             updateCurrentUser({ profile_picture_url: updated.profile_picture_url });
             toast.success("Profilbillede opdateret");

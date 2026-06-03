@@ -50,7 +50,7 @@ export async function deleteUser(userId: string): Promise<void> {
   if (!res.ok) throw new Error("Failed to delete user");
 }
 
-export async function prepareProfilePicture(userId: string, mimeType: string, fileSize: number): Promise<{ upload_url: string; public_url: string }> {
+export async function prepareProfilePicture(userId: string, mimeType: string, fileSize: number): Promise<{ upload_url: string; gcs_path: string }> {
   const res = await apiFetch(`${API_URL}/users/${userId}/profile-picture/prepare`, {
     method: "POST",
     body: JSON.stringify({ mime_type: mimeType, file_size: fileSize }),
