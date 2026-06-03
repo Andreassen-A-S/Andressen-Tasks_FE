@@ -13,7 +13,7 @@ import ConfirmModal from "@/components/common/ConfirmModal";
 import { colors } from "@/constants/colors";
 import Pill from "@/components/common/label/Pill";
 import Banner from "@/components/common/Banner";
-import { EllipsisVertical, LogOut } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import { toast } from "sonner";
 
 function formatDate(iso: string): string {
@@ -31,9 +31,10 @@ const columns = [
     { key: "actions", header: "", className: "py-2.5 w-px pr-4" },
 ];
 
-function SessionRow({ session, onRevoke, revoking }: {
+function SessionRow({ session, onRevoke, onLogout, revoking }: {
     session: ActiveSession;
     onRevoke: (session: ActiveSession) => void;
+    onLogout: () => void;
     revoking: boolean;
 }) {
     return (
@@ -46,9 +47,8 @@ function SessionRow({ session, onRevoke, revoking }: {
                     {session.current && <Pill color="green">Nuværende</Pill>}
                 </div>
             </td>
-            <td className="px-6 py-3 body-sm" style={{ color: colors.textSecondary }}>
-                {/* TODO: remove placeholder before commit */}
-                {session.location ?? "Kongens Lyngby, DK"}
+            <td className="px-6 py-3 body-sm" style={{ color: session.location ? colors.textSecondary : colors.textMuted }}>
+                {session.location ?? "—"}
             </td>
             <td className="px-6 py-3 body-sm" style={{ color: colors.textSecondary }}>
                 {formatDate(session.created_at)}
@@ -62,7 +62,7 @@ function SessionRow({ session, onRevoke, revoking }: {
                     items={[
                         {
                             label: session.current ? "Log ud" : "Afbryd",
-                            onClick: () => onRevoke(session),
+                            onClick: session.current ? onLogout : () => onRevoke(session),
                             danger: true,
                             disabled: revoking,
                         },
@@ -141,6 +141,7 @@ export default function SessionsSettingsSection() {
                                 key={session.id}
                                 session={session}
                                 onRevoke={revoke}
+                                onLogout={logout}
                                 revoking={revokingId === session.id}
                             />
                         ))}
