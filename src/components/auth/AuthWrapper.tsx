@@ -48,7 +48,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             }
         }
 
-        const platformOnlyRoutes = ["/tasks", "/projects", "/templates"];
+        const platformOnlyRoutes = ["/tasks", "/projects", "/templates", "/dashboard"];
         if (isAuthenticated && userRole === UserRole.SUPER_ADMIN && !contextOrgId && platformOnlyRoutes.some(r => pathname.startsWith(r))) {
             topProgress.start();
             router.push("/organizations");
