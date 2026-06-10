@@ -8,6 +8,7 @@ interface Props {
   fileName: string;
   mimeType?: string | null;
   url: string;
+  compact?: boolean;
 }
 
 const FILE_ICON_MAP = {
@@ -18,9 +19,24 @@ const FILE_ICON_MAP = {
   "file-image": FileImage,
 } as const;
 
-export default function FileAttachmentCard({ fileName, mimeType, url }: Props) {
+export default function FileAttachmentCard({ fileName, mimeType, url, compact = false }: Props) {
   const iconKey = getFileIcon(mimeType);
   const Icon = FILE_ICON_MAP[iconKey];
+
+  if (compact) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-16 h-16 flex flex-col items-center justify-center gap-1 rounded-xl border px-1.5 hover:opacity-80 transition-opacity"
+        style={{ borderColor: colors.border, backgroundColor: colors.white, color: colors.textPrimary }}
+      >
+        <Icon className="w-6 h-6 shrink-0" style={{ color: colors.textPrimary }} />
+        <span className="line-clamp-2 w-full mono-xs text-center leading-tight" style={{ color: colors.textMuted }}>{fileName}</span>
+      </a>
+    );
+  }
 
   return (
     <a

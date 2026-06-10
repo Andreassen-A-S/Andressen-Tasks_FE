@@ -2,7 +2,7 @@
 
 import { colors } from "@/constants/colors";
 
-export type PillColor = "green" | "yellow" | "red" | "blue" | "muted" | "default";
+export type PillColor = "green" | "yellow" | "red" | "blue" | "muted" | "default" | "gray";
 type PillSize = "sm" | "md" | "lg";
 
 interface PillProps {
@@ -14,12 +14,13 @@ interface PillProps {
 }
 
 const colorStyles: Record<PillColor, React.CSSProperties> = {
-    green:   { backgroundColor: colors.greenLight,  color: colors.green,         borderColor: colors.greenMid },
-    yellow:  { backgroundColor: colors.yellowLight, color: colors.yellow,        borderColor: colors.yellowBorder },
-    red:     { backgroundColor: colors.redLight,    color: colors.redText,       borderColor: colors.redBorder },
-    blue:    { backgroundColor: colors.blueLight,   color: colors.blue,          borderColor: colors.blueHover },
-    muted:   { backgroundColor: colors.muted,       color: colors.textSecondary, borderColor: colors.border },
-    default: { backgroundColor: colors.white,       color: colors.textSecondary, borderColor: colors.border },
+    green: { backgroundColor: colors.greenLight, color: colors.green, borderColor: colors.greenMid },
+    yellow: { backgroundColor: colors.yellowLight, color: colors.yellow, borderColor: colors.yellowBorder },
+    red: { backgroundColor: colors.redLight, color: colors.redText, borderColor: colors.redBorder },
+    blue: { backgroundColor: colors.blueLight, color: colors.blue, borderColor: colors.blueHover },
+    muted: { backgroundColor: colors.muted, color: colors.textSecondary, borderColor: colors.border },
+    default: { backgroundColor: colors.white, color: colors.textSecondary, borderColor: colors.border },
+    gray: { backgroundColor: "rgba(0,0,0,0.08)", color: colors.textSecondary, borderColor: "rgba(0,0,0,0.08)" },
 };
 
 const sizeClasses: Record<PillSize, string> = {

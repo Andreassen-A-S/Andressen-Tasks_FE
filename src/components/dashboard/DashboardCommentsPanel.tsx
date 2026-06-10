@@ -2,23 +2,18 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Task } from "@/types/task";
-import { TaskComment } from "@/types/comment";
+import type { DashboardComment } from "@/lib/api/dashboard";
 import { colors } from "@/constants/colors";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
 import Pill from "@/components/common/label/Pill";
 import { formatCommentDate, formatNumber } from "@/helpers/helpers";
 import LinkedText from "@/components/common/LinkedText";
-
-interface CommentWithTask extends TaskComment {
-    task: Task;
-}
+import { AllowedMimeType } from "@/types/attachment";
+import FileAttachmentCard from "@/components/tasks/taskDetailsView/FileAttachmentCard";
 
 interface DashboardCommentsPanelProps {
-    comments: CommentWithTask[];
+    comments: DashboardComment[];
 }
-
-export type { CommentWithTask };
 
 const INTERVAL_MS = 4000;
 
@@ -129,30 +124,49 @@ export default function DashboardCommentsPanel({ comments }: DashboardCommentsPa
                                     backgroundColor: colors.whiteHover,
                                 }}
                             >
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <SingleAvatar name={comment.author.name} size="xs" border imageUrl={comment.author.profile_picture_url} />
-                                        <span className="label-sm truncate" style={{ color: colors.textPrimary }}>
-                                            {comment.author.name}
-                                        </span>
-                                    </div>
-                                    <span className="mono-xs flex-shrink-0" style={{ color: colors.textMuted }}>
-                                        {formatCommentDate(comment.created_at)}
-                                    </span>
-                                </div>
                                 <Link
                                     href={`/tasks/${comment.task.task_id}`}
                                     className="h5 truncate hover:underline"
                                     style={{ color: colors.textPrimary }}
                                 >
                                     {comment.task.title}
+                                    {comment.task.number > 0 && (
+                                        <span className="body-md mr-1" style={{ color: colors.textMuted }}> #{comment.task.number}</span>
+                                    )}
                                 </Link>
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                    <SingleAvatar name={comment.author.name} size="xxs" border imageUrl={comment.author.profile_picture_url} />
+                                    <span className="body-xs truncate" style={{ color: colors.textMuted }}>
+                                        {comment.author.name}
+                                    </span>
+                                    <span className="body-xs flex-shrink-0" style={{ color: colors.textMuted }}>•</span>
+                                    <span className="body-xs flex-shrink-0" style={{ color: colors.textMuted }}>
+                                        {formatCommentDate(comment.created_at)}
+                                    </span>
+                                </div>
                                 <LinkedText
                                     as="p"
                                     text={comment.message}
                                     className="body-sm line-clamp-5"
                                     style={{ color: colors.textSecondary }}
                                 />
+                                {comment.attachments && comment.attachments.length > 0 && (() => {
+                                    const images = comment.attachments.filter(a => a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC);
+                                    const files = comment.attachments.filter(a => a.type === "FILE" || a.mime_type === AllowedMimeType.HEIC);
+                                    return (
+                                        <div className="flex flex-wrap gap-1.5 pt-1" style={{ borderTop: `1px solid ${colors.border}` }}>
+                                            {images.map(img => (
+                                                <a key={img.attachment_id} href={img.url} target="_blank" rel="noopener noreferrer">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img src={img.url} alt={img.file_name ?? "Billede"} className="w-16 h-16 rounded-xl object-cover border hover:opacity-80 transition-opacity" style={{ borderColor: colors.border }} />
+                                                </a>
+                                            ))}
+                                            {files.map(file => (
+                                                <FileAttachmentCard key={file.attachment_id} fileName={file.file_name ?? "Fil"} mimeType={file.mime_type} url={file.url} compact />
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         ))}
                     </div>
