@@ -11,6 +11,8 @@ import { toDateKey, formatNumber } from "@/helpers/helpers";
 import { Maximize2, Minimize2, RotateCw, ChevronDown } from "lucide-react";
 import Button from "@/components/common/buttons/Button";
 import DropdownMenu from "@/components/common/DropdownMenu";
+import Banner from "@/components/common/Banner";
+import InlineLoadingState from "@/components/common/loading/InlineLoadingState";
 import DashboardColumn from "./DashboardColumn";
 import DashboardCommentsPanel from "./DashboardCommentsPanel";
 
@@ -46,7 +48,7 @@ export default function DashboardPage() {
         return () => document.removeEventListener("fullscreenchange", handler);
     }, []);
 
-    const { data, isFetching, dataUpdatedAt, refetch } = useQuery({
+    const { data, isFetching, isPending, isError, dataUpdatedAt, refetch } = useQuery({
         queryKey: adminQueryKeys.dashboard,
         queryFn: getDashboardData,
         refetchInterval: 5 * 60 * 1000,
@@ -60,7 +62,6 @@ export default function DashboardPage() {
         tasks.map(t => [t.task_id, assignments.filter(a => a.task_id === t.task_id)])
     );
     const todayComments = data?.todayComments ?? [];
-    const refetchComments = refetch;
 
     const today = toDateKey(clock);
     const windowEnd = toDateKey(addDays(clock, windowDays));
@@ -144,7 +145,7 @@ export default function DashboardPage() {
                         iconOnly
                         icon={<RotateCw className="w-4 h-4" />}
                         disabled={isFetching}
-                        onClick={() => { refetch(); refetchComments(); }}
+                        onClick={() => refetch()}
                     />
 
                     <span className="mono-xs tabular-nums w-16 text-right" style={{ color: colors.textPrimary }}>
@@ -161,53 +162,73 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <div className="flex flex-1 overflow-hidden min-h-0 gap-3 px-3 pt-3">
-                <DashboardColumn
-                    title="Kommende"
-                    tasks={upcoming}
-                    projectMap={projectMap}
-                    assignmentMap={assignmentMap}
-                    variant="upcoming"
-                    action={
-                        <DropdownMenu
-                            trigger={
-                                <Button variant="ghost" size="sm">
-                                    {formatNumber(windowDays)}d
-                                    <ChevronDown className="w-3 h-3" />
-                                </Button>
-                            }
-                            items={WINDOW_OPTIONS.map(d => ({
-                                label: `${d} dage`,
-                                checked: windowDays === d,
-                                onClick: () => handleWindowChange(d),
-                            }))}
-                        />
-                    }
-                />
-                <DashboardColumn
-                    title="Aktive"
-                    tasks={active}
-                    projectMap={projectMap}
-                    assignmentMap={assignmentMap}
-                    variant="active"
-                />
-                <DashboardColumn
-                    title="Overskredet"
-                    tasks={overdue}
-                    projectMap={projectMap}
-                    assignmentMap={assignmentMap}
-                    variant="overdue"
-                />
-                <DashboardColumn
-                    title="Udført i dag"
-                    tasks={doneToday}
-                    projectMap={projectMap}
-                    assignmentMap={assignmentMap}
-                    variant="done"
-                />
-            </div>
+            {isError && (
+                <div className="px-6 pt-4 flex-shrink-0">
+                    <Banner
+                        variant="warning"
+                        title="Data kunne ikke indlæses"
+                        action={<Button variant="secondary" size="sm" onClick={() => refetch()}>Prøv igen</Button>}
+                    >
+                        Dashboard-data kunne ikke hentes. Prøv igen, eller genindlæs siden.
+                    </Banner>
+                </div>
+            )}
 
-            <DashboardCommentsPanel comments={todayComments} />
+            {isPending ? (
+                <div className="flex flex-1 items-center justify-center">
+                    <InlineLoadingState centered />
+                </div>
+            ) : (
+                <>
+                    <div className="flex flex-1 overflow-hidden min-h-0 gap-3 px-3 pt-3">
+                        <DashboardColumn
+                            title="Kommende"
+                            tasks={upcoming}
+                            projectMap={projectMap}
+                            assignmentMap={assignmentMap}
+                            variant="upcoming"
+                            action={
+                                <DropdownMenu
+                                    trigger={
+                                        <Button variant="ghost" size="sm">
+                                            {formatNumber(windowDays)}d
+                                            <ChevronDown className="w-3 h-3" />
+                                        </Button>
+                                    }
+                                    items={WINDOW_OPTIONS.map(d => ({
+                                        label: `${d} dage`,
+                                        checked: windowDays === d,
+                                        onClick: () => handleWindowChange(d),
+                                    }))}
+                                />
+                            }
+                        />
+                        <DashboardColumn
+                            title="Aktive"
+                            tasks={active}
+                            projectMap={projectMap}
+                            assignmentMap={assignmentMap}
+                            variant="active"
+                        />
+                        <DashboardColumn
+                            title="Overskredet"
+                            tasks={overdue}
+                            projectMap={projectMap}
+                            assignmentMap={assignmentMap}
+                            variant="overdue"
+                        />
+                        <DashboardColumn
+                            title="Udført i dag"
+                            tasks={doneToday}
+                            projectMap={projectMap}
+                            assignmentMap={assignmentMap}
+                            variant="done"
+                        />
+                    </div>
+
+                    <DashboardCommentsPanel comments={todayComments} />
+                </>
+            )}
         </div>
     );
 }
