@@ -1,3 +1,5 @@
+import { TaskAttachment } from "@/types/attachment";
+
 export interface TaskComment {
   comment_id: string;
   task_id: string;
@@ -5,7 +7,13 @@ export interface TaskComment {
   message: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
-  author: { user_id: string; name: string; email: string; profile_picture_url?: string | null };
+  author: {
+    user_id: string;
+    name: string;
+    email: string;
+    profile_picture_url?: string | null;
+  };
+  attachments?: TaskAttachment[];
 }
 
 export interface CreateCommentRequest {

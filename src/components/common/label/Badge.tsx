@@ -12,9 +12,9 @@ interface BadgeProps {
 }
 
 const sizeClasses = {
-    sm: "inline-flex items-center h-5 px-2 badge-sm",
-    md: "inline-flex items-center h-6 px-2.5 badge-md",
-    lg: "inline-flex items-center h-7 px-3 badge-lg",
+    sm: "inline-flex items-center h-5 px-1.5 badge-sm",
+    md: "inline-flex items-center h-6 px-2 badge-md",
+    lg: "inline-flex items-center h-7 px-2.5 badge-lg",
 };
 
 export default function Badge({ variant, value, size = "md" }: BadgeProps) {
@@ -24,7 +24,7 @@ export default function Badge({ variant, value, size = "md" }: BadgeProps) {
         const priority = value as TaskPriority;
         return (
             <span
-                className={`badge rounded-lg border ${badgeSize} ${getPriorityColors(priority)}`}
+                className={`badge rounded-full border ${badgeSize} ${getPriorityColors(priority)}`}
             >
                 {translatePriority(priority)}
             </span>
@@ -35,7 +35,7 @@ export default function Badge({ variant, value, size = "md" }: BadgeProps) {
         const status = value as TaskStatus;
         return (
             <span
-                className={`badge rounded-lg border ${badgeSize} ${getStatusColors(status)}`}
+                className={`badge rounded-full border ${badgeSize} ${getStatusColors(status)}`}
             >
                 {translateStatus(status)}
             </span>
