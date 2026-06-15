@@ -25,7 +25,6 @@ interface CreateTaskFormProps {
     onSuccess: (task: Task) => void;
     onComplete?: () => void;
     parentTaskId?: string;
-    parentProjectId?: string;
 }
 
 export default function CreateTaskForm({
@@ -35,10 +34,9 @@ export default function CreateTaskForm({
     onSuccess,
     onComplete,
     parentTaskId,
-    parentProjectId,
 }: CreateTaskFormProps) {
     const { user } = useAuth();
-    const [projectId, setProjectId] = useState(parentProjectId ?? "");
+    const [projectId, setProjectId] = useState("");
     const [formData, setFormData] = useState<Omit<CreateTaskInput, "project_id" | "goal">>({
         parent_task_id: parentTaskId || undefined,
         title: "",
@@ -195,7 +193,6 @@ export default function CreateTaskForm({
                 status: formData.status,
                 deadline: toIsoDate(formData.deadline),
                 created_by: formData.created_by,
-                project_id: projectId,
                 start_date: toIsoDate(formData.start_date || toDateKey(new Date())),
                 goal: goalEnabled
                     ? { target_quantity: goalTarget ?? (goalUnit === TaskUnit.NONE ? 100 : 0), unit: goalUnit, current_quantity: goalCurrent }
@@ -208,7 +205,7 @@ export default function CreateTaskForm({
             if (shouldCreateIndividual) {
                 const createFn = isSubtask && parentTaskId
                     ? (users: string[]) => createSubtask({ ...sharedFields, assigned_users: users, parent_task_id: parentTaskId })
-                    : (users: string[]) => createTask({ ...sharedFields, assigned_users: users });
+                    : (users: string[]) => createTask({ ...sharedFields, project_id: projectId, assigned_users: users });
 
                 const results = await Promise.all(
                     formData.assigned_users.map((userId) => createFn([userId]))
@@ -224,6 +221,7 @@ export default function CreateTaskForm({
                 } else {
                     newTask = await createTask({
                         ...sharedFields,
+                        project_id: projectId,
                         assigned_users: formData.assigned_users,
                     });
                 }

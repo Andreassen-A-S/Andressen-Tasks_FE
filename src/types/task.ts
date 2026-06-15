@@ -95,7 +95,7 @@ export interface UpdateTaskInput {
 
 export interface CreateSubtaskInput extends Omit<
   CreateTaskInput,
-  "parent_task_id"
+  "parent_task_id" | "project_id"
 > {
   parent_task_id: string;
 }

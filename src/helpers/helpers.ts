@@ -373,3 +373,42 @@ export async function downloadImages(
     setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
   }
 }
+
+export async function downloadImagesAsZip(
+  images: { attachment_id: string; url: string; file_name?: string | null }[],
+  taskName: string,
+): Promise<void> {
+  const JSZip = (await import("jszip")).default;
+  const zip = new JSZip();
+
+  const results = await Promise.all(
+    images.map(async (image): Promise<boolean> => {
+      try {
+        const response = await fetch(image.url);
+        if (!response.ok) return false;
+        const blob = await response.blob();
+        const ext = image.file_name?.match(/\.[^.]+$/)?.[0] ?? "";
+        zip.file(`${image.attachment_id}${ext}`, blob);
+        return true;
+      } catch {
+        return false;
+      }
+    }),
+  );
+
+  const successCount = results.filter(Boolean).length;
+  if (successCount === 0) { toast.error("Ingen billeder kunne hentes. Prøv igen."); return; }
+  if (successCount < images.length) toast.warning("Nogle billeder kunne ikke hentes og er ikke inkluderet i zip-filen.");
+
+  const zipBlob = await zip.generateAsync({ type: "blob" });
+  const blobUrl = URL.createObjectURL(zipBlob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  const safeName = taskName.replace(/[/\\?%*:|"<>]/g, "_");
+  a.download = `${safeName}_billeder.zip`;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+}
