@@ -373,3 +373,35 @@ export async function downloadImages(
     setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
   }
 }
+
+export async function downloadImagesAsZip(
+  images: { url: string; file_name?: string | null }[],
+  taskName: string,
+): Promise<void> {
+  const JSZip = (await import("jszip")).default;
+  const zip = new JSZip();
+
+  await Promise.all(
+    images.map(async (image) => {
+      const response = await fetch(image.url);
+      if (!response.ok) {
+        toast.error(`Kunne ikke hente ${image.file_name ?? "billede"}`);
+        return;
+      }
+      const blob = await response.blob();
+      zip.file(image.file_name ?? "billede", blob);
+    }),
+  );
+
+  const zipBlob = await zip.generateAsync({ type: "blob" });
+  const blobUrl = URL.createObjectURL(zipBlob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  const safeName = taskName.replace(/[/\\?%*:|"<>]/g, "_");
+  a.download = `${safeName}_billeder.zip`;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+}

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updateTask, getTaskAssignments, setGoal, removeGoal, addTaskProgress } from "@/lib/api";
 import { TaskStatus, TaskPriority, TaskUnit } from "@/types/task";
-import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit, formatNumber, downloadImages } from "@/helpers/helpers";
+import { formatDateTime, formatDate, translatePriority, translateStatus, getPriorityAccentColors, getStatusAccentColors, translateTaskUnit, formatNumber, downloadImagesAsZip } from "@/helpers/helpers";
 
 
 import Modal from "@/components/modal/Modal";
@@ -194,7 +194,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
             const attachments = await getTaskAttachments(task.task_id);
             const images = attachments.filter((a) => a.type === "IMAGE");
             if (images.length === 0) { toast.info("Ingen billeder at downloade"); return; }
-            await downloadImages(images);
+            await downloadImagesAsZip(images, task.title);
         } catch {
             toast.error("Kunne ikke hente billeder. Prøv igen.");
         } finally {
@@ -866,7 +866,6 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                     onSuccess={() => setShowSubtaskModal(false)}
                     onComplete={() => setShowSubtaskModal(false)}
                     parentTaskId={task.task_id}
-                    parentProjectId={task.project_id}
                 />
             </Modal>
 
