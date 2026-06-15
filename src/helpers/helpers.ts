@@ -381,18 +381,24 @@ export async function downloadImagesAsZip(
   const JSZip = (await import("jszip")).default;
   const zip = new JSZip();
 
-  await Promise.all(
-    images.map(async (image) => {
-      const response = await fetch(image.url);
-      if (!response.ok) {
-        toast.error(`Kunne ikke hente ${image.file_name ?? "billede"}`);
-        return;
+  const results = await Promise.all(
+    images.map(async (image): Promise<boolean> => {
+      try {
+        const response = await fetch(image.url);
+        if (!response.ok) return false;
+        const blob = await response.blob();
+        const ext = image.file_name?.match(/\.[^.]+$/)?.[0] ?? "";
+        zip.file(`${image.attachment_id}${ext}`, blob);
+        return true;
+      } catch {
+        return false;
       }
-      const blob = await response.blob();
-      const ext = image.file_name?.match(/\.[^.]+$/)?.[0] ?? "";
-      zip.file(`${image.attachment_id}${ext}`, blob);
     }),
   );
+
+  const successCount = results.filter(Boolean).length;
+  if (successCount === 0) { toast.error("Ingen billeder kunne hentes. Prøv igen."); return; }
+  if (successCount < images.length) toast.warning("Nogle billeder kunne ikke hentes og er ikke inkluderet i zip-filen.");
 
   const zipBlob = await zip.generateAsync({ type: "blob" });
   const blobUrl = URL.createObjectURL(zipBlob);
