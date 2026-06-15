@@ -375,7 +375,7 @@ export async function downloadImages(
 }
 
 export async function downloadImagesAsZip(
-  images: { url: string; file_name?: string | null }[],
+  images: { attachment_id: string; url: string; file_name?: string | null }[],
   taskName: string,
 ): Promise<void> {
   const JSZip = (await import("jszip")).default;
@@ -389,7 +389,8 @@ export async function downloadImagesAsZip(
         return;
       }
       const blob = await response.blob();
-      zip.file(image.file_name ?? "billede", blob);
+      const ext = image.file_name?.match(/\.[^.]+$/)?.[0] ?? "";
+      zip.file(`${image.attachment_id}${ext}`, blob);
     }),
   );
 
