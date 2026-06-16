@@ -20,7 +20,7 @@ import Button from "@/components/common/buttons/Button";
 import { fetchTaskEvents, taskQueryKeys } from "@/lib/queries/tasks";
 
 function isCommentEvent(type: string) {
-    return type === "COMMENT_CREATED" || type === "COMMENT_DELETED";
+    return type === "COMMENT_CREATED";
 }
 
 export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isArchived = false }: { taskId: string; creatorId?: string; assigneeIds?: string[]; isArchived?: boolean }) {
@@ -69,11 +69,32 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
         }
     }
 
+    // comment_id FK is set to null (onDelete: SetNull) when a comment is deleted.
+    // before_json/after_json are unaffected, so we resolve identity from those.
+    const resolveCommentId = (e: TaskEvent): string | undefined =>
+        e.comment?.comment_id ?? e.comment_id
+            ?? (e.before_json as Record<string, unknown> | null)?.comment_id as string | undefined
+            ?? (e.after_json as Record<string, unknown> | null)?.comment_id as string | undefined;
+
+    // Maps comment_id → COMMENT_DELETED event (for passing to the original COMMENT_CREATED entry)
+    const deletedEventMap = new Map<string, TaskEvent>();
+    for (const e of events) {
+        if (e.type === "COMMENT_DELETED") {
+            const id = resolveCommentId(e);
+            if (id) deletedEventMap.set(id, e);
+        }
+    }
+
+    // Edit history: COMMENT_UPDATED + COMMENT_DELETED, keyed by comment_id.
+    // Deletion is appended last so it shows as the final edit entry in the popover.
     const editHistoryMap = new Map<string, TaskEvent[]>();
     for (const e of events) {
-        if (e.type === "COMMENT_UPDATED" && e.comment_id) {
-            const existing = editHistoryMap.get(e.comment_id) ?? [];
-            editHistoryMap.set(e.comment_id, [...existing, e]);
+        if (e.type === "COMMENT_UPDATED" || e.type === "COMMENT_DELETED") {
+            const id = resolveCommentId(e);
+            if (id) {
+                const existing = editHistoryMap.get(id) ?? [];
+                editHistoryMap.set(id, [...existing, e]);
+            }
         }
     }
 
@@ -105,17 +126,20 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                 {groupTimelineEvents(
                     events
                         .filter((e) => taskEventDisplayMap[e.type] === "timeline")
+                        .filter((e) => e.type !== "COMMENT_DELETED")
                         .map((e) => translateTaskEvent(e))
                 ).map((item) => {
                     const { actorId, actorName, icon: Icon, rotateIcon, text, raw: e } = item;
 
                     if (isCommentEvent(item.type)) {
-                        const commentId = e.comment?.comment_id ?? e.comment_id;
+                        const commentId = resolveCommentId(e);
+                        const deletedEvent = commentId ? deletedEventMap.get(commentId) : undefined;
                         return (
                             <div key={item.id} className="relative z-10">
                                 <TaskTimelineComment
                                     event={e}
                                     actorName={actorName}
+                                    deletedEvent={deletedEvent}
                                     currentUserId={currentUser?.user_id}
                                     isAdmin={isAdminRole(currentUser?.role)}
                                     isTaskOwner={!!creatorId && e.actor_id === creatorId}
