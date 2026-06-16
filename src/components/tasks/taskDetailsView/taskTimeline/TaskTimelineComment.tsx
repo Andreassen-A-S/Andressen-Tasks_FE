@@ -21,6 +21,7 @@ import EditHistoryPopover from "@/components/common/EditHistoryPopover";
 type Props = {
     event: TaskEvent;
     actorName: string;
+    deletedEvent?: TaskEvent;
     currentUserId?: string;
     isAdmin?: boolean;
     isTaskOwner?: boolean;
@@ -71,13 +72,13 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editHistory, onDelete, onUpdate }: Props) {
+export default function TaskTimelineComment({ event, actorName, deletedEvent, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editHistory, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
 
-    const isDeleted = event.type === "COMMENT_DELETED";
+    const isDeleted = !!deletedEvent;
     const message = isDeleted
         ? "(Kommentar slettet)"
         : event.comment?.message ?? event.message ?? "";
@@ -135,7 +136,7 @@ export default function TaskTimelineComment({ event, actorName, currentUserId, i
                                         imageUrl: e.actor?.profile_picture_url,
                                         timeLabel: formatCommentDate(e.created_at),
                                         beforeText: (e.before_json as Record<string, unknown> | null)?.message as string | undefined,
-                                        afterText: (e.after_json as Record<string, unknown> | null)?.message as string | undefined,
+                                        afterText: e.type === "COMMENT_DELETED" ? "" : (e.after_json as Record<string, unknown> | null)?.message as string | undefined,
                                     }))}
                                     created={{
                                         name: actorName,
