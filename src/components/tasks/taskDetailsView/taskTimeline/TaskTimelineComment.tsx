@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { TaskEvent } from "@/types/taskEvent";
 import { AllowedMimeType, type TaskAttachment } from "@/types/attachment";
 import SingleAvatar from "../../../common/label/SingleAvatar";
-import { formatCommentDate, downloadImages } from "@/helpers/helpers";
+import { formatCommentDate, downloadImages, downloadImagesAsZip } from "@/helpers/helpers";
 import { Ellipsis, Trash2, Pencil, ImageDown } from "lucide-react";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
@@ -107,7 +107,12 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
         if (isDownloading) return;
         setIsDownloading(true);
         try {
-            await downloadImages(images);
+            if (images.length > 1) {
+                const date = event.created_at.slice(0, 10);
+                await downloadImagesAsZip(images, `${actorName} ${date}`);
+            } else {
+                await downloadImages(images);
+            }
         } catch {
             toast.error("Kunne ikke hente billeder. Prøv igen.");
         } finally {
