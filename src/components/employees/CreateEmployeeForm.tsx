@@ -49,9 +49,13 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
 
     // Platform super-admins see all positions — filter to the selected org.
     // Org-context super-admins and regular admins get their org's positions from the API.
+    // When SUPER_ADMIN is selected in tenant context, the destination is MESTERPLAN but those
+    // positions aren't in the fetched data — show nothing so a stale tenant position can't be submitted.
     const positions = canChooseOrg
         ? allPositions.filter(p => p.organization_id === formData.organization_id)
-        : allPositions;
+        : formData.role === UserRole.SUPER_ADMIN
+            ? []
+            : allPositions;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
