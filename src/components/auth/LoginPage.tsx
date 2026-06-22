@@ -41,7 +41,8 @@ export default function LoginPage() {
                         src="/logo.png"
                         alt="MesterPlan"
                         width={180}
-                        height={121}
+                        height={107}
+                        style={{ height: "auto" }}
                         className="mb-4"
                     />
                     <h1 className="h2" style={{ color: colors.textPrimary }}>MesterPlan</h1>

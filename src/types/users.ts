@@ -16,7 +16,7 @@ export enum UserStatus {
 export function getUserRoleLabel(role: UserRole): string {
   switch (role) {
     case UserRole.SUPER_ADMIN:
-      return "Super Administrator";
+      return "Superadministrator";
     case UserRole.ADMIN:
       return "Administrator";
     case UserRole.USER:

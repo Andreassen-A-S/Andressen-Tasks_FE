@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { prepareProfilePicture, updateUser } from "@/lib/api/users";
 import { uploadToGcs } from "@/lib/api/attachments";
 import { getPositions } from "@/lib/api/positions";
-import { UpdateUserInput, User, UserStatus, isAdminRole } from "@/types/users";
+import { UpdateUserInput, User, UserRole, UserStatus, isAdminRole } from "@/types/users";
 import { useAuth } from "@/hooks/useAuth";
+import { MESTERPLAN_ORG_ID } from "@/constants/org";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
@@ -30,15 +31,13 @@ interface UpdateEmployeeFormProps {
 
 export default function UpdateEmployeeForm({ formId, user, onSuccess, onPictureChange, onLoadingChange }: UpdateEmployeeFormProps) {
     const { userRole, contextOrgId, user: currentUser, updateCurrentUser } = useAuth();
+    const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
     const canEditStatus = isAdminRole(userRole);
 
     const { data: allPositions = [], isLoading: positionsLoading, isError: positionsError } = useQuery({
         queryKey: ["positions", contextOrgId ?? "platform"],
         queryFn: getPositions,
     });
-
-    // Always scope to the user's own org — correct for regular admins and superadmins alike.
-    const positions = allPositions.filter(p => p.organization_id === user.organization_id);
 
     const [formData, setFormData] = useState({
         name: user.name || "",
@@ -48,6 +47,10 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onPictureC
         position_id: user.position_id || "",
         status: user.status || UserStatus.ACTIVE,
     });
+
+    // When promoting to SUPER_ADMIN, show MESTERPLAN positions; otherwise use the user's current org.
+    const effectivePositionOrgId = formData.role === UserRole.SUPER_ADMIN ? MESTERPLAN_ORG_ID : user.organization_id;
+    const positions = allPositions.filter(p => p.organization_id === effectivePositionOrgId);
     const [pictureUrl, setPictureUrl] = useState<string | null>(user.profile_picture_url ?? null);
     const [picturePreview, setPicturePreview] = useState<string | null>(user.profile_picture_url ?? null);
     const [pictureLoading, setPictureLoading] = useState(false);
@@ -69,7 +72,13 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onPictureC
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+            ...(name === "role" && (value === UserRole.SUPER_ADMIN || prev.role === UserRole.SUPER_ADMIN)
+                ? { position_id: "" }
+                : {}),
+        }));
     };
 
     function handleFileSelected(file: File) {
@@ -114,8 +123,10 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onPictureC
             const updatedUser = await updateUser(user.user_id, updates);
             toast.success("Medarbejder opdateret");
             onSuccess(updatedUser);
-        } catch {
-            setError("Kunne ikke opdatere medarbejder. Prøv igen.");
+        } catch (err) {
+            setError(err instanceof Error && err.message === "EMAIL_IN_USE"
+                ? "E-mailen er allerede i brug."
+                : "Kunne ikke opdatere medarbejder. Prøv igen.");
         } finally {
             setLoading(false);
         }
@@ -244,7 +255,11 @@ export default function UpdateEmployeeForm({ formId, user, onSuccess, onPictureC
                     >
                         <option value="USER">Bruger</option>
                         <option value="ADMIN">Administrator</option>
+                        {isSuperAdmin && <option value={UserRole.SUPER_ADMIN}>Superadministrator</option>}
                     </SelectField>
+                    {isSuperAdmin && formData.role === UserRole.SUPER_ADMIN && (
+                        <p className="body-xs !text-warning mt-1">Superadministratorer fjernes fra organisationen og får adgang til at administrere hele platformen.</p>
+                    )}
                 </div>
                 {canEditStatus && (
                     <div>
