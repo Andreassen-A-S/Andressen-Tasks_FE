@@ -74,9 +74,9 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
             [name]: value,
             ...(name === "organization_id" ? { position_id: "" } : {}),
             ...(name === "role" && value === UserRole.SUPER_ADMIN
-                ? { organization_id: MESTERPLAN_ORG_ID }
+                ? { organization_id: MESTERPLAN_ORG_ID, position_id: "" }
                 : name === "role" && prev.role === UserRole.SUPER_ADMIN
-                    ? { organization_id: "" }
+                    ? { organization_id: "", position_id: "" }
                     : {}),
         }));
     };
