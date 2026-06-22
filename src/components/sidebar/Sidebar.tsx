@@ -165,7 +165,7 @@ export default function Sidebar() {
                         </Link>
                     ) : (
                         <Link href="/" className="flex items-center gap-3">
-                            <Image src="/logo.png" alt="MesterPlan" width={64} height={43} priority />
+                            <Image src="/logo.png" alt="MesterPlan" width={64} height={38} style={{ height: "auto" }} priority />
                             <div>
                                 <h1 className="sidebar-brand">MesterPlan</h1>
                                 <span className="sidebar-brand-sub">Opgavestyring</span>

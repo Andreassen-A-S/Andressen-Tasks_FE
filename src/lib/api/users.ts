@@ -27,7 +27,10 @@ export async function createUser(user: CreateUserInput): Promise<User> {
     method: "POST",
     body: JSON.stringify(user),
   });
-  if (!res.ok) throw new Error("Failed to create user");
+  if (!res.ok) {
+    if (res.status === 409) throw new Error("EMAIL_IN_USE");
+    throw new Error("Failed to create user");
+  }
   const data = await res.json();
   return normalizeUser(data.data);
 }
@@ -40,7 +43,10 @@ export async function updateUser(
     method: "PATCH",
     body: JSON.stringify(updates),
   });
-  if (!res.ok) throw new Error("Failed to update user");
+  if (!res.ok) {
+    if (res.status === 409) throw new Error("EMAIL_IN_USE");
+    throw new Error("Failed to update user");
+  }
   const data = await res.json();
   return normalizeUser(data.data);
 }

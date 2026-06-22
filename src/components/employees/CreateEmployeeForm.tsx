@@ -7,6 +7,7 @@ import { getOrganizations } from "@/lib/api/organizations";
 import { getPositions } from "@/lib/api/positions";
 import { User, UserRole } from "@/types/users";
 import { useAuth } from "@/hooks/useAuth";
+import { MESTERPLAN_ORG_ID } from "@/constants/org";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import TextInput from "@/components/common/forms/TextInput";
@@ -24,7 +25,7 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
     const { contextOrgId, userRole, user } = useAuth();
     const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
     const canChooseOrg = isSuperAdmin && !contextOrgId;
-    const defaultOrgId = contextOrgId ?? user?.organization_id ?? "";
+    const defaultOrgId = canChooseOrg ? "" : (contextOrgId ?? user?.organization_id ?? "");
 
     const { data: organizations = [] } = useQuery({
         queryKey: ["organizations"],
@@ -48,9 +49,13 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
 
     // Platform super-admins see all positions — filter to the selected org.
     // Org-context super-admins and regular admins get their org's positions from the API.
+    // When SUPER_ADMIN is selected in tenant context, the destination is MESTERPLAN but those
+    // positions aren't in the fetched data — show nothing so a stale tenant position can't be submitted.
     const positions = canChooseOrg
         ? allPositions.filter(p => p.organization_id === formData.organization_id)
-        : allPositions;
+        : formData.role === UserRole.SUPER_ADMIN
+            ? []
+            : allPositions;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showMissingRequiredBanner, setShowMissingRequiredBanner] = useState(false);
@@ -72,6 +77,11 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
             ...prev,
             [name]: value,
             ...(name === "organization_id" ? { position_id: "" } : {}),
+            ...(name === "role" && value === UserRole.SUPER_ADMIN
+                ? { organization_id: MESTERPLAN_ORG_ID, position_id: "" }
+                : name === "role" && prev.role === UserRole.SUPER_ADMIN
+                    ? { organization_id: "", position_id: "" }
+                    : {}),
         }));
     };
 
@@ -91,8 +101,10 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
             const created = await createUser(payload);
             toast.success("Medarbejder oprettet");
             onSuccess(created);
-        } catch {
-            setError("Kunne ikke oprette medarbejder. Prøv igen.");
+        } catch (err) {
+            setError(err instanceof Error && err.message === "EMAIL_IN_USE"
+                ? "E-mailen er allerede i brug."
+                : "Kunne ikke oprette medarbejder. Prøv igen.");
         } finally {
             setLoading(false);
         }
@@ -179,6 +191,7 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
                             value={formData.organization_id}
                             onChange={handleChange}
                             required
+                            disabled={formData.role === UserRole.SUPER_ADMIN}
                         >
                             <option value="">Vælg organisation...</option>
                             {organizations.map(org => (
@@ -197,7 +210,11 @@ export default function CreateEmployeeForm({ formId, onSuccess, onLoadingChange 
                     >
                         <option value={UserRole.USER}>Bruger</option>
                         <option value={UserRole.ADMIN}>Administrator</option>
+                        {isSuperAdmin && <option value={UserRole.SUPER_ADMIN}>Superadministrator</option>}
                     </SelectField>
+                    {isSuperAdmin && formData.role === UserRole.SUPER_ADMIN && (
+                        <p className="body-xs !text-warning">Superadministratorer fjernes fra organisationen og får adgang til at administrere hele platformen.</p>
+                    )}
                 </div>
                 <div className="space-y-2">
                     <label htmlFor="position_id" className="label-md block">Stilling</label>
