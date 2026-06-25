@@ -156,12 +156,13 @@ export default function CommentEditForm({ initialText, existingAttachments, task
             }
             const trimmed = editText.trim();
             const tokenText = buildTokenText(trimmed, pendingMentions);
-            const mentionUserIds = extractMentionUserIds(tokenText);
+            const oldMentionIds = new Set(extractMentionUserIds(initialText));
+            const newMentionIds = extractMentionUserIds(tokenText).filter(id => !oldMentionIds.has(id));
             await updateComment(commentId, {
                 message: tokenText !== initialText ? tokenText : undefined,
                 upload_tokens: upload_tokens.length > 0 ? upload_tokens : undefined,
                 remove_attachment_ids: removedIds.size > 0 ? [...removedIds] : undefined,
-                mention_user_ids: mentionUserIds.length > 0 ? mentionUserIds : undefined,
+                mention_user_ids: newMentionIds.length > 0 ? newMentionIds : undefined,
             });
             pendingAttachments.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
             await onSave();

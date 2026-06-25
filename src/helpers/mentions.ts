@@ -12,6 +12,8 @@ export function buildTokenText(
     }
     // longest name first to avoid partial matches (e.g. "Lars" before "Lars Jensen")
     const sorted = [...queues.entries()].sort((a, b) => b[0].length - a[0].length);
+    // tracks last used userId per name so repeated mentions of the same user all tokenize
+    const lastUsed = new Map<string, string>();
 
     let result = '';
     let i = 0;
@@ -27,8 +29,9 @@ export function buildTokenText(
             if (displayText.slice(at + 1, end) !== name) continue;
             const next = displayText[end] ?? '';
             if (next && !BOUNDARY.test(next)) continue;
-            const userId = ids.shift();
+            const userId = ids.shift() ?? lastUsed.get(name);
             if (!userId) continue;
+            lastUsed.set(name, userId);
             result += `@[${name}](${userId})`;
             i = end;
             matched = true;

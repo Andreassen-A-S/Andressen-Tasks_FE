@@ -18,6 +18,7 @@ import CommentEditForm from "./CommentEditForm";
 import LinkedText from "@/components/common/LinkedText";
 import EditHistoryPopover from "@/components/common/EditHistoryPopover";
 import type { MentionableUser } from "@/types/users";
+import { tokenToDisplayText } from "@/helpers/mentions";
 
 type Props = {
     event: TaskEvent;
@@ -138,18 +139,22 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                         <div className="ml-auto flex min-h-7 items-center justify-end gap-1 shrink-0">
                             {editHistory && editHistory.length > 0 && (
                                 <EditHistoryPopover
-                                    edits={[...editHistory].reverse().map((e) => ({
-                                        name: e.actor?.name ?? e.actor?.email ?? "Ukendt bruger",
-                                        imageUrl: e.actor?.profile_picture_url,
-                                        timeLabel: formatCommentDate(e.created_at),
-                                        beforeText: (e.before_json as Record<string, unknown> | null)?.message as string | undefined,
-                                        afterText: e.type === "COMMENT_DELETED" ? "" : (e.after_json as Record<string, unknown> | null)?.message as string | undefined,
-                                    }))}
+                                    edits={[...editHistory].reverse().map((e) => {
+                                        const raw = e.before_json as Record<string, unknown> | null;
+                                        const rawAfter = e.after_json as Record<string, unknown> | null;
+                                        return {
+                                            name: e.actor?.name ?? e.actor?.email ?? "Ukendt bruger",
+                                            imageUrl: e.actor?.profile_picture_url,
+                                            timeLabel: formatCommentDate(e.created_at),
+                                            beforeText: raw?.message ? tokenToDisplayText(raw.message as string) : undefined,
+                                            afterText: e.type === "COMMENT_DELETED" ? "" : rawAfter?.message ? tokenToDisplayText(rawAfter.message as string) : undefined,
+                                        };
+                                    })}
                                     created={{
                                         name: actorName,
                                         imageUrl: event.actor?.profile_picture_url,
                                         timeLabel: formatCommentDate(event.created_at),
-                                        afterText: (editHistory[0]?.before_json as Record<string, unknown> | null)?.message as string | undefined,
+                                        afterText: (() => { const m = (editHistory[0]?.before_json as Record<string, unknown> | null)?.message; return m ? tokenToDisplayText(m as string) : undefined; })(),
                                     }}
                                 />
                             )}
