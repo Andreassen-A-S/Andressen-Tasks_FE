@@ -28,6 +28,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
     const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
     const [dragOver, setDragOver] = useState(false);
     const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+    const [mentionStart, setMentionStart] = useState<number | null>(null);
     const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
     const [pendingMentions, setPendingMentions] = useState<{ name: string; userId: string }[]>([]);
 
@@ -56,11 +57,13 @@ export default function CommentEditForm({ initialText, existingAttachments, task
     function handleTextChange(value: string) {
         setEditText(value);
         if (!mentionableUsers.length) return;
-        const lastAt = value.lastIndexOf("@");
-        if (lastAt === -1) { setMentionQuery(null); return; }
-        const afterAt = value.slice(lastAt + 1);
-        if (/\s/.test(afterAt)) { setMentionQuery(null); return; }
+        const beforeCursor = value.slice(0, textareaRef.current?.selectionStart ?? value.length);
+        const lastAt = beforeCursor.lastIndexOf("@");
+        if (lastAt === -1) { setMentionQuery(null); setMentionStart(null); return; }
+        const afterAt = beforeCursor.slice(lastAt + 1);
+        if (/\s/.test(afterAt)) { setMentionQuery(null); setMentionStart(null); return; }
         setMentionQuery(afterAt);
+        setMentionStart(lastAt);
         setSelectedMentionIndex(0);
     }
 
@@ -73,6 +76,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
         const newCursor = lastAt + user.name.length + 2;
         setEditText(newText);
         setMentionQuery(null);
+        setMentionStart(null);
         setPendingMentions((prev) => {
             if (prev.some((m) => m.userId === user.user_id)) return prev;
             return [...prev, { name: user.name, userId: user.user_id }];
@@ -187,7 +191,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                         if (mentionCandidates.length > 0) {
                             if (e.key === "ArrowDown") { e.preventDefault(); setSelectedMentionIndex((i) => Math.min(i + 1, mentionCandidates.length - 1)); return; }
                             if (e.key === "ArrowUp") { e.preventDefault(); setSelectedMentionIndex((i) => Math.max(i - 1, 0)); return; }
-                            if (e.key === "Escape") { setMentionQuery(null); return; }
+                            if (e.key === "Escape") { setMentionQuery(null); setMentionStart(null); return; }
                             if (e.key === "Enter" || e.key === "Tab") {
                                 const user = mentionCandidates[selectedMentionIndex];
                                 if (user) { e.preventDefault(); handleMentionSelect(user); return; }
@@ -202,6 +206,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 {mentionCandidates.length > 0 && (
                     <MentionDropdown
                         anchor={textareaRef.current}
+                        anchorIndex={mentionStart}
                         users={mentionCandidates}
                         selectedIndex={selectedMentionIndex}
                         onSelect={handleMentionSelect}
