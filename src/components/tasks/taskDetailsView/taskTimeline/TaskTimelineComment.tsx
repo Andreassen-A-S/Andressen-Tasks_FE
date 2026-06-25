@@ -210,7 +210,6 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                                         text={message}
                                         className="body-sm leading-relaxed whitespace-pre-wrap"
                                         style={isDeleted ? { color: colors.textMuted, fontStyle: "italic" } : undefined}
-                                        mentionableUsers={mentionableUsers}
                                     />
                                 )}
                                 {attachments.length > 0 && (

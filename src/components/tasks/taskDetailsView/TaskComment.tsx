@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import UserCard from "@/components/common/UserCard";
 import type { MentionableUser } from "@/types/users";
 import MentionDropdown from "@/components/common/MentionDropdown";
+import { buildTokenText, extractMentionUserIds } from "@/helpers/mentions";
 
 interface TaskCommentProps {
   taskId: string;
@@ -175,11 +176,10 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
       }
 
       const trimmed = comment.trim();
-      const mentionUserIds = pendingMentions
-        .filter((m) => trimmed.includes(`@${m.name}`))
-        .map((m) => m.userId);
+      const tokenText = buildTokenText(trimmed, pendingMentions);
+      const mentionUserIds = extractMentionUserIds(tokenText);
 
-      await onSubmit(trimmed, tokens, mentionUserIds.length > 0 ? mentionUserIds : undefined);
+      await onSubmit(tokenText, tokens, mentionUserIds.length > 0 ? mentionUserIds : undefined);
       setComment("");
       setPendingMentions([]);
       setMentionQuery(null);

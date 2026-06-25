@@ -10,6 +10,7 @@ import Button from "@/components/common/buttons/Button";
 import { toast } from "sonner";
 import type { MentionableUser } from "@/types/users";
 import MentionDropdown from "@/components/common/MentionDropdown";
+import { buildTokenText, tokenToDisplayText, extractMentionUserIds, parseTokenMentions } from "@/helpers/mentions";
 
 interface Props {
     initialText: string;
@@ -22,7 +23,7 @@ interface Props {
 }
 
 export default function CommentEditForm({ initialText, existingAttachments, taskId, commentId, mentionableUsers = [], onSave, onCancel }: Props) {
-    const [editText, setEditText] = useState(initialText);
+    const [editText, setEditText] = useState(() => tokenToDisplayText(initialText));
     const [saving, setSaving] = useState(false);
     const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
     const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
@@ -30,7 +31,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
     const [mentionQuery, setMentionQuery] = useState<string | null>(null);
     const [mentionStart, setMentionStart] = useState<number | null>(null);
     const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
-    const [pendingMentions, setPendingMentions] = useState<{ name: string; userId: string }[]>([]);
+    const [pendingMentions, setPendingMentions] = useState<{ name: string; userId: string }[]>(() => parseTokenMentions(initialText));
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -136,7 +137,8 @@ export default function CommentEditForm({ initialText, existingAttachments, task
         setRemovedIds((prev) => new Set([...prev, id]));
     }
 
-    const hasChanges = editText.trim() !== initialText || pendingAttachments.length > 0 || removedIds.size > 0;
+    const initialDisplayText = useMemo(() => tokenToDisplayText(initialText), [initialText]);
+    const hasChanges = editText.trim() !== initialDisplayText || pendingAttachments.length > 0 || removedIds.size > 0;
 
     async function handleSave() {
         if (!hasChanges) return;
@@ -153,11 +155,10 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 upload_tokens = prepared.map((p) => p.upload_token);
             }
             const trimmed = editText.trim();
-            const mentionUserIds = pendingMentions
-                .filter((m) => trimmed.includes(`@${m.name}`))
-                .map((m) => m.userId);
+            const tokenText = buildTokenText(trimmed, pendingMentions);
+            const mentionUserIds = extractMentionUserIds(tokenText);
             await updateComment(commentId, {
-                message: trimmed !== initialText ? trimmed : undefined,
+                message: tokenText !== initialText ? tokenText : undefined,
                 upload_tokens: upload_tokens.length > 0 ? upload_tokens : undefined,
                 remove_attachment_ids: removedIds.size > 0 ? [...removedIds] : undefined,
                 mention_user_ids: mentionUserIds.length > 0 ? mentionUserIds : undefined,
