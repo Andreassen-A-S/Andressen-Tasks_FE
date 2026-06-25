@@ -10,7 +10,7 @@ import Button from "@/components/common/buttons/Button";
 import { toast } from "sonner";
 import type { MentionableUser } from "@/types/users";
 import MentionDropdown from "@/components/common/MentionDropdown";
-import { buildTokenText, tokenToDisplayText, extractMentionUserIds, parseTokenMentions } from "@/helpers/mentions";
+import { buildTokenText, tokenToDisplayText, extractMentionUserIds, parseTokenMentions, prunePendingMentions } from "@/helpers/mentions";
 
 interface Props {
     initialText: string;
@@ -60,9 +60,9 @@ export default function CommentEditForm({ initialText, existingAttachments, task
         if (!mentionableUsers.length) return;
         const beforeCursor = value.slice(0, textareaRef.current?.selectionStart ?? value.length);
         const lastAt = beforeCursor.lastIndexOf("@");
-        if (lastAt === -1) { setMentionQuery(null); setMentionStart(null); return; }
+        if (lastAt === -1) { setMentionQuery(null); setMentionStart(null); setPendingMentions(prev => prunePendingMentions(prev, value)); return; }
         const afterAt = beforeCursor.slice(lastAt + 1);
-        if (/\s/.test(afterAt)) { setMentionQuery(null); setMentionStart(null); return; }
+        if (/\s/.test(afterAt)) { setMentionQuery(null); setMentionStart(null); setPendingMentions(prev => prunePendingMentions(prev, value)); return; }
         setMentionQuery(afterAt);
         setMentionStart(lastAt);
         setSelectedMentionIndex(0);

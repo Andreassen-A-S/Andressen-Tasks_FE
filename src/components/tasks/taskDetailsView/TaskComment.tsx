@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import UserCard from "@/components/common/UserCard";
 import type { MentionableUser } from "@/types/users";
 import MentionDropdown from "@/components/common/MentionDropdown";
-import { buildTokenText, extractMentionUserIds } from "@/helpers/mentions";
+import { buildTokenText, extractMentionUserIds, prunePendingMentions } from "@/helpers/mentions";
 
 interface TaskCommentProps {
   taskId: string;
@@ -59,9 +59,9 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
     if (!mentionableUsers.length) return;
     const beforeCursor = value.slice(0, textareaRef.current?.selectionStart ?? value.length);
     const lastAt = beforeCursor.lastIndexOf("@");
-    if (lastAt === -1) { setMentionQuery(null); setMentionStart(null); return; }
+    if (lastAt === -1) { setMentionQuery(null); setMentionStart(null); setPendingMentions(prev => prunePendingMentions(prev, value)); return; }
     const afterAt = beforeCursor.slice(lastAt + 1);
-    if (/\s/.test(afterAt)) { setMentionQuery(null); setMentionStart(null); return; }
+    if (/\s/.test(afterAt)) { setMentionQuery(null); setMentionStart(null); setPendingMentions(prev => prunePendingMentions(prev, value)); return; }
     setMentionQuery(afterAt);
     setMentionStart(lastAt);
     setSelectedMentionIndex(0);
