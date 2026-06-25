@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { formatNumber } from "@/helpers/helpers";
 import { Paperclip, X } from "lucide-react";
 import { updateComment, prepareAttachments, uploadToGcs } from "@/lib/api";
@@ -8,26 +8,40 @@ import { AllowedMimeType, ALLOWED_MIME_TYPE_VALUES, MAX_ATTACHMENTS, MAX_FILE_SI
 import { colors } from "@/constants/colors";
 import Button from "@/components/common/buttons/Button";
 import { toast } from "sonner";
+import type { MentionableUser } from "@/types/users";
+import MentionDropdown from "@/components/common/MentionDropdown";
 
 interface Props {
     initialText: string;
     existingAttachments: TaskAttachment[];
     taskId: string;
     commentId: string;
+    mentionableUsers?: MentionableUser[];
     onSave: () => Promise<void>;
     onCancel: () => void;
 }
 
-export default function CommentEditForm({ initialText, existingAttachments, taskId, commentId, onSave, onCancel }: Props) {
+export default function CommentEditForm({ initialText, existingAttachments, taskId, commentId, mentionableUsers = [], onSave, onCancel }: Props) {
     const [editText, setEditText] = useState(initialText);
     const [saving, setSaving] = useState(false);
     const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
     const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
     const [dragOver, setDragOver] = useState(false);
+    const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+    const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
+    const [pendingMentions, setPendingMentions] = useState<{ name: string; userId: string }[]>([]);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
     const pendingAttachmentsRef = useRef(pendingAttachments);
 
     const visibleAttachments = existingAttachments.filter((a) => !removedIds.has(a.attachment_id));
+
+    const mentionCandidates = useMemo(() => {
+        if (mentionQuery === null || !mentionableUsers.length) return [];
+        const q = mentionQuery.toLowerCase();
+        return mentionableUsers.filter((u) => u.name.toLowerCase().split(/\s+/).some((word) => word.startsWith(q))).slice(0, 8);
+    }, [mentionQuery, mentionableUsers]);
 
     useEffect(() => {
         pendingAttachmentsRef.current = pendingAttachments;
@@ -38,6 +52,39 @@ export default function CommentEditForm({ initialText, existingAttachments, task
             pendingAttachmentsRef.current.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
         };
     }, []);
+
+    function handleTextChange(value: string) {
+        setEditText(value);
+        if (!mentionableUsers.length) return;
+        const lastAt = value.lastIndexOf("@");
+        if (lastAt === -1) { setMentionQuery(null); return; }
+        const afterAt = value.slice(lastAt + 1);
+        if (/\s/.test(afterAt)) { setMentionQuery(null); return; }
+        setMentionQuery(afterAt);
+        setSelectedMentionIndex(0);
+    }
+
+    function handleMentionSelect(user: MentionableUser) {
+        const cursorPos = textareaRef.current?.selectionStart ?? editText.length;
+        const before = editText.slice(0, cursorPos);
+        const lastAt = before.lastIndexOf("@");
+        const after = editText.slice(cursorPos);
+        const newText = editText.slice(0, lastAt) + `@${user.name} ` + after;
+        const newCursor = lastAt + user.name.length + 2;
+        setEditText(newText);
+        setMentionQuery(null);
+        setPendingMentions((prev) => {
+            if (prev.some((m) => m.userId === user.user_id)) return prev;
+            return [...prev, { name: user.name, userId: user.user_id }];
+        });
+        requestAnimationFrame(() => {
+            if (textareaRef.current) {
+                textareaRef.current.selectionStart = newCursor;
+                textareaRef.current.selectionEnd = newCursor;
+                textareaRef.current.focus();
+            }
+        });
+    }
 
     function addFiles(files: File[]) {
         const valid = files.filter((f) => ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
@@ -102,10 +149,14 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 upload_tokens = prepared.map((p) => p.upload_token);
             }
             const trimmed = editText.trim();
+            const mentionUserIds = pendingMentions
+                .filter((m) => trimmed.includes(`@${m.name}`))
+                .map((m) => m.userId);
             await updateComment(commentId, {
                 message: trimmed !== initialText ? trimmed : undefined,
                 upload_tokens: upload_tokens.length > 0 ? upload_tokens : undefined,
                 remove_attachment_ids: removedIds.size > 0 ? [...removedIds] : undefined,
+                mention_user_ids: mentionUserIds.length > 0 ? mentionUserIds : undefined,
             });
             pendingAttachments.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
             await onSave();
@@ -125,17 +176,38 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); addFiles(Array.from(e.dataTransfer.files)); }}
             >
                 <textarea
+                    ref={textareaRef}
                     className="w-full body-sm rounded-md px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     style={{ border: `1px solid ${dragOver ? colors.blue : colors.border}`, color: colors.textPrimary, minHeight: 80 }}
                     value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
+                    onChange={(e) => handleTextChange(e.target.value)}
                     onPaste={(e) => { const files = Array.from(e.clipboardData.files); if (files.length) addFiles(files); }}
                     autoFocus
                     onKeyDown={(e) => {
+                        if (mentionCandidates.length > 0) {
+                            if (e.key === "ArrowDown") { e.preventDefault(); setSelectedMentionIndex((i) => Math.min(i + 1, mentionCandidates.length - 1)); return; }
+                            if (e.key === "ArrowUp") { e.preventDefault(); setSelectedMentionIndex((i) => Math.max(i - 1, 0)); return; }
+                            if (e.key === "Escape") { setMentionQuery(null); return; }
+                            if (e.key === "Enter" || e.key === "Tab") {
+                                const user = mentionCandidates[selectedMentionIndex];
+                                if (user) { e.preventDefault(); handleMentionSelect(user); return; }
+                            }
+                        }
                         if (e.key === "Escape") handleCancel();
-                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSave();
+                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSave();
                     }}
                 />
+
+                {/* Mention dropdown */}
+                {mentionCandidates.length > 0 && (
+                    <MentionDropdown
+                        anchor={textareaRef.current}
+                        users={mentionCandidates}
+                        selectedIndex={selectedMentionIndex}
+                        onSelect={handleMentionSelect}
+                    />
+                )}
+
                 {visibleAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                         {visibleAttachments.map((a) => (

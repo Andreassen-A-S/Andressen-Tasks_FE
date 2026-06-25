@@ -17,6 +17,7 @@ import FileAttachmentCard from "../FileAttachmentCard";
 import CommentEditForm from "./CommentEditForm";
 import LinkedText from "@/components/common/LinkedText";
 import EditHistoryPopover from "@/components/common/EditHistoryPopover";
+import type { MentionableUser } from "@/types/users";
 
 type Props = {
     event: TaskEvent;
@@ -28,6 +29,7 @@ type Props = {
     isAssignee?: boolean;
     isArchived?: boolean;
     editHistory?: TaskEvent[];
+    mentionableUsers?: MentionableUser[];
     onDelete?: (commentId: string) => Promise<void>;
     onUpdate?: () => Promise<void>;
 };
@@ -72,7 +74,7 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, deletedEvent, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editHistory, onDelete, onUpdate }: Props) {
+export default function TaskTimelineComment({ event, actorName, deletedEvent, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editHistory, mentionableUsers, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -196,6 +198,7 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                                 existingAttachments={attachments}
                                 taskId={event.task_id}
                                 commentId={commentId}
+                                mentionableUsers={mentionableUsers}
                                 onSave={async () => { await onUpdate?.(); setEditing(false); }}
                                 onCancel={() => setEditing(false)}
                             />
@@ -207,6 +210,7 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                                         text={message}
                                         className="body-sm leading-relaxed whitespace-pre-wrap"
                                         style={isDeleted ? { color: colors.textMuted, fontStyle: "italic" } : undefined}
+                                        mentionableUsers={mentionableUsers}
                                     />
                                 )}
                                 {attachments.length > 0 && (

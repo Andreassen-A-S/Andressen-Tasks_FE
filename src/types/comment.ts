@@ -19,10 +19,12 @@ export interface TaskComment {
 export interface CreateCommentRequest {
   message?: string;
   upload_tokens?: string[];
+  mention_user_ids?: string[];
 }
 
 export interface UpdateCommentRequest {
   message?: string;
   upload_tokens?: string[];
   remove_attachment_ids?: string[];
+  mention_user_ids?: string[];
 }

@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createComment, deleteComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
+import type { MentionableUser } from "@/types/users";
 import { AuthContext } from "@/contexts/AuthContext";
 import { isAdminRole } from "@/types/users";
 import { toast } from "sonner";
@@ -23,7 +24,7 @@ function isCommentEvent(type: string) {
     return type === "COMMENT_CREATED";
 }
 
-export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isArchived = false }: { taskId: string; creatorId?: string; assigneeIds?: string[]; isArchived?: boolean }) {
+export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isArchived = false, mentionableUsers = [] }: { taskId: string; creatorId?: string; assigneeIds?: string[]; isArchived?: boolean; mentionableUsers?: MentionableUser[] }) {
     const auth = useContext(AuthContext);
     const currentUser = auth?.user;
     const queryClient = useQueryClient();
@@ -56,12 +57,13 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
         await refresh();
     }
 
-    async function handleSubmitComment(message: string, uploadTokens: string[]) {
+    async function handleSubmitComment(message: string, uploadTokens: string[], mentionUserIds?: string[]) {
         if (!message && !uploadTokens.length) return;
         try {
             await createComment(taskId, {
                 message: message || undefined,
                 upload_tokens: uploadTokens.length ? uploadTokens : undefined,
+                mention_user_ids: mentionUserIds?.length ? mentionUserIds : undefined,
             });
             await refresh();
         } catch {
@@ -146,6 +148,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                                     isAssignee={assigneeIds.includes(e.actor_id ?? "")}
                                     isArchived={isArchived}
                                     editHistory={commentId ? editHistoryMap.get(commentId) : undefined}
+                                    mentionableUsers={mentionableUsers}
                                     onDelete={handleDeleteComment}
                                     onUpdate={handleUpdateComment}
                                 />
@@ -192,6 +195,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                     taskId={taskId}
                     currentUser={{ user_id: currentUser?.user_id, name: currentUser?.name, email: currentUser?.email, profile_picture_url: currentUser?.profile_picture_url }}
                     onSubmit={handleSubmitComment}
+                    mentionableUsers={mentionableUsers}
                 />
             )}
         </div>

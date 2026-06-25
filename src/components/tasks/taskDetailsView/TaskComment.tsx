@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
 import { X, Paperclip } from "lucide-react";
 import Button from "@/components/common/buttons/Button";
@@ -10,23 +10,37 @@ import { AllowedMimeType, ALLOWED_MIME_TYPE_VALUES, MAX_ATTACHMENTS, MAX_FILE_SI
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
 import UserCard from "@/components/common/UserCard";
+import type { MentionableUser } from "@/types/users";
+import MentionDropdown from "@/components/common/MentionDropdown";
 
 interface TaskCommentProps {
   taskId: string;
   currentUser: { user_id?: string; name?: string; email?: string; profile_picture_url?: string | null };
-  onSubmit: (message: string, uploadTokens: string[]) => Promise<void>;
+  onSubmit: (message: string, uploadTokens: string[], mentionUserIds?: string[]) => Promise<void>;
+  mentionableUsers?: MentionableUser[];
 }
 
 
-export default function TaskComment({ taskId, currentUser, onSubmit }: TaskCommentProps) {
+export default function TaskComment({ taskId, currentUser, onSubmit, mentionableUsers = [] }: TaskCommentProps) {
   const [comment, setComment] = useState("");
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
+  const [pendingMentions, setPendingMentions] = useState<{ name: string; userId: string }[]>([]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const attachmentsRef = useRef(attachments);
 
   const hasContent = comment.trim().length > 0 || attachments.length > 0;
+
+  const mentionCandidates = useMemo(() => {
+    if (mentionQuery === null || !mentionableUsers.length) return [];
+    const q = mentionQuery.toLowerCase();
+    return mentionableUsers.filter((u) => u.name.toLowerCase().split(/\s+/).some((word) => word.startsWith(q))).slice(0, 8);
+  }, [mentionQuery, mentionableUsers]);
 
   useEffect(() => {
     attachmentsRef.current = attachments;
@@ -37,6 +51,39 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
       attachmentsRef.current.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
     };
   }, []);
+
+  function handleCommentChange(value: string) {
+    setComment(value);
+    if (!mentionableUsers.length) return;
+    const lastAt = value.lastIndexOf("@");
+    if (lastAt === -1) { setMentionQuery(null); return; }
+    const afterAt = value.slice(lastAt + 1);
+    if (/\s/.test(afterAt)) { setMentionQuery(null); return; }
+    setMentionQuery(afterAt);
+    setSelectedMentionIndex(0);
+  }
+
+  function handleMentionSelect(user: MentionableUser) {
+    const cursorPos = textareaRef.current?.selectionStart ?? comment.length;
+    const before = comment.slice(0, cursorPos);
+    const lastAt = before.lastIndexOf("@");
+    const after = comment.slice(cursorPos);
+    const newText = comment.slice(0, lastAt) + `@${user.name} ` + after;
+    const newCursor = lastAt + user.name.length + 2;
+    setComment(newText);
+    setMentionQuery(null);
+    setPendingMentions((prev) => {
+      if (prev.some((m) => m.userId === user.user_id)) return prev;
+      return [...prev, { name: user.name, userId: user.user_id }];
+    });
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.selectionStart = newCursor;
+        textareaRef.current.selectionEnd = newCursor;
+        textareaRef.current.focus();
+      }
+    });
+  }
 
   function addFiles(files: File[]) {
     const valid = files.filter((f) => ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
@@ -123,8 +170,15 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
         tokens.push(...prepared.map((p) => p.upload_token));
       }
 
-      await onSubmit(comment.trim(), tokens);
+      const trimmed = comment.trim();
+      const mentionUserIds = pendingMentions
+        .filter((m) => trimmed.includes(`@${m.name}`))
+        .map((m) => m.userId);
+
+      await onSubmit(trimmed, tokens, mentionUserIds.length > 0 ? mentionUserIds : undefined);
       setComment("");
+      setPendingMentions([]);
+      setMentionQuery(null);
       setAttachments((prev) => {
         prev.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
         return [];
@@ -160,14 +214,27 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
             onDrop={handleDrop}
           >
             <textarea
+              ref={textareaRef}
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              onChange={(e) => handleCommentChange(e.target.value)}
               onPaste={handlePaste}
               placeholder="Skriv din kommentar her..."
               disabled={uploading}
               rows={4}
               className="w-full px-4 py-3 body-md resize-y focus:outline-none disabled:cursor-not-allowed bg-background"
               style={{ color: colors.textPrimary }}
+              onKeyDown={(e) => {
+                if (mentionCandidates.length > 0) {
+                  if (e.key === "ArrowDown") { e.preventDefault(); setSelectedMentionIndex((i) => Math.min(i + 1, mentionCandidates.length - 1)); return; }
+                  if (e.key === "ArrowUp") { e.preventDefault(); setSelectedMentionIndex((i) => Math.max(i - 1, 0)); return; }
+                  if (e.key === "Escape") { setMentionQuery(null); return; }
+                  if (e.key === "Enter" || e.key === "Tab") {
+                    const user = mentionCandidates[selectedMentionIndex];
+                    if (user) { e.preventDefault(); handleMentionSelect(user); return; }
+                  }
+                }
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSubmit();
+              }}
             />
 
             {/* Attachment previews inside box */}
@@ -202,6 +269,16 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
               </div>
             )}
           </div>
+
+          {/* Mention dropdown */}
+          {mentionCandidates.length > 0 && (
+            <MentionDropdown
+              anchor={textareaRef.current}
+              users={mentionCandidates}
+              selectedIndex={selectedMentionIndex}
+              onSelect={handleMentionSelect}
+            />
+          )}
 
           {/* Toolbar row */}
           <div className="mt-2 flex items-center justify-between">
