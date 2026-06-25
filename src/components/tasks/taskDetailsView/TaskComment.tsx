@@ -68,12 +68,10 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
   }
 
   function handleMentionSelect(user: MentionableUser) {
-    const cursorPos = textareaRef.current?.selectionStart ?? comment.length;
-    const before = comment.slice(0, cursorPos);
-    const lastAt = before.lastIndexOf("@");
-    const after = comment.slice(cursorPos);
-    const newText = comment.slice(0, lastAt) + `@${user.name} ` + after;
-    const newCursor = lastAt + user.name.length + 2;
+    const atIndex = mentionStart ?? 0;
+    const queryLen = mentionQuery?.length ?? 0;
+    const newText = comment.slice(0, atIndex) + `@${user.name} ` + comment.slice(atIndex + 1 + queryLen);
+    const newCursor = atIndex + user.name.length + 2;
     setComment(newText);
     setMentionQuery(null);
     setMentionStart(null);

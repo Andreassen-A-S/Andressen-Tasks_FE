@@ -69,12 +69,10 @@ export default function CommentEditForm({ initialText, existingAttachments, task
     }
 
     function handleMentionSelect(user: MentionableUser) {
-        const cursorPos = textareaRef.current?.selectionStart ?? editText.length;
-        const before = editText.slice(0, cursorPos);
-        const lastAt = before.lastIndexOf("@");
-        const after = editText.slice(cursorPos);
-        const newText = editText.slice(0, lastAt) + `@${user.name} ` + after;
-        const newCursor = lastAt + user.name.length + 2;
+        const atIndex = mentionStart ?? 0;
+        const queryLen = mentionQuery?.length ?? 0;
+        const newText = editText.slice(0, atIndex) + `@${user.name} ` + editText.slice(atIndex + 1 + queryLen);
+        const newCursor = atIndex + user.name.length + 2;
         setEditText(newText);
         setMentionQuery(null);
         setMentionStart(null);
