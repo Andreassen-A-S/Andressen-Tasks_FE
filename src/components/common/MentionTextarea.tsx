@@ -33,8 +33,6 @@ function buildHighlightHTML(text: string, pendingMentions: { name: string; userI
   return result + "​";
 }
 
-// Returns the [start, end) range of the mention that contains deletionPos, or null.
-// Mirrors the Swift atomicMentionDeleteRange logic.
 function findMentionAt(
   text: string,
   pendingMentions: { name: string; userId: string }[],
@@ -65,6 +63,9 @@ function findMentionAt(
 interface MentionTextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "ref"> {
   textareaRef: RefObject<HTMLTextAreaElement | null>;
   pendingMentions: { name: string; userId: string }[];
+  // Called whenever an atomic mention delete changes the value. Must be wired
+  // to the same handler as onChange so both paths update the same state.
+  onValueChange: (value: string) => void;
   sharedClassName?: string;
   textareaClassName?: string;
   containerClassName?: string;
@@ -74,6 +75,7 @@ interface MentionTextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTex
 export default function MentionTextarea({
   textareaRef,
   pendingMentions,
+  onValueChange,
   sharedClassName = "",
   textareaClassName = "",
   containerClassName = "",
@@ -99,18 +101,16 @@ export default function MentionTextarea({
         const deletionPos = isBackspace ? selectionStart - 1 : selectionStart;
         const ch = text[deletionPos];
 
-        // Let spaces and newlines delete normally, same as the Swift implementation.
         if (ch !== " " && ch !== "\n" && ch !== undefined) {
           const range = findMentionAt(text, pendingMentions, deletionPos);
           if (range) {
             e.preventDefault();
             const newText = text.slice(0, range.start) + text.slice(range.end);
-            const newCursor = range.start;
-            rest.onChange?.({ target: { value: newText } } as React.ChangeEvent<HTMLTextAreaElement>);
+            onValueChange(newText);
             requestAnimationFrame(() => {
               if (textareaRef.current) {
-                textareaRef.current.selectionStart = newCursor;
-                textareaRef.current.selectionEnd = newCursor;
+                textareaRef.current.selectionStart = range.start;
+                textareaRef.current.selectionEnd = range.start;
               }
             });
             return;

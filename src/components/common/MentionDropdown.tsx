@@ -33,13 +33,12 @@ function getCaretRect(el: HTMLTextAreaElement, index: number): DOMRect {
     });
 
     [
-        "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
-        "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
-        "fontFamily", "fontSize", "fontWeight", "fontStyle",
-        "lineHeight", "letterSpacing", "wordSpacing", "textTransform", "boxSizing",
+        "padding-top", "padding-right", "padding-bottom", "padding-left",
+        "border-top-width", "border-right-width", "border-bottom-width", "border-left-width",
+        "font-family", "font-size", "font-weight", "font-style",
+        "line-height", "letter-spacing", "word-spacing", "text-transform", "box-sizing",
     ].forEach(prop => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (mirror.style as any)[prop] = (computed as any)[prop];
+        mirror.style.setProperty(prop, computed.getPropertyValue(prop));
     });
 
     mirror.appendChild(document.createTextNode(el.value.substring(0, index)));

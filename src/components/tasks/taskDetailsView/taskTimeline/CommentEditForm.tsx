@@ -11,7 +11,8 @@ import { toast } from "sonner";
 import type { MentionableUser } from "@/types/users";
 import MentionDropdown from "@/components/common/MentionDropdown";
 import MentionTextarea from "@/components/common/MentionTextarea";
-import { buildTokenText, tokenToDisplayText, extractMentionUserIds, parseTokenMentions, prunePendingMentions } from "@/helpers/mentions";
+import { useMentionComposer } from "@/hooks/useMentionComposer";
+import { tokenToDisplayText, extractMentionUserIds } from "@/helpers/mentions";
 
 interface Props {
     initialText: string;
@@ -29,22 +30,15 @@ export default function CommentEditForm({ initialText, existingAttachments, task
     const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
     const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
     const [dragOver, setDragOver] = useState(false);
-    const [mentionQuery, setMentionQuery] = useState<string | null>(null);
-    const [mentionStart, setMentionStart] = useState<number | null>(null);
-    const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
-    const [pendingMentions, setPendingMentions] = useState<{ name: string; userId: string }[]>(() => parseTokenMentions(initialText));
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const pendingAttachmentsRef = useRef(pendingAttachments);
 
-    const visibleAttachments = existingAttachments.filter((a) => !removedIds.has(a.attachment_id));
+    const { pendingMentions, mentionStart, mentionCandidates, selectedMentionIndex, onTextChange, selectMention, mentionKeyDown, buildPayload } =
+        useMentionComposer({ mentionableUsers, textareaRef, initialTokenText: initialText });
 
-    const mentionCandidates = useMemo(() => {
-        if (mentionQuery === null || !mentionableUsers.length) return [];
-        const q = mentionQuery.toLowerCase();
-        return mentionableUsers.filter((u) => u.name.toLowerCase().split(/\s+/).some((word) => word.startsWith(q))).slice(0, 8);
-    }, [mentionQuery, mentionableUsers]);
+    const visibleAttachments = existingAttachments.filter((a) => !removedIds.has(a.attachment_id));
 
     useEffect(() => {
         pendingAttachmentsRef.current = pendingAttachments;
@@ -56,38 +50,9 @@ export default function CommentEditForm({ initialText, existingAttachments, task
         };
     }, []);
 
-    function handleTextChange(value: string) {
+    function handleChange(value: string) {
         setEditText(value);
-        if (!mentionableUsers.length) return;
-        const beforeCursor = value.slice(0, textareaRef.current?.selectionStart ?? value.length);
-        const lastAt = beforeCursor.lastIndexOf("@");
-        if (lastAt === -1) { setMentionQuery(null); setMentionStart(null); setPendingMentions(prev => prunePendingMentions(prev, value)); return; }
-        const afterAt = beforeCursor.slice(lastAt + 1);
-        if (/\s/.test(afterAt)) { setMentionQuery(null); setMentionStart(null); setPendingMentions(prev => prunePendingMentions(prev, value)); return; }
-        setMentionQuery(afterAt);
-        setMentionStart(lastAt);
-        setSelectedMentionIndex(0);
-    }
-
-    function handleMentionSelect(user: MentionableUser) {
-        const atIndex = mentionStart ?? 0;
-        const queryLen = mentionQuery?.length ?? 0;
-        const newText = editText.slice(0, atIndex) + `@${user.name} ` + editText.slice(atIndex + 1 + queryLen);
-        const newCursor = atIndex + user.name.length + 2;
-        setEditText(newText);
-        setMentionQuery(null);
-        setMentionStart(null);
-        setPendingMentions((prev) => {
-            if (prev.some((m) => m.userId === user.user_id)) return prev;
-            return [...prev, { name: user.name, userId: user.user_id }];
-        });
-        requestAnimationFrame(() => {
-            if (textareaRef.current) {
-                textareaRef.current.selectionStart = newCursor;
-                textareaRef.current.selectionEnd = newCursor;
-                textareaRef.current.focus();
-            }
-        });
+        onTextChange(value);
     }
 
     function addFiles(files: File[]) {
@@ -153,10 +118,9 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 await Promise.all(prepared.map((p, i) => uploadToGcs(p.upload_url, pendingAttachments[i].file)));
                 upload_tokens = prepared.map((p) => p.upload_token);
             }
-            const trimmed = editText.trim();
-            const tokenText = buildTokenText(trimmed, pendingMentions);
+            const { tokenText, mentionUserIds } = buildPayload(editText.trim());
             const oldMentionIds = new Set(extractMentionUserIds(initialText));
-            const newMentionIds = extractMentionUserIds(tokenText).filter(id => !oldMentionIds.has(id));
+            const newMentionIds = mentionUserIds.filter((id) => !oldMentionIds.has(id));
             await updateComment(commentId, {
                 message: tokenText !== initialText ? tokenText : undefined,
                 upload_tokens: upload_tokens.length > 0 ? upload_tokens : undefined,
@@ -187,19 +151,12 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                     sharedClassName="w-full body-sm px-3 py-2"
                     textareaClassName="rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     containerStyle={{ border: `1px solid ${dragOver ? colors.blue : colors.border}`, borderRadius: "0.375rem", minHeight: 80 }}
-                    onChange={(e) => handleTextChange(e.target.value)}
+                    onValueChange={handleChange}
+                    onChange={(e) => handleChange(e.target.value)}
                     onPaste={(e) => { const files = Array.from(e.clipboardData.files); if (files.length) addFiles(files); }}
                     autoFocus
                     onKeyDown={(e) => {
-                        if (mentionCandidates.length > 0) {
-                            if (e.key === "ArrowDown") { e.preventDefault(); setSelectedMentionIndex((i) => Math.min(i + 1, mentionCandidates.length - 1)); return; }
-                            if (e.key === "ArrowUp") { e.preventDefault(); setSelectedMentionIndex((i) => Math.max(i - 1, 0)); return; }
-                            if (e.key === "Escape") { setMentionQuery(null); setMentionStart(null); return; }
-                            if (e.key === "Enter" || e.key === "Tab") {
-                                const user = mentionCandidates[selectedMentionIndex];
-                                if (user) { e.preventDefault(); handleMentionSelect(user); return; }
-                            }
-                        }
+                        if (mentionKeyDown(e, editText, (newText) => { setEditText(newText); })) return;
                         if (e.key === "Escape") handleCancel();
                         if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSave();
                     }}
@@ -212,7 +169,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                         anchorIndex={mentionStart}
                         users={mentionCandidates}
                         selectedIndex={selectedMentionIndex}
-                        onSelect={handleMentionSelect}
+                        onSelect={(user) => setEditText(selectMention(user, editText))}
                     />
                 )}
 

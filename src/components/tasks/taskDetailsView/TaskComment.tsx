@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
 import { X, Paperclip } from "lucide-react";
 import Button from "@/components/common/buttons/Button";
@@ -13,7 +13,7 @@ import UserCard from "@/components/common/UserCard";
 import type { MentionableUser } from "@/types/users";
 import MentionDropdown from "@/components/common/MentionDropdown";
 import MentionTextarea from "@/components/common/MentionTextarea";
-import { buildTokenText, extractMentionUserIds, prunePendingMentions } from "@/helpers/mentions";
+import { useMentionComposer } from "@/hooks/useMentionComposer";
 
 interface TaskCommentProps {
   taskId: string;
@@ -28,22 +28,15 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
-  const [mentionStart, setMentionStart] = useState<number | null>(null);
-  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
-  const [pendingMentions, setPendingMentions] = useState<{ name: string; userId: string }[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const attachmentsRef = useRef(attachments);
 
-  const hasContent = comment.trim().length > 0 || attachments.length > 0;
+  const { pendingMentions, mentionStart, mentionCandidates, selectedMentionIndex, onTextChange, selectMention, mentionKeyDown, buildPayload, reset } =
+    useMentionComposer({ mentionableUsers, textareaRef });
 
-  const mentionCandidates = useMemo(() => {
-    if (mentionQuery === null || !mentionableUsers.length) return [];
-    const q = mentionQuery.toLowerCase();
-    return mentionableUsers.filter((u) => u.name.toLowerCase().split(/\s+/).some((word) => word.startsWith(q))).slice(0, 8);
-  }, [mentionQuery, mentionableUsers]);
+  const hasContent = comment.trim().length > 0 || attachments.length > 0;
 
   useEffect(() => {
     attachmentsRef.current = attachments;
@@ -55,38 +48,9 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
     };
   }, []);
 
-  function handleCommentChange(value: string) {
+  function handleChange(value: string) {
     setComment(value);
-    if (!mentionableUsers.length) return;
-    const beforeCursor = value.slice(0, textareaRef.current?.selectionStart ?? value.length);
-    const lastAt = beforeCursor.lastIndexOf("@");
-    if (lastAt === -1) { setMentionQuery(null); setMentionStart(null); setPendingMentions(prev => prunePendingMentions(prev, value)); return; }
-    const afterAt = beforeCursor.slice(lastAt + 1);
-    if (/\s/.test(afterAt)) { setMentionQuery(null); setMentionStart(null); setPendingMentions(prev => prunePendingMentions(prev, value)); return; }
-    setMentionQuery(afterAt);
-    setMentionStart(lastAt);
-    setSelectedMentionIndex(0);
-  }
-
-  function handleMentionSelect(user: MentionableUser) {
-    const atIndex = mentionStart ?? 0;
-    const queryLen = mentionQuery?.length ?? 0;
-    const newText = comment.slice(0, atIndex) + `@${user.name} ` + comment.slice(atIndex + 1 + queryLen);
-    const newCursor = atIndex + user.name.length + 2;
-    setComment(newText);
-    setMentionQuery(null);
-    setMentionStart(null);
-    setPendingMentions((prev) => {
-      if (prev.some((m) => m.userId === user.user_id)) return prev;
-      return [...prev, { name: user.name, userId: user.user_id }];
-    });
-    requestAnimationFrame(() => {
-      if (textareaRef.current) {
-        textareaRef.current.selectionStart = newCursor;
-        textareaRef.current.selectionEnd = newCursor;
-        textareaRef.current.focus();
-      }
-    });
+    onTextChange(value);
   }
 
   function addFiles(files: File[]) {
@@ -174,15 +138,10 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
         tokens.push(...prepared.map((p) => p.upload_token));
       }
 
-      const trimmed = comment.trim();
-      const tokenText = buildTokenText(trimmed, pendingMentions);
-      const mentionUserIds = extractMentionUserIds(tokenText);
-
+      const { tokenText, mentionUserIds } = buildPayload(comment.trim());
       await onSubmit(tokenText, tokens, mentionUserIds.length > 0 ? mentionUserIds : undefined);
       setComment("");
-      setPendingMentions([]);
-      setMentionQuery(null);
-      setMentionStart(null);
+      reset();
       setAttachments((prev) => {
         prev.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
         return [];
@@ -223,21 +182,14 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
               pendingMentions={pendingMentions}
               sharedClassName="w-full px-4 py-3 body-md"
               textareaClassName="resize-y focus:outline-none disabled:cursor-not-allowed"
-              onChange={(e) => handleCommentChange(e.target.value)}
+              onValueChange={handleChange}
+              onChange={(e) => handleChange(e.target.value)}
               onPaste={handlePaste}
               placeholder="Skriv din kommentar her..."
               disabled={uploading}
               rows={4}
               onKeyDown={(e) => {
-                if (mentionCandidates.length > 0) {
-                  if (e.key === "ArrowDown") { e.preventDefault(); setSelectedMentionIndex((i) => Math.min(i + 1, mentionCandidates.length - 1)); return; }
-                  if (e.key === "ArrowUp") { e.preventDefault(); setSelectedMentionIndex((i) => Math.max(i - 1, 0)); return; }
-                  if (e.key === "Escape") { setMentionQuery(null); setMentionStart(null); return; }
-                  if (e.key === "Enter" || e.key === "Tab") {
-                    const user = mentionCandidates[selectedMentionIndex];
-                    if (user) { e.preventDefault(); handleMentionSelect(user); return; }
-                  }
-                }
+                if (mentionKeyDown(e, comment, (newText) => { setComment(newText); })) return;
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSubmit();
               }}
             />
@@ -282,7 +234,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
               anchorIndex={mentionStart}
               users={mentionCandidates}
               selectedIndex={selectedMentionIndex}
-              onSelect={handleMentionSelect}
+              onSelect={(user) => setComment(selectMention(user, comment))}
             />
           )}
 
