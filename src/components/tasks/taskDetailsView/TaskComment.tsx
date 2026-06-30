@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import UserCard from "@/components/common/UserCard";
 import type { MentionableUser } from "@/types/users";
 import MentionDropdown from "@/components/common/MentionDropdown";
+import MentionTextarea from "@/components/common/MentionTextarea";
 import { buildTokenText, extractMentionUserIds, prunePendingMentions } from "@/helpers/mentions";
 
 interface TaskCommentProps {
@@ -216,16 +217,17 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
           >
-            <textarea
-              ref={textareaRef}
+            <MentionTextarea
+              textareaRef={textareaRef}
               value={comment}
+              pendingMentions={pendingMentions}
+              sharedClassName="w-full px-4 py-3 body-md"
+              textareaClassName="resize-y focus:outline-none disabled:cursor-not-allowed"
               onChange={(e) => handleCommentChange(e.target.value)}
               onPaste={handlePaste}
               placeholder="Skriv din kommentar her..."
               disabled={uploading}
               rows={4}
-              className="w-full px-4 py-3 body-md resize-y focus:outline-none disabled:cursor-not-allowed bg-background"
-              style={{ color: colors.textPrimary }}
               onKeyDown={(e) => {
                 if (mentionCandidates.length > 0) {
                   if (e.key === "ArrowDown") { e.preventDefault(); setSelectedMentionIndex((i) => Math.min(i + 1, mentionCandidates.length - 1)); return; }

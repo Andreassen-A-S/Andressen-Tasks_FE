@@ -10,6 +10,7 @@ import Button from "@/components/common/buttons/Button";
 import { toast } from "sonner";
 import type { MentionableUser } from "@/types/users";
 import MentionDropdown from "@/components/common/MentionDropdown";
+import MentionTextarea from "@/components/common/MentionTextarea";
 import { buildTokenText, tokenToDisplayText, extractMentionUserIds, parseTokenMentions, prunePendingMentions } from "@/helpers/mentions";
 
 interface Props {
@@ -179,11 +180,13 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); addFiles(Array.from(e.dataTransfer.files)); }}
             >
-                <textarea
-                    ref={textareaRef}
-                    className="w-full body-sm rounded-md px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
-                    style={{ border: `1px solid ${dragOver ? colors.blue : colors.border}`, color: colors.textPrimary, minHeight: 80 }}
+                <MentionTextarea
+                    textareaRef={textareaRef}
                     value={editText}
+                    pendingMentions={pendingMentions}
+                    sharedClassName="w-full body-sm px-3 py-2"
+                    textareaClassName="rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
+                    containerStyle={{ border: `1px solid ${dragOver ? colors.blue : colors.border}`, borderRadius: "0.375rem", minHeight: 80 }}
                     onChange={(e) => handleTextChange(e.target.value)}
                     onPaste={(e) => { const files = Array.from(e.clipboardData.files); if (files.length) addFiles(files); }}
                     autoFocus

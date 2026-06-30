@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createComment, deleteComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
@@ -70,6 +70,20 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
             throw new Error("Kunne ikke tilføje kommentar. Prøv igen.");
         }
     }
+
+    const allMentionableUsers = useMemo<MentionableUser[]>(() => {
+        const map = new Map<string, MentionableUser>();
+        for (const u of mentionableUsers) {
+            if (u.user_id !== currentUser?.user_id) map.set(u.user_id, u);
+        }
+        for (const e of events) {
+            const actor = e.actor;
+            if (!actor || map.has(actor.user_id) || actor.user_id === currentUser?.user_id) continue;
+            const name = actor.name || actor.email;
+            if (name) map.set(actor.user_id, { user_id: actor.user_id, name, profile_picture_url: actor.profile_picture_url });
+        }
+        return [...map.values()];
+    }, [events, mentionableUsers, currentUser?.user_id]);
 
     // comment_id FK is set to null (onDelete: SetNull) when a comment is deleted.
     // before_json/after_json are unaffected, so we resolve identity from those.
@@ -148,7 +162,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                                     isAssignee={assigneeIds.includes(e.actor_id ?? "")}
                                     isArchived={isArchived}
                                     editHistory={commentId ? editHistoryMap.get(commentId) : undefined}
-                                    mentionableUsers={mentionableUsers}
+                                    mentionableUsers={allMentionableUsers}
                                     onDelete={handleDeleteComment}
                                     onUpdate={handleUpdateComment}
                                 />
@@ -195,7 +209,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                     taskId={taskId}
                     currentUser={{ user_id: currentUser?.user_id, name: currentUser?.name, email: currentUser?.email, profile_picture_url: currentUser?.profile_picture_url }}
                     onSubmit={handleSubmitComment}
-                    mentionableUsers={mentionableUsers}
+                    mentionableUsers={allMentionableUsers}
                 />
             )}
         </div>
