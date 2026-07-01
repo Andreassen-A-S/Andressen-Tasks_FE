@@ -39,10 +39,8 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
                 {/* Line 1: name */}
                 <Link
                     href={`/tasks?project=${project.project_id}`}
-                    className="label-lg mb-1"
+                    className="block label-lg mb-1 hover:underline"
                     style={{ color: colors.textPrimary }}
-                    onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-                    onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
                 >
                     {project.name}</Link>
 
