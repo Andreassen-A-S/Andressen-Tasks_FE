@@ -85,9 +85,6 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
     const rawMessage = isDeleted
         ? "(Kommentar slettet)"
         : event.comment?.message ?? event.message ?? "";
-    // Convert token format @[name](id) → @name for display
-    const message = isDeleted ? rawMessage : tokenToDisplayText(rawMessage);
-
     const attachments = event.comment?.attachments ?? [];
     const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC);
 
@@ -221,7 +218,7 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                                 )}
                                 {attachments.length > 0 && (
                                     <>
-                                        {message && <hr style={{ borderColor: colors.border }} className="mt-3" />}
+                                        {rawMessage && <hr style={{ borderColor: colors.border }} className="mt-3" />}
                                         <AttachmentSection attachments={attachments} />
                                     </>
                                 )}
