@@ -9,10 +9,10 @@ import { colors } from "@/constants/colors";
 import Button from "@/components/common/buttons/Button";
 import { toast } from "sonner";
 import type { MentionableUser } from "@/types/users";
-import MentionDropdown from "@/components/common/MentionDropdown";
-import MentionTextarea from "@/components/common/MentionTextarea";
-import { useMentionComposer } from "@/hooks/useMentionComposer";
-import { tokenToDisplayText, extractMentionUserIds } from "@/helpers/mentions";
+import MentionEditor, { type MentionEditorHandle } from "@/components/common/MentionEditor";
+import { tiptapToTokenText, extractMentionUserIdsFromJson, tokenTextToTiptap } from "@/lib/tiptapMentions";
+import { extractMentionUserIds } from "@/helpers/mentions";
+import type { JSONContent } from "@tiptap/core";
 
 interface Props {
     initialText: string;
@@ -25,18 +25,18 @@ interface Props {
 }
 
 export default function CommentEditForm({ initialText, existingAttachments, taskId, commentId, mentionableUsers = [], onSave, onCancel }: Props) {
-    const [editText, setEditText] = useState(() => tokenToDisplayText(initialText));
+    const [editorState, setEditorState] = useState<{ isEmpty: boolean; json: JSONContent }>(() => ({
+        isEmpty: !initialText.trim(),
+        json: tokenTextToTiptap(initialText),
+    }));
     const [saving, setSaving] = useState(false);
     const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
     const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
     const [dragOver, setDragOver] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const editorRef = useRef<MentionEditorHandle>(null);
     const pendingAttachmentsRef = useRef(pendingAttachments);
-
-    const { pendingMentions, mentionStart, mentionCandidates, selectedMentionIndex, onTextChange, selectMention, mentionKeyDown, buildPayload } =
-        useMentionComposer({ mentionableUsers, textareaRef, initialTokenText: initialText });
 
     const visibleAttachments = existingAttachments.filter((a) => !removedIds.has(a.attachment_id));
 
@@ -49,11 +49,6 @@ export default function CommentEditForm({ initialText, existingAttachments, task
             pendingAttachmentsRef.current.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
         };
     }, []);
-
-    function handleChange(value: string) {
-        setEditText(value);
-        onTextChange(value);
-    }
 
     function addFiles(files: File[]) {
         const valid = files.filter((f) => ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
@@ -101,8 +96,10 @@ export default function CommentEditForm({ initialText, existingAttachments, task
         setRemovedIds((prev) => new Set([...prev, id]));
     }
 
-    const initialDisplayText = useMemo(() => tokenToDisplayText(initialText), [initialText]);
-    const hasChanges = editText.trim() !== initialDisplayText || pendingAttachments.length > 0 || removedIds.size > 0;
+    const hasChanges = useMemo(() => {
+        const tokenText = tiptapToTokenText(editorState.json);
+        return tokenText.trim() !== initialText.trim() || pendingAttachments.length > 0 || removedIds.size > 0;
+    }, [editorState.json, initialText, pendingAttachments.length, removedIds.size]);
 
     async function handleSave() {
         if (!hasChanges) return;
@@ -118,9 +115,9 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 await Promise.all(prepared.map((p, i) => uploadToGcs(p.upload_url, pendingAttachments[i].file)));
                 upload_tokens = prepared.map((p) => p.upload_token);
             }
-            const { tokenText, mentionUserIds } = buildPayload(editText.trim());
+            const tokenText = tiptapToTokenText(editorState.json);
             const oldMentionIds = new Set(extractMentionUserIds(initialText));
-            const newMentionIds = mentionUserIds.filter((id) => !oldMentionIds.has(id));
+            const newMentionIds = extractMentionUserIdsFromJson(editorState.json).filter((id) => !oldMentionIds.has(id));
             await updateComment(commentId, {
                 message: tokenText !== initialText ? tokenText : undefined,
                 upload_tokens: upload_tokens.length > 0 ? upload_tokens : undefined,
@@ -143,35 +140,17 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); addFiles(Array.from(e.dataTransfer.files)); }}
+                onPaste={(e) => { const files = Array.from(e.clipboardData.files); if (files.length) addFiles(files); }}
             >
-                <MentionTextarea
-                    textareaRef={textareaRef}
-                    value={editText}
-                    pendingMentions={pendingMentions}
-                    sharedClassName="w-full body-sm px-3 py-2"
-                    textareaClassName="rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
-                    containerStyle={{ border: `1px solid ${dragOver ? colors.blue : colors.border}`, borderRadius: "0.375rem", minHeight: 80 }}
-                    onValueChange={handleChange}
-                    onChange={(e) => handleChange(e.target.value)}
-                    onPaste={(e) => { const files = Array.from(e.clipboardData.files); if (files.length) addFiles(files); }}
-                    autoFocus
-                    onKeyDown={(e) => {
-                        if (mentionKeyDown(e, editText, (newText) => { setEditText(newText); })) return;
-                        if (e.key === "Escape") handleCancel();
-                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSave();
-                    }}
+                <MentionEditor
+                    ref={editorRef}
+                    initialTokenText={initialText}
+                    mentionableUsers={mentionableUsers}
+                    onUpdate={setEditorState}
+                    onSubmit={handleSave}
+                    className="w-full body-sm px-3 py-2 rounded-md"
+                    style={{ border: `1px solid ${dragOver ? colors.blue : colors.border}`, minHeight: 80 }}
                 />
-
-                {/* Mention dropdown */}
-                {mentionCandidates.length > 0 && (
-                    <MentionDropdown
-                        anchor={textareaRef.current}
-                        anchorIndex={mentionStart}
-                        users={mentionCandidates}
-                        selectedIndex={selectedMentionIndex}
-                        onSelect={(user) => setEditText(selectMention(user, editText))}
-                    />
-                )}
 
                 {visibleAttachments.length > 0 && (
                     <div className="flex flex-wrap gap-1">

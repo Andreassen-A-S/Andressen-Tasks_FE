@@ -467,3 +467,16 @@ body[data-scroll-locked="true"] {
 .accent-green  { color: var(--accent); }
 .bg-egg-white  { background-color: var(--surface-page); }
 .dark-charcoal { color: var(--text-primary); }
+
+/* ─── TIPTAP MENTION EDITOR ─────────────────────────────────── */
+
+.ProseMirror { outline: none; }
+.ProseMirror p { margin: 0; }
+.ProseMirror p.is-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+.mention { color: var(--accent); }

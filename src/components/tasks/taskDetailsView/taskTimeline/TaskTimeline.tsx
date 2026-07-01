@@ -4,9 +4,9 @@ import { useContext, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createComment, deleteComment } from "@/lib/api";
 import type { TaskEvent } from "@/types/taskEvent";
-import type { MentionableUser } from "@/types/users";
 import { AuthContext } from "@/contexts/AuthContext";
 import { isAdminRole } from "@/types/users";
+import type { MentionableUser } from "@/types/users";
 import { toast } from "sonner";
 import { colors } from "@/constants/colors";
 import SingleAvatar from "../../../common/label/SingleAvatar";
@@ -39,6 +39,20 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
         queryFn: () => fetchTaskEvents(taskId),
     });
 
+    const allMentionableUsers = useMemo<MentionableUser[]>(() => {
+        const map = new Map<string, MentionableUser>();
+        for (const u of mentionableUsers) {
+            if (u.user_id !== currentUser?.user_id) map.set(u.user_id, u);
+        }
+        for (const e of events) {
+            const actor = e.actor;
+            if (!actor || map.has(actor.user_id) || actor.user_id === currentUser?.user_id) continue;
+            const name = actor.name || actor.email;
+            if (name) map.set(actor.user_id, { user_id: actor.user_id, name, profile_picture_url: actor.profile_picture_url });
+        }
+        return [...map.values()];
+    }, [events, mentionableUsers, currentUser?.user_id]);
+
     async function refresh() {
         await queryClient.invalidateQueries({ queryKey: taskQueryKeys.events(taskId) });
     }
@@ -63,27 +77,13 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
             await createComment(taskId, {
                 message: message || undefined,
                 upload_tokens: uploadTokens.length ? uploadTokens : undefined,
-                mention_user_ids: mentionUserIds?.length ? mentionUserIds : undefined,
+                mention_user_ids: mentionUserIds && mentionUserIds.length > 0 ? mentionUserIds : undefined,
             });
             await refresh();
         } catch {
             throw new Error("Kunne ikke tilføje kommentar. Prøv igen.");
         }
     }
-
-    const allMentionableUsers = useMemo<MentionableUser[]>(() => {
-        const map = new Map<string, MentionableUser>();
-        for (const u of mentionableUsers) {
-            if (u.user_id !== currentUser?.user_id) map.set(u.user_id, u);
-        }
-        for (const e of events) {
-            const actor = e.actor;
-            if (!actor || map.has(actor.user_id) || actor.user_id === currentUser?.user_id) continue;
-            const name = actor.name || actor.email;
-            if (name) map.set(actor.user_id, { user_id: actor.user_id, name, profile_picture_url: actor.profile_picture_url });
-        }
-        return [...map.values()];
-    }, [events, mentionableUsers, currentUser?.user_id]);
 
     // comment_id FK is set to null (onDelete: SetNull) when a comment is deleted.
     // before_json/after_json are unaffected, so we resolve identity from those.
@@ -209,7 +209,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                     taskId={taskId}
                     currentUser={{ user_id: currentUser?.user_id, name: currentUser?.name, email: currentUser?.email, profile_picture_url: currentUser?.profile_picture_url }}
                     onSubmit={handleSubmitComment}
-                    mentionableUsers={allMentionableUsers}
+                    mentionableUsers={mentionableUsers}
                 />
             )}
         </div>

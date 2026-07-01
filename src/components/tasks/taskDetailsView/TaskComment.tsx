@@ -11,9 +11,9 @@ import { colors } from "@/constants/colors";
 import { toast } from "sonner";
 import UserCard from "@/components/common/UserCard";
 import type { MentionableUser } from "@/types/users";
-import MentionDropdown from "@/components/common/MentionDropdown";
-import MentionTextarea from "@/components/common/MentionTextarea";
-import { useMentionComposer } from "@/hooks/useMentionComposer";
+import MentionEditor, { type MentionEditorHandle } from "@/components/common/MentionEditor";
+import { tiptapToTokenText, extractMentionUserIdsFromJson, emptyDoc } from "@/lib/tiptapMentions";
+import type { JSONContent } from "@tiptap/core";
 
 interface TaskCommentProps {
   taskId: string;
@@ -24,19 +24,16 @@ interface TaskCommentProps {
 
 
 export default function TaskComment({ taskId, currentUser, onSubmit, mentionableUsers = [] }: TaskCommentProps) {
-  const [comment, setComment] = useState("");
+  const [editorState, setEditorState] = useState<{ isEmpty: boolean; json: JSONContent }>({ isEmpty: true, json: emptyDoc });
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<MentionEditorHandle>(null);
   const attachmentsRef = useRef(attachments);
 
-  const { pendingMentions, mentionStart, mentionCandidates, selectedMentionIndex, onTextChange, selectMention, mentionKeyDown, buildPayload, reset } =
-    useMentionComposer({ mentionableUsers, textareaRef });
-
-  const hasContent = comment.trim().length > 0 || attachments.length > 0;
+  const hasContent = !editorState.isEmpty || attachments.length > 0;
 
   useEffect(() => {
     attachmentsRef.current = attachments;
@@ -47,11 +44,6 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
       attachmentsRef.current.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
     };
   }, []);
-
-  function handleChange(value: string) {
-    setComment(value);
-    onTextChange(value);
-  }
 
   function addFiles(files: File[]) {
     const valid = files.filter((f) => ALLOWED_MIME_TYPE_VALUES.has(f.type as AllowedMimeType));
@@ -138,10 +130,10 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
         tokens.push(...prepared.map((p) => p.upload_token));
       }
 
-      const { tokenText, mentionUserIds } = buildPayload(comment.trim());
+      const tokenText = tiptapToTokenText(editorState.json);
+      const mentionUserIds = extractMentionUserIdsFromJson(editorState.json);
       await onSubmit(tokenText, tokens, mentionUserIds.length > 0 ? mentionUserIds : undefined);
-      setComment("");
-      reset();
+      editorRef.current?.clear();
       setAttachments((prev) => {
         prev.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
         return [];
@@ -166,32 +158,25 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
             <h3 className="h4">Tilføj en kommentar</h3>
           </div>
 
-          {/* Textarea box */}
+          {/* Editor box */}
           <div
-            className="rounded-lg overflow-hidden transition-colors bg-background"
+            className="rounded-lg overflow-hidden transition-colors"
             style={{
               border: `1px solid ${dragOver ? colors.blue : colors.border}`,
             }}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
+            onPaste={handlePaste}
           >
-            <MentionTextarea
-              textareaRef={textareaRef}
-              value={comment}
-              pendingMentions={pendingMentions}
-              sharedClassName="w-full px-4 py-3 body-md"
-              textareaClassName="resize-y focus:outline-none disabled:cursor-not-allowed"
-              onValueChange={handleChange}
-              onChange={(e) => handleChange(e.target.value)}
-              onPaste={handlePaste}
+            <MentionEditor
+              ref={editorRef}
+              mentionableUsers={mentionableUsers}
               placeholder="Skriv din kommentar her..."
               disabled={uploading}
-              rows={4}
-              onKeyDown={(e) => {
-                if (mentionKeyDown(e, comment, (newText) => { setComment(newText); })) return;
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSubmit();
-              }}
+              onUpdate={setEditorState}
+              onSubmit={handleSubmit}
+              className="w-full px-4 py-3 body-md min-h-[96px]"
             />
 
             {/* Attachment previews inside box */}
@@ -226,17 +211,6 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
               </div>
             )}
           </div>
-
-          {/* Mention dropdown */}
-          {mentionCandidates.length > 0 && (
-            <MentionDropdown
-              anchor={textareaRef.current}
-              anchorIndex={mentionStart}
-              users={mentionCandidates}
-              selectedIndex={selectedMentionIndex}
-              onSelect={(user) => setComment(selectMention(user, comment))}
-            />
-          )}
 
           {/* Toolbar row */}
           <div className="mt-2 flex items-center justify-between">

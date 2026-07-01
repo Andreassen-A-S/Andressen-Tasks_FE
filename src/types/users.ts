@@ -55,12 +55,6 @@ export interface UpdateUserInput {
   profile_picture_url?: string | null;
 }
 
-export interface MentionableUser {
-  user_id: string;
-  name: string;
-  profile_picture_url?: string | null;
-}
-
 export interface CreateUserInput {
   name: string;
   email: string;
@@ -68,4 +62,10 @@ export interface CreateUserInput {
   role: UserRole;
   password: string;
   organization_id?: string;
+}
+
+export interface MentionableUser {
+  user_id: string;
+  name: string;
+  profile_picture_url?: string | null;
 }

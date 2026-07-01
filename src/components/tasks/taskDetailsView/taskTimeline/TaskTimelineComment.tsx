@@ -82,9 +82,11 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
     const [isDownloading, setIsDownloading] = useState(false);
 
     const isDeleted = !!deletedEvent;
-    const message = isDeleted
+    const rawMessage = isDeleted
         ? "(Kommentar slettet)"
         : event.comment?.message ?? event.message ?? "";
+    // Convert token format @[name](id) → @name for display
+    const message = isDeleted ? rawMessage : tokenToDisplayText(rawMessage);
 
     const attachments = event.comment?.attachments ?? [];
     const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC);
@@ -199,7 +201,7 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                     <div className="px-4 py-4">
                         {editing && commentId ? (
                             <CommentEditForm
-                                initialText={message}
+                                initialText={rawMessage}
                                 existingAttachments={attachments}
                                 taskId={event.task_id}
                                 commentId={commentId}
@@ -209,10 +211,10 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                             />
                         ) : (
                             <>
-                                {message && (
+                                {rawMessage && (
                                     <LinkedText
                                         as="p"
-                                        text={message}
+                                        text={rawMessage}
                                         className="body-sm leading-relaxed whitespace-pre-wrap"
                                         style={isDeleted ? { color: colors.textMuted, fontStyle: "italic" } : undefined}
                                     />
