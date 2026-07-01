@@ -98,7 +98,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
 
   function handlePaste(e: React.ClipboardEvent) {
     const files = Array.from(e.clipboardData.files);
-    if (files.length) addFiles(files);
+    if (files.length) { e.preventDefault(); addFiles(files); }
   }
 
   function removeAttachment(id: string) {

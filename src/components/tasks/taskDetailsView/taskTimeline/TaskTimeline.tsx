@@ -209,7 +209,7 @@ export default function TaskTimeline({ taskId, creatorId, assigneeIds = [], isAr
                     taskId={taskId}
                     currentUser={{ user_id: currentUser?.user_id, name: currentUser?.name, email: currentUser?.email, profile_picture_url: currentUser?.profile_picture_url }}
                     onSubmit={handleSubmitComment}
-                    mentionableUsers={mentionableUsers}
+                    mentionableUsers={allMentionableUsers}
                 />
             )}
         </div>

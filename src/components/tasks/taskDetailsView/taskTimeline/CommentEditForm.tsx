@@ -140,7 +140,7 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); addFiles(Array.from(e.dataTransfer.files)); }}
-                onPaste={(e) => { const files = Array.from(e.clipboardData.files); if (files.length) addFiles(files); }}
+                onPaste={(e) => { const files = Array.from(e.clipboardData.files); if (files.length) { e.preventDefault(); addFiles(files); } }}
             >
                 <MentionEditor
                     ref={editorRef}
