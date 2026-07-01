@@ -55,7 +55,7 @@ export default function DataBarChart({
     const tickStyle = {
         fill: colors.textMuted,
         fontSize: 11,
-        fontFamily: "IBM Plex Mono, monospace",
+        fontFamily: "var(--font-ibm-plex-mono), monospace",
     };
     const rowDividerStyle = { "--chart-divider": colors.border } as CSSProperties;
 
