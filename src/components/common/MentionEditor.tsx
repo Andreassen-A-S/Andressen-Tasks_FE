@@ -79,10 +79,12 @@ function MentionSuggestionDropdown({
 
   if (suggestion.items.length === 0) return null;
 
+  const { setFloating } = refs;
+
   return (
     <FloatingPortal>
       <div
-        ref={refs.setFloating}
+        ref={setFloating}
         style={{
           ...floatingStyles,
           visibility: isPositioned ? "visible" : "hidden",
@@ -92,14 +94,19 @@ function MentionSuggestionDropdown({
           minWidth: 200,
           maxWidth: 320,
         }}
+        role="listbox"
+        aria-label="Mention suggestions"
         className={`z-[9999] rounded-lg py-1.5 overflow-y-auto max-h-60${isPositioned ? " animate-in fade-in zoom-in-95 ease-out" : ""}`}
         onMouseDown={(e) => e.preventDefault()}
       >
         {suggestion.items.map((user, i) => (
           <div key={user.user_id} className="px-1.5">
             <button
+              id={`mention-option-${i}`}
               ref={i === suggestion.selectedIndex ? selectedItemRef : undefined}
               type="button"
+              role="option"
+              aria-selected={i === suggestion.selectedIndex}
               data-active={i === suggestion.selectedIndex || undefined}
               onMouseDown={(e) => {
                 e.preventDefault();

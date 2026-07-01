@@ -1,4 +1,4 @@
-const TOKEN_SRC = String.raw`@\[([^\]]+)\]\(([^)]+)\)`;
+import { TOKEN_SRC } from "@/lib/tiptapMentions";
 
 export function tokenToDisplayText(tokenText: string): string {
     return tokenText.replace(new RegExp(TOKEN_SRC, 'g'), '@$1');

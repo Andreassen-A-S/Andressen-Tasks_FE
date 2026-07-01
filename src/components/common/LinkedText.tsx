@@ -3,6 +3,7 @@
 import LinkifyIt from "linkify-it";
 import type { CSSProperties, ReactNode } from "react";
 import UserCard from "@/components/common/UserCard";
+import { TOKEN_SRC } from "@/lib/tiptapMentions";
 
 const linkify = new LinkifyIt({
   fuzzyEmail: false,
@@ -10,7 +11,6 @@ const linkify = new LinkifyIt({
   fuzzyLink: false,
 });
 
-const TOKEN_SRC = String.raw`@\[([^\]]+)\]\(([^)]+)\)`;
 
 type LinkedTextProps = {
   text: string;

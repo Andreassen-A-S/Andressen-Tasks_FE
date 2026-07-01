@@ -115,11 +115,11 @@ export default function CommentEditForm({ initialText, existingAttachments, task
                 await Promise.all(prepared.map((p, i) => uploadToGcs(p.upload_url, pendingAttachments[i].file)));
                 upload_tokens = prepared.map((p) => p.upload_token);
             }
-            const tokenText = tiptapToTokenText(editorState.json);
+            const tokenText = tiptapToTokenText(editorState.json).trim();
             const oldMentionIds = new Set(extractMentionUserIds(initialText));
             const newMentionIds = extractMentionUserIdsFromJson(editorState.json).filter((id) => !oldMentionIds.has(id));
             await updateComment(commentId, {
-                message: tokenText !== initialText ? tokenText : undefined,
+                message: tokenText !== initialText.trim() ? tokenText : undefined,
                 upload_tokens: upload_tokens.length > 0 ? upload_tokens : undefined,
                 remove_attachment_ids: removedIds.size > 0 ? [...removedIds] : undefined,
                 mention_user_ids: newMentionIds.length > 0 ? newMentionIds : undefined,

@@ -33,7 +33,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
   const editorRef = useRef<MentionEditorHandle>(null);
   const attachmentsRef = useRef(attachments);
 
-  const hasContent = !editorState.isEmpty || attachments.length > 0;
+  const hasContent = tiptapToTokenText(editorState.json).trim().length > 0 || attachments.length > 0;
 
   useEffect(() => {
     attachmentsRef.current = attachments;
@@ -130,7 +130,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
         tokens.push(...prepared.map((p) => p.upload_token));
       }
 
-      const tokenText = tiptapToTokenText(editorState.json);
+      const tokenText = tiptapToTokenText(editorState.json).trim();
       const mentionUserIds = extractMentionUserIdsFromJson(editorState.json);
       await onSubmit(tokenText, tokens, mentionUserIds.length > 0 ? mentionUserIds : undefined);
       editorRef.current?.clear();

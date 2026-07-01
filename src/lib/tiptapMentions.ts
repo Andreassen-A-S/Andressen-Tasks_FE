@@ -1,6 +1,11 @@
 import type { JSONContent } from "@tiptap/core";
 
-const TOKEN_RE = /@\[([^\]]+)\]\(([^)]+)\)/g;
+// Token format: @[name](userId)
+// Invariant: name must not contain ']', userId must not contain ')'.
+// Both are safe for UUIDs; user display names are validated server-side.
+export const TOKEN_SRC = String.raw`@\[([^\]]+)\]\(([^)]+)\)`;
+
+const TOKEN_RE = new RegExp(TOKEN_SRC, "g");
 
 /**
  * Parses `@[name](id)` token text into Tiptap doc JSON.
