@@ -37,7 +37,13 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
             {/* Main content */}
             <td className="py-3.5 px-4 w-full">
                 {/* Line 1: name */}
-                <p className="label-lg mb-1" style={{ color: colors.textPrimary }}>{project.name}</p>
+                <Link
+                    href={`/tasks?project=${project.project_id}`}
+                    className="block label-lg mb-1 hover:underline"
+                    style={{ color: colors.textPrimary }}
+                >
+                    {project.name}
+                </Link>
 
                 {/* Line 2: description */}
                 {project.description && (
