@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, startTransition } from "react";
 import type { SortDirection, TaskSortField } from "@/components/tasks/TaskFilterRow";
 import { TaskStatus } from "@/types/task";
 
@@ -50,11 +50,13 @@ export function useTaskParams() {
         }
         const qs = params.toString();
         const url = qs ? `/tasks?${qs}` : "/tasks";
-        if (mode === "push") {
-            router.push(url, { scroll: false });
-        } else {
-            router.replace(url, { scroll: false });
-        }
+        startTransition(() => {
+            if (mode === "push") {
+                router.push(url, { scroll: false });
+            } else {
+                router.replace(url, { scroll: false });
+            }
+        });
     }, [router, searchParams]);
 
     const setTaskId = useCallback(
