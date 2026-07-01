@@ -553,7 +553,7 @@ export default function TaskDetails({ taskId, onClose, onDelete, fullPage = fals
                                 isAuthor={currentUser?.user_id === task.created_by}
                                 onSaveDescription={handleDescriptionSave}
                             />
-                            <TaskTimeline taskId={task.task_id} creatorId={task.created_by} assigneeIds={assignments.map((a) => a.user_id)} isArchived={isArchived} />
+                            <TaskTimeline taskId={task.task_id} creatorId={task.created_by} assigneeIds={assignments.map((a) => a.user_id)} isArchived={isArchived} mentionableUsers={assignments.map((a) => ({ user_id: a.user.user_id, name: a.user.name ?? a.user.email, profile_picture_url: a.user.profile_picture_url }))} />
                             <div className="h-12" />
                         </div>
 

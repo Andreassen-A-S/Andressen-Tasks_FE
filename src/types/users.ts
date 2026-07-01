@@ -63,3 +63,9 @@ export interface CreateUserInput {
   password: string;
   organization_id?: string;
 }
+
+export interface MentionableUser {
+  user_id: string;
+  name: string;
+  profile_picture_url?: string | null;
+}

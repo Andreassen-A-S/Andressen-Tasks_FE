@@ -77,8 +77,8 @@ export default function UserCard({ userId, name, actor, children }: UserCardProp
                         ref={setFloating}
                         style={{
                             ...floatingStyles,
-                            backgroundColor: "var(--sidebar-bg)",
-                            color: "var(--sidebar-text)",
+                            backgroundColor: "var(--surface)",
+                            color: "var(--text-primary)",
                             border: "1px solid var(--border)",
                         }}
                         {...getFloatingProps()}
@@ -92,7 +92,7 @@ export default function UserCard({ userId, name, actor, children }: UserCardProp
                         <div className="mt-2">
                             <span className="label-lg">{displayName}</span>
                             {!isSuperAdmin && user?.email && (
-                                <span className="body-xs ml-2" style={{ color: "var(--sidebar-text-muted)" }}>{user.email}</span>
+                                <span className="body-xs ml-2" style={{ color: "var(--text-muted)" }}>{user.email}</span>
                             )}
                         </div>
 
@@ -112,12 +112,12 @@ export default function UserCard({ userId, name, actor, children }: UserCardProp
 
                         {/* Line 4: Org (only for regular org users) */}
                         {!isSuperAdmin && user?.organization?.name && (
-                            <div className="mt-1 flex items-center gap-1.5 body-xs" style={{ color: "var(--sidebar-text-muted)" }}>
+                            <div className="mt-1 flex items-center gap-1.5 body-xs" style={{ color: "var(--text-muted)" }}>
                                 <Building2 className="w-3.5 h-3.5 flex-shrink-0" />
                                 <span>Medlem af{" "}
                                     <Link
                                         href={`/organizations/${user.organization_id}`}
-                                        className="underline transition-colors text-[var(--sidebar-text)] hover:text-[var(--link-hover)]"
+                                        className="underline transition-colors text-[var(--text-primary)] hover:text-[var(--link-hover)]"
                                     >
                                         {user.organization.name}
                                     </Link>

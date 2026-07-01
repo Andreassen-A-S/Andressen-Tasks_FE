@@ -17,6 +17,8 @@ import FileAttachmentCard from "../FileAttachmentCard";
 import CommentEditForm from "./CommentEditForm";
 import LinkedText from "@/components/common/LinkedText";
 import EditHistoryPopover from "@/components/common/EditHistoryPopover";
+import type { MentionableUser } from "@/types/users";
+import { tokenToDisplayText } from "@/helpers/mentions";
 
 type Props = {
     event: TaskEvent;
@@ -28,6 +30,7 @@ type Props = {
     isAssignee?: boolean;
     isArchived?: boolean;
     editHistory?: TaskEvent[];
+    mentionableUsers?: MentionableUser[];
     onDelete?: (commentId: string) => Promise<void>;
     onUpdate?: () => Promise<void>;
 };
@@ -72,17 +75,16 @@ function AttachmentSection({ attachments }: { attachments: TaskAttachment[] }) {
     );
 }
 
-export default function TaskTimelineComment({ event, actorName, deletedEvent, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editHistory, onDelete, onUpdate }: Props) {
+export default function TaskTimelineComment({ event, actorName, deletedEvent, currentUserId, isAdmin, isTaskOwner, isAssignee, isArchived = false, editHistory, mentionableUsers, onDelete, onUpdate }: Props) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
 
     const isDeleted = !!deletedEvent;
-    const message = isDeleted
+    const rawMessage = isDeleted
         ? "(Kommentar slettet)"
         : event.comment?.message ?? event.message ?? "";
-
     const attachments = event.comment?.attachments ?? [];
     const images = attachments.filter((a) => a.type === "IMAGE" && a.mime_type !== AllowedMimeType.HEIC);
 
@@ -136,18 +138,22 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                         <div className="ml-auto flex min-h-7 items-center justify-end gap-1 shrink-0">
                             {editHistory && editHistory.length > 0 && (
                                 <EditHistoryPopover
-                                    edits={[...editHistory].reverse().map((e) => ({
-                                        name: e.actor?.name ?? e.actor?.email ?? "Ukendt bruger",
-                                        imageUrl: e.actor?.profile_picture_url,
-                                        timeLabel: formatCommentDate(e.created_at),
-                                        beforeText: (e.before_json as Record<string, unknown> | null)?.message as string | undefined,
-                                        afterText: e.type === "COMMENT_DELETED" ? "" : (e.after_json as Record<string, unknown> | null)?.message as string | undefined,
-                                    }))}
+                                    edits={[...editHistory].reverse().map((e) => {
+                                        const raw = e.before_json as Record<string, unknown> | null;
+                                        const rawAfter = e.after_json as Record<string, unknown> | null;
+                                        return {
+                                            name: e.actor?.name ?? e.actor?.email ?? "Ukendt bruger",
+                                            imageUrl: e.actor?.profile_picture_url,
+                                            timeLabel: formatCommentDate(e.created_at),
+                                            beforeText: raw?.message ? tokenToDisplayText(raw.message as string) : undefined,
+                                            afterText: e.type === "COMMENT_DELETED" ? "" : rawAfter?.message ? tokenToDisplayText(rawAfter.message as string) : undefined,
+                                        };
+                                    })}
                                     created={{
                                         name: actorName,
                                         imageUrl: event.actor?.profile_picture_url,
                                         timeLabel: formatCommentDate(event.created_at),
-                                        afterText: (editHistory[0]?.before_json as Record<string, unknown> | null)?.message as string | undefined,
+                                        afterText: (() => { const m = (editHistory[0]?.before_json as Record<string, unknown> | null)?.message; return m ? tokenToDisplayText(m as string) : undefined; })(),
                                     }}
                                 />
                             )}
@@ -192,26 +198,27 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                     <div className="px-4 py-4">
                         {editing && commentId ? (
                             <CommentEditForm
-                                initialText={message}
+                                initialText={rawMessage}
                                 existingAttachments={attachments}
                                 taskId={event.task_id}
                                 commentId={commentId}
+                                mentionableUsers={mentionableUsers}
                                 onSave={async () => { await onUpdate?.(); setEditing(false); }}
                                 onCancel={() => setEditing(false)}
                             />
                         ) : (
                             <>
-                                {message && (
+                                {rawMessage && (
                                     <LinkedText
                                         as="p"
-                                        text={message}
+                                        text={rawMessage}
                                         className="body-sm leading-relaxed whitespace-pre-wrap"
                                         style={isDeleted ? { color: colors.textMuted, fontStyle: "italic" } : undefined}
                                     />
                                 )}
                                 {attachments.length > 0 && (
                                     <>
-                                        {message && <hr style={{ borderColor: colors.border }} className="mt-3" />}
+                                        {rawMessage && <hr style={{ borderColor: colors.border }} className="mt-3" />}
                                         <AttachmentSection attachments={attachments} />
                                     </>
                                 )}

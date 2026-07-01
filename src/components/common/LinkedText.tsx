@@ -2,12 +2,15 @@
 
 import LinkifyIt from "linkify-it";
 import type { CSSProperties, ReactNode } from "react";
+import UserCard from "@/components/common/UserCard";
+import { TOKEN_SRC } from "@/lib/tiptapMentions";
 
 const linkify = new LinkifyIt({
   fuzzyEmail: false,
   fuzzyIP: false,
   fuzzyLink: false,
 });
+
 
 type LinkedTextProps = {
   text: string;
@@ -17,6 +20,24 @@ type LinkedTextProps = {
   linkClassName?: string;
 };
 
+type Segment =
+  | { type: "text"; value: string }
+  | { type: "mention"; name: string; userId: string };
+
+function splitMentionTokens(text: string): Segment[] {
+  const re = new RegExp(TOKEN_SRC, "g");
+  const parts: Segment[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push({ type: "text", value: text.slice(last, m.index) });
+    parts.push({ type: "mention", name: m[1], userId: m[2] });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push({ type: "text", value: text.slice(last) });
+  return parts.length > 0 ? parts : [{ type: "text", value: text }];
+}
+
 export default function LinkedText({
   text,
   as: Component = "span",
@@ -24,38 +45,55 @@ export default function LinkedText({
   style,
   linkClassName = "underline hover:opacity-70",
 }: LinkedTextProps) {
-  const matches = linkify.match(text)?.filter((match) => /^https?:\/\//i.test(match.url)) ?? [];
+  const urlMatches = linkify.match(text)?.filter((match) => /^https?:\/\//i.test(match.url)) ?? [];
 
-  if (matches.length === 0) {
+  if (urlMatches.length === 0 && !text.includes("@[")) {
     return <Component className={className} style={style}>{text}</Component>;
   }
 
-  const nodes: ReactNode[] = [];
+  const urlParts: { type: "text" | "link"; value: string; url?: string }[] = [];
   let lastIndex = 0;
 
-  matches.forEach((match) => {
+  urlMatches.forEach((match) => {
     if (match.index > lastIndex) {
-      nodes.push(text.slice(lastIndex, match.index));
+      urlParts.push({ type: "text", value: text.slice(lastIndex, match.index) });
     }
-
-    nodes.push(
-      <a
-        key={`${match.index}-${match.lastIndex}`}
-        href={match.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={linkClassName}
-      >
-        {text.slice(match.index, match.lastIndex)}
-      </a>
-    );
-
+    urlParts.push({ type: "link", value: text.slice(match.index, match.lastIndex), url: match.url });
     lastIndex = match.lastIndex;
   });
 
-  if (lastIndex < text.length) {
-    nodes.push(text.slice(lastIndex));
-  }
+  if (lastIndex < text.length) urlParts.push({ type: "text", value: text.slice(lastIndex) });
+  if (urlParts.length === 0) urlParts.push({ type: "text", value: text });
+
+  const nodes: ReactNode[] = [];
+  urlParts.forEach((part, partIdx) => {
+    if (part.type === "link") {
+      nodes.push(
+        <a
+          key={`link-${partIdx}`}
+          href={part.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClassName}
+        >
+          {part.value}
+        </a>
+      );
+      return;
+    }
+
+    splitMentionTokens(part.value).forEach((seg, segIdx) => {
+      if (seg.type === "mention") {
+        nodes.push(
+          <UserCard key={`mention-${partIdx}-${segIdx}`} userId={seg.userId} name={seg.name}>
+            <span className="font-semibold cursor-pointer underline">@{seg.name}</span>
+          </UserCard>
+        );
+      } else {
+        nodes.push(seg.value);
+      }
+    });
+  });
 
   return <Component className={className} style={style}>{nodes}</Component>;
 }

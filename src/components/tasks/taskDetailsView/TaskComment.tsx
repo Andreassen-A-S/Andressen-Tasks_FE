@@ -10,23 +10,30 @@ import { AllowedMimeType, ALLOWED_MIME_TYPE_VALUES, MAX_ATTACHMENTS, MAX_FILE_SI
 import { colors } from "@/constants/colors";
 import { toast } from "sonner";
 import UserCard from "@/components/common/UserCard";
+import type { MentionableUser } from "@/types/users";
+import MentionEditor, { type MentionEditorHandle } from "@/components/common/MentionEditor";
+import { tiptapToTokenText, extractMentionUserIdsFromJson, emptyDoc } from "@/lib/tiptapMentions";
+import type { JSONContent } from "@tiptap/core";
 
 interface TaskCommentProps {
   taskId: string;
   currentUser: { user_id?: string; name?: string; email?: string; profile_picture_url?: string | null };
-  onSubmit: (message: string, uploadTokens: string[]) => Promise<void>;
+  onSubmit: (message: string, uploadTokens: string[], mentionUserIds?: string[]) => Promise<void>;
+  mentionableUsers?: MentionableUser[];
 }
 
 
-export default function TaskComment({ taskId, currentUser, onSubmit }: TaskCommentProps) {
-  const [comment, setComment] = useState("");
+export default function TaskComment({ taskId, currentUser, onSubmit, mentionableUsers = [] }: TaskCommentProps) {
+  const [editorState, setEditorState] = useState<{ isEmpty: boolean; json: JSONContent }>({ isEmpty: true, json: emptyDoc });
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editorRef = useRef<MentionEditorHandle>(null);
   const attachmentsRef = useRef(attachments);
 
-  const hasContent = comment.trim().length > 0 || attachments.length > 0;
+  const hasContent = tiptapToTokenText(editorState.json).trim().length > 0 || attachments.length > 0;
 
   useEffect(() => {
     attachmentsRef.current = attachments;
@@ -91,7 +98,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
 
   function handlePaste(e: React.ClipboardEvent) {
     const files = Array.from(e.clipboardData.files);
-    if (files.length) addFiles(files);
+    if (files.length) { e.preventDefault(); addFiles(files); }
   }
 
   function removeAttachment(id: string) {
@@ -123,8 +130,10 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
         tokens.push(...prepared.map((p) => p.upload_token));
       }
 
-      await onSubmit(comment.trim(), tokens);
-      setComment("");
+      const tokenText = tiptapToTokenText(editorState.json).trim();
+      const mentionUserIds = extractMentionUserIdsFromJson(editorState.json);
+      await onSubmit(tokenText, tokens, mentionUserIds.length > 0 ? mentionUserIds : undefined);
+      editorRef.current?.clear();
       setAttachments((prev) => {
         prev.forEach((a) => { if (a.previewUrl) URL.revokeObjectURL(a.previewUrl); });
         return [];
@@ -149,25 +158,25 @@ export default function TaskComment({ taskId, currentUser, onSubmit }: TaskComme
             <h3 className="h4">Tilføj en kommentar</h3>
           </div>
 
-          {/* Textarea box */}
+          {/* Editor box */}
           <div
-            className="rounded-lg overflow-hidden transition-colors bg-background"
+            className="rounded-lg overflow-hidden transition-colors"
             style={{
               border: `1px solid ${dragOver ? colors.blue : colors.border}`,
             }}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
+            onPaste={handlePaste}
           >
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              onPaste={handlePaste}
+            <MentionEditor
+              ref={editorRef}
+              mentionableUsers={mentionableUsers}
               placeholder="Skriv din kommentar her..."
               disabled={uploading}
-              rows={4}
-              className="w-full px-4 py-3 body-md resize-y focus:outline-none disabled:cursor-not-allowed bg-background"
-              style={{ color: colors.textPrimary }}
+              onUpdate={setEditorState}
+              onSubmit={handleSubmit}
+              className="w-full px-4 py-3 body-md min-h-[96px]"
             />
 
             {/* Attachment previews inside box */}
