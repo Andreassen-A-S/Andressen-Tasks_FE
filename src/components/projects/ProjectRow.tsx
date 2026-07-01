@@ -42,7 +42,8 @@ export default function ProjectRow({ project, taskCount, templateCount, tasks, o
                     className="block label-lg mb-1 hover:underline"
                     style={{ color: colors.textPrimary }}
                 >
-                    {project.name}</Link>
+                    {project.name}
+                </Link>
 
                 {/* Line 2: description */}
                 {project.description && (
