@@ -33,7 +33,9 @@ const variantHoverBg: Record<ButtonVariant, string> = {
   primary: colors.greenHover,
   secondary: colors.muted,
   danger: colors.redLight,
-  ghost: colors.border,
+  // Opacity-based (not a fixed token) so ghost buttons stay legible on any
+  // surface color they're placed on, e.g. bg-accent-surface vs bg-surface.
+  ghost: "color-mix(in srgb, currentColor 8%, transparent)",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -71,10 +73,12 @@ export default function Button({
 
   const resolvedVariantStyle: CSSProperties =
     variant === "ghost" && dropdownOpen
-      ? { ...variantBaseStyle[variant], backgroundColor: colors.muted }
+      ? { ...variantBaseStyle[variant], backgroundColor: "color-mix(in srgb, currentColor 10%, transparent)" }
       : variantBaseStyle[variant];
   const resolvedHoverBg =
-    variant === "ghost" && dropdownOpen ? colors.border : variantHoverBg[variant];
+    variant === "ghost" && dropdownOpen
+      ? "color-mix(in srgb, currentColor 16%, transparent)"
+      : variantHoverBg[variant];
 
   const button = (
     <button

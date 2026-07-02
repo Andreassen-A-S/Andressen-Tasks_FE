@@ -34,16 +34,19 @@ export default function DetailsSectionHeader({ label, onGearClick, onClose, isOp
           marginRight: "-8px",
           paddingLeft: "8px",
           paddingRight: "8px",
-          backgroundColor: isOpen ? colors.muted : "transparent",
+          color: colors.textSecondary,
+          backgroundColor: isOpen ? "color-mix(in srgb, currentColor 10%, transparent)" : "transparent",
           opacity: disabled ? 0.7 : 1,
         }}
         onMouseEnter={(e) => {
           if (disabled) return;
-          e.currentTarget.style.backgroundColor = isOpen ? colors.border : colors.muted;
+          e.currentTarget.style.backgroundColor = isOpen
+            ? "color-mix(in srgb, currentColor 16%, transparent)"
+            : "color-mix(in srgb, currentColor 8%, transparent)";
         }}
         onMouseLeave={(e) => {
           if (disabled) return;
-          e.currentTarget.style.backgroundColor = isOpen ? colors.muted : "transparent";
+          e.currentTarget.style.backgroundColor = isOpen ? "color-mix(in srgb, currentColor 10%, transparent)" : "transparent";
         }}
       >
         <h3

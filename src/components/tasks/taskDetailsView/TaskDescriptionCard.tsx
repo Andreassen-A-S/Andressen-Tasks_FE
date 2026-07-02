@@ -79,10 +79,10 @@ export default function TaskDescriptionCard({
             <div className={`w-full overflow-hidden rounded-lg border bg-background ${isAuthor ? "border-accent/30" : "border-border"}`}>
                 {/* Card Header */}
                 <div className={`pl-4 pr-1 py-1 flex items-center gap-1 border-b ${isAuthor ? "border-accent/30 bg-accent-surface" : "border-border bg-surface"}`}>
-                    <div className="flex items-center gap-1 min-w-0">
-                        <span className="label-lg">{creatorName}</span>
-                        <span className="body-xs">åbnet</span>
-                        <span className="body-xs">{formatRelativeDate(createdAt)}</span>
+                    <div className="flex items-center gap-1 min-w-0 body-sm">
+                        <span className="font-semibold text-text-primary">{creatorName}</span>
+                        <span>åbnet</span>
+                        <span>{formatRelativeDate(createdAt)}</span>
                     </div>
                     <div className="ml-auto flex items-center">
 
@@ -150,7 +150,7 @@ export default function TaskDescriptionCard({
                                 </div>
                             </div>
                         ) : description ? (
-                            <div className="body-md leading-relaxed whitespace-pre-line">
+                            <div className="body-sm leading-relaxed whitespace-pre-line">
                                 {description}
                             </div>
                         ) : (

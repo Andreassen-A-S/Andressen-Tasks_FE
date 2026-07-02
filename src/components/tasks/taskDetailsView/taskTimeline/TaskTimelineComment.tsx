@@ -130,10 +130,10 @@ export default function TaskTimelineComment({ event, actorName, deletedEvent, cu
                     : <SingleAvatar name={actorName} size="md" border />
                 }
                 <div className={`flex-1 bg-background border rounded-lg overflow-hidden ${isAuthor ? "border-accent/30" : "border-border"}`}>
-                    <div className={`border-b pl-4 pr-1 py-1 flex items-center gap-1 ${isAuthor ? "border-accent/30 bg-accent-surface" : "border-border bg-surface"}`}>
-                        <span className="label-lg shrink-0">{actorName}</span>
-                        <span className="body-xs shrink-0">kommenterede</span>
-                        <span className="body-xs shrink-0">{formatCommentDate(event.created_at)}</span>
+                    <div className={`border-b pl-4 pr-1 py-1 flex items-center gap-1 body-sm ${isAuthor ? "border-accent/30 bg-accent-surface" : "border-border bg-surface"}`}>
+                        <span className="font-semibold text-text-primary shrink-0">{actorName}</span>
+                        <span className="shrink-0">kommenterede</span>
+                        <span className="shrink-0">{formatCommentDate(event.created_at)}</span>
 
                         <div className="ml-auto flex min-h-7 items-center justify-end gap-1 shrink-0">
                             {editHistory && editHistory.length > 0 && (
