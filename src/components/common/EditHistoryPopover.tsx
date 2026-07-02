@@ -69,7 +69,7 @@ export default function EditHistoryPopover({ edits, created }: Props) {
         <>
             <DropdownMenu
                 trigger={
-                    <Button variant="ghost">
+                    <Button variant="ghost" size="sm">
                         <span><span className="font-normal">Sidst redigeret af </span>{lastEditName}</span>
                         <ChevronDown className="w-3 h-3" />
                     </Button>

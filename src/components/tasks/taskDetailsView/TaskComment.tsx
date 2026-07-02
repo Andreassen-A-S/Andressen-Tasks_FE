@@ -176,7 +176,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
               disabled={uploading}
               onUpdate={setEditorState}
               onSubmit={handleSubmit}
-              className="w-full px-4 py-3 body-md min-h-[96px]"
+              className="w-full px-4 py-3 body-sm min-h-[96px]"
             />
 
             {/* Attachment previews inside box */}
