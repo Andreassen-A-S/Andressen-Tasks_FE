@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
-import { X, Paperclip } from "lucide-react";
+import { X, Paperclip, CornerDownLeft } from "lucide-react";
 import Button from "@/components/common/buttons/Button";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
 import { getFileExtension, formatNumber } from "@/helpers/helpers";
@@ -149,8 +149,8 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
     <div className="mt-8">
       <div className="flex items-start gap-3">
         {currentUser.user_id
-            ? <UserCard userId={currentUser.user_id} name={currentUser.name || currentUser.email || "Ukendt bruger"}><SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="md" border imageUrl={currentUser.profile_picture_url} /></UserCard>
-            : <SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="md" border imageUrl={currentUser.profile_picture_url} />
+          ? <UserCard userId={currentUser.user_id} name={currentUser.name || currentUser.email || "Ukendt bruger"}><SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="md" border imageUrl={currentUser.profile_picture_url} /></UserCard>
+          : <SingleAvatar name={currentUser.name || currentUser.email || "Ukendt bruger"} size="md" border imageUrl={currentUser.profile_picture_url} />
         }
 
         <div className="flex-1">
@@ -231,6 +231,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
               disabled={!hasContent || uploading}
               onClick={handleSubmit}
               tooltip={!hasContent ? "Skriv en kommentar først" : undefined}
+              kbd={<CornerDownLeft className="w-3.5 h-3.5" />}
             >
               Kommenter
             </Button>
