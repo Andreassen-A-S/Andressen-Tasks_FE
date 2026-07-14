@@ -90,6 +90,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
     e.target.value = "";
   }
 
+  // for dropping files in the editor area
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     setDragOver(false);
