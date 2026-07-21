@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import SingleAvatar from "@/components/common/label/SingleAvatar";
-import { X, Paperclip, CornerDownLeft } from "lucide-react";
+import { X, Paperclip, ChevronUp, Command } from "lucide-react";
 import Button from "@/components/common/buttons/Button";
 import { prepareAttachments, uploadToGcs } from "@/lib/api";
 import { getFileExtension, formatNumber } from "@/helpers/helpers";
@@ -14,6 +14,7 @@ import type { MentionableUser } from "@/types/users";
 import MentionEditor, { type MentionEditorHandle } from "@/components/common/MentionEditor";
 import { tiptapToTokenText, extractMentionUserIdsFromJson, emptyDoc } from "@/lib/tiptapMentions";
 import type { JSONContent } from "@tiptap/core";
+import { platform } from "os";
 
 interface TaskCommentProps {
   taskId: string;
@@ -232,7 +233,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
               disabled={!hasContent || uploading}
               onClick={handleSubmit}
               tooltip={!hasContent ? "Skriv en kommentar først" : undefined}
-              kbd={<CornerDownLeft className="w-3.5 h-3.5" />}
+              kbd={platform() === "darwin" ? "⌘ ↵" : "Ctrl ↵"}
             >
               Kommenter
             </Button>
