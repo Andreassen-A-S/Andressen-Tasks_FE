@@ -233,7 +233,7 @@ export default function TaskComment({ taskId, currentUser, onSubmit, mentionable
               disabled={!hasContent || uploading}
               onClick={handleSubmit}
               tooltip={!hasContent ? "Skriv en kommentar først" : undefined}
-              kbd={platform() === "darwin" ? "⌘ ↵" : "Ctrl ↵"}
+              kbd={platform() === "darwin" ? "⌘ ↵" : "Ctrl ↵"} // check if the user is on a Mac and show the appropriate keyboard shortcut
             >
               Kommenter
             </Button>
